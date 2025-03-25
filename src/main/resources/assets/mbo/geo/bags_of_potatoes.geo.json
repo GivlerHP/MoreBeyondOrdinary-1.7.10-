@@ -1,0 +1,29 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 0.75, 0]
+			},
+			"bones": [
+				{
+					"name": "bagsofpotatoes",
+					"pivot": [0, 0, 0],
+					"rotation": [0, 90, 0],
+					"cubes": [
+						{"origin": [-7, 7, -7], "size": [5, 3, 7], "uv": [23, 21]},
+						{"origin": [1.25, 0, -3], "size": [7, 4, 8], "pivot": [0, 0, 0], "rotation": [0, -40, 0], "uv": [0, 16]},
+						{"origin": [5, 0, -6], "size": [3, 2, 2], "uv": [22, 16]},
+						{"origin": [0.25, 0, -5], "size": [3, 2, 2], "pivot": [0, 0, 0], "rotation": [0, -40, 0], "uv": [23, 0]},
+						{"origin": [-7, 0, -7], "size": [7, 7, 9], "uv": [0, 0]}
+					]
+				}
+			]
+		}
+	]
+}

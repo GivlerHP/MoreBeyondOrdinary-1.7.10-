@@ -1,0 +1,7 @@
+# Игнорировать папку eclipse
+eclipse/
+
+# Игнорировать папку build
+build/
+
+MBO.iws
