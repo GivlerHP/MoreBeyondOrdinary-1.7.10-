@@ -71,7 +71,7 @@ public class ItemTotemHawk extends Item {
 
         }
         // Проигрываем звук НА СЕРВЕРЕ, чтобы он был слышен всем
-        world.playSoundAtEntity(player, "mbo:frostray", 1.0F, 1.0F);
+        world.playSoundAtEntity(player, "mbo:tailwind", 1.0F, 1.0F);
 
         itemStack.damageItem(50, player);
 

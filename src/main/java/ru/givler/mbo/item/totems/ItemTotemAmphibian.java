@@ -78,7 +78,7 @@ public class ItemTotemAmphibian extends Item {
 
         }
         // Проигрываем звук НА СЕРВЕРЕ, чтобы он был слышен всем
-        world.playSoundAtEntity(player, "block.brewing_stand.brew", 1.0F, 1.0F);
+        world.playSoundAtEntity(player, "mbo:bubble", 1.0F, 1.0F);
 
         itemStack.damageItem(50, player);
 

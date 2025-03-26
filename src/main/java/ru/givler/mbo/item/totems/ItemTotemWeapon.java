@@ -58,7 +58,7 @@ public class ItemTotemWeapon extends Item {
 
         }
         // Проигрываем звук НА СЕРВЕРЕ, чтобы он был слышен всем
-        world.playSoundAtEntity(player, "block.brewing_stand.brew", 1.0F, 1.0F);
+        world.playSoundAtEntity(player, "mbo:shield", 1.0F, 1.0F);
 
         return itemStack;
     }
