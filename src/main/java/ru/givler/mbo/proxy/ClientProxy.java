@@ -12,7 +12,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
-import ru.givler.mbo.particles.ParticleDarkMagic;
+import ru.givler.mbo.particles.ParticleWhiteMagic;
 import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.render.RenderCrossbow;
 import ru.givler.mbo.render.RenderLongsword;
@@ -54,11 +54,15 @@ public class ClientProxy extends CommonProxy {
         switch (type) {
             case DARK_MAGIC:
                 double velX = 0.1, velY = 0.1, velZ = 0.1;
-                float r = 1.0f, g = 0.0f, b = 0.0f;
-                Minecraft.getMinecraft().effectRenderer.addEffect(new ParticleDarkMagic(world, x, y, z, velX, velY, velZ, r, g, b));
+                float r = 1.0f, g = 1.0f, b = 1.0f;
+                // Создаём частицу
+                ParticleWhiteMagic particle = new ParticleWhiteMagic(world, x, y, z, velX, velY, velZ, r, g, b);
+                // Вызываем метод установки текстуры
+                particle.setBaseSpellTextureIndex(161);
+                Minecraft.getMinecraft().effectRenderer.addEffect(particle);
                 break;
         }
-        }
     }
+}
 
 

@@ -50,9 +50,7 @@ public class main {
     public static final String VERSION = "1.0";
 
     @Mod.EventHandler
-    public void preLoad(FMLInitializationEvent event) {
-        proxy.preInit(event);
-    }
+    public void preLoad(FMLInitializationEvent event) { proxy.preInit(event); }
     @Mod.EventHandler
     public void init(FMLInitializationEvent event){
         proxy.init(event);
