@@ -3,6 +3,7 @@ package ru.givler.mbo.item.totems;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -13,6 +14,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import ru.givler.mbo.main;
+import ru.givler.mbo.particles.ParticleDarkMagic;
 
 import java.util.List;
 
@@ -49,11 +51,18 @@ public class ItemTotemWeapon extends Item {
 
         if (world.isRemote) {
             for (int i = 0; i < 30; i++) {
-                world.spawnParticle("angryVillager",
-                        player.posX + (world.rand.nextDouble() - 0.5) * 2.0,
-                        player.posY + (world.rand.nextDouble() * 0.5) * -1.5,
-                        player.posZ + (world.rand.nextDouble() - 0.5) * 2.0,
-                        0.0, 0.1, 0.0);
+                double offsetX = (world.rand.nextDouble() - 0.5) * 2.0;
+                double offsetY = (world.rand.nextDouble() * 0.5) * -1.5;
+                double offsetZ = (world.rand.nextDouble() - 0.5) * 2.0;
+
+                // Добавляем кастомную частицу в эффекты
+                Minecraft.getMinecraft().effectRenderer.addEffect(new ParticleDarkMagic(
+                        world,
+                        player.posX + offsetX,
+                        player.posY + offsetY,
+                        player.posZ + offsetZ,
+                        0.0, 0.1, 0.0, 1.0f, 0.0f, 0.0f // Цвет и начальная скорость
+                ));
             }
 
         }
