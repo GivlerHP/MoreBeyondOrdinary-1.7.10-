@@ -1,11 +1,6 @@
 package ru.givler.mbo.item;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.EnumHelper;
 import cpw.mods.fml.common.registry.GameRegistry;
 import ru.givler.mbo.main;

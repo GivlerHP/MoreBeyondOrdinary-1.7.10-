@@ -1,11 +1,8 @@
 package ru.givler.mbo.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import ru.givler.mbo.ItemBlockMetadata;
 import ru.givler.mbo.main;
 

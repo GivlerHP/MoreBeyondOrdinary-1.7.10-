@@ -1,8 +1,7 @@
 package ru.givler.mbo;
 
 public enum EnumParticleType {
-    BLIZZARD,
-    BRIGHT_DUST,
+    SACRED,
     DARK_MAGIC,
     DUST,
     ICE,

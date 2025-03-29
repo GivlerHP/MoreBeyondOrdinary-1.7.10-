@@ -1,13 +1,11 @@
 package ru.givler.mbo.item;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import cpw.mods.fml.common.registry.GameRegistry;
-import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.main;
 
 public class ItemsBow extends ItemBow {

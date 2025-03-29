@@ -3,7 +3,6 @@ package ru.givler.mbo;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemMultiTexture;
 
-
 //необходимый класс для функционирование блоков с метаданными
 public class ItemBlockMetadata extends ItemMultiTexture {
 

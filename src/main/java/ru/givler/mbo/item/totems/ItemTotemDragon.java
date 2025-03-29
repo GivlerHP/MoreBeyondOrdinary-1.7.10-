@@ -1,12 +1,6 @@
 package ru.givler.mbo.item.totems;
 
-import java.util.List;
-
-import com.google.common.eventbus.Subscribe;
-
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,15 +9,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import ru.givler.mbo.main;
 
 //класс для создания предметов
 public class ItemTotemDragon extends Item {
-
-    boolean mode = false;
 
     public ItemTotemDragon(String name, String texture, int maxStackSize) {
         this.canRepair = false;
@@ -34,10 +24,6 @@ public class ItemTotemDragon extends Item {
         this.maxStackSize = maxStackSize;
         this.setFull3D();
         GameRegistry.registerItem(this, name);
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4) {
     }
 
     //при ударе этим предметом по существу, предмет потеряет прочность 1 ед.

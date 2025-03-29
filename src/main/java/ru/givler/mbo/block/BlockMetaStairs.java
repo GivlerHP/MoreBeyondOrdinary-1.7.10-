@@ -1,18 +1,9 @@
 package ru.givler.mbo.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.BlockStairs;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import ru.givler.mbo.ItemBlockMetadata;
-
-import java.util.List;
-
-
-
 
 // Класс создающий ступеньки из метаблоков (BlockMeta)
 public class BlockMetaStairs extends BlockStairs {

@@ -4,8 +4,6 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import ru.givler.mbo.main;
-import static net.minecraft.block.Block.soundTypeStone;
-
 
     public class BlockBasic extends Block {
 

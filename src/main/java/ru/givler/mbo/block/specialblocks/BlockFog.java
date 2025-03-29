@@ -5,15 +5,10 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.*;
 import net.minecraft.world.IBlockAccess;
-import ru.givler.mbo.registry.BlockRegistry;
-import software.bernie.geckolib3.renderers.geo.GeoBlockRenderer;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 
 import ru.givler.mbo.main;

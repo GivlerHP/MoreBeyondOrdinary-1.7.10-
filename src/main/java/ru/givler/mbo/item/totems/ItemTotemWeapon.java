@@ -1,19 +1,14 @@
 package ru.givler.mbo.item.totems;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.main;
-
-import java.util.List;
 
 import static ru.givler.mbo.registry.ItemRegistry.WeaponRapier;
 
@@ -61,13 +56,8 @@ public class ItemTotemWeapon extends Item {
         return itemStack;
     }
 
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-        list.add(EnumChatFormatting.AQUA + "При нажатии ПКМ призывает предмет!");
-    }
-
     @Override
     public EnumRarity getRarity(ItemStack itemStack) {
-        return EnumRarity.rare;
+        return EnumRarity.epic;
     }
 }
