@@ -36,9 +36,9 @@ public class BlockRegistry {
         BlockLimestonePavement = new BlockBasic(Material.rock, "BlockLimestonePavement", "stone/limestone_pavement");
 
         RoofStandart = new BlockMeta(Material.rock, "StandartRoof", "roof/roofk", 3);
-        RoofLaminated = new BlockMeta(Material.rock, "LaminatedRoof", "roof/roof1", 15);
-        RoofSheet = new BlockMeta(Material.rock, "SheetRoof", "roof/roof2", 15);
-        RoofFlake = new BlockMeta(Material.rock, "FlakeRoof", "roof/roof3", 15);
+        RoofLaminated = new BlockMeta(Material.rock, "LaminatedRoof", "roof/roof1", 16);
+        RoofSheet = new BlockMeta(Material.rock, "SheetRoof", "roof/roof2", 16);
+        RoofFlake = new BlockMeta(Material.rock, "FlakeRoof", "roof/roof3", 16);
         RoofWood = new BlockMeta(Material.wood, "RoofWood", "wood/roofwood", 6).setStepSound(Block.soundTypeWood);
 
         BlockSandstone = new BlockMeta(Material.rock, "BlockSandstone", "stone/sandstone", 3);
@@ -77,9 +77,9 @@ public class BlockRegistry {
         StairsStonebrick = new BlockMetaStairs((BlockMeta) BlockStonebrick, 0);
 
         BlockMetaStairs.registerStairs((BlockMeta) RoofStandart, 3);
-        BlockMetaStairs.registerStairs((BlockMeta) RoofLaminated, 15);
-        BlockMetaStairs.registerStairs((BlockMeta) RoofSheet, 15);
-        BlockMetaStairs.registerStairs((BlockMeta) RoofFlake, 15);
+        BlockMetaStairs.registerStairs((BlockMeta) RoofLaminated, 16);
+        BlockMetaStairs.registerStairs((BlockMeta) RoofSheet, 16);
+        BlockMetaStairs.registerStairs((BlockMeta) RoofFlake, 16);
         BlockMetaStairs.registerStairs((BlockMeta) RoofWood, 6);
 
 
@@ -90,8 +90,8 @@ public class BlockRegistry {
         StoneSandstine = new BlockBasicSlab(false,"StoneSandstine", "stone/sandstone_0");
 
         BlockMetaSlab.registerSlabs((BlockMeta) RoofStandart, 3, "roof/roofk" );
-        BlockMetaSlab.registerSlabs((BlockMeta) RoofLaminated, 15, "roof/roof1" );
-        BlockMetaSlab.registerSlabs((BlockMeta) RoofSheet, 15, "roof/roof2" );
+        BlockMetaSlab.registerSlabs((BlockMeta) RoofLaminated, 16, "roof/roof1" );
+        BlockMetaSlab.registerSlabs((BlockMeta) RoofSheet, 16, "roof/roof2" );
         BlockMetaSlab.registerSlabs((BlockMeta) RoofFlake, 16, "roof/roof3" );
         BlockMetaSlab.registerSlabs((BlockMeta) RoofWood, 6, "wood/roofwood" );
 
