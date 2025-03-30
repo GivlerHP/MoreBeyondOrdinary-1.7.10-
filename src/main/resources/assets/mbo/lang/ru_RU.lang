@@ -5,11 +5,77 @@ itemGroup.MBOblocks=[MBO] Блоки
 itemGroup.MBOitems=[MBO] Предметы
 itemGroup.MBOfoods=[MBO] Еда и напитки
 itemGroup.MBOdecors=[MBO] Декор
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Сообщения в чат/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 message.fog.warning=За туманом скрывается нечто ужасное... Если ты осмелишься ступить внутрь, готовься к сражению!
 message.fog.closed=Ты касаешься тумана, но он словно живая стена — не пропускает тебя внутрь...
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Блоки, ступеньки, плиты, ограда/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.BlockGreyStone.name=Серый камень
+tile.BlockGreyCobblestone.name=Серый булыжник
+tile.BlockGreyCobblesMossy.name=Серый замшелый булыжник
+tile.BlockEndbrick.name=Кирпич края
+tile.BlockImperialBrick.name=Имперский кирпич
+tile.BlockHeneizenBrick.name=Генезийский кирпич
+tile.BlockIrgadBrick.name=Иргадский кирпич
+
+tile.BlockSandstone.0.name=Крепкий песчаник
+tile.BlockSandstone.1.name=Крепкий гладкий песчаник
+tile.BlockSandstone.2.name=Крепкий резной песчаник
+
+tile.BlockStonebrick.0.name=Кирпич из серого камня
+tile.BlockStonebrick.1.name=Потрескавшийся кирпич из серого камня
+tile.BlockStonebrick.2.name=Замшелый кирпич из серого камня
+tile.BlockStonebrick.3.name=Резной кирпич из серого камня
+
+tile.BlockFogWhite.name=Белый туман
+tile.BlockFogGrey.name=Серый туман
+
+tile.TotemStone.name=Каменный тотем
+
+tile.BooksheelSkull.name=Книжная полка с черепом
+
+tile.DebarkedOak.name=Окоренный дуб
+tile.DebarkedSpruce.name=Окоренная ель
+tile.DebarkedBirch.name=Окоренная берёза
+tile.DebarkedJungle.name=Окоренное тропическое дерево
+tile.DebarkedAcacia.name=Окоренная акация
+tile.DebarkedBigOak.name=Окоренный тёмный дуб
+
+tile.WoodTotemOak.name=Тотемный дуб
+tile.WoodTotemSpruce.name=Тотемная ель
+tile.WoodTotemBirch.name=Тотемная берёза
+tile.WoodTotemJungle.name=Тотемное тропическое дерева
+tile.WoodTotemAcacia.name=Тотемная акация
+tile.WoodTotemBigOak.name=Тотемный тёмный дуб
+
+tile.tile.BlockStonebrick_stairs_0.0.name=Ступеньки из серого кирпича
+tile.tile.BlockSandstone_stairs_0.0.name=Ступеньки из крепкого песчаника
+
+tile.tile.BlockGreyStone_stairs.name=Ступеньки из серого камня
+tile.tile.BlockGreyCobblestone_stairs.name=Ступеньки из серого булыжника
+tile.tile.BlockEndbrick_stairs.name=Ступеньки из кирпича края
+tile.tile.BlockImperialBrick_stairs.name=Ступеньки из имперского кирпича
+tile.tile.BlockHeneizenBrick_stairs.name=Ступеньки из генезийского кирпича
+tile.tile.BlockIrgadBrick_stairs.name=Ступеньки из иргадского кирпича
+
+tile.SlabStonebrick_slab.name=Плита из серого кирпича
+tile.SlabSandstone_slab.name=Плита из крепкого песчаника
+
+tile.SlabStone_slab.name=Плита из серого камня
+tile.SlabCobblestone_slab.name=Плита из серого булыжника
+tile.SlabEndbrick_slab.name=Плита из кирпича края
+tile.SlabImperialBrick_slab.name=Плита из имперского кирпича
+tile.SlabHeneizenBrick_slab.name=Плита из генезийского кирпича
+tile.SlabIrgadBrick_slab.name=Плита из иргадского кирпича
+
+tile.WallStonebrick_wall.name=Ограда из серого кирпича
+tile.WallSandstone_wall.name=Ограда из крепкого песчаника
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Блоки черепицы/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -125,6 +191,7 @@ tile.tile.FlakeRoof_stairs_15.0.name=Ступеньки из оранжевой 
 tile.tile.StandartRoof_stairs_0.0.name=Ступеньки из пластинчатой черепицы
 tile.tile.StandartRoof_stairs_1.0.name=Ступеньки из листовой черепицы
 tile.tile.StandartRoof_stairs_2.0.name=Ступеньки из чешуйчатой черепицы
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Плита из черепицы/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,6 +249,7 @@ tile.tile.FlakeRoof_slab_15.0.name=Плита из оранжевой чешуй
 tile.tile.StandartRoof_slab_0.0.name=Плита из пластинчатой черепицы
 tile.tile.StandartRoof_slab_1.0.name=Плита из листовой черепицы
 tile.tile.StandartRoof_slab_2.0.name=Плита из чешуйчатой черепицы
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Кровля/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -205,3 +273,14 @@ tile.tile.RoofWood_slab_2.0.name=Плита из березовой кровли
 tile.tile.RoofWood_slab_3.0.name=Плита из кровли тропического дерева
 tile.tile.RoofWood_slab_4.0.name=Плита из кровли акации
 tile.tile.RoofWood_slab_5.0.name=Плита из кровли темного дуба
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Тотемы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.TotemAmphibian.name=Тотем амфибии
+item.TotemDragon.name=Тотем дракона
+item.TotemHawk.name=Тотем ястреба
+item.TotemMiner.name=Тотем шахтёра
+item.TotemOwl.name=Тотем совы
+item.TotemWeapon.name=Тотем призрачного оружия
+item.TotemCleansing.name=Тотем очищения
