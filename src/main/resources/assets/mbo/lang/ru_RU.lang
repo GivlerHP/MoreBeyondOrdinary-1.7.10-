@@ -10,3 +10,198 @@ itemGroup.MBOdecors=[MBO] Декор
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 message.fog.warning=За туманом скрывается нечто ужасное... Если ты осмелишься ступить внутрь, готовься к сражению!
 message.fog.closed=Ты касаешься тумана, но он словно живая стена — не пропускает тебя внутрь...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Блоки черепицы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.FlakeRoof.0.name=Черная чешуйчатая черепица
+tile.FlakeRoof.1.name=Синяя чешуйчатая черепица
+tile.FlakeRoof.2.name=Коричневая чешуйчатая черепица
+tile.FlakeRoof.3.name=Голубая чешуйчатая черепица
+tile.FlakeRoof.4.name=Серая чешуйчатая черепица
+tile.FlakeRoof.5.name=Зеленая чешуйчатая черепица
+tile.FlakeRoof.6.name=Бирюзовая чешуйчатая черепица
+tile.FlakeRoof.7.name=Лаймовая чешуйчатая черепица
+tile.FlakeRoof.8.name=Пурпурная чешуйчатая черепица
+tile.FlakeRoof.9.name=Желтая чешуйчатая черепица
+tile.FlakeRoof.10.name=Розовая чешуйчатая черепица
+tile.FlakeRoof.11.name=Фиолетовая чешуйчатая черепица
+tile.FlakeRoof.12.name=Красная чешуйчатая черепица
+tile.FlakeRoof.13.name=Светло-серая чешуйчатая черепица
+tile.FlakeRoof.14.name=Белая чешуйчатая черепица
+tile.FlakeRoof.15.name=Оранжевая чешуйчатая черепица
+
+tile.LaminatedRoof.0.name=Черная пластинчатая черепица
+tile.LaminatedRoof.1.name=Синяя пластинчатая черепица
+tile.LaminatedRoof.2.name=Коричневая пластинчатая черепица
+tile.LaminatedRoof.3.name=Голубая пластинчатая черепица
+tile.LaminatedRoof.4.name=Серая пластинчатая черепица
+tile.LaminatedRoof.5.name=Зеленая пластинчатая черепица
+tile.LaminatedRoof.6.name=Бирюзовая пластинчатая черепица
+tile.LaminatedRoof.7.name=Лаймовая пластинчатая черепица
+tile.LaminatedRoof.8.name=Пурпурная пластинчатая черепица
+tile.LaminatedRoof.9.name=Желтая пластинчатая черепица
+tile.LaminatedRoof.10.name=Розовая пластинчатая черепица
+tile.LaminatedRoof.11.name=Фиолетовая пластинчатая черепица
+tile.LaminatedRoof.12.name=Красная пластинчатая черепица
+tile.LaminatedRoof.13.name=Светло-серая пластинчатая черепица
+tile.LaminatedRoof.14.name=Белая пластинчатая черепица
+tile.LaminatedRoof.15.name=Оранжевая пластинчатая черепица
+
+tile.SheetRoof.0.name=Черная листовая черепица
+tile.SheetRoof.1.name=Синяя листовая черепица
+tile.SheetRoof.2.name=Коричневая листовая черепица
+tile.SheetRoof.3.name=Голубая листовая черепица
+tile.SheetRoof.4.name=Серая листовая черепица
+tile.SheetRoof.5.name=Зеленая листовая черепица
+tile.SheetRoof.6.name=Бирюзовая листовая черепица
+tile.SheetRoof.7.name=Лаймовая листовая черепица
+tile.SheetRoof.8.name=Пурпурная листовая черепица
+tile.SheetRoof.9.name=Желтая листовая черепица
+tile.SheetRoof.10.name=Розовая листовая черепица
+tile.SheetRoof.11.name=Фиолетовая листовая черепица
+tile.SheetRoof.12.name=Красная листовая черепица
+tile.SheetRoof.13.name=Светло-серая листовая черепица
+tile.SheetRoof.14.name=Белая листовая черепица
+tile.SheetRoof.15.name=Оранжевая листовая черепица
+
+tile.StandartRoof.0.name=Пластинчатая черепица
+tile.StandartRoof.1.name=Листовая черепица
+tile.StandartRoof.2.name=Чешуйчатая черепица
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Ступеньки из черепицы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.tile.LaminatedRoof_stairs_0.0.name=Ступеньки из черной пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_1.0.name=Ступеньки из синей пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_2.0.name=Ступеньки из коричневой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_3.0.name=Ступеньки из голубой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_4.0.name=Ступеньки из серой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_5.0.name=Ступеньки из зеленой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_6.0.name=Ступеньки из бирюзовой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_7.0.name=Ступеньки из лаймовой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_8.0.name=Ступеньки из пурпурной пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_9.0.name=Ступеньки из желтой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_10.0.name=Ступеньки из розовой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_11.0.name=Ступеньки из фиолетовой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_12.0.name=Ступеньки из красной пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_13.0.name=Ступеньки из светло-серой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_14.0.name=Ступеньки из белой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_15.0.name=Ступеньки из оранжевой пластинчатой черепицы
+
+tile.tile.SheetRoof_stairs_0.0.name=Ступеньки из черной листовой черепицы
+tile.tile.SheetRoof_stairs_1.0.name=Ступеньки из синей листовой черепицы
+tile.tile.SheetRoof_stairs_2.0.name=Ступеньки из коричневой листовой черепицы
+tile.tile.SheetRoof_stairs_3.0.name=Ступеньки из голубой листовой черепицы
+tile.tile.SheetRoof_stairs_4.0.name=Ступеньки из серой листовой черепицы
+tile.tile.SheetRoof_stairs_5.0.name=Ступеньки из зеленой листовой черепицы
+tile.tile.SheetRoof_stairs_6.0.name=Ступеньки из бирюзовой листовой черепицы
+tile.tile.SheetRoof_stairs_7.0.name=Ступеньки из лаймовой листовой черепицы
+tile.tile.SheetRoof_stairs_8.0.name=Ступеньки из пурпурной листовой черепицы
+tile.tile.SheetRoof_stairs_9.0.name=Ступеньки из желтой листовой черепицы
+tile.tile.SheetRoof_stairs_10.0.name=Ступеньки из розовой листовой черепицы
+tile.tile.SheetRoof_stairs_11.0.name=Ступеньки из фиолетовой листовой черепицы
+tile.tile.SheetRoof_stairs_12.0.name=Ступеньки из красной листовой черепицы
+tile.tile.SheetRoof_stairs_13.0.name=Ступеньки из светло-серой листовой черепицы
+tile.tile.SheetRoof_stairs_14.0.name=Ступеньки из белой листовой черепицы
+tile.tile.SheetRoof_stairs_15.0.name=Ступеньки из оранжевой листовой черепицы
+
+tile.tile.FlakeRoof_stairs_0.0.name=Ступеньки из черной чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_1.0.name=Ступеньки из синей чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_2.0.name=Ступеньки из коричневой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_3.0.name=Ступеньки из голубой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_4.0.name=Ступеньки из серой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_5.0.name=Ступеньки из зеленой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_6.0.name=Ступеньки из бирюзовой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_7.0.name=Ступеньки из лаймовой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_8.0.name=Ступеньки из пурпурной чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_9.0.name=Ступеньки из желтой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_10.0.name=Ступеньки из розовой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_11.0.name=Ступеньки из фиолетовой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_12.0.name=Ступеньки из красной чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_13.0.name=Ступеньки из светло-серой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_14.0.name=Ступеньки из белой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_15.0.name=Ступеньки из оранжевой чешуйчатой черепицы
+
+tile.tile.StandartRoof_stairs_0.0.name=Ступеньки из пластинчатой черепицы
+tile.tile.StandartRoof_stairs_1.0.name=Ступеньки из листовой черепицы
+tile.tile.StandartRoof_stairs_2.0.name=Ступеньки из чешуйчатой черепицы
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Плита из черепицы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.tile.LaminatedRoof_slab_0.0.name=Плита из черной пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_1.0.name=Плита из синей пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_2.0.name=Плита из коричневой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_3.0.name=Плита из голубой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_4.0.name=Плита из серой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_5.0.name=Плита из зеленой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_6.0.name=Плита из бирюзовой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_7.0.name=Плита из лаймовой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_8.0.name=Плита из пурпурной пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_9.0.name=Плита из желтой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_10.0.name=Плита из розовой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_11.0.name=Плита из фиолетовой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_12.0.name=Плита из красной пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_13.0.name=Плита из светло-серой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_14.0.name=Плита из белой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_15.0.name=Плита из оранжевой пластинчатой черепицы
+
+tile.tile.SheetRoof_slab_0.0.name=Плита из черной листовой черепицы
+tile.tile.SheetRoof_slab_1.0.name=Плита из синей листовой черепицы
+tile.tile.SheetRoof_slab_2.0.name=Плита из коричневой листовой черепицы
+tile.tile.SheetRoof_slab_3.0.name=Плита из голубой листовой черепицы
+tile.tile.SheetRoof_slab_4.0.name=Плита из серой листовой черепицы
+tile.tile.SheetRoof_slab_5.0.name=Плита из зеленой листовой черепицы
+tile.tile.SheetRoof_slab_6.0.name=Плита из бирюзовой листовой черепицы
+tile.tile.SheetRoof_slab_7.0.name=Плита из лаймовой листовой черепицы
+tile.tile.SheetRoof_slab_8.0.name=Плита из пурпурной листовой черепицы
+tile.tile.SheetRoof_slab_9.0.name=Плита из желтой листовой черепицы
+tile.tile.SheetRoof_slab_10.0.name=Плита из розовой листовой черепицы
+tile.tile.SheetRoof_slab_11.0.name=Плита из фиолетовой листовой черепицы
+tile.tile.SheetRoof_slab_12.0.name=Плита из красной листовой черепицы
+tile.tile.SheetRoof_slab_13.0.name=Плита из светло-серой листовой черепицы
+tile.tile.SheetRoof_slab_14.0.name=Плита из белой листовой черепицы
+tile.tile.SheetRoof_slab_15.0.name=Плита из оранжевой листовой черепицы
+
+tile.tile.FlakeRoof_slab_0.0.name=Плита из черной чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_1.0.name=Плита из синей чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_2.0.name=Плита из коричневой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_3.0.name=Плита из голубой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_4.0.name=Плита из серой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_5.0.name=Плита из зеленой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_6.0.name=Плита из бирюзовой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_7.0.name=Плита из лаймовой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_8.0.name=Плита из пурпурной чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_9.0.name=Плита из желтой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_10.0.name=Плита из розовой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_11.0.name=Плита из фиолетовой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_12.0.name=Плита из красной чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_13.0.name=Плита из светло-серой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_14.0.name=Плита из белой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_15.0.name=Плита из оранжевой чешуйчатой черепицы
+
+tile.tile.StandartRoof_slab_0.0.name=Плита из пластинчатой черепицы
+tile.tile.StandartRoof_slab_1.0.name=Плита из листовой черепицы
+tile.tile.StandartRoof_slab_2.0.name=Плита из чешуйчатой черепицы
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Кровля/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.RoofWood.0.name=Дубовая кровля
+tile.RoofWood.1.name=Еловая кровля
+tile.RoofWood.2.name=Березовая кровля
+tile.RoofWood.3.name=Кровля из тропического дерева
+tile.RoofWood.4.name=Кровля из акации
+tile.RoofWood.5.name=Кровля из темного дуба
+
+tile.tile.RoofWood_stairs_0.0.name=Ступеньки из дубовой кровли
+tile.tile.RoofWood_stairs_1.0.name=Ступеньки из еловой кровли
+tile.tile.RoofWood_stairs_2.0.name=Ступеньки из березовой кровли
+tile.tile.RoofWood_stairs_3.0.name=Ступеньки из кровли тропического дерева
+tile.tile.RoofWood_stairs_4.0.name=Ступеньки из кровли акации
+tile.tile.RoofWood_stairs_5.0.name=Ступеньки из кровли темного дуба
+
+tile.tile.RoofWood_slab_0.0.name=Плита из дубовой кровли
+tile.tile.RoofWood_slab_1.0.name=Плита из еловой кровли
+tile.tile.RoofWood_slab_2.0.name=Плита из березовой кровли
+tile.tile.RoofWood_slab_3.0.name=Плита из кровли тропического дерева
+tile.tile.RoofWood_slab_4.0.name=Плита из кровли акации
+tile.tile.RoofWood_slab_5.0.name=Плита из кровли темного дуба
