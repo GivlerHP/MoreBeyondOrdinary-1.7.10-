@@ -36,9 +36,9 @@ public class RenderCrossbow implements IItemRenderer {
             int frame = 0;
 
             // Определяем, какой кадр показывать в зависимости от времени натяжения
-            if (drawTime >= 35) {
+            if (drawTime >= 25) {
                 frame = 3;  // Лук сильно натянут
-            } else if (drawTime >= 20) {
+            } else if (drawTime >= 14) {
                 frame = 2;  // Лук средне натянут
             } else if (drawTime > 0) {
                 frame = 1;  // Лук немного натянут

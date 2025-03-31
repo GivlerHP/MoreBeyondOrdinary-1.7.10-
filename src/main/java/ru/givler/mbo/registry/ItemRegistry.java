@@ -45,7 +45,7 @@ public class ItemRegistry {
         WeaponRapier = new ItemsGhostWeapon("WeaponRapier", "weapon/mithrilsword", RustyMaterial, 40, 1, 1.0F);
 
         //ниже луки
-        OldBowHunting = new ItemsBow("BowРunting", "weapon/brokenlittlecrossbow", 8, 40, 3);
+        OldBowHunting = new ItemsBow("OldBowHunting", "weapon/brokenlittlecrossbow", 3, 25, 3);
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.OldBowHunting, new RenderCrossbow());
     }
 

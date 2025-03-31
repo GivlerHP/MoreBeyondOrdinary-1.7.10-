@@ -65,7 +65,7 @@ public class ClientProxy extends CommonProxy {
                 particle = new ParticleWhiteMagic(world, x, y, z, motionX, motionY, motionZ, r, g, b);
                 break;
             case DARK_MAGIC:
-                r = 0.1f; g = 0.1f; b = 0.3f;
+                r = 0.7f; g = 0.8f; b = 0.9f;
                 textureIndex = 162;
                 particle = new ParticleWhiteMagic(world, x, y, z, motionX, motionY, motionZ, r, g, b);
                 break;

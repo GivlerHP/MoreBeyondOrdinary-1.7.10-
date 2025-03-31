@@ -127,12 +127,12 @@ public class ModelRegistry {
         ModelDucks.setCollisionEnabled(false);
         bindDefaultRender(ModelRegistry.ModelDucks);
 
-        ModelFurKnife = new BlockModels(Material.cloth,"ModelFurKnife", "fur", "fur");
+        ModelFurKnife = new BlockModels(Material.cloth,"ModelFurKnife", "fur_with_a_knife", "fur_with_a_knife");
         ModelFurKnife.register();
         ModelFurKnife.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.1F, 1.0F);
         bindDefaultRender(ModelRegistry.ModelFurKnife);
 
-        ModelFur = new BlockModels(Material.cloth,"ModelFur", "fur_with_a_knife", "fur_with_a_knife");
+        ModelFur = new BlockModels(Material.cloth,"ModelFur", "fur", "fur");
         ModelFur.register();
         ModelFur.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.1F, 1.0F);
         bindDefaultRender(ModelRegistry.ModelFur);
