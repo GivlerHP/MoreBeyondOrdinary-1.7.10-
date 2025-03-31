@@ -275,6 +275,110 @@ tile.tile.RoofWood_slab_4.0.name=Плита из кровли акации
 tile.tile.RoofWood_slab_5.0.name=Плита из кровли темного дуба
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели портного/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelThreads.name=Катушки с нитками  
+tile.ModelTailorShelf.name=Портняжная полка  
+tile.ModelCloth.name=Рулон ткани  
+tile.ModelDummy.name=Манекен для одежды  
+tile.ModelHangers.name=Вешалки  
+tile.ModelPillow.name=Подушка для иголок
+tile.ModelRulers.name=Набор линеек
+tile.ModelScissors.name=Портняжные ножницы  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели алхимика/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelIngredients.name=Алхимические ингредиенты  
+tile.ModelCauldron.name=Алхимический котел  
+tile.ModelBottles.name=Алхимические бутылочки  
+tile.ModelBooks.name=Алхимические книги  
+tile.ModelAlchemistShelf.name=Полка алхимика  
+tile.ModelAlchemicalFlag.name=Алхимический флаг  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели охотника/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelArrow.name=Стрелы  
+tile.ModelBowWall.name=Лук на стене  
+tile.ModelBow.name=Лук  
+tile.ModelDucks.name=Трупы уток  
+tile.ModelFurKnife.name=Нож в шкуре
+tile.ModelFur.name=Шкура  
+tile.ModelHorn.name=Рог  
+tile.ModelLeatherDryer.name=Сушилка для кожи  
+tile.ModelRabbits.name=Трупы кроликов  
+tile.ModelMooseHead.name=Голова лося  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели обменщика/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelMagnifyinGlass.name=Лупа  
+tile.ModelBagGold.name=Мешок с золотом  
+tile.ModelCoins.name=Монеты  
+tile.ModelSmallChest.name=Маленький сундук  
+tile.ModelScales.name=Весы  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели фермера/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelBagsPotatoes.name=Мешки с картофелем  
+tile.ModelBasketApples.name=Корзина с яблоками  
+tile.ModelBasketBerries.name=Корзина с ягодами  
+tile.ModelBucket.name=Ведро  
+tile.ModelCarrot.name=Морковь  
+tile.ModelGarlic.name=Чеснок  
+tile.ModelHay.name=Сено
+tile.ModelHayfork.name=Вилы  
+tile.ModelJugs.name=Кувшины  
+tile.ModelShelfFlower.name=Полка фермера
+tile.ModelWateringСan.name=Лейка  
+tile.ModelWheelBarrow.name=Тачка 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели ювелира/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelFilledChest.name=Наполненный драгоценностями сундук  
+tile.ModelPliers.name=Плоскогубцы ювелира
+tile.ModelJewelryHammer.name=Ювелирный молоток  
+tile.ModelAmulet.name=Амулет  
+tile.ModelInstruments.name=Набор инструментов ювелира
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели регистраторши/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelLute.name=Лютня  
+tile.ModelBroom.name=Метла  
+tile.ModelWanted.name=Объявление
+tile.ModelPapers.name=Стопка бумаг  
+tile.ModelKeys.name=Набор ключей
+tile.ModelDeskBell.name=Настольный колокольчик  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели оружейника/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelSword.name=Меч  
+tile.ModelSwords.name=Мечи 
+tile.ModelShield1.name=Настенный щит с флагом
+tile.ModelShield2.name=Настенный деревянный щит
+tile.ModelShield3.name=Настенный железный щит  
+tile.ModelHelmet.name=Шлем  
+tile.ModelHammer.name=Молот  
+tile.ModelDragonSlayer.name=Убийца драконов
+tile.ModelAxe.name=Настенный топор
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели инженера/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelGas.name=Газовый баллон  
+tile.ModelOiler.name=Маслёнка  
+tile.ModelGears.name=Шестерёнки  
+tile.ModelDrawing1.name=Чертёж I  
+tile.ModelDrawing2.name=Чертёж II  
+tile.ModelClock.name=Настенные часы  
+tile.ModelBrokenMechanism.name=Сломанный механизм  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Тотемы/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 item.TotemAmphibian.name=Тотем амфибии
@@ -284,3 +388,41 @@ item.TotemMiner.name=Тотем шахтёра
 item.TotemOwl.name=Тотем совы
 item.TotemWeapon.name=Тотем призрачного оружия
 item.TotemCleansing.name=Тотем очищения
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Оружие/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.RustyLongsword.name=Ржавый двуручный меч
+item.WeaponRapier.name=Призрачная рапира
+item.OldBowHunting.name=Маленький охотничий лук
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Напитки/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.DrinkWine.name=Вино  
+item.DrinkAle.name=Эль  
+item.DrinkMead.name=Медовуха
+item.DrinkCider.name=Сидр  
+item.DrinkBarrelBeer.name=Бочка пива 
+item.DrinkBrandy.name=Бренди  
+item.DrinkMulledWine.name=Глинтвейн  
+item.DrinkTincure.name=Ягодная настойка  
+item.DrinkBreathWyvern.name=Дыхание виверны  
+item.DrinkBeer.name=Пиво  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Еда/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.FoodBacon.name=Бекон  
+item.FoodBlackBread.name=Чёрный хлеб  
+item.FoodBurger.name=Бутерброд 
+item.FoodChowder.name=Чаудер
+item.FoodDeliciousChicken.name=Куриная ножка
+item.FoodDeliciousSalad.name=Салат  
+item.FoodDivineSteak.name=Сочный стейк  
+item.FoodFreshBread.name=Свежий хлеб  
+item.FoodFriedSausage.name=Жареная колбаска 
+item.FoodCheese.name=Сыр  
+item.FoodSoup.name=Суп  
+item.FoodMeatPie.name=Мясной пирог  
+item.FoodStrangeFish.name=Странная рыба  
