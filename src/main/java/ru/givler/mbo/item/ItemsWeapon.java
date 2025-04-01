@@ -4,6 +4,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraftforge.common.util.EnumHelper;
 import cpw.mods.fml.common.registry.GameRegistry;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class ItemsWeapon extends ItemSword {
     private float scale;
@@ -13,7 +14,7 @@ public class ItemsWeapon extends ItemSword {
         this.canRepair = false;
         this.setUnlocalizedName(name);
         this.setTextureName(main.MODID + ":" + texture);
-        this.setCreativeTab(main.tabMBOitems);
+        this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(maxDamage);
         this.maxStackSize = maxStackSize;
         this.scale = scale;

@@ -16,30 +16,7 @@ import static ru.givler.mbo.registry.ItemRegistry.WeaponRapier;
 @Mod(modid = main.MODID, name = main.MODNAME, version = main.VERSION)
 public class main {
 
-    public static final CreativeTabs tabMBOblocks = new CreativeTabs("MBOblocks") {
-        @Override
-        public Item getTabIconItem() {                          //создаем меню в режиме креатива
-            return Item.getItemFromBlock(BlockImperialBrick);
-        }
-    };
-    public static final CreativeTabs tabMBOitems = new CreativeTabs("MBOitems") {
-        @Override
-        public Item getTabIconItem() {                          //создаем меню в режиме креатива
-            return (WeaponRapier);
-        }
-    };
-    public static final CreativeTabs tabMBOfoods = new CreativeTabs("MBOfoods") {
-        @Override
-        public Item getTabIconItem() {                          //создаем меню в режиме креатива
-            return (DrinkWine);
-        }
-    };
-    public static final CreativeTabs tabMBOdecors = new CreativeTabs("MBOdecors") {
-        @Override
-        public Item getTabIconItem() {                          //создаем меню в режиме креатива
-            return Item.getItemFromBlock((ModelDummy));
-        }
-    };
+
 
     @SidedProxy(clientSide = "ru.givler.mbo.proxy.ClientProxy", serverSide = "ru.givler.mbo.proxy.CommonProxy")
     public static CommonProxy proxy;

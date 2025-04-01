@@ -11,6 +11,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 //класс для создания предметов
 public class ItemTotemHawk extends Item {
@@ -19,7 +20,7 @@ public class ItemTotemHawk extends Item {
         this.canRepair = false;
         this.setUnlocalizedName(name);
         this.setTextureName(main.MODID + ":" + texture);
-        this.setCreativeTab(main.tabMBOitems);
+        this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(1200);
         this.maxStackSize = maxStackSize;
         this.setFull3D();

@@ -5,6 +5,7 @@ import net.minecraft.block.BlockSlab;
 import net.minecraft.item.Item;
 import ru.givler.mbo.ItemBlockMetadata;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class BlockMetaSlab extends BlockSlab {
         this.meta = meta;
 
         this.setBlockName(baseBlock.getUnlocalizedName() + "_slab_" + meta); // Уникальное имя
-        this.setCreativeTab(main.tabMBOblocks);
+        this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         this.setHardness(baseBlock.getBlockHardness(null, 0, 0, 0)); // Твёрдость
         this.setResistance(baseBlock.getExplosionResistance(null)); // Сопротивление взрывам
         this.setStepSound(baseBlock.stepSound); // Звук шага

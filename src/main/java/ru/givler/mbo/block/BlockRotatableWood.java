@@ -7,6 +7,7 @@ import net.minecraft.block.BlockLog;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class BlockRotatableWood extends BlockLog {
     private final String topTexture;
@@ -21,7 +22,7 @@ public class BlockRotatableWood extends BlockLog {
         this.sideTexture = textureSide;
 
         this.setBlockName(name);
-        this.setCreativeTab(main.tabMBOblocks);
+        this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         this.setHardness(2.0F);
         this.setResistance(5.0F);
         this.setStepSound(soundTypeWood);

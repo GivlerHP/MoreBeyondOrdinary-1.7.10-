@@ -17,6 +17,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import ru.givler.mbo.block.blockmodels.ModelTileBase;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class BlockModels extends BlockDirectional implements ITileEntityProvider {
 	private String name;
@@ -25,7 +26,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 	public BlockModels(Material material, String name, String texture, String model) {
 		super(material);
 		setBlockName(name);
-		setCreativeTab(main.tabMBOdecors);
+		setCreativeTab(CreativeTabRegistry.tabMBOdecors);
 		this.setHardness(1.0F);
 		this.setHarvestLevel("axe", 1);  // Устанавливаем инструмент, необходимый для добычи блока
 		this.setStepSound(soundTypeWood);              // Устанавливаем звук при размещении/разрушении блока

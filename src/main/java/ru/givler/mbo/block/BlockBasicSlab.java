@@ -5,6 +5,7 @@ import net.minecraft.block.BlockSlab;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.ItemSlab;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 
 //класс для создание полублоков
@@ -25,7 +26,7 @@ public class BlockBasicSlab extends BlockSlab {
         this.useNeighborBrightness = true; // Улучшенная обработка освещения
 
         if (!isDouble) {
-            this.setCreativeTab(main.tabMBOblocks);   //только одиночная плита добавляется в креативную панель
+            this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);   //только одиночная плита добавляется в креативную панель
         }
         GameRegistry.registerBlock(this, name);
     }

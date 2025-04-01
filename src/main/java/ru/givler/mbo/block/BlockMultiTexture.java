@@ -8,6 +8,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 //Класс для создания мультекстурных блоков. Вверх и низ - одна текстура. Боковые - другая.
 public class BlockMultiTexture extends Block {
@@ -25,7 +26,7 @@ public class BlockMultiTexture extends Block {
         this.setLightLevel(0.0F);
         this.setLightOpacity(0);
         this.setHardness(1.0F);
-        this.setCreativeTab(main.tabMBOblocks);
+        this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         this.setResistance(10.0F);
         this.setHarvestLevel("pick_axe", 0);
         this.setStepSound(soundTypeStone);

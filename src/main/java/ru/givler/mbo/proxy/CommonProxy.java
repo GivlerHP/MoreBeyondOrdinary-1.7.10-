@@ -1,14 +1,10 @@
 package ru.givler.mbo.proxy;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import net.minecraft.world.World;
-import net.minecraftforge.client.MinecraftForgeClient;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.registry.*;
-import ru.givler.mbo.render.RenderCrossbow;
-import ru.givler.mbo.render.RenderLongsword;
-import software.bernie.geckolib3.network.NetworkHandler;
+
 
 public class CommonProxy {
 
@@ -25,8 +21,7 @@ public class CommonProxy {
     }
 
     public void init(FMLInitializationEvent event){
-
-
+        CreativeTabRegistry.init(event);
     }
 
     public void postInit(FMLInitializationEvent event){

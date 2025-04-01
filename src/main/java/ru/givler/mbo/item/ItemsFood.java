@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class ItemsFood extends ItemFood {
         super(healAmount, saturation, isWolfFood);
         this.setUnlocalizedName(name);
         this.setTextureName(main.MODID + ":" + texture);
-        this.setCreativeTab(main.tabMBOfoods);
+        this.setCreativeTab(CreativeTabRegistry.tabMBOfoods);
         this.maxStackSize = maxStackSize;
         potionEffects = new ArrayList<>();  // Инициализация списка эффектов
         GameRegistry.registerItem(this, name);

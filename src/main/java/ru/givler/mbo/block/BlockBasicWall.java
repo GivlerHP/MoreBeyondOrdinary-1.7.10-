@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class BlockBasicWall extends BlockWall {
 
@@ -19,7 +20,7 @@ public class BlockBasicWall extends BlockWall {
         this.setLightLevel(0.0F);
         this.setLightOpacity(0);
         this.setHardness(1.0F);
-        this.setCreativeTab(main.tabMBOblocks);
+        this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         this.setResistance(10.0F);
         this.setHarvestLevel("pick_axe", 1);
         this.setStepSound(soundTypeStone);

@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import cpw.mods.fml.common.registry.GameRegistry;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class ItemsBow extends ItemBow {
     private final float drawSpeed;
@@ -18,7 +19,7 @@ public class ItemsBow extends ItemBow {
         this.setUnlocalizedName(name);
         this.texture = texture;
         this.setMaxDamage(maxDamage);
-        this.setCreativeTab(main.tabMBOitems);
+        this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.drawSpeed = drawSpeed;
         this.damageMultiplier = damageMultiplier;
         GameRegistry.registerItem(this, name);

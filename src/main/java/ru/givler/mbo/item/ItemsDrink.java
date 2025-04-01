@@ -8,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ public class ItemsDrink extends Item {
     public ItemsDrink(String name, String texture) {
         this.setUnlocalizedName(name);
         this.setTextureName(main.MODID + ":" + texture);
-        this.setCreativeTab(main.tabMBOfoods);
+        this.setCreativeTab(CreativeTabRegistry.tabMBOfoods);
         this.setMaxStackSize(1);
         GameRegistry.registerItem(this, name);
 
