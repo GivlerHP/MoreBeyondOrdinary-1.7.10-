@@ -22,6 +22,7 @@ public class CommonProxy {
 
     public void init(FMLInitializationEvent event){
         CreativeTabRegistry.init(event);
+
     }
 
     public void postInit(FMLInitializationEvent event){

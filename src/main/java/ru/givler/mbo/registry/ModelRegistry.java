@@ -10,7 +10,8 @@ import static ru.givler.mbo.proxy.ClientProxy.bindDefaultRender;
 
 public class ModelRegistry {
     //Интерьер портного
-    public static BlockModels ModelThreads, ModelTailorShelf, ModelCloth, ModelDummy, ModelHangers, ModelPillow, ModelRulers, ModelScissors;
+    public static BlockModels ModelThreads;
+    public static BlockModels  ModelTailorShelf, ModelCloth, ModelDummy, ModelHangers, ModelPillow, ModelRulers, ModelScissors;
     //Интерьер алхимика
     public static BlockModels ModelIngredients, ModelCauldron, ModelBottles, ModelBooks, ModelAlchemistShelf, ModelAlchemicalFlag;
     //Интерьер охотника
@@ -31,13 +32,15 @@ public class ModelRegistry {
     //Интерьер инженера
     public static BlockModels ModelGas, ModelOiler, ModelGears, ModelDrawing1, ModelDrawing2, ModelClock, ModelBrokenMechanism;
 
+    static {
+        ModelThreads = new BlockModels(Material.cloth, "ModelThreads", "threads", "threads");
+    }
 
     @Mod.EventHandler
     public static void init(FMLInitializationEvent event){
         //Модели для портного
-        ModelThreads = new BlockModels(Material.cloth,"ModelThreads", "threads", "threads");
         ModelThreads.register();
-        bindDefaultRender(ModelRegistry.ModelThreads);
+
 
         ModelTailorShelf = new BlockModels(Material.cloth,"ModelTailorShelf", "tailor's_shelf", "tailor's_shelf");
         ModelTailorShelf.register();

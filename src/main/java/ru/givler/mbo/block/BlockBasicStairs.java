@@ -3,6 +3,7 @@ package ru.givler.mbo.block;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.BlockStairs;
 import ru.givler.mbo.block.BlockBasic;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 
 //класс создающий ступеньки из блоков добавленных через класс BlockBasic
@@ -12,7 +13,7 @@ public class BlockBasicStairs extends BlockStairs {
         super(baseBlock, 0); // Используем текстуру базового блока
 
         this.setBlockName(baseBlock.getUnlocalizedName() + "_stairs"); // Название блока
-        this.setCreativeTab(baseBlock.getCreativeTabToDisplayOn()); // Креативная вкладка
+        this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         this.setHardness(baseBlock.getBlockHardness(null, 0, 0, 0)); // Твёрдость
         this.setResistance(baseBlock.getExplosionResistance(null)); // Сопротивление взрывам
         this.setStepSound(baseBlock.stepSound); // Звук шага

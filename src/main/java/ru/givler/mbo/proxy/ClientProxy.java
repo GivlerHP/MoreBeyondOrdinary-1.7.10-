@@ -16,6 +16,7 @@ import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
 import ru.givler.mbo.registry.ItemRegistry;
+import ru.givler.mbo.registry.ModelRegistry;
 import ru.givler.mbo.render.RenderCrossbow;
 import ru.givler.mbo.render.RenderLongsword;
 import ru.givler.mbo.render.decormodels.TemplateModelRenderer;
@@ -31,6 +32,7 @@ public class ClientProxy extends CommonProxy {
 
     public void init(FMLInitializationEvent event) {
         super.init(event);
+        bindDefaultRender(ModelRegistry.ModelThreads);
 
     }
 

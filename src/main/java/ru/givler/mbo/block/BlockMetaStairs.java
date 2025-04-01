@@ -4,6 +4,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.item.Item;
 import ru.givler.mbo.ItemBlockMetadata;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 // Класс создающий ступеньки из метаблоков (BlockMeta)
 public class BlockMetaStairs extends BlockStairs {
@@ -18,7 +19,7 @@ public class BlockMetaStairs extends BlockStairs {
 
 
         this.setBlockName(baseBlock.getUnlocalizedName() + "_stairs_" + meta ); // Уникальное имя
-        this.setCreativeTab(baseBlock.getCreativeTabToDisplayOn()); // Креативная вкладка
+        this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         this.setHardness(baseBlock.getBlockHardness(null, 0, 0, 0)); // Твёрдость
         this.setResistance(baseBlock.getExplosionResistance(null)); // Сопротивление взрывам
         this.setStepSound(baseBlock.stepSound); // Звук шага
