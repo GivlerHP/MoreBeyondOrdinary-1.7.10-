@@ -23,10 +23,18 @@ public class ItemRegistry {
     //ниже переменные для луков
     public static ItemBow OldBowHunting ;
 
+    static {
+        Item.ToolMaterial RustyMaterial = ItemsWeapon.createMaterial("RustyMaterial", 0, 800, 0.0F, 0.0F, 30);
+
+        RustyLongsword = new ItemsWeapon("RustyLongsword", "weapon/broadsword", RustyMaterial, 80, 1, 1.3F);
+        OldBowHunting = new ItemsBow("OldBowHunting", "weapon/brokenlittlecrossbow", 40, 25, -1);
+        WeaponRapier = new ItemsGhostWeapon("WeaponRapier", "weapon/mithrilsword", RustyMaterial, 40, 1, 1.0F);
+
+    }
+
     @Mod.EventHandler
     public static void preLoad(FMLInitializationEvent event) {
         //Ниже находятся материалы для оружия
-        Item.ToolMaterial RustyMaterial = ItemsWeapon.createMaterial("RustyMaterial", 0, 800, 0.0F, 0.0F, 30);
 
         //ниже тотемы
         TotemAmphibian = new ItemTotemAmphibian("TotemAmphibian", "staff", 1);
@@ -37,16 +45,8 @@ public class ItemRegistry {
         TotemWeapon = new ItemTotemWeapon("TotemWeapon", "staff", 1);
         TotemCleansing = new ItemTotemCleansing("TotemCleansing", "staff", 1);
 
-        //ниже ближнее оружие
-        RustyLongsword = new ItemsWeapon("RustyLongsword", "weapon/broadsword", RustyMaterial, 80, 1, 1.3F);
-        MinecraftForgeClient.registerItemRenderer(ItemRegistry.RustyLongsword, new RenderLongsword(ItemRegistry.RustyLongsword.getScale()));
-
-        //ниже призрачное оружие (пропадает спустя какое-то время)
-        WeaponRapier = new ItemsGhostWeapon("WeaponRapier", "weapon/mithrilsword", RustyMaterial, 40, 1, 1.0F);
-
-        //ниже луки
-        OldBowHunting = new ItemsBow("OldBowHunting", "weapon/brokenlittlecrossbow", 3, 25, 3);
-        MinecraftForgeClient.registerItemRenderer(ItemRegistry.OldBowHunting, new RenderCrossbow());
+        RustyLongsword.register();
+        ((ItemsBow) OldBowHunting).register();
     }
 
 }

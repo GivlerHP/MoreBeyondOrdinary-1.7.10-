@@ -33,7 +33,82 @@ public class ClientProxy extends CommonProxy {
     public void init(FMLInitializationEvent event) {
         super.init(event);
         bindDefaultRender(ModelRegistry.ModelThreads);
+        bindDefaultRender(ModelRegistry.ModelCloth);
+        bindDefaultRender(ModelRegistry.ModelTailorShelf);
+        bindDefaultRender(ModelRegistry.ModelDummy);
+        bindDefaultRender(ModelRegistry.ModelHangers);
+        bindDefaultRender(ModelRegistry.ModelPillow);
+        bindDefaultRender(ModelRegistry.ModelRulers);
+        bindDefaultRender(ModelRegistry.ModelScissors);
 
+        bindDefaultRender(ModelRegistry.ModelIngredients);
+        bindDefaultRender(ModelRegistry.ModelCauldron);
+        bindDefaultRender(ModelRegistry.ModelBottles);
+        bindDefaultRender(ModelRegistry.ModelBooks);
+        bindDefaultRender(ModelRegistry.ModelAlchemistShelf);
+        bindDefaultRender(ModelRegistry.ModelAlchemicalFlag);
+
+        bindDefaultRender(ModelRegistry.ModelArrow);
+        bindDefaultRender(ModelRegistry.ModelBowWall);
+        bindDefaultRender(ModelRegistry.ModelBow);
+        bindDefaultRender(ModelRegistry.ModelDucks);
+        bindDefaultRender(ModelRegistry.ModelFurKnife);
+        bindDefaultRender(ModelRegistry.ModelFur);
+        bindDefaultRender(ModelRegistry.ModelHorn);
+        bindDefaultRender(ModelRegistry.ModelLeatherDryer);
+        bindDefaultRender(ModelRegistry.ModelRabbits);
+        bindDefaultRender(ModelRegistry.ModelMooseHead);
+
+        bindDefaultRender(ModelRegistry.ModelMagnifyinGlass);
+        bindDefaultRender(ModelRegistry.ModelBagGold);
+        bindDefaultRender(ModelRegistry.ModelCoins);
+        bindDefaultRender(ModelRegistry.ModelSmallChest);
+        bindDefaultRender(ModelRegistry.ModelScales);
+
+        bindDefaultRender(ModelRegistry.ModelBagsPotatoes);
+        bindDefaultRender(ModelRegistry.ModelBasketApples);
+        bindDefaultRender(ModelRegistry.ModelBasketBerries);
+        bindDefaultRender(ModelRegistry.ModelBucket);
+        bindDefaultRender(ModelRegistry.ModelCarrot);
+        bindDefaultRender(ModelRegistry.ModelGarlic);
+        bindDefaultRender(ModelRegistry.ModelHay);
+        bindDefaultRender(ModelRegistry.ModelHayfork);
+        bindDefaultRender(ModelRegistry.ModelJugs);
+        bindDefaultRender(ModelRegistry.ModelShelfFlower);
+        bindDefaultRender(ModelRegistry.ModelWateringСan);
+        bindDefaultRender(ModelRegistry.ModelWheelBarrow);
+
+        bindDefaultRender(ModelRegistry.ModelFilledChest);
+        bindDefaultRender(ModelRegistry.ModelPliers);
+        bindDefaultRender(ModelRegistry.ModelJewelryHammer);
+        bindDefaultRender(ModelRegistry.ModelAmulet);
+        bindDefaultRender(ModelRegistry.ModelInstruments);
+
+        bindDefaultRender(ModelRegistry.ModelLute);
+        bindDefaultRender(ModelRegistry.ModelBroom);
+        bindDefaultRender(ModelRegistry.ModelWanted);
+        bindDefaultRender(ModelRegistry.ModelPapers);
+        bindDefaultRender(ModelRegistry.ModelKeys);
+        bindDefaultRender(ModelRegistry.ModelDeskBell);
+
+        bindDefaultRender(ModelRegistry.ModelSword);
+        bindDefaultRender(ModelRegistry.ModelSwords);
+        bindDefaultRender(ModelRegistry.ModelShield1);
+        bindDefaultRender(ModelRegistry.ModelShield2);
+        bindDefaultRender(ModelRegistry.ModelShield3);
+        bindDefaultRender(ModelRegistry.ModelHelmet);
+        bindDefaultRender(ModelRegistry.ModelHammer);
+        bindDefaultRender(ModelRegistry.ModelDragonSlayer);
+        bindDefaultRender(ModelRegistry.ModelAxe);
+
+        bindDefaultRender(ModelRegistry.ModelGas);
+        bindDefaultRender(ModelRegistry.ModelOiler);
+        bindDefaultRender(ModelRegistry.ModelGears);
+        bindDefaultRender(ModelRegistry.ModelDrawing1);
+        bindDefaultRender(ModelRegistry.ModelDrawing2);
+        bindDefaultRender(ModelRegistry.ModelClock);
+        bindDefaultRender(ModelRegistry.ModelBrokenMechanism);
+        registerRenderers();
     }
 
 
@@ -50,6 +125,7 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void registerRenderers() {
         // Используем метод регистрации рендерера для предмета
+
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.RustyLongsword, new RenderLongsword(ItemRegistry.RustyLongsword.getScale()));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.OldBowHunting, new RenderCrossbow());
     }

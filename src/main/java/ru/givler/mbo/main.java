@@ -24,7 +24,7 @@ public class main {
 
     public static final String MODID = "mbo";
     public static final String MODNAME = "MBO";
-    public static final String VERSION = "1.1";
+    public static final String VERSION = "1.1.2";
 
     @Mod.EventHandler
     public void preLoad(FMLInitializationEvent event) { proxy.preInit(event); }

@@ -18,7 +18,7 @@ public class ItemsWeapon extends ItemSword {
         this.setMaxDamage(maxDamage);
         this.maxStackSize = maxStackSize;
         this.scale = scale;
-        GameRegistry.registerItem(this, name);
+
     }
 
     // Методы для создания материалов
@@ -26,6 +26,9 @@ public class ItemsWeapon extends ItemSword {
         return EnumHelper.addToolMaterial(name, harvestLevel, durability, damage, efficiency, enchantability);
     }
 
+    public void register() {
+        GameRegistry.registerItem(this, this.getUnlocalizedName().substring(5));
+    }
     // Метод для получения масштаба
     public float getScale() {
         return scale;
