@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
@@ -71,6 +72,8 @@ public class ItemTotemDragon extends Item {
     }
 
     //если у игрока в инвенторе этот предмет, тогда он получает бафф.
+
+    @Override
     public void onUpdate(ItemStack stack, World world, Entity entity, int par4, boolean par5) {
         super.onUpdate(stack, world, entity, par4, par5);
 
@@ -81,14 +84,25 @@ public class ItemTotemDragon extends Item {
             if (equipped == stack) {
                 player.addPotionEffect(new PotionEffect(Potion.fireResistance.id, 2, 0, true));
 
+                // Используем уникальное время для каждого предмета
+                if (!stack.hasTagCompound()) {
+                    stack.setTagCompound(new NBTTagCompound());
+                }
+
+                long lastTimeChecked = stack.getTagCompound().getLong("lastTimeChecked");
+
                 // Уменьшаем прочность каждую секунду
                 if (!world.isRemote) {
-                    long currentTime = world.getWorldTime();
-                    // Если прошло больше 20 тиков (1 секунда)
-                    if (currentTime % 20 == 0) {
+                    long currentTimeMillis = System.currentTimeMillis();
+
+                    // Если прошло больше 1000 миллисекунд (1 секунда)
+                    if (currentTimeMillis - lastTimeChecked >= 1000) {
+                        stack.getTagCompound().setLong("lastTimeChecked", currentTimeMillis); // Обновляем время последней проверки
+
                         if (stack.getItemDamage() < stack.getMaxDamage()) {
                             stack.setItemDamage(stack.getItemDamage() + 1); // Уменьшаем прочность на 1
                         }
+
                         // Если прочность предмета достигла максимального значения (предмет ломается)
                         if (stack.getItemDamage() >= stack.getMaxDamage() - 1) {
                             player.setCurrentItemOrArmor(0, null);  // Убирает сломанный предмет
@@ -98,6 +112,8 @@ public class ItemTotemDragon extends Item {
             }
         }
     }
+
+
     //если предмет скрафчен. Например пишет в чат.
     public void onCreated(ItemStack itemStack, World world, EntityPlayer player) {
 

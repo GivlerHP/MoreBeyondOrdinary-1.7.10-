@@ -1,17 +1,9 @@
 package ru.givler.mbo;
 import cpw.mods.fml.common.SidedProxy;
 
-import net.minecraft.creativetab.CreativeTabs;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
-import net.minecraft.item.Item;
 import ru.givler.mbo.proxy.CommonProxy;
-
-import static ru.givler.mbo.registry.DrinkRegistry.DrinkWine;
-import static ru.givler.mbo.registry.ModelRegistry.ModelDummy;
-import static ru.givler.mbo.registry.BlockRegistry.BlockImperialBrick;
-import static ru.givler.mbo.registry.ItemRegistry.WeaponRapier;
-
 
 @Mod(modid = main.MODID, name = main.MODNAME, version = main.VERSION)
 public class main {
@@ -24,7 +16,7 @@ public class main {
 
     public static final String MODID = "mbo";
     public static final String MODNAME = "MBO";
-    public static final String VERSION = "1.1.2";
+    public static final String VERSION = "1.1.3";
 
     @Mod.EventHandler
     public void preLoad(FMLInitializationEvent event) { proxy.preInit(event); }
