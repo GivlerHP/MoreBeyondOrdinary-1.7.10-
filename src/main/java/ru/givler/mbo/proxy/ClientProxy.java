@@ -116,6 +116,7 @@ public class ClientProxy extends CommonProxy {
         bindRender(block, block.createNewTileEntity(null, 0), new TemplateModelRenderer());
     }
 
+
     public static void bindRender(Block block, TileEntity tile, TileEntitySpecialRenderer tesr) {
         ClientRegistry.bindTileEntitySpecialRenderer(tile.getClass(), tesr);
         Item blockItem = ItemBlock.getItemFromBlock(block);

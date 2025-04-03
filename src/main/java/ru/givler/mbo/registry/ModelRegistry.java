@@ -220,7 +220,7 @@ public class ModelRegistry {
         ModelHelmet.setBlockBounds(0.1F, 0.0F, 0.1F, 0.9F, 0.7F, 0.9F);
 
         ModelHammer = new BlockModels(Material.cloth,"ModelHammer", "hammer", "hammer");
-        ModelHammer.register();
+
 
         ModelDragonSlayer = new RotatableModelDragonSlayer(Material.cloth,"ModelDragonSlayer", "dragon_slayer", "dragon_slayer");
         ModelDragonSlayer.setStepSound(soundTypeAnvil);
@@ -331,6 +331,7 @@ public class ModelRegistry {
         ModelShield2.register();
         ModelShield3.register();
         ModelHelmet.register();
+        ModelHammer.register();
         ModelDragonSlayer.register();
         ModelAxe.register();
 
