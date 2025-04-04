@@ -64,10 +64,9 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 		GameRegistry.registerBlock(this, name);
 	}
 
-
 	@Override
 	public TileEntity createNewTileEntity(World p_149915_1_, int p_149915_2_) {
-			return new ModelTileBase(textureName, modelName);
+		return new ModelTileBase(textureName, modelName);
 	}
 
 	@SideOnly(Side.CLIENT)
