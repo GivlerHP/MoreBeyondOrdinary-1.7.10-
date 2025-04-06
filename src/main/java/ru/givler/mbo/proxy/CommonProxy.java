@@ -1,8 +1,10 @@
 package ru.givler.mbo.proxy;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.world.World;
 import ru.givler.mbo.EnumParticleType;
+import ru.givler.mbo.block.blockmodels.ModelTileBase;
 import ru.givler.mbo.registry.*;
 
 
@@ -22,6 +24,7 @@ public class CommonProxy {
 
     public void init(FMLInitializationEvent event){
         CreativeTabRegistry.init(event);
+        GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
 
     }
 
