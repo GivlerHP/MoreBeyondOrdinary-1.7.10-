@@ -20,6 +20,7 @@ public class CommonProxy {
         ModelRegistry.init(event);
         DrinkRegistry.preLoad(event);
         FoodRegistry.preLoad(event);
+        PlantRegistry.preLoad(event);
     }
 
     public void init(FMLInitializationEvent event){
