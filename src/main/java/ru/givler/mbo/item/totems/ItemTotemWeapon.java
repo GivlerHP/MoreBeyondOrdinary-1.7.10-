@@ -53,7 +53,7 @@ public class ItemTotemWeapon extends Item {
         }
         // Проигрываем звук НА СЕРВЕРЕ, чтобы он был слышен всем
         world.playSoundAtEntity(player, "mbo:blind", 1.0F, 1.0F);
-
+        player.swingItem();
         return itemStack;
     }
 

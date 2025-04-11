@@ -15,7 +15,7 @@ import ru.givler.mbo.render.RenderLongsword;
 
 public class ItemRegistry {
     //Ниже переменные для предметов тотемов
-    public static Item TotemAmphibian, TotemDragon, TotemHawk, TotemMiner, TotemOwl, TotemWeapon, TotemCleansing;
+    public static Item TotemAmphibian, TotemDragon, TotemHawk, TotemMiner, TotemOwl, TotemWeapon, TotemCleansing, TotemHealing;
     //ниже переменные для оружия ближнего боя
     public static ItemsWeapon RustyLongsword;
     //ниже переменные для призрачного оружия
@@ -44,6 +44,7 @@ public class ItemRegistry {
         TotemOwl = new ItemTotemOwl("TotemOwl", "staff", 1);
         TotemWeapon = new ItemTotemWeapon("TotemWeapon", "staff", 1);
         TotemCleansing = new ItemTotemCleansing("TotemCleansing", "staff", 1);
+        TotemHealing = new ItemTotemHealing("TotemHealing", "staff", 1);
 
         RustyLongsword.register();
         ((ItemsBow) OldBowHunting).register();

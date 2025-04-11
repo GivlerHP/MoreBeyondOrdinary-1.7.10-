@@ -60,7 +60,7 @@ public class ItemTotemDragon extends Item {
         }
         // Проигрываем звук НА СЕРВЕРЕ, чтобы он был слышен всем
         world.playSoundAtEntity(player, "mbo:bkdrattk", 1.0F, 1.0F);
-
+        player.swingItem();
         itemStack.damageItem(50, player);
 
         return itemStack;
