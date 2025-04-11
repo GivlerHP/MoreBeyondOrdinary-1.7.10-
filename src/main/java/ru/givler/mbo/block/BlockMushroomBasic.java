@@ -13,7 +13,7 @@ public class BlockMushroomBasic extends BlockMushroom {
         super();
 
         this.setBlockName(name);
-        this.setLightLevel(0.5F);
+        this.setLightLevel(0.7F);
         this.setLightOpacity(0);
         this.setHardness(0.2F);
         this.setResistance(1.0F);
@@ -26,7 +26,7 @@ public class BlockMushroomBasic extends BlockMushroom {
 
     @Override
     public int getRenderBlockPass() {
-        return 1; 
+        return 1;
     }
 
     @Override

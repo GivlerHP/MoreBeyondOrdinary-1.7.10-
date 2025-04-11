@@ -1,18 +1,18 @@
 package ru.givler.mbo.item.totems;
 
-import cpw.mods.fml.common.registry.GameRegistry;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.EnumRarity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
+        import cpw.mods.fml.common.registry.GameRegistry;
+        import net.minecraft.entity.Entity;
+        import net.minecraft.entity.EntityLivingBase;
+        import net.minecraft.entity.player.EntityPlayer;
+        import net.minecraft.item.EnumRarity;
+        import net.minecraft.item.Item;
+        import net.minecraft.item.ItemStack;
+        import net.minecraft.potion.Potion;
+        import net.minecraft.potion.PotionEffect;
 
-import net.minecraft.world.World;
-import ru.givler.mbo.main;
-import ru.givler.mbo.registry.CreativeTabRegistry;
+        import net.minecraft.world.World;
+        import ru.givler.mbo.main;
+        import ru.givler.mbo.registry.CreativeTabRegistry;
 
 //класс для создания предметов
 public class ItemTotemMiner extends Item {

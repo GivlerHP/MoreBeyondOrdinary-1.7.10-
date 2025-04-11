@@ -10,18 +10,21 @@ import ru.givler.mbo.block.specialblocks.*;
 
 public class BlockRegistry {
     //переменные для блоков
-    public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone, BlockSandstone,
-            BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick, RoofWood;
+    public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
+            BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
+            RoofWood, BlockFiredClay, BlockClayWall;
     //переменные для ступенек
     public static Block StairsStone, StairsSandstine, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
-            StairsEndbrick,  StairsImperialBrick, StaisrHeneizenBrick;
+            StairsEndbrick,  StairsImperialBrick, StaisrHeneizenBrick, StairsFiredClay;
     //переменные для плит
     public static Block SlabStone, SlabCobblestone, SlabStonebrick, SlabSandstone, SlabIrgadBrick, SlabEndbrick,
-             SlabImperialBrick, SlabHeneizenBrick;
+             SlabImperialBrick, SlabHeneizenBrick, SlabFiredClay;
     //переменные для мультитекстурных блоков
-    public static Block BooksheelSkull, TotemStone, DebarkedOak, DebarkedSpruce, DebarkedBirch, DebarkedJungle, DebarkedAcacia, DebarkedBigOak,
+    public static Block BooksheelSkull, BooksheelVoid, BooksheelWeb, BooksheelCandle, BooksheelSkullWeb, BooksheelSkullCandle,
+            TotemStone, DebarkedOak, DebarkedSpruce, DebarkedBirch, DebarkedJungle, DebarkedAcacia, DebarkedBigOak,
             WoodTotemOak, WoodTotemSpruce, WoodTotemBirch, WoodTotemJungle, WoodTotemAcacia, WoodTotemBigOak;
-    public static Block WallStonebrick, WallSandstone;
+    //переменные для ограды
+    public static Block WallStonebrick, WallSandstone, WallFiredClay;
     @Mod.EventHandler
     public static void preLoad(FMLInitializationEvent event) {
         BlockGreyStone = new BlockBasic(Material.rock, "BlockGreyStone", "stone/stone");
@@ -32,6 +35,8 @@ public class BlockRegistry {
         BlockImperialBrick = new BlockBasic(Material.rock, "BlockImperialBrick", "stone/imperial_brick");
         BlockHeneizenBrick = new BlockBasic(Material.rock, "BlockHeneizenBrick", "stone/heneizen_brick");
         BlockIrgadBrick = new BlockBasic(Material.rock, "BlockIrgadBrick", "stone/irgad_brick");
+        BlockFiredClay = new BlockBasic(Material.rock, "BlockFiredClay", "stone/brick_firedclay");
+        BlockClayWall = new BlockBasic(Material.wood, "BlockClayWall", "wood/clay_wall_old").setStepSound(Block.soundTypeWood);;
 
         RoofStandart = new BlockMeta(Material.rock, "StandartRoof", "roof/roofk", 3);
         RoofLaminated = new BlockMeta(Material.rock, "LaminatedRoof", "roof/roof1", 16);
@@ -42,7 +47,20 @@ public class BlockRegistry {
         BlockSandstone = new BlockMeta(Material.rock, "BlockSandstone", "stone/sandstone", 3);
         BlockStonebrick = new BlockMeta(Material.rock, "BlockStonebrick", "stone/stonebrick", 4);
 
-        BooksheelSkull = new BlockMultiTexture(Material.wood, "BooksheelSkull", "wood/planks_oak", "wood/bookshelf1").setLightLevel(0.5F);
+        BooksheelSkull = new BlockMultiTexture(Material.wood, "BooksheelSkull", "wood/planks_oak", "wood/bookshelf_skull")
+                .setStepSound(Block.soundTypeWood);
+        BooksheelVoid = new BlockMultiTexture(Material.wood, "BooksheelVoid", "wood/planks_oak", "wood/bookshelf_void")
+                .setStepSound(Block.soundTypeWood);
+        BooksheelWeb = new BlockMultiTexture(Material.wood, "BooksheelWeb", "wood/planks_oak", "wood/bookshelf_web")
+                .setStepSound(Block.soundTypeWood);
+        BooksheelCandle = new BlockMultiTexture(Material.wood, "BooksheelCandle", "wood/planks_oak", "wood/bookshelf_skull_candle")
+                .setLightLevel(0.75F).setStepSound(Block.soundTypeWood);
+        BooksheelSkullWeb = new BlockMultiTexture(Material.wood, "BooksheelSkullWeb", "wood/planks_oak", "wood/bookshelf_skull_web")
+                .setStepSound(Block.soundTypeWood);
+        BooksheelSkullCandle = new BlockMultiTexture(Material.wood, "BooksheelSkullCandle", "wood/planks_oak", "wood/bookshelf_candle")
+                .setLightLevel(0.75F).setStepSound(Block.soundTypeWood);
+
+
         TotemStone = new BlockMultiTexture(Material.rock, "TotemStone", "stone/stone_slab_top", "stone/totem_truesight");
 
         DebarkedOak = new BlockRotatableWood("DebarkedOak", "wood/log_oak_top",  "wood/scratched_log_oak_side");
@@ -69,6 +87,7 @@ public class BlockRegistry {
         StairsEndbrick = new BlockBasicStairs((BlockBasic) BlockEndbrick);
         StairsImperialBrick = new BlockBasicStairs((BlockBasic) BlockImperialBrick);
         StaisrHeneizenBrick = new BlockBasicStairs((BlockBasic) BlockHeneizenBrick);
+        StairsFiredClay = new BlockBasicStairs((BlockBasic) BlockFiredClay);
 
         StairsSandstine = new BlockMetaStairs((BlockMeta) BlockSandstone, 0);
         StairsStonebrick = new BlockMetaStairs((BlockMeta) BlockStonebrick, 0);
@@ -90,6 +109,7 @@ public class BlockRegistry {
         SlabEndbrick = new BlockBasicSlab(false,"SlabEndbrick", "stone/end_bricks");
         SlabImperialBrick = new BlockBasicSlab(false,"SlabImperialBrick", "stone/imperial_brick");
         SlabHeneizenBrick = new BlockBasicSlab(false,"SlabHeneizenBrick", "stone/heneizen_brick");
+        SlabFiredClay = new BlockBasicSlab(false,"SlabFiredClay", "stone/brick_firedclay");
 
         BlockMetaSlab.registerSlabs((BlockMeta) RoofStandart, 3, "roof/roofk" );
         BlockMetaSlab.registerSlabs((BlockMeta) RoofLaminated, 16, "roof/roof1" );
@@ -100,6 +120,7 @@ public class BlockRegistry {
         //НИЖЕ НАХОИДТСЯ ЗАБОР
         WallStonebrick = new BlockBasicWall(Blocks.stone, "WallStonebrick", "stone/stonebrick_0");
         WallSandstone = new BlockBasicWall(Blocks.stone, "WallSandstone", "stone/sandstone_0");
+        WallFiredClay = new BlockBasicWall(Blocks.stone, "WallFiredClay", "stone/brick_firedclay");
     }
 
 }
