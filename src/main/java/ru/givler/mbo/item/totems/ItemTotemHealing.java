@@ -64,7 +64,7 @@ public class ItemTotemHealing extends Item {
                 if (world.isRemote && world.rand.nextInt(6) == 0) { // 1 из 6 шанса каждый тик (~3 раза в секунду)
                     for (int i = 0; i < 2; i++) { // Генерируем 2 частицы
                         double angle = world.rand.nextDouble() * Math.PI * 2; // Угол по оси Y
-                        double radius = 4.0; // Радиус вокруг игрока (4 блока)
+                        double radius = 8.0;
                         double xOffset = Math.cos(angle) * radius * (world.rand.nextDouble() - 0.5) * 2; // Распределение по оси X
                         double yOffset = world.rand.nextDouble() * 1.0 * -1.5; // Распределение по оси Y
                         double zOffset = Math.sin(angle) * radius * (world.rand.nextDouble() - 0.5) * 2; // Распределение по оси Z

@@ -9,11 +9,13 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.World;
 import ru.givler.mbo.ItemBlockMetadata;
 import ru.givler.mbo.main;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.List;
+import java.util.Random;
 
 public class BlockMushroomMeta extends BlockMushroom {
 
@@ -57,6 +59,19 @@ public class BlockMushroomMeta extends BlockMushroom {
     @Override
     public int damageDropped(int meta) {
         return meta;
+    }
+
+    @Override
+    public boolean func_149884_c(World world, int x, int y, int z, Random random) {
+        if (!world.isRemote) {
+            // Шанс 25%
+            if (random.nextFloat() < 0.99F) {
+                int meta = world.getBlockMetadata(x, y, z);
+                ItemStack drop = new ItemStack(Item.getItemFromBlock(this), 1, meta);
+                this.dropBlockAsItem(world, x, y, z, drop);
+            }
+        }
+        return true;
     }
 
     @Override
