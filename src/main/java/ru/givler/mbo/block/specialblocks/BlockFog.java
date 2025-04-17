@@ -22,7 +22,7 @@ public class BlockFog extends Block {
         super(material);
 
         this.setBlockName(name);   // Устанавливаем внутреннее (регистрационное) имя блока
-        this.setLightLevel(0.0F);   // Устанавливаем уровень освещения блока (0.0F — не светится, 1.0F — максимальная яркость)
+        this.setLightLevel(0.6F);   // Устанавливаем уровень освещения блока (0.0F — не светится, 1.0F — максимальная яркость)
         this.setLightOpacity(0);   // Устанавливаем прозрачность блока (0 — полностью прозрачный, 255 — полностью непрозрачный)
         this.setHardness(1.0F);      // Устанавливаем твёрдость блока (1.0F — обычная твёрдость камня, 0.0F — моментально разрушается)
         this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);   // Добавляем блок в пользовательскую креативную вкладку
@@ -80,7 +80,7 @@ public class BlockFog extends Block {
             boolean hasBlindness = player.getActivePotionEffect(Potion.blindness) != null;
 
             if (!hasBlindness) {
-                player.addPotionEffect(new PotionEffect(Potion.blindness.id, 100, 2));
+                player.addPotionEffect(new PotionEffect(Potion.blindness.id, 100, 0));
                 player.addPotionEffect(new PotionEffect(Potion.confusion.id, 100, 0));
             }
         }

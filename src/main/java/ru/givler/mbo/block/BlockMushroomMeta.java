@@ -10,6 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
+import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.ItemBlockMetadata;
 import ru.givler.mbo.main;
 import ru.givler.mbo.registry.CreativeTabRegistry;
@@ -65,7 +66,7 @@ public class BlockMushroomMeta extends BlockMushroom {
     public boolean func_149884_c(World world, int x, int y, int z, Random random) {
         if (!world.isRemote) {
             // Шанс 25%
-            if (random.nextFloat() < 0.99F) {
+            if (random.nextFloat() < 0.5F) {
                 int meta = world.getBlockMetadata(x, y, z);
                 ItemStack drop = new ItemStack(Item.getItemFromBlock(this), 1, meta);
                 this.dropBlockAsItem(world, x, y, z, drop);
@@ -79,6 +80,24 @@ public class BlockMushroomMeta extends BlockMushroom {
     public void getSubBlocks(Item item, CreativeTabs tab, List list) {
         for (int i = 0; i < this.count; i++) {
             list.add(new ItemStack(item, 1, i));
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTick(World world, int x, int y, int z, Random rand) {
+        int meta = world.getBlockMetadata(x, y, z);
+
+        if (meta == 0) {
+            double px = x + 0.5 + (rand.nextDouble() - 0.5);
+            double py = y + 0.1 + rand.nextDouble() * 0.5;
+            double pz = z + 0.5 + (rand.nextDouble() - 0.5);
+
+            main.proxy.spawnParticle(
+                    EnumParticleType.DARK_MAGIC, world,
+                    px, py, pz,
+                    0.0, 0.1, 0.0
+            );
         }
     }
 

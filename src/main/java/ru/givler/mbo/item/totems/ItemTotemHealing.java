@@ -24,7 +24,7 @@ public class ItemTotemHealing extends Item {
         this.setUnlocalizedName(name);
         this.setTextureName(main.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
-        this.setMaxDamage(1200);
+        this.setMaxDamage(240);
         this.maxStackSize = maxStackSize;
         this.setFull3D();
         GameRegistry.registerItem(this, name);
@@ -47,7 +47,7 @@ public class ItemTotemHealing extends Item {
 
                     for (EntityPlayer target : players) {
 
-                        if (player.getDistanceToEntity(target) <= radius && target.getHealth() < target.getMaxHealth() && player.worldObj.getTotalWorldTime() % 40 == 0) {
+                        if (player.getDistanceToEntity(target) <= radius && target.getHealth() < target.getMaxHealth() && player.worldObj.getTotalWorldTime() % 60 == 0) {
                             target.heal(1.0F);
                         }
                         if (player.getDistanceToEntity(target) <= radius) {

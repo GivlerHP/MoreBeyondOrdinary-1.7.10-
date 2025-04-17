@@ -53,11 +53,11 @@ public class BlockRegistry {
                 .setStepSound(Block.soundTypeWood);
         BooksheelWeb = new BlockMultiTexture(Material.wood, "BooksheelWeb", "wood/planks_oak", "wood/bookshelf_web")
                 .setStepSound(Block.soundTypeWood);
-        BooksheelCandle = new BlockMultiTexture(Material.wood, "BooksheelCandle", "wood/planks_oak", "wood/bookshelf_skull_candle")
+        BooksheelCandle = new BlockMultiTexture(Material.wood, "BooksheelCandle", "wood/planks_oak", "wood/bookshelf_candle")
                 .setLightLevel(0.75F).setStepSound(Block.soundTypeWood);
         BooksheelSkullWeb = new BlockMultiTexture(Material.wood, "BooksheelSkullWeb", "wood/planks_oak", "wood/bookshelf_skull_web")
                 .setStepSound(Block.soundTypeWood);
-        BooksheelSkullCandle = new BlockMultiTexture(Material.wood, "BooksheelSkullCandle", "wood/planks_oak", "wood/bookshelf_candle")
+        BooksheelSkullCandle = new BlockMultiTexture(Material.wood, "BooksheelSkullCandle", "wood/planks_oak", "wood/bookshelf_skull_candle")
                 .setLightLevel(0.75F).setStepSound(Block.soundTypeWood);
 
 
