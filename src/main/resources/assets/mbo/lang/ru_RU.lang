@@ -41,7 +41,7 @@ tile.BlockFogGrey.name=Серый туман
 tile.TotemStone.name=Каменный тотем
 
 tile.BooksheelSkull.name=Книжная полка с черепом
-tile.BooksheeWeb.name=Книжная полка с паутиной
+tile.BooksheelWeb.name=Книжная полка с паутиной
 tile.BooksheelSkullWeb.name=Книжная полка с черепом и паутиной
 tile.BooksheelSkullCandle.name=Книжная полка со свечой и черепом
 tile.BooksheelCandle.name=Книжная полка со свечой
