@@ -444,3 +444,9 @@ item.FoodStrangeFish.name=Странная рыба
 tile.Glowshroom.0.name=Радужные сны
 tile.Glowshroom.1.name=Сопляк
 tile.Glowshroom.2.name=Фиолетовая радость
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Эффекты/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+potion.melee_damage=Сила ближнего боя
+potion.vampirism=Вампиризм
