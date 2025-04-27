@@ -21,6 +21,7 @@ public class CommonProxy {
         DrinkRegistry.preLoad(event);
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);
+        PotionRegistry.preLoad(event);
     }
 
     public void init(FMLInitializationEvent event){

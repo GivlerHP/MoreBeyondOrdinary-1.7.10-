@@ -22,6 +22,9 @@ tile.BlockEndbrick.name=End Brick
 tile.BlockImperialBrick.name=Imperial Brick
 tile.BlockHeneizenBrick.name=Heneizen Brick
 tile.BlockIrgadBrick.name=Irgad Brick
+tile.BlockFiredClay.name=Fired Bricks
+
+tile.BlockClayWall.name=Old Clay Wall
 
 tile.BlockSandstone.0.name=Reinforced Sandstone
 tile.BlockSandstone.1.name=Reinforced Smooth Sandstone
@@ -37,7 +40,13 @@ tile.BlockFogGrey.name=Grey Fog
 
 tile.TotemStone.name=Stone Totem
 
-tile.BooksheelSkull.name=Bookshelf with Skull
+
+tile.BooksheelSkull.name=Skull Bookshelf
+tile.BooksheelWeb.name=Web Bookshelf
+tile.BooksheelSkullWeb.name=Skull and Web Bookshelf
+tile.BooksheelSkullCandle.name=Skull and Candle Bookshelf
+tile.BooksheelCandle.name=Candle Bookshelf
+tile.BooksheelVoid.name=Half-Empty Bookshelf
 
 tile.DebarkedOak.name=Debarked Oak
 tile.DebarkedSpruce.name=Debarked Spruce
@@ -62,6 +71,7 @@ tile.tile.BlockEndbrick_stairs.name=End Brick Stairs
 tile.tile.BlockImperialBrick_stairs.name=Imperial Brick Stairs
 tile.tile.BlockHeneizenBrick_stairs.name=Heneizen Brick Stairs
 tile.tile.BlockIrgadBrick_stairs.name=Irgad Brick Stairs
+tile.tile.BlockFiredClay_stairs.name=Fired Brick Stairs
 
 tile.SlabStonebrick_slab.name=Grey Brick Slab
 tile.SlabSandstone_slab.name=Reinforced Sandstone Slab
@@ -72,10 +82,11 @@ tile.SlabEndbrick_slab.name=End Brick Slab
 tile.SlabImperialBrick_slab.name=Imperial Brick Slab
 tile.SlabHeneizenBrick_slab.name=Heneizen Brick Slab
 tile.SlabIrgadBrick_slab.name=Irgad Brick Slab
+tile.SlabFiredClay_slab.name=Fired Brick Slab
 
 tile.WallStonebrick_wall.name=Grey Brick Wall
 tile.WallSandstone_wall.name=Reinforced Sandstone Wall
-
+tile.WallFiredClay_wall.name=Fired Brick Wall
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Roof/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -427,3 +438,10 @@ item.FoodCheese.name=Cheese
 item.FoodSoup.name=Soup  
 item.FoodMeatPie.name=Meat Pie  
 item.FoodStrangeFish.name=Strange Fish  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Plants and Mushrooms/  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.Glowshroom.0.name=Rainbow Dreams
+tile.Glowshroom.1.name=Snottling
+tile.Glowshroom.2.name=Violet Joy
