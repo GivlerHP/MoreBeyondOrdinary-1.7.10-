@@ -1,18 +1,18 @@
 package ru.givler.mbo.item.totems;
 
-import java.util.ArrayList;
-import java.util.List;
-import cpw.mods.fml.common.registry.GameRegistry;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.EnumRarity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.world.World;
-import ru.givler.mbo.EnumParticleType;
-import ru.givler.mbo.main;
-import ru.givler.mbo.registry.CreativeTabRegistry;
+        import java.util.ArrayList;
+        import java.util.List;
+        import cpw.mods.fml.common.registry.GameRegistry;
+        import net.minecraft.entity.player.EntityPlayer;
+        import net.minecraft.item.EnumRarity;
+        import net.minecraft.item.Item;
+        import net.minecraft.item.ItemStack;
+        import net.minecraft.potion.Potion;
+        import net.minecraft.potion.PotionEffect;
+        import net.minecraft.world.World;
+        import ru.givler.mbo.EnumParticleType;
+        import ru.givler.mbo.main;
+        import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class ItemTotemCleansing extends Item {
 
@@ -33,13 +33,10 @@ public class ItemTotemCleansing extends Item {
         if (!world.isRemote) {
             List<PotionEffect> effectsToRemove = new ArrayList<>();
 
-            for (Object obj : player.getActivePotionEffects()) { // Приводим Object к PotionEffect
+            for (Object obj : player.getActivePotionEffects()) {
                 PotionEffect effect = (PotionEffect) obj;
                 int potionID = effect.getPotionID();
-                if (potionID != Potion.moveSpeed.id && potionID != Potion.digSpeed.id && potionID != Potion.regeneration.id
-                        && potionID != Potion.heal.id && potionID != Potion.resistance.id && potionID != Potion.fireResistance.id
-                        && potionID != Potion.waterBreathing.id && potionID != Potion.invisibility.id && potionID != Potion.nightVision.id
-                        && potionID != Potion.jump.id && potionID != Potion.damageBoost.id) {
+                if (Potion.potionTypes[potionID].isBadEffect())  {
                     effectsToRemove.add(effect);
                 }
             }
@@ -47,8 +44,6 @@ public class ItemTotemCleansing extends Item {
             for (PotionEffect effect : effectsToRemove) {
                 player.removePotionEffect(effect.getPotionID());
             }
-
-            // Уменьшаем прочность
             itemStack.damageItem(50, player);
         }
         if (world.isRemote) {

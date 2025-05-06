@@ -83,16 +83,6 @@ public class Vampirism extends Potion {
                         attacker.setHealth(Math.min(currentHealth + healAmount, attacker.getMaxHealth()));
                     }
 
-
-                    if (attacker.worldObj.isRemote && attacker instanceof EntityPlayer) {
-                        for (int i = 0; i < 5; i++) {
-                            attacker.worldObj.spawnParticle("heart",
-                                    attacker.posX + (attacker.getRNG().nextDouble() - 0.5) * 0.5,
-                                    attacker.posY + attacker.getEyeHeight(),
-                                    attacker.posZ + (attacker.getRNG().nextDouble() - 0.5) * 0.5,
-                                    0.0D, 0.1D, 0.0D);
-                        }
-                    }
                 }
             }
         }
