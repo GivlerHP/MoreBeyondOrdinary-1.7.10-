@@ -3,8 +3,10 @@ package ru.givler.mbo.proxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.blockmodels.ModelTileBase;
+import ru.givler.mbo.potion.Dodge;
 import ru.givler.mbo.registry.*;
 
 
@@ -22,6 +24,7 @@ public class CommonProxy {
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);
         PotionRegistry.preLoad(event);
+        MinecraftForge.EVENT_BUS.register(new Dodge.DodgeServerHandler());
     }
 
     public void init(FMLInitializationEvent event){
