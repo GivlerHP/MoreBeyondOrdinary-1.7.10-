@@ -59,26 +59,21 @@ public class Vampirism extends Potion {
 
         @SubscribeEvent
         public void onLivingHurt(LivingHurtEvent event) {
-            // Проверяем, что источник урона - сущность
+
             if (event.source.getEntity() instanceof EntityLivingBase) {
                 EntityLivingBase attacker = (EntityLivingBase) event.source.getEntity();
 
                 // Проверяем наличие эффекта вампиризма у атакующего
                 if (attacker.isPotionActive(potionId)) {
-                    // Получаем уровень эффекта (начиная с 0)
                     int level = attacker.getActivePotionEffect(Potion.potionTypes[potionId]).getAmplifier();
 
                     float vampirismPercent = 0.03F + (level * 0.015F);
-
-                    // Рассчитываем, сколько здоровья нужно восстановить
                     float healAmount = event.ammount * vampirismPercent;
 
                     // Восстанавливаем здоровье атакующему
                     if (attacker instanceof EntityPlayer) {
-                        // Для игрока используем метод heal
                         ((EntityPlayer) attacker).heal(healAmount);
                     } else {
-                        // Для других сущностей напрямую меняем здоровье
                         float currentHealth = attacker.getHealth();
                         attacker.setHealth(Math.min(currentHealth + healAmount, attacker.getMaxHealth()));
                     }

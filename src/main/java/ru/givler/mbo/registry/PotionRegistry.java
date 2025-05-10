@@ -6,7 +6,7 @@ import ru.givler.mbo.potion.Hex;
 import ru.givler.mbo.potion.Vampirism;
 import ru.givler.mbo.potion.MeleeDamage;
 import ru.givler.mbo.potion.Dodge;
-import ru.givler.mbo.potion.Disorientation;
+import ru.givler.mbo.potion.Phoenix;
 
 public class PotionRegistry {
 
@@ -14,6 +14,7 @@ public class PotionRegistry {
     public static Potion Vampirism;
     public static Potion Dodge;
     public static Potion Hex;
+    public static Potion Phoenix;
 
     public static void preLoad(FMLInitializationEvent event) {
         MeleeDamage = new MeleeDamage(26, false, 0xFF0000);
@@ -24,6 +25,8 @@ public class PotionRegistry {
         Potion.potionTypes[28] = Dodge;
         Hex = new Hex(29, false, 0x4B0082 );
         Potion.potionTypes[29] = Hex;
+        Phoenix = new Phoenix(30, false, 0x4B0082 );
+        Potion.potionTypes[30] = Phoenix;
     }
 }
 

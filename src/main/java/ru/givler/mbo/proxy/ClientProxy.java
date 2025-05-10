@@ -16,7 +16,6 @@ import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
-import ru.givler.mbo.potion.Disorientation;
 import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.registry.ModelRegistry;
 import ru.givler.mbo.render.RenderCrossbow;
