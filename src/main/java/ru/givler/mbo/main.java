@@ -3,6 +3,8 @@ import cpw.mods.fml.common.SidedProxy;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import ru.givler.mbo.proxy.CommonProxy;
 
 @Mod(modid = main.MODID, name = main.MODNAME, version = main.VERSION)
@@ -19,14 +21,14 @@ public class main {
     public static final String VERSION = "1.1.4";
 
     @Mod.EventHandler
-    public void preLoad(FMLInitializationEvent event) { proxy.preInit(event); }
+    public void preLoad(FMLPreInitializationEvent event) { proxy.preInit(event); }
     @Mod.EventHandler
     public void init(FMLInitializationEvent event){
         proxy.init(event);
     }
 
     @Mod.EventHandler
-    public void postInit(FMLInitializationEvent event){
+    public void postInit(FMLPostInitializationEvent event){
         proxy.postInit(event);
     }
 

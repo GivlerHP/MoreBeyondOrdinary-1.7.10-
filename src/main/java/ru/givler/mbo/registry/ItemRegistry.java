@@ -1,16 +1,14 @@
 package ru.givler.mbo.registry;
 
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBow;
-import net.minecraftforge.client.MinecraftForgeClient;
 import ru.givler.mbo.item.*;
 import ru.givler.mbo.item.totems.*;
 
 import ru.givler.mbo.item.totems.ItemTotemWeapon;
-import ru.givler.mbo.render.RenderCrossbow;
-import ru.givler.mbo.render.RenderLongsword;
+
 
 
 public class ItemRegistry {
@@ -33,7 +31,7 @@ public class ItemRegistry {
     }
 
     @Mod.EventHandler
-    public static void preLoad(FMLInitializationEvent event) {
+    public static void preLoad(FMLPreInitializationEvent event) {
         //Ниже находятся материалы для оружия
 
         //ниже тотемы

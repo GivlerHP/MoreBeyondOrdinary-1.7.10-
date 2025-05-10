@@ -2,11 +2,11 @@ package ru.givler.mbo.registry;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.block.material.Material;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.block.blockmodels.RotatableModelDragonSlayer;
 import static net.minecraft.block.Block.soundTypeAnvil;
-import static ru.givler.mbo.proxy.ClientProxy.bindDefaultRender;
 
 public class ModelRegistry {
     //Интерьер портного
@@ -32,8 +32,7 @@ public class ModelRegistry {
     //Интерьер инженера
     public static BlockModels ModelGas, ModelOiler, ModelGears, ModelDrawing1, ModelDrawing2, ModelClock, ModelBrokenMechanism;
 
-    static {
-        //портной
+    public static void preInit(FMLPreInitializationEvent event){
         ModelThreads = new BlockModels(Material.cloth, "ModelThreads", "threads", "threads");
         ModelTailorShelf = new BlockModels(Material.cloth,"ModelTailorShelf", "tailor's_shelf", "tailor's_shelf");
         ModelCloth = new BlockModels(Material.cloth,"ModelCloth", "cloth", "cloth");

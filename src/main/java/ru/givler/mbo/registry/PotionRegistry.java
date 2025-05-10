@@ -1,6 +1,6 @@
 package ru.givler.mbo.registry;
 
-import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.potion.Potion;
 import ru.givler.mbo.potion.Hex;
 import ru.givler.mbo.potion.Vampirism;
@@ -16,7 +16,7 @@ public class PotionRegistry {
     public static Potion Hex;
     public static Potion Phoenix;
 
-    public static void preLoad(FMLInitializationEvent event) {
+    public static void preLoad(FMLPreInitializationEvent event) {
         MeleeDamage = new MeleeDamage(26, false, 0xFF0000);
         Potion.potionTypes[26] = MeleeDamage;
         Vampirism = new Vampirism (27, false, 0x800000);

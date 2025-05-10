@@ -2,6 +2,7 @@ package ru.givler.mbo.proxy;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityFX;
@@ -11,7 +12,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.particles.ParticleDarkMagic;
@@ -26,7 +26,7 @@ import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 public class ClientProxy extends CommonProxy {
 
 
-    public void preInit(FMLInitializationEvent event) {
+    public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
     }
 

@@ -1,7 +1,8 @@
 package ru.givler.mbo.proxy;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.eventhandler.EventBus;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -18,10 +19,10 @@ public class CommonProxy {
 
 
     }
-    public void preInit(FMLInitializationEvent event){
+    public void preInit(FMLPreInitializationEvent event){
         BlockRegistry.preLoad(event);
         ItemRegistry.preLoad(event);
-        ModelRegistry.init(event);
+        ModelRegistry.preInit(event);
         DrinkRegistry.preLoad(event);
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);
@@ -32,11 +33,12 @@ public class CommonProxy {
 
     public void init(FMLInitializationEvent event){
         CreativeTabRegistry.init(event);
+        ModelRegistry.init(event);
         GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
 
     }
 
-    public void postInit(FMLInitializationEvent event){
+    public void postInit(FMLPostInitializationEvent event){
 
     }
 

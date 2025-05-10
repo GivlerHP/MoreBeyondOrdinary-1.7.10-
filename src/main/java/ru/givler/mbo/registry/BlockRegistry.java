@@ -1,7 +1,7 @@
 package ru.givler.mbo.registry;
 
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
@@ -26,7 +26,7 @@ public class BlockRegistry {
     //переменные для ограды
     public static Block WallStonebrick, WallSandstone, WallFiredClay;
     @Mod.EventHandler
-    public static void preLoad(FMLInitializationEvent event) {
+    public static void preLoad(FMLPreInitializationEvent event) {
         BlockGreyStone = new BlockBasic(Material.rock, "BlockGreyStone", "stone/stone");
         BlockGreyCobblestone = new BlockBasic(Material.rock, "BlockGreyCobblestone", "stone/cobblestone");
         BlockEndbrick = new BlockBasic(Material.rock, "BlockEndbrick", "stone/end_bricks");

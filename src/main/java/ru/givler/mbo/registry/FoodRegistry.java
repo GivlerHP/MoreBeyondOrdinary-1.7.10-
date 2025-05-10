@@ -1,6 +1,6 @@
 package ru.givler.mbo.registry;
 
-import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
 import ru.givler.mbo.item.ItemsFood;
@@ -9,7 +9,7 @@ public class FoodRegistry {
     //переменные для еды
     public static Item FoodBacon, FoodBlackBread, FoodBurger, FoodChowder, FoodDeliciousChicken, FoodDeliciousSalad, FoodDivineSteak, FoodFreshBread,
             FoodFriedSausage, FoodCheese, FoodSoup, FoodMeatPie, FoodStrangeFish;
-    public static void preLoad(FMLInitializationEvent event) {
+    public static void preLoad(FMLPreInitializationEvent event) {
         FoodBacon = new ItemsFood("FoodBacon", "food/bacon", 8, 0.6F, 64, false);
         FoodBlackBread = new ItemsFood("FoodBlackBread", "food/black_bread", 8, 0.6F, 64, false);
         FoodBurger = new ItemsFood("FoodBurger", "food/burger", 8, 0.6F, 64, false);

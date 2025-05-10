@@ -1,7 +1,7 @@
 package ru.givler.mbo.registry;
 
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
 import ru.givler.mbo.item.ItemsDrink;
@@ -9,7 +9,7 @@ import ru.givler.mbo.item.ItemsDrink;
 public class DrinkRegistry {
     public static Item DrinkWine, DrinkAle, DrinkMead, DrinkCider, DrinkBarrelBeer, DrinkBrandy, DrinkMulledWine, DrinkTincure, DrinkBreathWyvern, DrinkBeer;  //переменные для напитков и зелий
     @Mod.EventHandler
-    public static void preLoad(FMLInitializationEvent event) {
+    public static void preLoad(FMLPreInitializationEvent event) {
         //НИЖЕ НАХОДИТСЯ НАПИТКИ
         DrinkWine = new ItemsDrink("DrinkWine", "drink/drink_wine")
                 .addPotionEffect(Potion.regeneration.id, 120, 0)
