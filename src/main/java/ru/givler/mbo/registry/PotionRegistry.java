@@ -25,7 +25,7 @@ public class PotionRegistry {
         Potion.potionTypes[28] = Dodge;
         Hex = new Hex(29, false, 0x4B0082 );
         Potion.potionTypes[29] = Hex;
-        Phoenix = new Phoenix(30, false, 0x4B0082 );
+        Phoenix = new Phoenix(30, false, 0xD2691E );
         Potion.potionTypes[30] = Phoenix;
     }
 }

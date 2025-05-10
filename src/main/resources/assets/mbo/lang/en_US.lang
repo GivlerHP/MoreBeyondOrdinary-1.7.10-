@@ -445,3 +445,12 @@ item.FoodStrangeFish.name=Strange Fish
 tile.Glowshroom.0.name=Rainbow Dreams
 tile.Glowshroom.1.name=Snottling
 tile.Glowshroom.2.name=Violet Joy
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Effects/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+potion.melee_damage=Melee Strength
+potion.vampirism=Vampirism
+potion.dodge=Dodge
+potion.hex=Hex
+potion.phoenix=Phoenix Blessing
