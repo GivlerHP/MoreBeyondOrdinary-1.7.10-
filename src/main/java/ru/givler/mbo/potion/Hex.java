@@ -53,7 +53,6 @@ public class Hex extends Potion {
 
         private static final Random rand = new Random();
 
-        // Слушаем событие урона
         @SubscribeEvent(priority = EventPriority.NORMAL)
         public void onEntityAttacked(LivingHurtEvent event) {
             if (event.source.getEntity() instanceof EntityPlayer) { // Проверка на то, что атакует игрок
@@ -63,13 +62,12 @@ public class Hex extends Potion {
                     EntityPlayer player = (EntityPlayer) event.source.getEntity();
                     if (player.isPotionActive(Potion.potionTypes[potionId])) {
                         PotionEffect effect = player.getActivePotionEffect(Potion.potionTypes[potionId]);
-                        int level = effect.getAmplifier() + 1; // Получаем уровень эффекта
+                        int level = effect.getAmplifier() + 1;
 
                         double chance = 0.1 * level; // Например, 10% шанс за каждый уровень эффекта
                         if (rand.nextDouble() <= chance) {
                             int randomEffect = rand.nextInt(5); // Выбираем случайный эффект
 
-                            // Применяем случайный эффект к мобу
                             switch (randomEffect) {
                                 case 0:
                                     target.addPotionEffect(new PotionEffect(Potion.weakness.id, 100, 0)); // Слабость

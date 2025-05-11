@@ -15,7 +15,7 @@ import ru.givler.mbo.main;
 
 public class Dodge extends Potion {
     private static final ResourceLocation potionIcon = new ResourceLocation(main.MODID, "textures/gui/dodge_icon.png");
-    public static int potionId;  // Статический ID для проверки наличия эффекта
+    public static int potionId;
 
     public Dodge(int id, boolean isBadEffect, int liquidColour) {
         super(id, isBadEffect, liquidColour);

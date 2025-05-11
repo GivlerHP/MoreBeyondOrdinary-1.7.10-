@@ -68,7 +68,6 @@ public class Phoenix extends Potion {
             if (!player.isPotionActive(Potion.potionTypes[potionId])) return;
             if (event.source == DamageSource.outOfWorld) return; // void-урон — не воскрешаем
 
-            // отменяем смерть
             event.setCanceled(true);
 
             // получаем уровень усиления и рассчитываем здоровье после воскрешения
@@ -77,10 +76,8 @@ public class Phoenix extends Potion {
             float healAmount = Math.min(player.getMaxHealth(), 4.0F * level);
             player.setHealth(healAmount);
 
-            // убираем эффект, чтобы не повторялось
             player.removePotionEffect(potionId);
 
-            // звуковой и визуальный фидбэк
             player.worldObj.playSoundAtEntity(player, "mbo:resurect", 1.0F, 1.0F);
         }
     }
