@@ -399,6 +399,7 @@ item.TotemMiner.name=Miner Totem
 item.TotemOwl.name=Owl Totem
 item.TotemWeapon.name=Ghost Weapon Totem
 item.TotemCleansing.name=Cleansing Totem
+item.TotemHealing.name=Totem of Mass Healing
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Weapons/
@@ -453,3 +454,5 @@ potion.vampirism=Vampirism
 potion.dodge=Dodge
 potion.hex=Hex
 potion.phoenix=Phoenix Blessing
+potion.sixth_sense=Sixth Sense
+potion.magnetism=Magnetism
