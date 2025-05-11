@@ -12,10 +12,12 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
+import ru.givler.mbo.potion.SixthSense;
 import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.registry.ModelRegistry;
 import ru.givler.mbo.render.RenderCrossbow;
@@ -109,7 +111,7 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelClock);
         bindDefaultRender(ModelRegistry.ModelBrokenMechanism);
         registerRenderers();
-
+        MinecraftForge.EVENT_BUS.register(new SixthSense.RenderHandler());
     }
 
 
