@@ -199,7 +199,6 @@ tile.tile.FlakeRoof_stairs_13.0.name=Light Gray Flake Roof Stairs
 tile.tile.FlakeRoof_stairs_14.0.name=White Flake Roof Stairs
 tile.tile.FlakeRoof_stairs_15.0.name=Orange Flake Roof Stairs
 
-
 tile.tile.StandartRoof_stairs_0.0.name=Laminated Roof Stairs
 tile.tile.StandartRoof_stairs_1.0.name=Sheet Roof Stairs
 tile.tile.StandartRoof_stairs_2.0.name=Flake Roof Stairs
@@ -445,3 +444,12 @@ item.FoodStrangeFish.name=Strange Fish
 tile.Glowshroom.0.name=Rainbow Dreams
 tile.Glowshroom.1.name=Snottling
 tile.Glowshroom.2.name=Violet Joy
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Effects/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+potion.melee_damage=Melee Strength
+potion.vampirism=Vampirism
+potion.dodge=Dodge
+potion.hex=Hex
+potion.phoenix=Phoenix Blessing
