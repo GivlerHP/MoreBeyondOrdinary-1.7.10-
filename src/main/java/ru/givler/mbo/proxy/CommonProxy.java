@@ -11,6 +11,7 @@ import ru.givler.mbo.block.blockmodels.ModelTileBase;
 import ru.givler.mbo.potion.Dodge;
 import ru.givler.mbo.potion.Hex;
 import ru.givler.mbo.registry.*;
+import ru.givler.mbo.util.PotionArrayExpander;
 
 
 public class CommonProxy {
@@ -20,13 +21,14 @@ public class CommonProxy {
 
     }
     public void preInit(FMLPreInitializationEvent event){
+        PotionArrayExpander.expand(128);
         BlockRegistry.preLoad(event);
         ItemRegistry.preLoad(event);
         ModelRegistry.preInit(event);
+        PotionRegistry.preLoad(event);
         DrinkRegistry.preLoad(event);
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);
-        PotionRegistry.preLoad(event);
         MinecraftForge.EVENT_BUS.register(new Dodge.DodgeServerHandler());
         MinecraftForge.EVENT_BUS.register(new Hex.Handler());
     }
