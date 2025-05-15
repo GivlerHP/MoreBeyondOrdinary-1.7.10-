@@ -15,9 +15,7 @@ public class ItemsBasic extends Item {
         this.setUnlocalizedName(name);
         this.setTextureName(main.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
-        this.setMaxDamage(1200);
         this.maxStackSize = maxStackSize;
-        this.setFull3D();
         GameRegistry.registerItem(this, name);
     }
 

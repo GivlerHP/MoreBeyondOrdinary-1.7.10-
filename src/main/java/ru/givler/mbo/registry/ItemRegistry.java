@@ -20,6 +20,8 @@ public class ItemRegistry {
     public static ItemsGhostWeapon WeaponRapier;
     //ниже переменные для луков
     public static ItemBow OldBowHunting ;
+    //ниже переменные для материалов
+    public static Item Metal;
 
     static {
         Item.ToolMaterial RustyMaterial = ItemsWeapon.createMaterial("RustyMaterial", 0, 800, 0.0F, 0.0F, 30);
@@ -43,6 +45,9 @@ public class ItemRegistry {
         TotemWeapon = new ItemTotemWeapon("TotemWeapon", "staff", 1);
         TotemCleansing = new ItemTotemCleansing("TotemCleansing", "staff", 1);
         TotemHealing = new ItemTotemHealing("TotemHealing", "staff", 1);
+
+        //ниже материлаы
+        Metal = new ItemsMeta("Metal", "material/metal", 64, 1);
 
         RustyLongsword.register();
         ((ItemsBow) OldBowHunting).register();

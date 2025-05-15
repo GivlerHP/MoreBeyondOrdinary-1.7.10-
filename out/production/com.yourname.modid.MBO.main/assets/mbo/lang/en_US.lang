@@ -437,7 +437,12 @@ item.FoodFriedSausage.name=Fried Sausage
 item.FoodCheese.name=Cheese  
 item.FoodSoup.name=Soup  
 item.FoodMeatPie.name=Meat Pie  
-item.FoodStrangeFish.name=Strange Fish  
+item.FoodStrangeFish.name=Strange Fish
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Materials/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.Metal.0.name=Unrefined Stainless Steel
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Plants and Mushrooms/  
