@@ -10,7 +10,7 @@ import ru.givler.mbo.block.specialblocks.*;
 
 public class BlockRegistry {
     //переменные для блоков
-    public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
+    public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofUnfired, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
             BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
             RoofWood, BlockFiredClay, BlockClayWall;
     //переменные для ступенек
@@ -39,6 +39,7 @@ public class BlockRegistry {
         BlockClayWall = new BlockBasic(Material.wood, "BlockClayWall", "wood/clay_wall_old").setStepSound(Block.soundTypeWood);;
 
         RoofStandart = new BlockMeta(Material.rock, "StandartRoof", "roof/roofk", 3);
+        RoofUnfired = new BlockMeta(Material.clay, "UnfiredRoof", "roof/roofu", 3).setStepSound(Block.soundTypeGravel);
         RoofLaminated = new BlockMeta(Material.rock, "LaminatedRoof", "roof/roof1", 16);
         RoofSheet = new BlockMeta(Material.rock, "SheetRoof", "roof/roof2", 16);
         RoofFlake = new BlockMeta(Material.rock, "FlakeRoof", "roof/roof3", 16);

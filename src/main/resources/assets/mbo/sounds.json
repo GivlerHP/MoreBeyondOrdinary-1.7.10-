@@ -113,5 +113,7 @@
   "telein": {"category": "player", "sounds": [{"name": "telein", "stream": false}]},
   "telptout": {"category": "player", "sounds": [{"name": "telptout", "stream": false}]},
   "temple": {"category": "player", "sounds": [{"name": "temple", "stream": false}]},
-  "visions": {"category": "player", "sounds": [{"name": "visions", "stream": false}]}
+  "visions": {"category": "player", "sounds": [{"name": "visions", "stream": false}]},
+
+  "theend": {"category": "music", "sounds": [{"name": "theend", "stream": true}]}
 }

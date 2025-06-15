@@ -8,8 +8,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.blockmodels.ModelTileBase;
+import ru.givler.mbo.handler.BashStunHandler;
 import ru.givler.mbo.potion.Dodge;
 import ru.givler.mbo.potion.Hex;
+import ru.givler.mbo.recipes.BlockRecipes;
+import ru.givler.mbo.recipes.RoofRecipes;
 import ru.givler.mbo.registry.*;
 import ru.givler.mbo.util.PotionArrayExpander;
 
@@ -31,13 +34,15 @@ public class CommonProxy {
         PlantRegistry.preLoad(event);
         MinecraftForge.EVENT_BUS.register(new Dodge.DodgeServerHandler());
         MinecraftForge.EVENT_BUS.register(new Hex.Handler());
+        MinecraftForge.EVENT_BUS.register(new BashStunHandler());
     }
 
     public void init(FMLInitializationEvent event){
         CreativeTabRegistry.init(event);
         ModelRegistry.init(event);
         GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
-
+        BlockRecipes.init();
+        RoofRecipes.init();
     }
 
     public void postInit(FMLPostInitializationEvent event){
