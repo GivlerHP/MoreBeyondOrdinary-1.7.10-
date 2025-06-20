@@ -1,6 +1,7 @@
 package ru.givler.mbo.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.item.Item;
 import ru.givler.mbo.ItemBlockMetadata;
@@ -41,12 +42,13 @@ public class BlockMetaSlab extends BlockSlab {
     }
 
     // Регистрация всех вариаций полублоков (по метаданным)
-    public static void registerSlabs(BlockMeta baseBlock, int count, String texture) {
+    public static Block[] registerSlabs(BlockMeta baseBlock, int count, String texture) {
+        Block[] slabsArray = new Block[count];
         for (int i = 0; i < count; i++) {
-            new BlockMetaSlab(baseBlock, texture, i); // Передаем текстуру при регистрации
+            slabsArray[i] = new BlockMetaSlab(baseBlock, texture, i);
         }
+        return slabsArray;
     }
-
 
     @Override
     public String func_150002_b(int meta) {

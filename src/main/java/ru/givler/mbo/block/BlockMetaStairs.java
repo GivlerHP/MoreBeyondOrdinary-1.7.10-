@@ -1,6 +1,7 @@
 package ru.givler.mbo.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.item.Item;
 import ru.givler.mbo.ItemBlockMetadata;
@@ -37,14 +38,12 @@ public class BlockMetaStairs extends BlockStairs {
         return Item.getItemFromBlock(this);
     }
 
-
-
-
-
     // Регистрация всех вариаций ступенек (по метаданным)
-    public static void registerStairs(BlockMeta baseBlock, int count) {
+    public static Block[] registerStairs(BlockMeta baseBlock, int count) {
+        Block[] stairsArray = new Block[count];
         for (int i = 0; i < count; i++) {
-            new BlockMetaStairs(baseBlock, i);
+            stairsArray[i] = new BlockMetaStairs(baseBlock, i);
         }
+        return stairsArray;
     }
 }

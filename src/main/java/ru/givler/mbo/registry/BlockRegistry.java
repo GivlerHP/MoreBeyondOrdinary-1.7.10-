@@ -16,9 +16,13 @@ public class BlockRegistry {
     //переменные для ступенек
     public static Block StairsStone, StairsSandstine, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
             StairsEndbrick,  StairsImperialBrick, StaisrHeneizenBrick, StairsFiredClay;
+    //переменные для ступенек с методанными
+    public static Block[] StairsRoofLaminated, StairsRoofStandart, StairsRoofSheet, StairsRoofFlake;
     //переменные для плит
     public static Block SlabStone, SlabCobblestone, SlabStonebrick, SlabSandstone, SlabIrgadBrick, SlabEndbrick,
              SlabImperialBrick, SlabHeneizenBrick, SlabFiredClay;
+    //переменные для плит с метаданными
+    public static Block[] SlabRoofLaminated, SlabRoofStandart, SlabRoofSheet, SlabRoofFlake;
     //переменные для мультитекстурных блоков
     public static Block BooksheelSkull, BooksheelVoid, BooksheelWeb, BooksheelCandle, BooksheelSkullWeb, BooksheelSkullCandle,
             TotemStone, DebarkedOak, DebarkedSpruce, DebarkedBirch, DebarkedJungle, DebarkedAcacia, DebarkedBigOak,
@@ -93,10 +97,10 @@ public class BlockRegistry {
         StairsSandstine = new BlockMetaStairs((BlockMeta) BlockSandstone, 0);
         StairsStonebrick = new BlockMetaStairs((BlockMeta) BlockStonebrick, 0);
 
-        BlockMetaStairs.registerStairs((BlockMeta) RoofStandart, 3);
-        BlockMetaStairs.registerStairs((BlockMeta) RoofLaminated, 16);
-        BlockMetaStairs.registerStairs((BlockMeta) RoofSheet, 16);
-        BlockMetaStairs.registerStairs((BlockMeta) RoofFlake, 16);
+        StairsRoofStandart = BlockMetaStairs.registerStairs((BlockMeta) RoofStandart, 3);
+        StairsRoofLaminated = BlockMetaStairs.registerStairs((BlockMeta) RoofLaminated, 16);
+        StairsRoofSheet = BlockMetaStairs.registerStairs((BlockMeta) RoofSheet, 16);
+        StairsRoofFlake = BlockMetaStairs.registerStairs((BlockMeta) RoofFlake, 16);
         BlockMetaStairs.registerStairs((BlockMeta) RoofWood, 6);
 
 
@@ -112,10 +116,10 @@ public class BlockRegistry {
         SlabHeneizenBrick = new BlockBasicSlab(false,"SlabHeneizenBrick", "stone/heneizen_brick");
         SlabFiredClay = new BlockBasicSlab(false,"SlabFiredClay", "stone/brick_firedclay");
 
-        BlockMetaSlab.registerSlabs((BlockMeta) RoofStandart, 3, "roof/roofk" );
-        BlockMetaSlab.registerSlabs((BlockMeta) RoofLaminated, 16, "roof/roof1" );
-        BlockMetaSlab.registerSlabs((BlockMeta) RoofSheet, 16, "roof/roof2" );
-        BlockMetaSlab.registerSlabs((BlockMeta) RoofFlake, 16, "roof/roof3" );
+        SlabRoofStandart = BlockMetaSlab.registerSlabs((BlockMeta) RoofStandart, 3, "roof/roofk" );
+        SlabRoofLaminated = BlockMetaSlab.registerSlabs((BlockMeta) RoofLaminated, 16, "roof/roof1" );
+        SlabRoofSheet = BlockMetaSlab.registerSlabs((BlockMeta) RoofSheet, 16, "roof/roof2" );
+        SlabRoofFlake = BlockMetaSlab.registerSlabs((BlockMeta) RoofFlake, 16, "roof/roof3" );
         BlockMetaSlab.registerSlabs((BlockMeta) RoofWood, 6, "wood/roofwood" );
 
         //НИЖЕ НАХОИДТСЯ ЗАБОР
