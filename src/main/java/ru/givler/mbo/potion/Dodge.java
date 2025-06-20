@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -61,12 +62,25 @@ public class Dodge extends Potion {
 
             if (!player.isPotionActive(potionId)) return;
 
+            DamageSource source = event.source;
+            if (
+                    source == DamageSource.fall ||
+                            source == DamageSource.inFire ||
+                            source == DamageSource.onFire ||
+                            source == DamageSource.lava ||
+                            source == DamageSource.magic ||
+                            source == DamageSource.drown ||
+                            source == DamageSource.starve
+            ) {
+                return;
+            }
+
             PotionEffect effect = player.getActivePotionEffect(Potion.potionTypes[potionId]);
             int level = effect.getAmplifier() + 1;
             double chance = 0.1 * level;
 
             if (player.worldObj.rand.nextDouble() < chance) {
-                event.setCanceled(true);  // Полностью отменяет атаку, включая эффекты и зачарования
+                event.setCanceled(true);
                 player.worldObj.playSoundAtEntity(player, "mbo:coldring", 1.0F, 1.0F);
             }
         }

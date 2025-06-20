@@ -10,6 +10,7 @@ import ru.givler.mbo.potion.Phoenix;
 import ru.givler.mbo.potion.SixthSense;
 import ru.givler.mbo.potion.Magnetism;
 import ru.givler.mbo.potion.BashStun;
+import ru.givler.mbo.potion.ApplyStun;
 
 public class PotionRegistry {
 
@@ -21,6 +22,7 @@ public class PotionRegistry {
     public static Potion SixthSense;
     public static Potion Magnetism;
     public static Potion BashStun;
+    public static Potion ApplyStun;
 
     public static void preLoad(FMLPreInitializationEvent event) {
         MeleeDamage = new MeleeDamage(26, false, 0xFF0000);
@@ -37,8 +39,10 @@ public class PotionRegistry {
         Potion.potionTypes[50] = SixthSense;
         Magnetism = new Magnetism(51, false, 0x8A2BE2);
         Potion.potionTypes[51] = Magnetism;
-        BashStun = new BashStun(52, false, 0x8A2BE2);
+        BashStun = new BashStun(52, true, 0x8A2BE2);
         Potion.potionTypes[52] = BashStun;
+        ApplyStun = new ApplyStun(53, false, 0x8A2BE2);
+        Potion.potionTypes[53] = ApplyStun;
 
     }
 }

@@ -5,10 +5,12 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.world.World;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.blockmodels.ModelTileBase;
 import ru.givler.mbo.handler.BashStunHandler;
+import ru.givler.mbo.potion.ApplyStun;
 import ru.givler.mbo.potion.Dodge;
 import ru.givler.mbo.potion.Hex;
 import ru.givler.mbo.recipes.BlockRecipes;
@@ -35,6 +37,7 @@ public class CommonProxy {
         MinecraftForge.EVENT_BUS.register(new Dodge.DodgeServerHandler());
         MinecraftForge.EVENT_BUS.register(new Hex.Handler());
         MinecraftForge.EVENT_BUS.register(new BashStunHandler());
+        MinecraftForge.EVENT_BUS.register(new ApplyStun.Handler());
     }
 
     public void init(FMLInitializationEvent event){
