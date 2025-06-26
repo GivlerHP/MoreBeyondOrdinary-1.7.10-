@@ -10,6 +10,7 @@ import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.blockmodels.ModelTileBase;
 import ru.givler.mbo.handler.BashStunHandler;
+import ru.givler.mbo.handler.VulnerabilityHandler;
 import ru.givler.mbo.potion.ApplyStun;
 import ru.givler.mbo.potion.Dodge;
 import ru.givler.mbo.potion.Hex;
@@ -38,6 +39,7 @@ public class CommonProxy {
         MinecraftForge.EVENT_BUS.register(new Hex.Handler());
         MinecraftForge.EVENT_BUS.register(new BashStunHandler());
         MinecraftForge.EVENT_BUS.register(new ApplyStun.Handler());
+        MinecraftForge.EVENT_BUS.register(new VulnerabilityHandler());
     }
 
     public void init(FMLInitializationEvent event){

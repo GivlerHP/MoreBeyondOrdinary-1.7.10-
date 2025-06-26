@@ -5,4 +5,5 @@ import ru.givler.mbo.registry.PotionRegistry;
 
 public class ModPotions {
     public static final Potion BASH_STUN = PotionRegistry.BashStun;
+    public static final Potion VULNERABILITY = PotionRegistry.Vulnerability;
 }

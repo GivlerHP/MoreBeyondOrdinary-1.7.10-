@@ -30,7 +30,7 @@ public class ItemRegistry {
         RustyLongsword = new ItemsWeapon("RustyLongsword", "weapon/broadsword", RustyMaterial, 80, 1, 1.3F);
         OldBowHunting = new ItemsBow("OldBowHunting", "weapon/brokenlittlecrossbow", 40, 25, -1);
         WeaponRapier = new ItemsGhostWeapon("WeaponRapier", "weapon/mithrilsword", RustyMaterial, 40, 1, 1.0F);
-        Uchigatana = new ItemsWeapon("Uchigatana", "weapon/mithrilsword", Divine, 10000, 1, 1.0F);
+        Uchigatana = new ItemsWeapon("Uchigatana", "weapon/uchigatana", Divine, 10000, 1, 1.6F);
 
     }
 

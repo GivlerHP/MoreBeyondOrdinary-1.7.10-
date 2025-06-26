@@ -144,6 +144,10 @@ tile.StandartRoof.0.name=Пластинчатая черепица
 tile.StandartRoof.1.name=Листовая черепица
 tile.StandartRoof.2.name=Чешуйчатая черепица
 
+tile.UnfiredRoof.0.name=Необжаренная пластинчатая черепица
+tile.UnfiredRoof.1.name=Необжаренная листовая черепица
+tile.UnfiredRoof.2.name=Необжаренная чешуйчатая черепица
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Ступеньки из черепицы/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -406,6 +410,7 @@ item.TotemHealing.name=Тотем массового лечения
 item.RustyLongsword.name=Ржавый двуручный меч
 item.WeaponRapier.name=Призрачная рапира
 item.OldBowHunting.name=Маленький охотничий лук
+item.Uchigatana.name=Утигата
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Напитки/
@@ -460,3 +465,7 @@ potion.hex=Сглаз
 potion.phoenix=Благославление феникса
 potion.sixth_sense=Шестое чувство
 potion.magnetism=Магнетизм
+potion.bushstun=Оглушение
+potion.apply_stun=Оглушающий удар
+potion.vulnerability=Уязвимость
+potion.dodge_hit=Отмена уклонения

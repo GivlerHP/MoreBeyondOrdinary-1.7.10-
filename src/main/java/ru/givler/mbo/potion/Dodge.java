@@ -13,6 +13,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.PotionRegistry;
 
 public class Dodge extends Potion {
     private static final ResourceLocation potionIcon = new ResourceLocation(main.MODID, "textures/gui/dodge_icon.png");
@@ -53,7 +54,6 @@ public class Dodge extends Potion {
         tessellator.draw();
     }
 
-    // Обработчик события урона — находится в том же классе
     public static class DodgeServerHandler {
         @SubscribeEvent
         public void onLivingAttack(LivingAttackEvent event) {
@@ -61,16 +61,17 @@ public class Dodge extends Potion {
             EntityPlayer player = (EntityPlayer) event.entityLiving;
 
             if (!player.isPotionActive(potionId)) return;
-
+            
             DamageSource source = event.source;
             if (
-                    source == DamageSource.fall ||
+                            source == DamageSource.fall ||
                             source == DamageSource.inFire ||
                             source == DamageSource.onFire ||
                             source == DamageSource.lava ||
                             source == DamageSource.magic ||
                             source == DamageSource.drown ||
-                            source == DamageSource.starve
+                            source == DamageSource.starve  ||
+                            player.isPotionActive(PotionRegistry.DodgeHit)
             ) {
                 return;
             }

@@ -22,6 +22,7 @@ import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.registry.ModelRegistry;
 import ru.givler.mbo.render.RenderCrossbow;
 import ru.givler.mbo.render.RenderLongsword;
+import ru.givler.mbo.render.RenderUchigatana;
 import ru.givler.mbo.render.decormodels.TemplateModelRenderer;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 
@@ -131,6 +132,7 @@ public class ClientProxy extends CommonProxy {
         // Используем метод регистрации рендерера для предмета
 
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.RustyLongsword, new RenderLongsword(ItemRegistry.RustyLongsword.getScale()));
+        MinecraftForgeClient.registerItemRenderer(ItemRegistry.Uchigatana, new RenderUchigatana(ItemRegistry.Uchigatana.getScale()));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.OldBowHunting, new RenderCrossbow());
     }
 

@@ -66,7 +66,7 @@ public class Hex extends Potion {
 
                         double chance = 0.1 * level; // Например, 10% шанс за каждый уровень эффекта
                         if (rand.nextDouble() <= chance) {
-                            int randomEffect = rand.nextInt(5); // Выбираем случайный эффект
+                            int randomEffect = rand.nextInt(6); // Выбираем случайный эффект
 
                             switch (randomEffect) {
                                 case 0:
@@ -83,6 +83,10 @@ public class Hex extends Potion {
                                     break;
                                 case 4:
                                     target.addPotionEffect(new PotionEffect(Potion.poison.id, 100, 0)); //Яд
+                                    break;
+                                case 5:
+                                    target.addPotionEffect(new PotionEffect(PotionRegistry.DodgeHit.id, 100, 0)); //Отмена уклонения
+                                    break;
                                 default:
                                     break;
                             }

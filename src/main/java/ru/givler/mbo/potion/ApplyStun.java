@@ -14,7 +14,7 @@ import ru.givler.mbo.registry.PotionRegistry;
 import java.util.Random;
 
 public class ApplyStun extends Potion {
-    private static final ResourceLocation potionIcon = new ResourceLocation(main.MODID, "textures/gui/apply_stun.png");
+    private static final ResourceLocation potionIcon = new ResourceLocation(main.MODID, "textures/gui/apply_stun_icon.png");
     public static int potionId;
 
     public ApplyStun(int id, boolean isBadEffect, int liquidColour) {
