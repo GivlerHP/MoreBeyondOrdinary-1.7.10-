@@ -145,6 +145,9 @@ tile.StandartRoof.0.name=Laminated Roof
 tile.StandartRoof.1.name=Sheet Roof
 tile.StandartRoof.2.name=Flake Roof
 
+tile.UnfiredRoof.0.name=Unfired Laminated Roof
+tile.UnfiredRoof.1.name=Unfired Sheet Roof
+tile.UnfiredRoof.2.name=Unfired Flake Roof
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Roof Stairs/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -407,6 +410,7 @@ item.TotemHealing.name=Totem of Mass Healing
 item.RustyLongsword.name=Rusty Greatsword
 item.WeaponRapier.name=Phantom Rapier
 item.OldBowHunting.name=Small Hunting Bow
+item.Uchigatana.name=Uchigatana
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Drinks/
@@ -461,3 +465,8 @@ potion.hex=Hex
 potion.phoenix=Phoenix Blessing
 potion.sixth_sense=Sixth Sense
 potion.magnetism=Magnetism
+potion.bushstun=Stun
+potion.apply_stun=Stunning Blow
+potion.vulnerability=Vulnerability
+potion.dodge_hit=Broken Dodge
+potion.disarm=Disarmed
