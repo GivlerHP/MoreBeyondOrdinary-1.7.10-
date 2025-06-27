@@ -49,6 +49,10 @@ public class ItemTotemCleansing extends Item {
         GameRegistry.registerItem(this, name);
     }
 
+    private boolean isForceRemove(int potionID) {
+        return potionID == Potion.invisibility.getId();
+    }
+
     @Override
     public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
         // Сервер: удаляем все отрицательные эффекты
@@ -59,7 +63,7 @@ public class ItemTotemCleansing extends Item {
                 PotionEffect effect = (PotionEffect) obj;
                 int potionID = effect.getPotionID();
                 Potion potion = Potion.potionTypes[potionID];
-                if (isBadEffect(potion)) {
+                if (isBadEffect(potion) || isForceRemove(potionID)) {
                     effectsToRemove.add(effect);
                 }
             }

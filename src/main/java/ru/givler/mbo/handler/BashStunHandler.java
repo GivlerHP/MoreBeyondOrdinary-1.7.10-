@@ -13,11 +13,9 @@ import ru.givler.mbo.potion.ModPotions;
 public class BashStunHandler {
 
     /**
-     * На каждый тик (LivingUpdateEvent) у игрока:
-     * 1) Запоминаем старые координаты.
-     * 2) Гасим ввод и обнуляем скорости.
-     * 3) Позже, когда игра попытается переместить сущность,
-     *    принудительно вернем её в старую точку.
+     * Эффекты чьи Handler`ы описаны:
+     * 1. BashStun
+     * 2. Disarm
      */
     @SubscribeEvent
     public void onLivingUpdate(LivingUpdateEvent event) {
@@ -66,6 +64,9 @@ public class BashStunHandler {
     public void onAttackEntity(AttackEntityEvent event) {
         EntityPlayer player = event.entityPlayer;
         if (player.isPotionActive(ModPotions.BASH_STUN)) {
+            event.setCanceled(true);
+        }
+        if (player.isPotionActive(ModPotions.DISARM)) {
             event.setCanceled(true);
         }
     }
