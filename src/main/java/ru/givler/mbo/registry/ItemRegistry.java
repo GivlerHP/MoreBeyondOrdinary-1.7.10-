@@ -5,6 +5,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBow;
 import ru.givler.mbo.item.*;
+import ru.givler.mbo.item.amulets.*;
 import ru.givler.mbo.item.totems.*;
 
 import ru.givler.mbo.item.totems.ItemTotemWeapon;
@@ -22,6 +23,8 @@ public class ItemRegistry {
     public static ItemBow OldBowHunting ;
     //ниже переменные для материалов
     public static Item Metal;
+    //ниже переменные для амулетов
+    public static Item HealingAmulet, VampirismAmulet, CleansingAmulet, PhoenixAmulet, CowardAmulet, DragonAmulet;
 
     static {
         Item.ToolMaterial RustyMaterial = ItemsWeapon.createMaterial("RustyMaterial", 0, 800, 0.0F, 0.0F, 30);
@@ -48,6 +51,14 @@ public class ItemRegistry {
 
         //ниже материлаы
         Metal = new ItemsMeta("Metal", "material/metal", 64, 1);
+
+        HealingAmulet = new ItemHealingAmulet("HealingAmulet", "amulet/amulet_healing");
+        VampirismAmulet = new ItemVampirismAmulet("VampirismAmulet", "amulet/amulet_vampirism");
+        CleansingAmulet = new ItemCleansingAmulet("CleansingAmulet", "amulet/amulet_cleansing");
+        PhoenixAmulet = new ItemPhoenixAmulet("PhoenixAmulet", "amulet/amulet_phoenix");
+        CowardAmulet = new ItemCowardAmulet("CowardAmulet", "amulet/amulet_coward");
+        DragonAmulet = new ItemDragonAmulet("DragonAmulet", "amulet/amulet_dragon");
+
 
         RustyLongsword.register();
         Uchigatana.register();

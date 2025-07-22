@@ -24,6 +24,7 @@ public class main {
     public void preLoad(FMLPreInitializationEvent event) { proxy.preInit(event); }
     @Mod.EventHandler
     public void init(FMLInitializationEvent event){
+        proxy.initPackets();
         proxy.init(event);
     }
 

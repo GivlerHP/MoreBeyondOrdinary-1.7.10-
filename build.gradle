@@ -13,7 +13,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.4.10"
+version = "1.4.11"
 group= "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "MoreBeyondOrdinary"
 
@@ -67,6 +67,7 @@ repositories {
 
 dependencies {
     compile name: "geckolib-unofficial-1.7.10-1.0.3-dev" //The name of the geckolib file in the lib folder without ".jar"
+    compile name: "Baubles-1.7.10-1.0.1.10-dev"
 }
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'

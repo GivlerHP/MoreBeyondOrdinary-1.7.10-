@@ -12,6 +12,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import ru.givler.mbo.main;
+import ru.givler.mbo.registry.PotionRegistry;
 
 public class Phoenix extends Potion {
     private static final ResourceLocation icon =
@@ -74,6 +75,7 @@ public class Phoenix extends Potion {
             PotionEffect pe = player.getActivePotionEffect(Potion.potionTypes[potionId]);
             int level = pe.getAmplifier() + 1;
             float healAmount = Math.min(player.getMaxHealth(), 4.0F * level);
+            player.addPotionEffect(new PotionEffect(Potion.resistance.id, 60, 4));
             player.setHealth(healAmount);
 
             player.removePotionEffect(potionId);

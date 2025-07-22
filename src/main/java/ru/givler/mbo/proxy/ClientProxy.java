@@ -1,20 +1,26 @@
 package ru.givler.mbo.proxy;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
+import org.lwjgl.input.Keyboard;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.handler.ClientKeyHandler;
+import ru.givler.mbo.handler.TooltipEvents;
 import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
 import ru.givler.mbo.potion.SixthSense;
@@ -26,8 +32,10 @@ import ru.givler.mbo.render.RenderUchigatana;
 import ru.givler.mbo.render.decormodels.TemplateModelRenderer;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 
-public class ClientProxy extends CommonProxy {
 
+
+public class ClientProxy extends CommonProxy {
+    public static KeyBinding activateAmuletKey;
 
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
@@ -35,6 +43,11 @@ public class ClientProxy extends CommonProxy {
 
     public void init(FMLInitializationEvent event) {
         super.init(event);
+        activateAmuletKey = new KeyBinding("Кнопка амулета", Keyboard.KEY_R, "MoreBeyondOrdinary");
+        ClientRegistry.registerKeyBinding(activateAmuletKey);
+
+        FMLCommonHandler.instance().bus().register(new ClientKeyHandler());
+
         bindDefaultRender(ModelRegistry.ModelThreads);
         bindDefaultRender(ModelRegistry.ModelCloth);
         bindDefaultRender(ModelRegistry.ModelTailorShelf);
@@ -113,6 +126,7 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelBrokenMechanism);
         registerRenderers();
         MinecraftForge.EVENT_BUS.register(new SixthSense.RenderHandler());
+        MinecraftForge.EVENT_BUS.register(new TooltipEvents());
     }
 
 

@@ -23,12 +23,10 @@ public class ItemTotemCleansing extends Item {
 
     static {
         try {
-            // Попытка получить human-readable имя
             badEffectField = Potion.class.getDeclaredField("isBadEffect");
             badEffectField.setAccessible(true);
         } catch (NoSuchFieldException e1) {
             try {
-                // Попытка obf-имени в 1.7.10
                 badEffectField = Potion.class.getDeclaredField("field_76418_K");
                 badEffectField.setAccessible(true);
             } catch (Exception e2) {
@@ -55,7 +53,6 @@ public class ItemTotemCleansing extends Item {
 
     @Override
     public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
-        // Сервер: удаляем все отрицательные эффекты
         if (!world.isRemote) {
             List<PotionEffect> effectsToRemove = new ArrayList<>();
 
@@ -74,7 +71,6 @@ public class ItemTotemCleansing extends Item {
             itemStack.damageItem(50, player);
         }
 
-        // Клиент: эффект частиц
         if (world.isRemote) {
             for (int i = 0; i < 30; i++) {
                 main.proxy.spawnParticle(
@@ -87,7 +83,6 @@ public class ItemTotemCleansing extends Item {
             }
         }
 
-        // Звук для всех игроков
         world.playSoundAtEntity(player, "mbo:temple", 1.0F, 1.0F);
         player.swingItem();
         return itemStack;

@@ -169,6 +169,13 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>
   <component name="libraryTable">
+    <library name="Gradle: :Baubles-1.7.10-1.0.1.10-dev:">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/Baubles-1.7.10-1.0.1.10-dev.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
     <library name="Gradle: :forgeSrc:1.7.10-10.13.4.1614-1.7.10">
       <CLASSES>
         <root url="jar://$USER_HOME$/.gradle/caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/forgeSrc-1.7.10-10.13.4.1614-1.7.10.jar!/" />

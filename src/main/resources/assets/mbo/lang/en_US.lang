@@ -10,7 +10,8 @@ itemGroup.MBOdecors=[MBO] Decor
 /Chat Messages/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 message.fog.warning=Something terrible lurks within the fog... If you dare to step inside, prepare for a battle!  
-message.fog.closed=You touch the fog, but it's like a living wall — it won't let you through...  
+message.fog.closed=You touch the fog, but it's like a living wall — it won't let you through...
+tooltip.durability=Durability
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Blocks, Stairs, Slabs, Walls/
