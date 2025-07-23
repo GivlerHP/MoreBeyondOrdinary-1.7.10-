@@ -20,6 +20,7 @@ import org.lwjgl.input.Keyboard;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.handler.ClientKeyHandler;
+import ru.givler.mbo.handler.PotionClientHandler;
 import ru.givler.mbo.handler.TooltipEvents;
 import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
@@ -125,7 +126,7 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelClock);
         bindDefaultRender(ModelRegistry.ModelBrokenMechanism);
         registerRenderers();
-        MinecraftForge.EVENT_BUS.register(new SixthSense.RenderHandler());
+        MinecraftForge.EVENT_BUS.register(new PotionClientHandler());
         MinecraftForge.EVENT_BUS.register(new TooltipEvents());
     }
 

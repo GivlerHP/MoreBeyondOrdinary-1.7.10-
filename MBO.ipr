@@ -169,6 +169,13 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>
   <component name="libraryTable">
+    <library name="Gradle: :AntiOrig-1.0-deobf:">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/AntiOrig-1.0-deobf.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
     <library name="Gradle: :Baubles-1.7.10-1.0.1.10-dev:">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/lib/Baubles-1.7.10-1.0.1.10-dev.jar!/" />
@@ -186,6 +193,13 @@
     <library name="Gradle: :geckolib-unofficial-1.7.10-1.0.3-dev:">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/lib/geckolib-unofficial-1.7.10-1.0.3-dev.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="Gradle: :MF2-2.9.4.3-dev:">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/MF2-2.9.4.3-dev.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

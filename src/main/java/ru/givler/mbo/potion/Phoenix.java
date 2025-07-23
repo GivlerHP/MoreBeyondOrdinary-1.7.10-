@@ -1,18 +1,12 @@
 package ru.givler.mbo.potion;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.DamageSource;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import ru.givler.mbo.main;
-import ru.givler.mbo.registry.PotionRegistry;
 
 public class Phoenix extends Potion {
     private static final ResourceLocation icon =
@@ -23,13 +17,10 @@ public class Phoenix extends Potion {
         super(id, isBadEffect, liquidColor);
         this.setPotionName("potion.phoenix");
         potionId = id;
-        // Регистрируем обработчик «смерти»
-        MinecraftForge.EVENT_BUS.register(new PhoenixHandler());
     }
 
     @Override
     public boolean isReady(int duration, int amplifier) {
-        // не нужны регулярные тики
         return false;
     }
 
@@ -53,34 +44,5 @@ public class Phoenix extends Potion {
         t.addVertexWithUV(x + width, y,          0, (u + width) * f,   v * f1);
         t.addVertexWithUV(x,         y,          0, u * f,             v * f1);
         t.draw();
-    }
-
-    /**
-     * Внутренний класс — отслеживает событие смерти и «оживляет» игрока.
-     */
-    public static class PhoenixHandler {
-
-        @SubscribeEvent
-        public void onLivingDeath(LivingDeathEvent event) {
-            if (!(event.entityLiving instanceof EntityPlayer)) return;
-            EntityPlayer player = (EntityPlayer) event.entityLiving;
-
-            // проверяем, что именно игрок умирает от источника урона
-            if (!player.isPotionActive(Potion.potionTypes[potionId])) return;
-            if (event.source == DamageSource.outOfWorld) return; // void-урон — не воскрешаем
-
-            event.setCanceled(true);
-
-            // получаем уровень усиления и рассчитываем здоровье после воскрешения
-            PotionEffect pe = player.getActivePotionEffect(Potion.potionTypes[potionId]);
-            int level = pe.getAmplifier() + 1;
-            float healAmount = Math.min(player.getMaxHealth(), 4.0F * level);
-            player.addPotionEffect(new PotionEffect(Potion.resistance.id, 60, 4));
-            player.setHealth(healAmount);
-
-            player.removePotionEffect(potionId);
-
-            player.worldObj.playSoundAtEntity(player, "mbo:resurect", 1.0F, 1.0F);
-        }
     }
 }

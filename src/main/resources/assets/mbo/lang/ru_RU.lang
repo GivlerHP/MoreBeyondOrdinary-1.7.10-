@@ -471,3 +471,11 @@ potion.apply_stun=Оглушающий удар
 potion.vulnerability=Уязвимость
 potion.dodge_hit=Отмена уклонения
 potion.disarm=Обезоруженный
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Бижютерия/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+description.ring.LifeRing=+1 к здоровью
+description.ring.StaminaRing=+15 к выносливости
+description.ring.DamageRing=+1 к урону
+description.ring.SpeedRing=+5% к скорости

@@ -67,7 +67,7 @@ public class ItemCleansingAmulet extends ItemAmuletBase {
 
     @Override
     public int getCooldownTicks() {
-        return 20 * 40; // 60 секунд
+        return 20 * 40;
     }
 
     @Override

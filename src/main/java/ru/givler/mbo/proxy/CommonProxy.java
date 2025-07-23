@@ -8,16 +8,11 @@ import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.world.World;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.blockmodels.ModelTileBase;
-import ru.givler.mbo.handler.BashStunHandler;
 import ru.givler.mbo.handler.PacketActivateAmulet;
-import ru.givler.mbo.handler.VulnerabilityHandler;
-import ru.givler.mbo.potion.ApplyStun;
-import ru.givler.mbo.potion.Dodge;
-import ru.givler.mbo.potion.Hex;
+import ru.givler.mbo.handler.PotionCommonHandler;
 import ru.givler.mbo.recipes.BlockRecipes;
 import ru.givler.mbo.recipes.RoofRecipes;
 import ru.givler.mbo.registry.*;
@@ -44,11 +39,7 @@ public class CommonProxy {
         DrinkRegistry.preLoad(event);
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);
-        MinecraftForge.EVENT_BUS.register(new Dodge.DodgeServerHandler());
-        MinecraftForge.EVENT_BUS.register(new Hex.Handler());
-        MinecraftForge.EVENT_BUS.register(new BashStunHandler());
-        MinecraftForge.EVENT_BUS.register(new ApplyStun.Handler());
-        MinecraftForge.EVENT_BUS.register(new VulnerabilityHandler());
+        MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
     }
 
     public void init(FMLInitializationEvent event){

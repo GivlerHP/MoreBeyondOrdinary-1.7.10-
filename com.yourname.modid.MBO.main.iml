@@ -20,6 +20,8 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="Gradle: :MF2-2.9.4.3-dev:" level="project" />
+    <orderEntry type="library" name="Gradle: :AntiOrig-1.0-deobf:" level="project" />
     <orderEntry type="library" name="Gradle: :forgeSrc:1.7.10-10.13.4.1614-1.7.10" level="project" />
     <orderEntry type="library" name="Gradle: net.minecraft:launchwrapper:1.12" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:1.3.9" level="project" />

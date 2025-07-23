@@ -68,6 +68,8 @@ repositories {
 dependencies {
     compile name: "geckolib-unofficial-1.7.10-1.0.3-dev" //The name of the geckolib file in the lib folder without ".jar"
     compile name: "Baubles-1.7.10-1.0.1.10-dev"
+    compile name: "MF2-2.9.4.3-dev"
+    compile name: "AntiOrig-1.0-deobf"
 }
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'

@@ -4,9 +4,12 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import ru.givler.mbo.item.ItemAmuletBase;
 import ru.givler.mbo.main;
 import ru.givler.mbo.registry.CreativeTabRegistry;
+import ru.givler.mbo.registry.PotionRegistry;
 
 public class ItemHealingAmulet extends ItemAmuletBase {
 
@@ -21,7 +24,8 @@ public class ItemHealingAmulet extends ItemAmuletBase {
 
     @Override
     public void activate(EntityPlayer player, ItemStack stack) {
-        player.heal(3.0F);
+        player.heal(1.0F);
+        player.addPotionEffect(new PotionEffect(Potion.regeneration.id, 200, 0));
     }
 
     @Override
@@ -31,7 +35,7 @@ public class ItemHealingAmulet extends ItemAmuletBase {
 
     @Override
     public int getCooldownTicks() {
-        return 20 * 30;
+        return 20 * 40;
     }
 
     @Override

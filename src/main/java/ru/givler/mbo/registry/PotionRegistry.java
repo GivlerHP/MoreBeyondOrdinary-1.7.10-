@@ -14,6 +14,7 @@ import ru.givler.mbo.potion.ApplyStun;
 import ru.givler.mbo.potion.Vulnerability;
 import ru.givler.mbo.potion.DodgeHit;
 import ru.givler.mbo.potion.Disarm;
+import ru.givler.mbo.potion.Thorns;
 
 public class PotionRegistry {
 
@@ -29,6 +30,7 @@ public class PotionRegistry {
     public static Potion Vulnerability;
     public static Potion DodgeHit;
     public static Potion Disarm;
+    public static Potion Thorns;
 
 
     public static void preLoad(FMLPreInitializationEvent event) {
@@ -56,6 +58,8 @@ public class PotionRegistry {
         Potion.potionTypes[55] = DodgeHit;
         Disarm = new Disarm(56, true, 0xF8F8FF);
         Potion.potionTypes[56] = Disarm;
+        Thorns = new Thorns(57, false, 0x00BFFF);
+        Potion.potionTypes[57] = Thorns;
 
 
     }

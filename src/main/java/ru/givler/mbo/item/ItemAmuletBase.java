@@ -6,6 +6,7 @@ import baubles.api.IBauble;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -49,5 +50,7 @@ public abstract class ItemAmuletBase extends Item implements IBauble, IActivatab
         return true;
     }
 
-
+    public EnumRarity getRarity(ItemStack itemStack) {
+        return EnumRarity.rare;
+    }
 }

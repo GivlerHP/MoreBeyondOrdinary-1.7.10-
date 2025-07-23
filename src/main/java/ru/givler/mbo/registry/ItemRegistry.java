@@ -6,6 +6,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBow;
 import ru.givler.mbo.item.*;
 import ru.givler.mbo.item.amulets.*;
+import ru.givler.mbo.item.ring.ItemDamageRing;
+import ru.givler.mbo.item.ring.ItemLifeRing;
+import ru.givler.mbo.item.ring.ItemSpeedRing;
+import ru.givler.mbo.item.ring.ItemStaminaRing;
 import ru.givler.mbo.item.totems.*;
 
 import ru.givler.mbo.item.totems.ItemTotemWeapon;
@@ -24,7 +28,10 @@ public class ItemRegistry {
     //ниже переменные для материалов
     public static Item Metal;
     //ниже переменные для амулетов
-    public static Item HealingAmulet, VampirismAmulet, CleansingAmulet, PhoenixAmulet, CowardAmulet, DragonAmulet;
+    public static Item HealingAmulet, VampirismAmulet, CleansingAmulet, PhoenixAmulet, CowardAmulet, DragonAmulet, StaminaAmulet, VeilAmulet,
+        ThornsAmulet;
+    //ниже переменные для колец
+    public static Item LifeRing, StaminaRing, DamageRing, SpeedRing;
 
     static {
         Item.ToolMaterial RustyMaterial = ItemsWeapon.createMaterial("RustyMaterial", 0, 800, 0.0F, 0.0F, 30);
@@ -52,13 +59,21 @@ public class ItemRegistry {
         //ниже материлаы
         Metal = new ItemsMeta("Metal", "material/metal", 64, 1);
 
+        //ниже кольца
         HealingAmulet = new ItemHealingAmulet("HealingAmulet", "amulet/amulet_healing");
         VampirismAmulet = new ItemVampirismAmulet("VampirismAmulet", "amulet/amulet_vampirism");
         CleansingAmulet = new ItemCleansingAmulet("CleansingAmulet", "amulet/amulet_cleansing");
         PhoenixAmulet = new ItemPhoenixAmulet("PhoenixAmulet", "amulet/amulet_phoenix");
         CowardAmulet = new ItemCowardAmulet("CowardAmulet", "amulet/amulet_coward");
         DragonAmulet = new ItemDragonAmulet("DragonAmulet", "amulet/amulet_dragon");
+        StaminaAmulet = new ItemStaminaAmulet("StaminaAmulet", "amulet/amulet_stamina");
+        VeilAmulet = new ItemVeilAmulet("VeilAmulet", "amulet/amulet_veil");
+        ThornsAmulet = new ItemThornsAmulet("ThronsAmulet", "amulet/amulet_thorns");
 
+        LifeRing = new ItemLifeRing("LifeRing", "amulet/ring_life");
+        StaminaRing  = new ItemStaminaRing("StaminaRing", "amulet/ring_stamina");
+        DamageRing = new ItemDamageRing("DamageRing", "amulet/ring_damage");
+        SpeedRing = new ItemSpeedRing("SpeedRing", "amulet/ring_speed");
 
         RustyLongsword.register();
         Uchigatana.register();

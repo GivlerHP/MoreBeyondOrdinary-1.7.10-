@@ -24,7 +24,7 @@ public class ItemVampirismAmulet extends ItemAmuletBase {
 
     @Override
     public void activate(EntityPlayer player, ItemStack stack) {
-        player.addPotionEffect(new PotionEffect(PotionRegistry.Vampirism.id, 200, 2));
+        player.addPotionEffect(new PotionEffect(PotionRegistry.Vampirism.id, 100, 2));
     }
 
     @Override
@@ -33,11 +33,11 @@ public class ItemVampirismAmulet extends ItemAmuletBase {
 
     @Override
     public int getCooldownTicks() {
-        return 20 * 40;
+        return 20 * 45;
     }
 
     @Override
     public int getExperienceCost() {
-        return 2;
+        return 3;
     }
 }

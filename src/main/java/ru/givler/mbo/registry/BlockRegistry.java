@@ -12,7 +12,7 @@ public class BlockRegistry {
     //переменные для блоков
     public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofUnfired, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
             BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
-            RoofWood, BlockFiredClay, BlockClayWall;
+            RoofWood, BlockFiredClay, BlockClayWall, BlockGlass;
     //переменные для ступенек
     public static Block StairsStone, StairsSandstone, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
             StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay;
@@ -84,6 +84,7 @@ public class BlockRegistry {
 
         BlockFogWhite = new BlockFog(Material.web, "BlockFogWhite", "another/fogwhite");
         BlockFogGrey = new BlockFogGrey(Material.web, "BlockFogGrey", "another/foggrey");
+        BlockGlass = new BlockTemporaryGlass("BlockGlass");
 
         //НИЖЕ НАХОДИТСЯ СТУПЕНЬКИ
         StairsStone = new BlockBasicStairs((BlockBasic) BlockGreyStone);
