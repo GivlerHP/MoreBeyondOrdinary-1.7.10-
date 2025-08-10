@@ -1,6 +1,5 @@
 package ru.givler.mbo.item.totems;
 
-import java.util.List;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -12,7 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 //класс для создания предметов
@@ -21,7 +20,7 @@ public class ItemTotemOwl extends Item {
     public ItemTotemOwl(String name, String texture, int maxStackSize) {
         this.canRepair = false;
         this.setUnlocalizedName(name);
-        this.setTextureName(main.MODID + ":" + texture);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(1200);
         this.maxStackSize = maxStackSize;

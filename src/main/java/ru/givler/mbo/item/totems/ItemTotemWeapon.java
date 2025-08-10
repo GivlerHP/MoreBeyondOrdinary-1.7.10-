@@ -8,7 +8,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import ru.givler.mbo.EnumParticleType;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import static ru.givler.mbo.registry.ItemRegistry.WeaponRapier;
@@ -17,7 +17,7 @@ public class ItemTotemWeapon extends Item {
 
     public ItemTotemWeapon(String name, String texture, int maxStackSize) {
         this.setUnlocalizedName(name);
-        this.setTextureName(main.MODID + ":" + texture);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(100);
         this.maxStackSize = maxStackSize;
@@ -44,7 +44,7 @@ public class ItemTotemWeapon extends Item {
 
         if (world.isRemote) {
             for (int i = 0; i < 30; i++) {
-                main.proxy.spawnParticle(EnumParticleType.DARK_MAGIC, world,
+                MoreBeyondOrdinary.proxy.spawnParticle(EnumParticleType.DARK_MAGIC, world,
                         player.posX + (world.rand.nextDouble() - 0.5) * 2.0,
                         player.posY + (world.rand.nextDouble() * 0.5) * -1.5,
                         player.posZ + (world.rand.nextDouble() - 0.5) * 2.0,

@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import ru.givler.mbo.block.*;
+import ru.givler.mbo.block.blockcraft.BlockArcanum;
 import ru.givler.mbo.block.specialblocks.*;
 
 public class BlockRegistry {
@@ -29,6 +30,9 @@ public class BlockRegistry {
             WoodTotemOak, WoodTotemSpruce, WoodTotemBirch, WoodTotemJungle, WoodTotemAcacia, WoodTotemBigOak;
     //переменные для ограды
     public static Block WallStonebrick, WallSandstone, WallFiredClay;
+    //переменные для крафтовых блоков
+    public static Block MagicFurnace;
+
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
         BlockGreyStone = new BlockBasic(Material.rock, "BlockGreyStone", "stone/stone");
@@ -85,6 +89,8 @@ public class BlockRegistry {
         BlockFogWhite = new BlockFog(Material.web, "BlockFogWhite", "another/fogwhite");
         BlockFogGrey = new BlockFogGrey(Material.web, "BlockFogGrey", "another/foggrey");
         BlockGlass = new BlockTemporaryGlass("BlockGlass");
+
+        MagicFurnace = new BlockArcanum(Material.rock, "MagicFurnace");
 
         //НИЖЕ НАХОДИТСЯ СТУПЕНЬКИ
         StairsStone = new BlockBasicStairs((BlockBasic) BlockGreyStone);

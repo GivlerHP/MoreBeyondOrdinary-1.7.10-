@@ -13,7 +13,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 import ru.givler.mbo.EnumParticleType;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class ItemTotemCleansing extends Item {
@@ -39,7 +39,7 @@ public class ItemTotemCleansing extends Item {
     public ItemTotemCleansing(String name, String texture, int maxStackSize) {
         this.canRepair = false;
         this.setUnlocalizedName(name);
-        this.setTextureName(main.MODID + ":" + texture);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(120);
         this.maxStackSize = maxStackSize;
@@ -73,7 +73,7 @@ public class ItemTotemCleansing extends Item {
 
         if (world.isRemote) {
             for (int i = 0; i < 30; i++) {
-                main.proxy.spawnParticle(
+                MoreBeyondOrdinary.proxy.spawnParticle(
                         EnumParticleType.SACRED, world,
                         player.posX + (world.rand.nextDouble() - 0.5) * 2.0,
                         player.posY + (world.rand.nextDouble() * 0.5) * -1.5,

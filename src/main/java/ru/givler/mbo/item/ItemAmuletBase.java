@@ -1,11 +1,8 @@
 package ru.givler.mbo.item;
 
 import baubles.api.BaubleType;
-import baubles.api.BaublesApi;
 import baubles.api.IBauble;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

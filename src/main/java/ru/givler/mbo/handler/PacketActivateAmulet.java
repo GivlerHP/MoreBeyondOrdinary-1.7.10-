@@ -8,14 +8,13 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.StatCollector;
 import ru.givler.mbo.item.IActivatableAmulet;
 
 public class PacketActivateAmulet implements IMessage {
 
-    // Обязательный пустой конструктор
     public PacketActivateAmulet() {}
 
-    // Пакет ничего не передаёт
     @Override
     public void fromBytes(ByteBuf buf) {}
 
@@ -27,13 +26,14 @@ public class PacketActivateAmulet implements IMessage {
         @Override
         public IMessage onMessage(PacketActivateAmulet message, MessageContext ctx) {
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            System.out.println("[DEBUG] Пакет получен от: " + player.getCommandSenderName());
+         //   System.out.println("[DEBUG] Пакет получен от: " + player.getCommandSenderName());
 
             if (AmuletCooldownTracker.isOnCooldown(player)) {
                 long millis = AmuletCooldownTracker.getRemainingCooldown(player);
                 int seconds = (int) Math.ceil(millis / 1000.0);
-                System.out.println("[DEBUG] Амулеты на кулдауне. Осталось: " + millis + " мс");
-                player.addChatMessage(new ChatComponentText("Амулет будет готов через " + seconds + " сек"));
+            //    System.out.println("[DEBUG] Амулеты на кулдауне. Осталось: " + millis + " мс");
+                player.addChatMessage(new ChatComponentText(StatCollector.translateToLocalFormatted("message.amulet_ready_in", seconds)));
+
                 return null;
             }
 
@@ -41,15 +41,15 @@ public class PacketActivateAmulet implements IMessage {
                 ItemStack stack = BaublesApi.getBaubles(player).getStackInSlot(i);
 
                 if (stack != null) {
-                    System.out.println("[DEBUG] Найден предмет в слоте " + i + ": " + stack.getDisplayName());
+                //    System.out.println("[DEBUG] Найден предмет в слоте " + i + ": " + stack.getDisplayName());
 
                     if (stack.getItem() instanceof IActivatableAmulet) {
-                        System.out.println("[DEBUG] Это активируемый амулет");
+                    //    System.out.println("[DEBUG] Это активируемый амулет");
 
                         IActivatableAmulet amulet = (IActivatableAmulet) stack.getItem();
 
                         if (player.experienceLevel >= amulet.getExperienceCost()) {
-                            System.out.println("[DEBUG] Достаточно опыта. Активируем эффект");
+                       //     System.out.println("[DEBUG] Достаточно опыта. Активируем эффект");
 
                             amulet.activate(player, stack);
                             player.addExperienceLevel(-amulet.getExperienceCost());
@@ -60,12 +60,14 @@ public class PacketActivateAmulet implements IMessage {
                             }
                             AmuletCooldownTracker.setCooldown(player, amulet.getCooldownTicks());
 
-                            System.out.println("[DEBUG] Эффект активирован, опыт снят, урон нанесён, кулдаун установлен");
+                          //  System.out.println("[DEBUG] Эффект активирован, опыт снят, урон нанесён, кулдаун установлен");
                         } else {
-                            player.addChatMessage(new ChatComponentText("Не хватает опыта, необходимо минимум: " + amulet.getExperienceCost()+ " уровня" ));
+                            player.addChatMessage(new ChatComponentText(
+                                    StatCollector.translateToLocalFormatted("message.amulet_not_xp", amulet.getExperienceCost())
+                            ));
                         }
                     } else {
-                        System.out.println("[DEBUG] Предмет не реализует IActivatableAmulet");
+                       // System.out.println("[DEBUG] Предмет не реализует IActivatableAmulet");
                     }
                 }
             }

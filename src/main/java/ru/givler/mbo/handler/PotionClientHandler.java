@@ -11,23 +11,23 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import org.lwjgl.opengl.GL11;
-import ru.givler.mbo.main;
-import ru.givler.mbo.potion.ModPotions;
+import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.potion.PotionEnum;
 
 public class PotionClientHandler {
 
-    private static final ResourceLocation icon = new ResourceLocation(main.MODID, "textures/gui/sixth_sense_icon.png");
-    private static final ResourceLocation overlay = new ResourceLocation(main.MODID, "textures/gui/sixth_sense_overlay.png");
-    private static final ResourceLocation marker = new ResourceLocation(main.MODID, "textures/entity/sixth_sense.png");
+    private static final ResourceLocation icon = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/gui/sixth_sense_icon.png");
+    private static final ResourceLocation overlay = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/gui/sixth_sense_overlay.png");
+    private static final ResourceLocation marker = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/entity/sixth_sense.png");
 
     @SubscribeEvent
     public void onRenderLiving(RenderLivingEvent.Post event) {
         Minecraft mc = Minecraft.getMinecraft();
         EntityPlayer player = mc.thePlayer;
 
-        if (player == null || !player.isPotionActive(ModPotions.SIXTH) || event.entity == player) return;
+        if (player == null || !player.isPotionActive(PotionEnum.SIXTH) || event.entity == player) return;
 
-        int amplifier = player.getActivePotionEffect(Potion.potionTypes[ModPotions.SIXTH.id]).getAmplifier();
+        int amplifier = player.getActivePotionEffect(Potion.potionTypes[PotionEnum.SIXTH.id]).getAmplifier();
         float range = 20 * (1 + amplifier * 0.5F);
 
         if (event.entity.getDistanceToEntity(player) >= range) return;
@@ -67,7 +67,7 @@ public class PotionClientHandler {
     public void onRenderOverlay(RenderGameOverlayEvent.Post event) {
         Minecraft mc = Minecraft.getMinecraft();
         if (event.type != RenderGameOverlayEvent.ElementType.HELMET) return;
-        if (mc.thePlayer == null || !mc.thePlayer.isPotionActive(ModPotions.SIXTH)) return;
+        if (mc.thePlayer == null || !mc.thePlayer.isPotionActive(PotionEnum.SIXTH)) return;
 
         GL11.glPushMatrix();
         GL11.glDisable(GL11.GL_DEPTH_TEST);

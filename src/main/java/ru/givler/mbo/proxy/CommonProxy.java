@@ -11,11 +11,15 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.blockmodels.ModelTileBase;
+import ru.givler.mbo.handler.BeltEventHandler;
 import ru.givler.mbo.handler.PacketActivateAmulet;
 import ru.givler.mbo.handler.PotionCommonHandler;
-import ru.givler.mbo.recipes.BlockRecipes;
-import ru.givler.mbo.recipes.RoofRecipes;
+import ru.givler.mbo.handler.SpawnHandler;
+import ru.givler.mbo.recipes.registry.ArcanumRecipeRegistry;
+import ru.givler.mbo.recipes.registry.BlockRecipeRegistry;
+import ru.givler.mbo.recipes.registry.RoofRecipeRegistry;
 import ru.givler.mbo.registry.*;
+import ru.givler.mbo.tileentity.TileEntityArcanum;
 import ru.givler.mbo.util.PotionArrayExpander;
 
 
@@ -27,9 +31,12 @@ public class CommonProxy {
     }
 
     public void registerRenderers() {
-
-
     }
+
+    public World getClientWorld() {
+        return null;
+    }
+
     public void preInit(FMLPreInitializationEvent event){
         PotionArrayExpander.expand(128);
         BlockRegistry.preLoad(event);
@@ -40,14 +47,19 @@ public class CommonProxy {
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);
         MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
+        MinecraftForge.EVENT_BUS.register(new BeltEventHandler());
+        SpawnHandler.registerSpawns();
     }
 
     public void init(FMLInitializationEvent event){
         CreativeTabRegistry.init(event);
         ModelRegistry.init(event);
         GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
-        BlockRecipes.init();
-        RoofRecipes.init();
+        GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
+        BlockRecipeRegistry.init();
+        RoofRecipeRegistry.init();
+        ArcanumRecipeRegistry.init();
+
     }
 
     public void postInit(FMLPostInitializationEvent event){

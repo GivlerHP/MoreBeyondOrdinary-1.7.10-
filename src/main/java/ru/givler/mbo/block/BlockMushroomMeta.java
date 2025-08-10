@@ -12,7 +12,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.ItemBlockMetadata;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public class BlockMushroomMeta extends BlockMushroom {
         this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         this.useNeighborBrightness = true;
 
-        this.setBlockTextureName(main.MODID + ":" + texture);
+        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
 
         GameRegistry.registerBlock(this, ItemBlockMetadata.class, name);
     }
@@ -93,7 +93,7 @@ public class BlockMushroomMeta extends BlockMushroom {
             double py = y + 0.1 + rand.nextDouble() * 0.5;
             double pz = z + 0.5 + (rand.nextDouble() - 0.5);
 
-            main.proxy.spawnParticle(
+            MoreBeyondOrdinary.proxy.spawnParticle(
                     EnumParticleType.DARK_MAGIC, world,
                     px, py, pz,
                     0.0, 0.1, 0.0

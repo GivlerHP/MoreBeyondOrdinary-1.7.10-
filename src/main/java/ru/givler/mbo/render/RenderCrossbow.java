@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import org.lwjgl.opengl.GL11;
 import net.minecraftforge.client.IItemRenderer;
-import ru.givler.mbo.item.ItemsBow;
+import ru.givler.mbo.item.ItemBow;
 
 public class RenderCrossbow implements IItemRenderer {
 
@@ -58,7 +58,7 @@ public class RenderCrossbow implements IItemRenderer {
             }
 
             // Рендерим иконку лука
-            IIcon icon = ((ItemsBow) item.getItem()).icons[frame];
+            IIcon icon = ((ItemBow) item.getItem()).icons[frame];
             Tessellator tessellator = Tessellator.instance;
             ItemRenderer.renderItemIn2D(tessellator, icon.getMaxU(), icon.getMinV(), icon.getMinU(), icon.getMaxV(), icon.getIconWidth(), icon.getIconHeight(), 0.05F);
             GL11.glPopMatrix();
@@ -75,7 +75,7 @@ public class RenderCrossbow implements IItemRenderer {
                 GL11.glScalef(1.5F, 1.5F, 1.5F);  // Масштабирование для нормального отображения
             }
 
-            IIcon icon = ((ItemsBow) item.getItem()).icons[0];  // Иконка без натяжения
+            IIcon icon = ((ItemBow) item.getItem()).icons[0];  // Иконка без натяжения
             Tessellator tessellator = Tessellator.instance;
             ItemRenderer.renderItemIn2D(tessellator, icon.getMaxU(), icon.getMinV(), icon.getMinU(), icon.getMaxV(), icon.getIconWidth(), icon.getIconHeight(), 0.05F);
             GL11.glPopMatrix();

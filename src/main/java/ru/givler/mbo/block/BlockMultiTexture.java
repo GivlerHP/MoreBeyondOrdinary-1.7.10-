@@ -7,7 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 //Класс для создания мультекстурных блоков. Вверх и низ - одна текстура. Боковые - другая.
@@ -37,8 +37,8 @@ public class BlockMultiTexture extends Block {
     @SideOnly(Side.CLIENT)
     @Override
     public void registerBlockIcons(IIconRegister iconRegister) {
-        this.iconTopBottom = iconRegister.registerIcon(main.MODID + ":" + textureTopBottom);
-        this.iconSides = iconRegister.registerIcon(main.MODID + ":" + textureSides);
+        this.iconTopBottom = iconRegister.registerIcon(MoreBeyondOrdinary.MODID + ":" + textureTopBottom);
+        this.iconSides = iconRegister.registerIcon(MoreBeyondOrdinary.MODID + ":" + textureSides);
     }
 
     @SideOnly(Side.CLIENT)

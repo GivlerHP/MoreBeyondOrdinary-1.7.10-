@@ -5,10 +5,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.item.Item;
 import ru.givler.mbo.ItemBlockMetadata;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
-
-import java.util.List;
 
 // Класс создающий полублоки из метаблоков (BlockMeta)
 public class BlockMetaSlab extends BlockSlab {
@@ -30,7 +28,7 @@ public class BlockMetaSlab extends BlockSlab {
         this.setLightOpacity(baseBlock.getLightOpacity()); // Прозрачность
         this.useNeighborBrightness = true; // Улучшенная обработка освещения
 
-        this.setBlockTextureName(main.MODID + ":" + texture + "_" + meta);
+        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture + "_" + meta);
 
         GameRegistry.registerBlock(this, ItemBlockMetadata.class, baseBlock.getUnlocalizedName() + "_slab_" + meta);
     }

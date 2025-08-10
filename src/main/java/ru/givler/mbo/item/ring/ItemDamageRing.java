@@ -10,20 +10,25 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import ru.givler.mbo.item.ItemRingBase;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.List;
 import java.util.UUID;
 
 public class ItemDamageRing extends ItemRingBase {
-    public ItemDamageRing(String name, String texture) {
+    private final Double value;
+    private final String level;
+
+    public ItemDamageRing(String name, String texture, Double value, String level) {
         this.setUnlocalizedName(name);
-        this.setTextureName(main.MODID + ":" + texture);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxStackSize(1);
-        this.setMaxDamage(10);
         GameRegistry.registerItem(this, name);
+
+        this.value = value;
+        this.level = level;
     }
 
     @Override
@@ -42,7 +47,7 @@ public class ItemDamageRing extends ItemRingBase {
         if (player.getEntityAttribute(SharedMonsterAttributes.attackDamage)
                 .getModifier(uniqueId) == null) {
 
-            AttributeModifier modifier = new AttributeModifier(uniqueId, "ring_damage", 1.0D, 0);
+            AttributeModifier modifier = new AttributeModifier(uniqueId, "ring_damage", this.value, 0);
             player.getEntityAttribute(SharedMonsterAttributes.attackDamage).applyModifier(modifier);
         }
     }
@@ -65,7 +70,7 @@ public class ItemDamageRing extends ItemRingBase {
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-        String key = "description.ring." + this.getUnlocalizedName().substring(5);
+        String key = "description.ring." + this.level + "." + this.getUnlocalizedName().substring(5);
         if (StatCollector.canTranslate(key)) {
             list.add(StatCollector.translateToLocal(key));
         }

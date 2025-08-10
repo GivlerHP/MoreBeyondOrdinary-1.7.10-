@@ -12,7 +12,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 import net.minecraft.entity.EntityLivingBase;
 
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class ItemTotemHealing extends Item {
     public ItemTotemHealing(String name, String texture, int maxStackSize) {
         this.canRepair = false;
         this.setUnlocalizedName(name);
-        this.setTextureName(main.MODID + ":" + texture);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(240);
         this.maxStackSize = maxStackSize;

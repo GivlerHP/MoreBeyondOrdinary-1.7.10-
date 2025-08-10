@@ -1,14 +1,12 @@
 package ru.givler.mbo.item.amulets;
 
-import baubles.api.BaublesApi;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import ru.givler.mbo.item.ItemAmuletBase;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 import ru.givler.mbo.registry.PotionRegistry;
 
@@ -16,7 +14,7 @@ public class ItemPhoenixAmulet extends ItemAmuletBase {
 
     public ItemPhoenixAmulet(String name, String texture) {
         this.setUnlocalizedName(name);
-        this.setTextureName(main.MODID + ":" + texture);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxStackSize(1);
         this.setMaxDamage(1);

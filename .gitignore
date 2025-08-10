@@ -4,4 +4,6 @@ eclipse/
 # Игнорировать папку build
 build/
 
+lib/MF2-dev.jar
+
 MBO.iws

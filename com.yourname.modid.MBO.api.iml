@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="MBO:api" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$" external.system.id="GRADLE" external.system.module.group="com.yourname.modid" external.system.module.type="sourceSet" external.system.module.version="1.4.11" type="JAVA_MODULE" version="4">
+<module external.linked.project.id="MBO:api" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$" external.system.id="GRADLE" external.system.module.group="com.yourname.modid" external.system.module.type="sourceSet" external.system.module.version="1.5.3" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$/src/api" />
@@ -7,8 +7,11 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: :geckolib-unofficial-1.7.10-1.0.3-dev:" level="project" />
     <orderEntry type="library" name="Gradle: :Baubles-1.7.10-1.0.1.10-dev:" level="project" />
-    <orderEntry type="library" name="Gradle: :MF2-2.9.4.3-dev:" level="project" />
-    <orderEntry type="library" name="Gradle: :AntiOrig-1.0-deobf:" level="project" />
+    <orderEntry type="library" name="Gradle: :MF2-dev:" level="project" />
+    <orderEntry type="library" name="Gradle: :AntiqueAtlas-deobf:" level="project" />
+    <orderEntry type="library" name="Gradle: :CodeChickenLib-1.7.10-1.1.3.141-universal:" level="project" />
+    <orderEntry type="library" name="Gradle: :CodeChickenCore-1.7.10-1.0.7.48-universal:" level="project" />
+    <orderEntry type="library" name="Gradle: :NotEnoughItems-1.7.10-1.0.5.120-universal:" level="project" />
     <orderEntry type="library" name="Gradle: :forgeSrc:1.7.10-10.13.4.1614-1.7.10" level="project" />
     <orderEntry type="library" name="Gradle: net.minecraft:launchwrapper:1.12" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:1.3.9" level="project" />
@@ -60,10 +63,10 @@
     <orderEntry type="library" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:natives-linux:2.9.1" level="project" />
     <orderEntry type="library" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:natives-osx:2.9.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: net.java.jinput:jinput-platform:natives-linux:2.0.5" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: net.java.jinput:jinput-platform:natives-windows:2.0.5" level="project" />
     <orderEntry type="library" name="Gradle: tv.twitch:twitch-platform:natives-windows-32:5.16" level="project" />
-    <orderEntry type="library" name="Gradle: tv.twitch:twitch-platform:natives-windows-64:5.16" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: net.java.jinput:jinput-platform:natives-windows:2.0.5" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: net.java.jinput:jinput-platform:natives-osx:2.0.5" level="project" />
+    <orderEntry type="library" name="Gradle: tv.twitch:twitch-platform:natives-windows-64:5.16" level="project" />
     <orderEntry type="library" name="Gradle: tv.twitch:twitch-platform:natives-osx:5.16" level="project" />
     <orderEntry type="library" name="Gradle: tv.twitch:twitch-external-platform:natives-windows-32:4.5" level="project" />
     <orderEntry type="library" name="Gradle: tv.twitch:twitch-external-platform:natives-windows-64:4.5" level="project" />

@@ -4,7 +4,6 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.BlockGlass;
 import net.minecraft.block.material.Material;
 import net.minecraft.world.World;
-import ru.givler.mbo.main;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.Random;

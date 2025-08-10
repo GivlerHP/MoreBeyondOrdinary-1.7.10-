@@ -1,25 +1,20 @@
 package ru.givler.mbo.item.amulets;
 
-import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
-import minefantasy.mf2.api.stamina.StaminaBar;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 import ru.givler.mbo.item.ItemAmuletBase;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class ItemVeilAmulet extends ItemAmuletBase {
     public ItemVeilAmulet(String name, String texture) {
         this.setUnlocalizedName(name);
-        this.setTextureName(main.MODID + ":" + texture);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxStackSize(1);
         this.setMaxDamage(8);

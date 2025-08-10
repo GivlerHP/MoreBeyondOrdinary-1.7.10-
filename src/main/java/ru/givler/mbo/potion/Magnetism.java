@@ -1,20 +1,17 @@
 package ru.givler.mbo.potion;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 
 import java.util.List;
 
-public class Magnetism extends Potion {
+public class Magnetism extends PotionBasic {
 
-    private static final ResourceLocation potionIcon = new ResourceLocation(main.MODID, "textures/gui/magnetism_icon.png");
+    private static final ResourceLocation potionIcon = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/gui/magnetism_icon.png");
 
     public Magnetism(int id, boolean isBadEffect, int liquidColour) {
         super(id, isBadEffect, liquidColour);
@@ -50,24 +47,13 @@ public class Magnetism extends Potion {
 
     @Override
     public boolean isReady(int duration, int amplifier) {
-        return duration % 10 == 0; // Притягивать каждые 10 тиков (0.5 секунды)
+        return duration % 10 == 0;
     }
 
     @Override
-    public void renderInventoryEffect(int x, int y, PotionEffect effect, Minecraft mc) {
+    public void renderInventoryEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc) {
         mc.renderEngine.bindTexture(potionIcon);
         this.drawTexturedRect(x + 6, y + 7, 0, 0, 18, 18, 18, 18);
     }
 
-    public static void drawTexturedRect(int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight) {
-        float f = 1F / (float)textureWidth;
-        float f1 = 1F / (float)textureHeight;
-        Tessellator tessellator = Tessellator.instance;
-        tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV(x, y + height, 0, u * f, (v + height) * f1);
-        tessellator.addVertexWithUV(x + width, y + height, 0, (u + width) * f, (v + height) * f1);
-        tessellator.addVertexWithUV(x + width, y, 0, (u + width) * f, v * f1);
-        tessellator.addVertexWithUV(x, y, 0, u * f, v * f1);
-        tessellator.draw();
-    }
 }

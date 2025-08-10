@@ -12,6 +12,9 @@ itemGroup.MBOdecors=[MBO] Декор
 message.fog.warning=За туманом скрывается нечто ужасное... Если ты осмелишься ступить внутрь, готовься к сражению!
 message.fog.closed=Ты касаешься тумана, но он словно живая стена — не пропускает тебя внутрь...
 tooltip.durability=Прочность
+message.amulet_ready_in=Амулет будет готов через %s сек
+message.amulet_not_xp=Не хватает опыта, необходимо минимум: %s уровня
+key.mbo.amulet.desc=Кнопка активации амулета
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Блоки, ступеньки, плиты, ограда/
@@ -38,6 +41,7 @@ tile.BlockStonebrick.3.name=Резной кирпич из серого камн
 
 tile.BlockFogWhite.name=Белый туман
 tile.BlockFogGrey.name=Серый туман
+tile.BlockGlass.name=Блок завесы
 
 tile.TotemStone.name=Каменный тотем
 
@@ -448,6 +452,26 @@ item.FoodStrangeFish.name=Странная рыба
 /Материалы/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 item.Metal.0.name=Необработанная нержавеющая сталь
+item.SapphireEye.name=Сапфировый глаз голема
+item.SapphireHeart.name=Сапфировое сердце голема
+
+item.Crystall.0.name=Осколок Рубриусского кристалла
+item.Crystall.1.name=Осколок Виридитского кристалла
+item.Crystall.2.name=Осколок Омбрумского кристалла
+item.Crystall.3.name=Осколок Церулинского кристалла
+
+item.Crystall.4.name=Рубриусский кристалл
+item.Crystall.5.name=Виридитский кристалл
+item.Crystall.6.name=Омбрумский кристалл
+item.Crystall.7.name=Церулинский кристалл
+
+item.Crystall.8.name=Кристалл пылающего феникса
+item.Crystall.9.name=Кристалл пустоты
+item.Crystall.10.name=Кристалл крови
+item.Crystall.11.name=Кристалл призрака
+item.Crystall.12.name=Кристалл драконьего сердца
+item.Crystall.13.name=Кристалл боли
+item.Crystall.14.name=Кристалл эфира
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Растения и грибы/
@@ -471,11 +495,53 @@ potion.apply_stun=Оглушающий удар
 potion.vulnerability=Уязвимость
 potion.dodge_hit=Отмена уклонения
 potion.disarm=Обезоруженный
+potion.thorns=Шипы
+potion.curse=Проклятье
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Бижютерия/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-description.ring.LifeRing=+1 к здоровью
-description.ring.StaminaRing=+15 к выносливости
-description.ring.DamageRing=+1 к урону
-description.ring.SpeedRing=+5% к скорости
+description.ring.0.LifeSmallRing=+1 к здоровью
+description.ring.0.StaminaSmallRing=+15 к выносливости
+description.ring.0.DamageSmallRing=+1 к урону
+description.ring.0.SpeedSmallRing=+5% к скорости
+
+description.ring.1.LifeRing=+2 к здоровью
+description.ring.1.StaminaRing=+25 к выносливости
+description.ring.1.DamageRing=+1.5 к урону
+description.ring.1.SpeedRing=+7.5% к скорости
+
+item.LifeSmallRing.name=Малое кольцо жизни
+item.DamageSmallRing.name=Малое кольцо силы
+item.StaminaSmallRing.name=Малое кольцо выносливости
+item.SpeedSmallRing.name=Малое кольцо скорости
+
+item.LifeRing.name=Кольцо жизни
+item.DamageRing.name=Кольцо силы
+item.StaminaRing.name=Кольцо выносливости
+item.SpeedRing.name=Кольцо скорости
+
+item.SmallBasicRing.name=Малое пустое кольцо
+item.BasicRing.name=Пустое кольцо
+
+item.HealingAmulet.name=Амулет жизни
+item.StaminaAmulet.name=Амулет выносливости
+item.StrengthAmulet.name=Амулет силы
+
+item.VampirismAmulet.name=Амулет вампира
+item.CleansingAmulet.name=Амулет очищения
+item.PhoenixAmulet.name=Амулет феникса
+item.CowardAmulet.name=Амулет труса
+item.DragonAmulet.name=Амулет дракона
+item.VeilAmulet.name=Амулет завесы
+item.ThornsAmulet.name=Амулеты шипов
+
+item.GoldBasicAmulet.name=Пустой амулет из золота
+item.SilverBasicAmulet.name=Пустой амулет из серебра
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Крафтовые блоки/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.MagicFurnace.name=Арканный тигель
+method.arcanum_crucible=Арканный тигель
+gui.arcanum_crucible=Арканный тигель

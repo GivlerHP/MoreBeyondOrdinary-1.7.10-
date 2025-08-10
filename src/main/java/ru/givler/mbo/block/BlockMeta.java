@@ -11,7 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import ru.givler.mbo.ItemBlockMetadata;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class BlockMeta extends Block {
         this.setResistance(10.0F);         // Устанавливаем сопротивление взрывам
         this.setHarvestLevel("pick_axe", 0);   // Устанавливаем инструмент, необходимый для добычи блока
         this.setStepSound(soundTypeStone);                  // Устанавливаем звук при размещении/разрушении блока
-        this.setBlockTextureName(main.MODID + ":" + texture);       // Задаём текстуру блока
+        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture);       // Задаём текстуру блока
         GameRegistry.registerBlock(this, ItemBlockMetadata.class, name);   // Регистрируем блок в системе Minecraft, используя уникальное имя
     }
 

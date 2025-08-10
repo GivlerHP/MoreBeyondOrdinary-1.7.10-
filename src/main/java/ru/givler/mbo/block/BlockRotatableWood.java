@@ -6,7 +6,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.BlockLog;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class BlockRotatableWood extends BlockLog {
@@ -33,8 +33,8 @@ public class BlockRotatableWood extends BlockLog {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister iconRegister) {
-        this.topIcon = iconRegister.registerIcon(main.MODID + ":" + topTexture);
-        this.sideIcon = iconRegister.registerIcon(main.MODID + ":" + sideTexture);
+        this.topIcon = iconRegister.registerIcon(MoreBeyondOrdinary.MODID + ":" + topTexture);
+        this.sideIcon = iconRegister.registerIcon(MoreBeyondOrdinary.MODID + ":" + sideTexture);
     }
 
     @Override

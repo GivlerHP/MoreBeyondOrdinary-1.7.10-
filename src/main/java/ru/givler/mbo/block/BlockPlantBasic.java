@@ -3,7 +3,7 @@ package ru.givler.mbo.block;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.material.Material;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class BlockPlantBasic extends BlockBush {
@@ -11,7 +11,7 @@ public class BlockPlantBasic extends BlockBush {
         super(Material.plants);
 
         this.setBlockName(name);
-        this.setBlockTextureName(main.MODID + ":" + texture);
+        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         this.setHardness(0.2F);
         this.setResistance(1.0F);

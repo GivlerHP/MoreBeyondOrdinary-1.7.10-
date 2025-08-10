@@ -5,12 +5,12 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.World;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 
 @SideOnly(Side.CLIENT)
 public class ParticleDarkMagic extends EntityFX {
 
-    public static final String NAME = main.MODID + "darkmagic";
+    public static final String NAME = MoreBeyondOrdinary.MODID + "darkmagic";
 
     private int baseSpellTextureIndex = 128;
 

@@ -1,33 +1,34 @@
 package ru.givler.mbo.item.ring;
 
-import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import minefantasy.mf2.api.stamina.StaminaBar;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.StatCollector;
 import ru.givler.mbo.item.ItemRingBase;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.List;
 import java.util.UUID;
 
 public class ItemLifeRing extends ItemRingBase {
-    public ItemLifeRing(String name, String texture) {
+    private final Double value;
+    private final String level;
+
+    public ItemLifeRing(String name, String texture, Double value, String level) {
         this.setUnlocalizedName(name);
-        this.setTextureName(main.MODID + ":" + texture);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxStackSize(1);
-        this.setMaxDamage(10);
         GameRegistry.registerItem(this, name);
+
+        this.value = value;
+        this.level = level;
     }
 
     @Override
@@ -46,7 +47,7 @@ public class ItemLifeRing extends ItemRingBase {
         if (player.getEntityAttribute(SharedMonsterAttributes.maxHealth)
                 .getModifier(uniqueId) == null) {
 
-            AttributeModifier modifier = new AttributeModifier(uniqueId, "ring_life", 2.0D, 0);
+            AttributeModifier modifier = new AttributeModifier(uniqueId, "ring_life", this.value, 0);
             player.getEntityAttribute(SharedMonsterAttributes.maxHealth).applyModifier(modifier);
         }
     }
@@ -69,7 +70,7 @@ public class ItemLifeRing extends ItemRingBase {
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-        String key = "description.ring." + this.getUnlocalizedName().substring(5);
+        String key = "description.ring." + this.level + "." + this.getUnlocalizedName().substring(5);
         if (StatCollector.canTranslate(key)) {
             list.add(StatCollector.translateToLocal(key));
         }

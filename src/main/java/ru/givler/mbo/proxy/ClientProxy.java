@@ -2,6 +2,7 @@ package ru.givler.mbo.proxy;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.block.Block;
@@ -22,14 +23,12 @@ import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.handler.ClientKeyHandler;
 import ru.givler.mbo.handler.PotionClientHandler;
 import ru.givler.mbo.handler.TooltipEvents;
+import ru.givler.mbo.integration.nei.ArcanumRecipeHandler;
 import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
-import ru.givler.mbo.potion.SixthSense;
 import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.registry.ModelRegistry;
-import ru.givler.mbo.render.RenderCrossbow;
-import ru.givler.mbo.render.RenderLongsword;
-import ru.givler.mbo.render.RenderUchigatana;
+import ru.givler.mbo.render.*;
 import ru.givler.mbo.render.decormodels.TemplateModelRenderer;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 
@@ -38,16 +37,25 @@ import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 public class ClientProxy extends CommonProxy {
     public static KeyBinding activateAmuletKey;
 
+    @Override
+    public World getClientWorld() {
+        return Minecraft.getMinecraft().theWorld;
+    }
+
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
     }
 
     public void init(FMLInitializationEvent event) {
         super.init(event);
-        activateAmuletKey = new KeyBinding("Кнопка амулета", Keyboard.KEY_R, "MoreBeyondOrdinary");
+        activateAmuletKey = new KeyBinding("key.mbo.amulet.desc", Keyboard.KEY_R, "MoreBeyondOrdinary");
         ClientRegistry.registerKeyBinding(activateAmuletKey);
-
         FMLCommonHandler.instance().bus().register(new ClientKeyHandler());
+
+        if (Loader.isModLoaded("NotEnoughItems")) {
+            codechicken.nei.api.API.registerRecipeHandler(new ArcanumRecipeHandler());
+            codechicken.nei.api.API.registerUsageHandler(new ArcanumRecipeHandler());
+        }
 
         bindDefaultRender(ModelRegistry.ModelThreads);
         bindDefaultRender(ModelRegistry.ModelCloth);
@@ -149,6 +157,7 @@ public class ClientProxy extends CommonProxy {
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.RustyLongsword, new RenderLongsword(ItemRegistry.RustyLongsword.getScale()));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.Uchigatana, new RenderUchigatana(ItemRegistry.Uchigatana.getScale()));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.OldBowHunting, new RenderCrossbow());
+        RenderStoneGolem.register();
     }
 
     @Override

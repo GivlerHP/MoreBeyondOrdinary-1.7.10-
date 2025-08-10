@@ -115,5 +115,12 @@
   "temple": {"category": "player", "sounds": [{"name": "temple", "stream": false}]},
   "visions": {"category": "player", "sounds": [{"name": "visions", "stream": false}]},
 
-  "theend": {"category": "music", "sounds": [{"name": "theend", "stream": true}]}
+  "theend": {"category": "music", "sounds": [{"name": "theend", "stream": true}]},
+
+  	"stonegolem_walk": {"category": "hostile","sounds": [
+		{"name": "mob/stonegolem_walk1","stream": false},
+		{"name": "mob/stonegolem_walk2","stream": false}
+		]},
+    "stonegolem_death": {"category": "hostile", "sounds": [{"name": "mob/stonegolem_death", "stream": false}]},
+    "stonegolem_hit": {"category": "hostile", "sounds": [{"name": "mob/stonegolem_hit", "stream": false}]}
 }

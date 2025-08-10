@@ -6,7 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class BlockFogGrey extends Block {
@@ -22,7 +22,7 @@ public class BlockFogGrey extends Block {
         this.setResistance(10.0F);         // Устанавливаем сопротивление взрывам
         this.setHarvestLevel("pick_axe", 1);  // Устанавливаем инструмент, необходимый для добычи блока
         this.setStepSound(soundTypeStone);              // Устанавливаем звук при размещении/разрушении блока
-        this.setBlockTextureName(main.MODID + ":" + texture); // Задаём текстуру блока
+        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture); // Задаём текстуру блока
         this.setBlockUnbreakable();
         GameRegistry.registerBlock(this, name);        // Регистрируем блок в системе Minecraft, используя уникальное имя
     }

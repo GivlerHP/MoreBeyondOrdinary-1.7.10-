@@ -6,7 +6,7 @@ import net.minecraft.block.BlockWall;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
-import ru.givler.mbo.main;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class BlockBasicWall extends BlockWall {
@@ -24,7 +24,7 @@ public class BlockBasicWall extends BlockWall {
         this.setResistance(10.0F);
         this.setHarvestLevel("pick_axe", 1);
         this.setStepSound(soundTypeStone);
-        this.setBlockTextureName(main.MODID + ":" + texture);
+        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         GameRegistry.registerBlock(this, name + "_wall");
     }
 

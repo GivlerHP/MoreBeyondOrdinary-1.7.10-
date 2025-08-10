@@ -2,19 +2,7 @@ package ru.givler.mbo.registry;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.potion.Potion;
-import ru.givler.mbo.potion.Hex;
-import ru.givler.mbo.potion.Vampirism;
-import ru.givler.mbo.potion.MeleeDamage;
-import ru.givler.mbo.potion.Dodge;
-import ru.givler.mbo.potion.Phoenix;
-import ru.givler.mbo.potion.SixthSense;
-import ru.givler.mbo.potion.Magnetism;
-import ru.givler.mbo.potion.BashStun;
-import ru.givler.mbo.potion.ApplyStun;
-import ru.givler.mbo.potion.Vulnerability;
-import ru.givler.mbo.potion.DodgeHit;
-import ru.givler.mbo.potion.Disarm;
-import ru.givler.mbo.potion.Thorns;
+import ru.givler.mbo.potion.*;
 
 public class PotionRegistry {
 
@@ -31,6 +19,7 @@ public class PotionRegistry {
     public static Potion DodgeHit;
     public static Potion Disarm;
     public static Potion Thorns;
+    public static Potion Curse;
 
 
     public static void preLoad(FMLPreInitializationEvent event) {
@@ -60,8 +49,8 @@ public class PotionRegistry {
         Potion.potionTypes[56] = Disarm;
         Thorns = new Thorns(57, false, 0x00BFFF);
         Potion.potionTypes[57] = Thorns;
-
-
+        Curse = new Curse(58, true, 0x5B1E31);
+        Potion.potionTypes[58] = Curse;
     }
 }
 
