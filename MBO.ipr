@@ -6,6 +6,9 @@
       <module name="com.yourname.modid.MBO.api" target="1.8" />
       <module name="com.yourname.modid.MBO.main" target="1.8" />
       <module name="com.yourname.modid.MBO.test" target="1.8" />
+      <module name="ru.givler.mbo.MBO.api" target="1.8" />
+      <module name="ru.givler.mbo.MBO.main" target="1.8" />
+      <module name="ru.givler.mbo.MBO.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="Encoding" addBOMForNewFiles="with NO BOM" />
@@ -160,6 +163,10 @@
       <module fileurl="file://$PROJECT_DIR$/com.yourname.modid.MBO.api.iml" filepath="$PROJECT_DIR$/com.yourname.modid.MBO.api.iml" />
       <module fileurl="file://$PROJECT_DIR$/com.yourname.modid.MBO.main.iml" filepath="$PROJECT_DIR$/com.yourname.modid.MBO.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/com.yourname.modid.MBO.test.iml" filepath="$PROJECT_DIR$/com.yourname.modid.MBO.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ru.givler.mbo.MBO.iml" filepath="$PROJECT_DIR$/ru.givler.mbo.MBO.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ru.givler.mbo.MBO.api.iml" filepath="$PROJECT_DIR$/ru.givler.mbo.MBO.api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ru.givler.mbo.MBO.main.iml" filepath="$PROJECT_DIR$/ru.givler.mbo.MBO.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ru.givler.mbo.MBO.test.iml" filepath="$PROJECT_DIR$/ru.givler.mbo.MBO.test.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK">

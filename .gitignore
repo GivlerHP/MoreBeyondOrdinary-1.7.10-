@@ -7,3 +7,5 @@ build/
 lib/MF2-dev.jar
 
 MBO.iws
+
+*.iml
