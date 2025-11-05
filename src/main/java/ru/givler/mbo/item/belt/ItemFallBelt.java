@@ -17,6 +17,5 @@ public class ItemFallBelt extends ItemBeltBase {
     }
     @Override
     public void onWornTick(ItemStack itemstack, EntityLivingBase player) {
-
     }
 }

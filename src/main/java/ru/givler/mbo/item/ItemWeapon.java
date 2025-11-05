@@ -13,7 +13,7 @@ public class ItemWeapon extends ItemSword {
         super(material);
         this.canRepair = false;
         this.setUnlocalizedName(name);
-        this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":weapon/" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(maxDamage);
         this.maxStackSize = maxStackSize;
@@ -29,7 +29,7 @@ public class ItemWeapon extends ItemSword {
     public void register() {
         GameRegistry.registerItem(this, this.getUnlocalizedName().substring(5));
     }
-    // Метод для получения масштаба
+
     public float getScale() {
         return scale;
     }

@@ -33,24 +33,24 @@ public class PotionRegistry {
         Potion.potionTypes[29] = Hex;
         Phoenix = new Phoenix(30, false, 0xD2691E);
         Potion.potionTypes[30] = Phoenix;
-        SixthSense = new SixthSense(50, false, 0x6B8E23);
-        Potion.potionTypes[50] = SixthSense;
-        Magnetism = new Magnetism(51, false, 0x8A2BE2);
-        Potion.potionTypes[51] = Magnetism;
-        BashStun = new BashStun(52, true, 0x8B4513);
-        Potion.potionTypes[52] = BashStun;
-        ApplyStun = new ApplyStun(53, false, 0xA52A2A);
-        Potion.potionTypes[53] = ApplyStun;
-        Vulnerability = new Vulnerability(54, true, 0x708090);
-        Potion.potionTypes[54] = Vulnerability;
-        DodgeHit = new DodgeHit(55, true, 0x808000);
-        Potion.potionTypes[55] = DodgeHit;
-        Disarm = new Disarm(56, true, 0xF8F8FF);
-        Potion.potionTypes[56] = Disarm;
-        Thorns = new Thorns(57, false, 0x00BFFF);
-        Potion.potionTypes[57] = Thorns;
-        Curse = new Curse(58, true, 0x5B1E31);
-        Potion.potionTypes[58] = Curse;
+        SixthSense = new SixthSense(60, false, 0x6B8E23);
+        Potion.potionTypes[60] = SixthSense;
+        Magnetism = new Magnetism(61, false, 0x8A2BE2);
+        Potion.potionTypes[61] = Magnetism;
+        BashStun = new BashStun(62, true, 0x8B4513);
+        Potion.potionTypes[62] = BashStun;
+        ApplyStun = new ApplyStun(63, false, 0xA52A2A);
+        Potion.potionTypes[63] = ApplyStun;
+        Vulnerability = new Vulnerability(64, true, 0x708090);
+        Potion.potionTypes[64] = Vulnerability;
+        DodgeHit = new DodgeHit(65, true, 0x808000);
+        Potion.potionTypes[65] = DodgeHit;
+        Disarm = new Disarm(66, true, 0xF8F8FF);
+        Potion.potionTypes[66] = Disarm;
+        Thorns = new Thorns(67, false, 0x00BFFF);
+        Potion.potionTypes[67] = Thorns;
+        Curse = new Curse(68, true, 0x5B1E31);
+        Potion.potionTypes[68] = Curse;
     }
 }
 

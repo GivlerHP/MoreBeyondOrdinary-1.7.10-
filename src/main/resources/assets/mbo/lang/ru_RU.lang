@@ -16,6 +16,14 @@ message.amulet_ready_in=Амулет будет готов через %s сек
 message.amulet_not_xp=Не хватает опыта, необходимо минимум: %s уровня
 key.mbo.amulet.desc=Кнопка активации амулета
 
+# SereneSeasons compat
+tooltip.mbo.fertile_seasons=Плодородные сезоны
+tooltip.mbo.year_round=Круглый год
+tooltip.mbo.spring=Весна
+tooltip.mbo.summer=Лето
+tooltip.mbo.autumn=Осень
+tooltip.mbo.winter=Зима
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Блоки, ступеньки, плиты, ограда/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -398,23 +406,34 @@ tile.ModelClock.name=Настенные часы
 tile.ModelBrokenMechanism.name=Сломанный механизм  
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Тотемы/
+/Глифы/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-item.TotemAmphibian.name=Тотем амфибии
-item.TotemDragon.name=Тотем дракона
-item.TotemHawk.name=Тотем ястреба
-item.TotemMiner.name=Тотем шахтёра
-item.TotemOwl.name=Тотем совы
-item.TotemWeapon.name=Тотем призрачного оружия
-item.TotemCleansing.name=Тотем очищения
-item.TotemHealing.name=Тотем массового лечения
+item.GlyphAmphibian.name=Глиф амфибии
+item.GlyphDragon.name=Глиф дракона
+item.GlyphHawk.name=Глиф ястреба
+item.GlyphMiner.name=Глиф землекопа
+item.GlyphOwl.name=Глиф совы
+item.GlyphWeapon.name=Глиф призрачного оружия
+item.GlyphCleansing.name=Глиф очищения
+item.GlyphHealing.name=Глиф массового лечения
+item.BrokenStaffHealing.name=Колокольчик клирика
+item.GlyphVoid.name=Неозарённый глиф
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Оружие/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-item.RustyLongsword.name=Ржавый двуручный меч
+item.BrokenLongsword.name=Ржавый двуручный меч
+item.BrokenSword.name=Сломанный меч
+item.BrokenDagger.name=Затупленный кинжал
+item.BrokenRapier.name=Затупленная рапира
+item.BrokenMace.name=Старый шестопёр
+item.BrokenAxe.name=Ржавый топор
+item.BrokenCudgel.name=Дубина
 item.WeaponRapier.name=Призрачная рапира
-item.OldBowHunting.name=Маленький охотничий лук
+
+item.BrokenBowHunting.name=Старый лук
+item.BrokenStaffFire.name=Старый посох пироманта
+item.BrokenGrimoireWater.name=Потрепанный гримуар воды
 item.Uchigatana.name=Утигата
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -534,10 +553,50 @@ item.PhoenixAmulet.name=Амулет феникса
 item.CowardAmulet.name=Амулет труса
 item.DragonAmulet.name=Амулет дракона
 item.VeilAmulet.name=Амулет завесы
-item.ThornsAmulet.name=Амулеты шипов
+item.ThronsAmulet.name=Амулет шипов
+item.MercenaryAmulet.name=Амулет наёмника
 
 item.GoldBasicAmulet.name=Пустой амулет из золота
 item.SilverBasicAmulet.name=Пустой амулет из серебра
+
+item.FertilityBelt.name=Пояс фермера
+item.FallBelt.name=Пояс мягкого падения
+item.MinerBelt.name=Пояс шахтёра
+item.WaterminerBelt.name=Пояс подводного шахтёра
+item.KnightBelt.name=Трофей на пояс
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Броня/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.KnightHelmet.name=Старый шлем рыцаря
+item.KnightChest.name=Старый нагрудник рыцаря
+item.KnightLegs.name=Старые поножи рыцаря
+item.KnightBoots.name=Старые ботинки рыцаря
+
+item.MercenaryHelmet.name=Изношенный шлем наёмника
+item.MercenaryChest.name=Изношенный нагрудник наёмника
+item.MercenaryLegs.name=Изношенные поножи наёмника
+item.MercenaryBoots.name=Изношенные ботинки
+
+item.WandererHelmet.name=Потрёпанный капюшон странника
+item.WandererChest.name=Потрёпанный кафтан странника
+item.WandererLegs.name=Потрёпанные штаны странника
+item.WandererBoots.name=Потрёпанные ботинки странника
+
+item.PyromancerHelmet.name=Увядший капюшон пироманта
+item.PyromancerChest.name=Увядший кафтан пироманта
+item.PyromancerLegs.name=Увядшие штаны пироманта
+item.PyromancerBoots.name=Увядшие ботинки пироманта
+
+item.ClericHelmet.name=Потрёпанный капюшон клирика
+item.ClericChest.name=Потрёпанная роба клирика
+item.ClericLegs.name=Потрёпанные шаровары клирика
+item.ClericBoots.name=Потрёпанные сапоги клирика
+
+item.WizardHelmet.name=Увядшая шапка волшебника
+item.WizardChest.name=Увядший кафтан волшебника
+item.WizardLegs.name=Увядшие штаны волшебника
+item.WizardBoots.name=Увядшиe ботинки волшебника
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Крафтовые блоки/

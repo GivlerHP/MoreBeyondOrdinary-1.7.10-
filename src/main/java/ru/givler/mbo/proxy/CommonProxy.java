@@ -1,5 +1,6 @@
 package ru.givler.mbo.proxy;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -46,8 +47,10 @@ public class CommonProxy {
         DrinkRegistry.preLoad(event);
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);
+        ArmorRegistry.preLoad(event);
         MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
         MinecraftForge.EVENT_BUS.register(new BeltEventHandler());
+        FMLCommonHandler.instance().bus().register(new BeltEventHandler());
         SpawnHandler.registerSpawns();
     }
 
@@ -63,7 +66,6 @@ public class CommonProxy {
     }
 
     public void postInit(FMLPostInitializationEvent event){
-
     }
 
     public void spawnParticle(EnumParticleType type, World world, double x, double y, double z, double motionX, double motionY, double motionZ) {

@@ -19,7 +19,7 @@ public class ItemFood extends net.minecraft.item.ItemFood {
         super(healAmount, saturation, isWolfFood);
         this.setUnlocalizedName(name);
         this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
-        this.setCreativeTab(CreativeTabRegistry.tabMBOfoods);
+       // this.setCreativeTab(CreativeTabRegistry.tabMBOfoods);
         this.maxStackSize = maxStackSize;
         potionEffects = new ArrayList<>();  // Инициализация списка эффектов
         GameRegistry.registerItem(this, name);

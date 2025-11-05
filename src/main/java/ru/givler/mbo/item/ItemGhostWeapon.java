@@ -17,7 +17,7 @@ public class ItemGhostWeapon extends ItemSword {
         super(material);
         this.canRepair = false;
         this.setUnlocalizedName(name);
-        this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":weapon/" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(maxDamage);
         this.maxStackSize = maxStackSize;

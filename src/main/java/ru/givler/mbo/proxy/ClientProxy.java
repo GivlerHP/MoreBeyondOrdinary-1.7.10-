@@ -4,6 +4,7 @@ import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -154,9 +155,10 @@ public class ClientProxy extends CommonProxy {
     public void registerRenderers() {
         // Используем метод регистрации рендерера для предмета
 
-        MinecraftForgeClient.registerItemRenderer(ItemRegistry.RustyLongsword, new RenderLongsword(ItemRegistry.RustyLongsword.getScale()));
+        MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenLongsword, new RenderLongsword(ItemRegistry.BrokenLongsword.getScale()));
+        MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenDagger, new RenderDagger(ItemRegistry.BrokenDagger.getScale()));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.Uchigatana, new RenderUchigatana(ItemRegistry.Uchigatana.getScale()));
-        MinecraftForgeClient.registerItemRenderer(ItemRegistry.OldBowHunting, new RenderCrossbow());
+        MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenBowHunting, new RenderCrossbow());
         RenderStoneGolem.register();
     }
 
@@ -186,6 +188,14 @@ public class ClientProxy extends CommonProxy {
                 ((ParticleDarkMagic) particle).setBaseSpellTextureIndex(textureIndex);
             }
             Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+        }
+    }
+
+    @Override
+    public void postInit(FMLPostInitializationEvent event) {
+        super.postInit(event);
+        if (cpw.mods.fml.common.Loader.isModLoaded("sereneseasons")) {
+         //   ru.givler.mbo.integration.sereneseasons.SereneSeasonsTooltipCompat.register();
         }
     }
 

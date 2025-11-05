@@ -19,7 +19,7 @@ public class ItemDrink extends Item {
     public ItemDrink(String name, String texture) {
         this.setUnlocalizedName(name);
         this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
-        this.setCreativeTab(CreativeTabRegistry.tabMBOfoods);
+       // this.setCreativeTab(CreativeTabRegistry.tabMBOfoods);
         this.setMaxStackSize(1);
         GameRegistry.registerItem(this, name);
 

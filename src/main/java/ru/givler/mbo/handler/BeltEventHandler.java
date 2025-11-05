@@ -2,11 +2,14 @@ package ru.givler.mbo.handler;
 
 import baubles.api.BaublesApi;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -37,8 +40,6 @@ public class BeltEventHandler {
             return;
         }
 
-        System.out.println("[FertilityBelt] Пояс обнаружен!");
-
         Block block = event.block;
 
         if (!CROPS.contains(block)) {
@@ -61,7 +62,6 @@ public class BeltEventHandler {
         }
 
         if (dropIsSmall) {
-            System.out.println("[FertilityBelt] Дроп слишком маленький — считаем культуру незрелой.");
             return;
         }
 
@@ -70,8 +70,6 @@ public class BeltEventHandler {
             extraDrops.add(drop.copy());
         }
         event.drops.addAll(extraDrops);
-
-        System.out.println("[FertilityBelt] Дроп удвоен! Было " + (event.drops.size() - extraDrops.size()) + ", стало " + event.drops.size());
     }
 
 
@@ -94,7 +92,7 @@ public class BeltEventHandler {
 
         if (!hasFallBelt(player)) {
             return;
-        }else {
+        } else {
             float original = event.ammount;
             System.out.println("Fall damage reduced: " + original + " -> " + event.ammount);
             event.ammount = original * 0.5F;
@@ -150,5 +148,33 @@ public class BeltEventHandler {
             }
         }
         return false;
+    }
+
+
+    @SubscribeEvent
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.START) return;
+        if (event.player.worldObj.isRemote) return;
+
+        EntityPlayer player = event.player;
+
+        float currentHealth = player.getHealth();
+        float maxHealth = player.getMaxHealth();
+
+        if (currentHealth >= maxHealth * 0.5F) return;
+
+
+        if (player.ticksExisted % 20 != 0) return;
+
+        for (int i = 0; i < BaublesApi.getBaubles(player).getSizeInventory(); i++) {
+            ItemStack stack = BaublesApi.getBaubles(player).getStackInSlot(i);
+            if (stack != null && stack.getItem() == ItemRegistry.KnightBelt) {
+                player.addPotionEffect(new PotionEffect(Potion.resistance.id, 200, 0));
+                player.addPotionEffect(new PotionEffect(Potion.regeneration.id, 200, 0));
+                player.worldObj.playSoundAtEntity(player, "random.break", 1.0F, 1.0F);
+                BaublesApi.getBaubles(player).setInventorySlotContents(i, null);
+                return;
+            }
+        }
     }
 }

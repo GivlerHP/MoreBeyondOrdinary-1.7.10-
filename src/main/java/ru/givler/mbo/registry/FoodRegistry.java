@@ -30,6 +30,6 @@ public class FoodRegistry {
         FoodMeatPie = new ItemFood("FoodMeatPie", "food/meat_pie", 8, 0.8F, 64, false);
 
         FoodStrangeFish = new ItemFood("FoodStrangeFish", "food/strange_fried_fish", 6, 0.8F, 1, false)
-                .addPotionEffect(Potion.regeneration.id, 100, 0);
+                .addPotionEffect(PotionRegistry.SixthSense.id, 800, 2);
     }
 }

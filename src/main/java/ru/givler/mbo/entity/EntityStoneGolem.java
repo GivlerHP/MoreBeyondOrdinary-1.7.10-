@@ -1,14 +1,16 @@
 package ru.givler.mbo.entity;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.*;
-import net.minecraft.entity.monster.EntityIronGolem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.world.World;
-import ru.givler.mbo.registry.ItemRegistry;
+        import net.minecraft.block.Block;
+        import net.minecraft.entity.EnumCreatureType;
+        import net.minecraft.entity.SharedMonsterAttributes;
+        import net.minecraft.entity.ai.*;
+        import net.minecraft.entity.monster.EntityIronGolem;
+        import net.minecraft.entity.player.EntityPlayer;
+        import net.minecraft.init.Blocks;
+        import net.minecraft.item.Item;
+        import net.minecraft.world.EnumDifficulty;
+        import net.minecraft.world.World;
+        import ru.givler.mbo.registry.ItemRegistry;
 
 public class EntityStoneGolem extends EntityIronGolem {
 
@@ -71,7 +73,36 @@ public class EntityStoneGolem extends EntityIronGolem {
 
     @Override
     public boolean getCanSpawnHere() {
-        return this.posY < 30 && super.getCanSpawnHere();
+
+        if (this.worldObj.difficultySetting == EnumDifficulty.PEACEFUL) {
+            return false;
+        }
+
+        if (this.posY >= 40.0D) {
+            return false;
+        }
+
+        int light = this.worldObj.getBlockLightValue(
+                (int) Math.floor(this.posX),
+                (int) Math.floor(this.posY),
+                (int) Math.floor(this.posZ)
+        );
+        if (light > 7) {
+            return false;
+        }
+
+        Block blockBelow = this.worldObj.getBlock(
+                (int) Math.floor(this.posX),
+                (int) Math.floor(this.posY) - 1,
+                (int) Math.floor(this.posZ)
+        );
+        if (blockBelow == Blocks.grass ) {
+            return false;
+        }
+
+        return this.worldObj.checkNoEntityCollision(this.boundingBox)
+                && this.worldObj.getCollidingBoundingBoxes(this, this.boundingBox).isEmpty()
+                && !this.worldObj.isAnyLiquid(this.boundingBox);
     }
 
     @Override
@@ -88,6 +119,29 @@ public class EntityStoneGolem extends EntityIronGolem {
 
         if (this.rand.nextFloat() < 0.10F) {
             this.dropItem(ItemRegistry.SapphireHeart, 1);
+        }
+    }
+
+    @Override
+    public boolean isCreatureType(EnumCreatureType type, boolean forSpawnCount) {
+        if (type == EnumCreatureType.monster) {
+            return true;
+        }
+        return super.isCreatureType(type, forSpawnCount);
+    }
+
+    @Override
+    protected boolean canDespawn() {
+        return true;
+    }
+
+    @Override
+    public void onLivingUpdate() {
+        super.onLivingUpdate();
+
+        if (!this.worldObj.isRemote && this.worldObj.difficultySetting == EnumDifficulty.PEACEFUL) {
+            this.setDead();
+            return;
         }
     }
 }

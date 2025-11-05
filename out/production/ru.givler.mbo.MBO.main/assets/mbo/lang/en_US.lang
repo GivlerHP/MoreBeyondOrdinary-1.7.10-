@@ -1,0 +1,473 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Creative Tabs/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+itemGroup.MBOblocks=[MBO] Blocks  
+itemGroup.MBOitems=[MBO] Items  
+itemGroup.MBOfoods=[MBO] Food and Drinks  
+itemGroup.MBOdecors=[MBO] Decor  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Chat Messages/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+message.fog.warning=Something terrible lurks within the fog... If you dare to step inside, prepare for a battle!  
+message.fog.closed=You touch the fog, but it's like a living wall — it won't let you through...
+tooltip.durability=Durability
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Blocks, Stairs, Slabs, Walls/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.BlockGreyStone.name=Grey Stone
+tile.BlockGreyCobblestone.name=Grey Cobblestone
+tile.BlockGreyCobblesMossy.name=Mossy Grey Cobblestone
+tile.BlockEndbrick.name=End Brick
+tile.BlockImperialBrick.name=Imperial Brick
+tile.BlockHeneizenBrick.name=Heneizen Brick
+tile.BlockIrgadBrick.name=Irgad Brick
+tile.BlockFiredClay.name=Fired Bricks
+
+tile.BlockClayWall.name=Old Clay Wall
+
+tile.BlockSandstone.0.name=Reinforced Sandstone
+tile.BlockSandstone.1.name=Reinforced Smooth Sandstone
+tile.BlockSandstone.2.name=Reinforced Chiseled Sandstone
+
+tile.BlockStonebrick.0.name=Grey Stone Brick
+tile.BlockStonebrick.1.name=Cracked Grey Stone Brick
+tile.BlockStonebrick.2.name=Mossy Grey Stone Brick
+tile.BlockStonebrick.3.name=Chiseled Grey Stone Brick
+
+tile.BlockFogWhite.name=White Fog
+tile.BlockFogGrey.name=Grey Fog
+
+tile.TotemStone.name=Stone Totem
+
+
+tile.BooksheelSkull.name=Skull Bookshelf
+tile.BooksheelWeb.name=Web Bookshelf
+tile.BooksheelSkullWeb.name=Skull and Web Bookshelf
+tile.BooksheelSkullCandle.name=Skull and Candle Bookshelf
+tile.BooksheelCandle.name=Candle Bookshelf
+tile.BooksheelVoid.name=Half-Empty Bookshelf
+
+tile.DebarkedOak.name=Debarked Oak
+tile.DebarkedSpruce.name=Debarked Spruce
+tile.DebarkedBirch.name=Debarked Birch
+tile.DebarkedJungle.name=Debarked Jungle Wood
+tile.DebarkedAcacia.name=Debarked Acacia
+tile.DebarkedBigOak.name=Debarked Dark Oak
+
+tile.WoodTotemOak.name=Totemic Oak
+tile.WoodTotemSpruce.name=Totemic Spruce
+tile.WoodTotemBirch.name=Totemic Birch
+tile.WoodTotemJungle.name=Totemic Jungle Wood
+tile.WoodTotemAcacia.name=Totemic Acacia
+tile.WoodTotemBigOak.name=Totemic Dark Oak
+
+tile.tile.BlockStonebrick_stairs_0.0.name=Grey Brick Stairs
+tile.tile.BlockSandstone_stairs_0.0.name=Reinforced Sandstone Stairs
+
+tile.tile.BlockGreyStone_stairs.name=Grey Stone Stairs
+tile.tile.BlockGreyCobblestone_stairs.name=Grey Cobblestone Stairs
+tile.tile.BlockEndbrick_stairs.name=End Brick Stairs
+tile.tile.BlockImperialBrick_stairs.name=Imperial Brick Stairs
+tile.tile.BlockHeneizenBrick_stairs.name=Heneizen Brick Stairs
+tile.tile.BlockIrgadBrick_stairs.name=Irgad Brick Stairs
+tile.tile.BlockFiredClay_stairs.name=Fired Brick Stairs
+
+tile.SlabStonebrick_slab.name=Grey Brick Slab
+tile.SlabSandstone_slab.name=Reinforced Sandstone Slab
+
+tile.SlabStone_slab.name=Grey Stone Slab
+tile.SlabCobblestone_slab.name=Grey Cobblestone Slab
+tile.SlabEndbrick_slab.name=End Brick Slab
+tile.SlabImperialBrick_slab.name=Imperial Brick Slab
+tile.SlabHeneizenBrick_slab.name=Heneizen Brick Slab
+tile.SlabIrgadBrick_slab.name=Irgad Brick Slab
+tile.SlabFiredClay_slab.name=Fired Brick Slab
+
+tile.WallStonebrick_wall.name=Grey Brick Wall
+tile.WallSandstone_wall.name=Reinforced Sandstone Wall
+tile.WallFiredClay_wall.name=Fired Brick Wall
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Roof/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.FlakeRoof.0.name=Black Flake Roof
+tile.FlakeRoof.1.name=Blue Flake Roof
+tile.FlakeRoof.2.name=Brown Flake Roof
+tile.FlakeRoof.3.name=Light Blue Flake Roof
+tile.FlakeRoof.4.name=Gray Flake Roof
+tile.FlakeRoof.5.name=Green Flake Roof
+tile.FlakeRoof.6.name=Turquoise Flake Roof
+tile.FlakeRoof.7.name=Lime Flake Roof
+tile.FlakeRoof.8.name=Purple Flake Roof
+tile.FlakeRoof.9.name=Yellow Flake Roof
+tile.FlakeRoof.10.name=Pink Flake Roof
+tile.FlakeRoof.11.name=Violet Flake Roof
+tile.FlakeRoof.12.name=Red Flake Roof
+tile.FlakeRoof.13.name=Light Gray Flake Roof
+tile.FlakeRoof.14.name=White Flake Roof
+tile.FlakeRoof.15.name=Orange Flake Roof
+
+tile.LaminatedRoof.0.name=Black Laminated Roof
+tile.LaminatedRoof.1.name=Blue Laminated Roof
+tile.LaminatedRoof.2.name=Brown Laminated Roof
+tile.LaminatedRoof.3.name=Light Blue Laminated Roof
+tile.LaminatedRoof.4.name=Gray Laminated Roof
+tile.LaminatedRoof.5.name=Green Laminated Roof
+tile.LaminatedRoof.6.name=Turquoise Laminated Roof
+tile.LaminatedRoof.7.name=Lime Laminated Roof
+tile.LaminatedRoof.8.name=Purple Laminated Roof
+tile.LaminatedRoof.9.name=Yellow Laminated Roof
+tile.LaminatedRoof.10.name=Pink Laminated Roof
+tile.LaminatedRoof.11.name=Violet Laminated Roof
+tile.LaminatedRoof.12.name=Red Laminated Roof
+tile.LaminatedRoof.13.name=Light Gray Laminated Roof
+tile.LaminatedRoof.14.name=White Laminated Roof
+tile.LaminatedRoof.15.name=Orange Laminated Roof
+
+tile.SheetRoof.0.name=Black Sheet Roof
+tile.SheetRoof.1.name=Blue Sheet Roof
+tile.SheetRoof.2.name=Brown Sheet Roof
+tile.SheetRoof.3.name=Light Blue Sheet Roof
+tile.SheetRoof.4.name=Gray Sheet Roof
+tile.SheetRoof.5.name=Green Sheet Roof
+tile.SheetRoof.6.name=Turquoise Sheet Roof
+tile.SheetRoof.7.name=Lime Sheet Roof
+tile.SheetRoof.8.name=Purple Sheet Roof
+tile.SheetRoof.9.name=Yellow Sheet Roof
+tile.SheetRoof.10.name=Pink Sheet Roof
+tile.SheetRoof.11.name=Violet Sheet Roof
+tile.SheetRoof.12.name=Red Sheet Roof
+tile.SheetRoof.13.name=Light Gray Sheet Roof
+tile.SheetRoof.14.name=White Sheet Roof
+tile.SheetRoof.15.name=Orange Sheet Roof
+
+tile.StandartRoof.0.name=Laminated Roof
+tile.StandartRoof.1.name=Sheet Roof
+tile.StandartRoof.2.name=Flake Roof
+
+tile.UnfiredRoof.0.name=Unfired Laminated Roof
+tile.UnfiredRoof.1.name=Unfired Sheet Roof
+tile.UnfiredRoof.2.name=Unfired Flake Roof
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Roof Stairs/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.tile.LaminatedRoof_stairs_0.0.name=Black Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_1.0.name=Blue Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_2.0.name=Brown Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_3.0.name=Light Blue Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_4.0.name=Gray Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_5.0.name=Green Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_6.0.name=Turquoise Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_7.0.name=Lime Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_8.0.name=Purple Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_9.0.name=Yellow Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_10.0.name=Pink Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_11.0.name=Violet Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_12.0.name=Red Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_13.0.name=Light Gray Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_14.0.name=White Laminated Roof Stairs
+tile.tile.LaminatedRoof_stairs_15.0.name=Orange Laminated Roof Stairs
+
+tile.tile.SheetRoof_stairs_0.0.name=Black Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_1.0.name=Blue Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_2.0.name=Brown Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_3.0.name=Light Blue Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_4.0.name=Gray Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_5.0.name=Green Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_6.0.name=Turquoise Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_7.0.name=Lime Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_8.0.name=Purple Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_9.0.name=Yellow Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_10.0.name=Pink Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_11.0.name=Violet Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_12.0.name=Red Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_13.0.name=Light Gray Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_14.0.name=White Sheet Roof Stairs
+tile.tile.SheetRoof_stairs_15.0.name=Orange Sheet Roof Stairs
+
+tile.tile.FlakeRoof_stairs_0.0.name=Black Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_1.0.name=Blue Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_2.0.name=Brown Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_3.0.name=Light Blue Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_4.0.name=Gray Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_5.0.name=Green Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_6.0.name=Turquoise Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_7.0.name=Lime Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_8.0.name=Purple Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_9.0.name=Yellow Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_10.0.name=Pink Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_11.0.name=Violet Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_12.0.name=Red Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_13.0.name=Light Gray Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_14.0.name=White Flake Roof Stairs
+tile.tile.FlakeRoof_stairs_15.0.name=Orange Flake Roof Stairs
+
+tile.tile.StandartRoof_stairs_0.0.name=Laminated Roof Stairs
+tile.tile.StandartRoof_stairs_1.0.name=Sheet Roof Stairs
+tile.tile.StandartRoof_stairs_2.0.name=Flake Roof Stairs
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Roof Slab/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.tile.LaminatedRoof_slab_0.0.name=Black Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_1.0.name=Blue Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_2.0.name=Brown Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_3.0.name=Light Blue Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_4.0.name=Gray Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_5.0.name=Green Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_6.0.name=Turquoise Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_7.0.name=Lime Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_8.0.name=Purple Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_9.0.name=Yellow Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_10.0.name=Pink Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_11.0.name=Violet Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_12.0.name=Red Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_13.0.name=Light Gray Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_14.0.name=White Laminated Roof Slab
+tile.tile.LaminatedRoof_slab_15.0.name=Orange Laminated Roof Slab
+
+tile.tile.SheetRoof_slab_0.0.name=Black Sheet Roof Slab
+tile.tile.SheetRoof_slab_1.0.name=Blue Sheet Roof Slab
+tile.tile.SheetRoof_slab_2.0.name=Brown Sheet Roof Slab
+tile.tile.SheetRoof_slab_3.0.name=Light Blue Sheet Roof Slab
+tile.tile.SheetRoof_slab_4.0.name=Gray Sheet Roof Slab
+tile.tile.SheetRoof_slab_5.0.name=Green Sheet Roof Slab
+tile.tile.SheetRoof_slab_6.0.name=Turquoise Sheet Roof Slab
+tile.tile.SheetRoof_slab_7.0.name=Lime Sheet Roof Slab
+tile.tile.SheetRoof_slab_8.0.name=Purple Sheet Roof Slab
+tile.tile.SheetRoof_slab_9.0.name=Yellow Sheet Roof Slab
+tile.tile.SheetRoof_slab_10.0.name=Pink Sheet Roof Slab
+tile.tile.SheetRoof_slab_11.0.name=Violet Sheet Roof Slab
+tile.tile.SheetRoof_slab_12.0.name=Red Sheet Roof Slab
+tile.tile.SheetRoof_slab_13.0.name=Light Gray Sheet Roof Slab
+tile.tile.SheetRoof_slab_14.0.name=White Sheet Roof Slab
+tile.tile.SheetRoof_slab_15.0.name=Orange Sheet Roof Slab
+
+tile.tile.FlakeRoof_slab_0.0.name=Black Flake Roof Slab
+tile.tile.FlakeRoof_slab_1.0.name=Blue Flake Roof Slab
+tile.tile.FlakeRoof_slab_2.0.name=Brown Flake Roof Slab
+tile.tile.FlakeRoof_slab_3.0.name=Light Blue Flake Roof Slab
+tile.tile.FlakeRoof_slab_4.0.name=Gray Flake Roof Slab
+tile.tile.FlakeRoof_slab_5.0.name=Green Flake Roof Slab
+tile.tile.FlakeRoof_slab_6.0.name=Turquoise Flake Roof Slab
+tile.tile.FlakeRoof_slab_7.0.name=Lime Flake Roof Slab
+tile.tile.FlakeRoof_slab_8.0.name=Purple Flake Roof Slab
+tile.tile.FlakeRoof_slab_9.0.name=Yellow Flake Roof Slab
+tile.tile.FlakeRoof_slab_10.0.name=Pink Flake Roof Slab
+tile.tile.FlakeRoof_slab_11.0.name=Violet Flake Roof Slab
+tile.tile.FlakeRoof_slab_12.0.name=Red Flake Roof Slab
+tile.tile.FlakeRoof_slab_13.0.name=Light Gray Flake Roof Slab
+tile.tile.FlakeRoof_slab_14.0.name=White Flake Roof Slab
+tile.tile.FlakeRoof_slab_15.0.name=Orange Flake Roof Slab
+
+tile.tile.StandartRoof_slab_0.0.name=Slab of Laminated Roof Tiles
+tile.tile.StandartRoof_slab_1.0.name=Slab of Sheet Roof Tiles
+tile.tile.StandartRoof_slab_2.0.name=Slab of Flake Roof Tiles
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Roof Wood/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.RoofWood.0.name=Oak Roof
+tile.RoofWood.1.name=Spruce Roof
+tile.RoofWood.2.name=Birch Roof
+tile.RoofWood.3.name=Tropical Wood Roof
+tile.RoofWood.4.name=Acacia Roof
+tile.RoofWood.5.name=Dark Oak Roof
+
+tile.tile.RoofWood_stairs_0.0.name=Oak Roof Stairs
+tile.tile.RoofWood_stairs_1.0.name=Spruce Roof Stairs
+tile.tile.RoofWood_stairs_2.0.name=Birch Roof Stairs
+tile.tile.RoofWood_stairs_3.0.name=Tropical Wood Roof Stairs
+tile.tile.RoofWood_stairs_4.0.name=Acacia Roof Stairs
+tile.tile.RoofWood_stairs_5.0.name=Dark Oak Roof Stairs
+
+tile.tile.RoofWood_slab_0.0.name=Oak Roof Slab
+tile.tile.RoofWood_slab_1.0.name=Spruce Roof Slab
+tile.tile.RoofWood_slab_2.0.name=Birch Roof Slab
+tile.tile.RoofWood_slab_3.0.name=Tropical Wood Roof Slab
+tile.tile.RoofWood_slab_4.0.name=Acacia Roof Slab
+tile.tile.RoofWood_slab_5.0.name=Dark Oak Roof Slab
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Tailor Models/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelThreads.name=Spools of Thread
+tile.ModelTailorShelf.name=Tailor's Shelf
+tile.ModelCloth.name=Roll of Fabric
+tile.ModelDummy.name=Clothing Mannequin
+tile.ModelHangers.name=Hangers
+tile.ModelPillow.name=Needle Pillow
+tile.ModelRulers.name=Set of Rulers
+tile.ModelScissors.name=Tailor's Scissors
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Alchemist Models/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelIngredients.name=Alchemical Ingredients
+tile.ModelCauldron.name=Alchemical Cauldron
+tile.ModelBottles.name=Alchemical Bottles
+tile.ModelBooks.name=Alchemical Books
+tile.ModelAlchemistShelf.name=Alchemist Shelf
+tile.ModelAlchemicalFlag.name=Alchemical Flag
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Hunter Models/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelArrow.name=Arrows
+tile.ModelBowWall.name=Bow on Wall
+tile.ModelBow.name=Bow
+tile.ModelDucks.name=Duck Corpses
+tile.ModelFurKnife.name=Knife in Fur
+tile.ModelFur.name=Fur
+tile.ModelHorn.name=Horn
+tile.ModelLeatherDryer.name=Leather Dryer
+tile.ModelRabbits.name=Rabbit Corpses
+tile.ModelMooseHead.name=Moose Head
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Trader Models/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelMagnifyinGlass.name=Magnifying Glass
+tile.ModelBagGold.name=Bag of Gold
+tile.ModelCoins.name=Coins
+tile.ModelSmallChest.name=Small Chest
+tile.ModelScales.name=Scales
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Farmer Models/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelBagsPotatoes.name=Potato Bags
+tile.ModelBasketApples.name=Basket of Apples
+tile.ModelBasketBerries.name=Basket of Berries
+tile.ModelBucket.name=Bucket
+tile.ModelCarrot.name=Carrot
+tile.ModelGarlic.name=Garlic
+tile.ModelHay.name=Hay
+tile.ModelHayfork.name=Hayfork
+tile.ModelJugs.name=Jugs
+tile.ModelShelfFlower.name=Farmer's Shelf
+tile.ModelWateringCan.name=Watering Can
+tile.ModelWheelBarrow.name=Wheelbarrow
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Jeweler Models/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelFilledChest.name=Chest Filled with Jewels
+tile.ModelPliers.name=Jeweler's Pliers
+tile.ModelJewelryHammer.name=Jeweler's Hammer
+tile.ModelAmulet.name=Amulet
+tile.ModelInstruments.name=Jeweler's Tool Set
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Registrar Models/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelLute.name=Lute
+tile.ModelBroom.name=Broom
+tile.ModelWanted.name=Wanted Poster
+tile.ModelPapers.name=Stack of Papers
+tile.ModelKeys.name=Key Set
+tile.ModelDeskBell.name=Desk Bell
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Blacksmith Models/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelSword.name=Sword
+tile.ModelSwords.name=Swords
+tile.ModelShield1.name=Wall Shield with Flag
+tile.ModelShield2.name=Wall Wooden Shield
+tile.ModelShield3.name=Wall Iron Shield
+tile.ModelHelmet.name=Helmet
+tile.ModelHammer.name=Hammer
+tile.ModelDragonSlayer.name=Dragon Slayer
+tile.ModelAxe.name=Wall Axe
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Engineer Models/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelGas.name=Gas Cylinder
+tile.ModelOiler.name=Oil Can
+tile.ModelGears.name=Gears
+tile.ModelDrawing1.name=Blueprint I
+tile.ModelDrawing2.name=Blueprint II
+tile.ModelClock.name=Wall Clock
+tile.ModelBrokenMechanism.name=Broken Mechanism
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Totems/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.TotemAmphibian.name=Amphibian Totem
+item.TotemDragon.name=Dragon Totem
+item.TotemHawk.name=Hawk Totem
+item.TotemMiner.name=Miner Totem
+item.TotemOwl.name=Owl Totem
+item.TotemWeapon.name=Ghost Weapon Totem
+item.TotemCleansing.name=Cleansing Totem
+item.TotemHealing.name=Totem of Mass Healing
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Weapons/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.RustyLongsword.name=Rusty Greatsword
+item.WeaponRapier.name=Phantom Rapier
+item.OldBowHunting.name=Small Hunting Bow
+item.Uchigatana.name=Uchigatana
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Drinks/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.DrinkWine.name=Wine  
+item.DrinkAle.name=Ale  
+item.DrinkMead.name=Mead  
+item.DrinkCider.name=Cider  
+item.DrinkBarrelBeer.name=Barrel Beer  
+item.DrinkBrandy.name=Brandy  
+item.DrinkMulledWine.name=Mulled Wine  
+item.DrinkTincure.name=Berry Tincture  
+item.DrinkBreathWyvern.name=Wyvern's Breath  
+item.DrinkBeer.name=Beer  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Foods/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.FoodBacon.name=Bacon  
+item.FoodBlackBread.name=Black Bread  
+item.FoodBurger.name=Burger  
+item.FoodChowder.name=Chowder  
+item.FoodDeliciousChicken.name=Chicken Leg  
+item.FoodDeliciousSalad.name=Salad  
+item.FoodDivineSteak.name=Juicy Steak  
+item.FoodFreshBread.name=Fresh Bread  
+item.FoodFriedSausage.name=Fried Sausage  
+item.FoodCheese.name=Cheese  
+item.FoodSoup.name=Soup  
+item.FoodMeatPie.name=Meat Pie  
+item.FoodStrangeFish.name=Strange Fish
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Materials/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.Metal.0.name=Unrefined Stainless Steel
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Plants and Mushrooms/  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.Glowshroom.0.name=Rainbow Dreams
+tile.Glowshroom.1.name=Snottling
+tile.Glowshroom.2.name=Violet Joy
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Effects/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+potion.melee_damage=Melee Strength
+potion.vampirism=Vampirism
+potion.dodge=Dodge
+potion.hex=Hex
+potion.phoenix=Phoenix Blessing
+potion.sixth_sense=Sixth Sense
+potion.magnetism=Magnetism
+potion.bushstun=Stun
+potion.apply_stun=Stunning Blow
+potion.vulnerability=Vulnerability
+potion.dodge_hit=Broken Dodge
+potion.disarm=Disarmed
