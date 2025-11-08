@@ -16,14 +16,6 @@ message.amulet_ready_in=Амулет будет готов через %s сек
 message.amulet_not_xp=Не хватает опыта, необходимо минимум: %s уровня
 key.mbo.amulet.desc=Кнопка активации амулета
 
-# SereneSeasons compat
-tooltip.mbo.fertile_seasons=Плодородные сезоны
-tooltip.mbo.year_round=Круглый год
-tooltip.mbo.spring=Весна
-tooltip.mbo.summer=Лето
-tooltip.mbo.autumn=Осень
-tooltip.mbo.winter=Зима
-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Блоки, ступеньки, плиты, ограда/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -194,9 +194,6 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);
-        if (cpw.mods.fml.common.Loader.isModLoaded("sereneseasons")) {
-         //   ru.givler.mbo.integration.sereneseasons.SereneSeasonsTooltipCompat.register();
-        }
     }
 
 }
