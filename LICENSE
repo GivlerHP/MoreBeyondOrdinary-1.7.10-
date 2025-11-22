@@ -1,7 +1,7 @@
-All source code (under src/main/java/hunternif) is licensed under GPL v3 or later.
-All textures (under src/main/resources/assets/antiqueatlas/textures) are licensed under Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0).
+All source code (under src/main/java/Givler) is licensed under GPL v3 or later.
+All textures (under src/main/resources/assets/mbo/textures) are licensed under Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0).
 
-Copyright (c) 2015 Hunternif <hunternif@gmail.com>
+Copyright (c) 2025 Givler <Givler228@gmail.com>
 
 --------------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ The licenses summarized:
 2. You are free to, but discouraged from using the source code for commercial purposes.
 
 3. You are free to use, modify and distribute the textures as long as:
-  3.1. You attribute them to Hunternif.
+  3.1. You attribute them to Givler.
   3.2. If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
 4. You may not use the textures for commercial purposes.
 
