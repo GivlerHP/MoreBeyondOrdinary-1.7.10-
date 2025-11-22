@@ -1,0 +1,34 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 0.75, 0]
+			},
+			"bones": [
+				{
+					"name": "cauldron",
+					"pivot": [-2, 0, 2],
+					"rotation": [0, -17.5, 0],
+					"cubes": [
+						{"origin": [1, 4, 2], "size": [3, 3, 0], "uv": [0, 0]},
+						{"origin": [-8, 4, 2], "size": [3, 3, 0], "uv": [0, 3]},
+						{"origin": [-6, 1, -2], "size": [8, 4, 8], "uv": [0, 0]},
+						{"origin": [-5, 5, -1], "size": [6, 1, 6], "uv": [18, 13]},
+						{"origin": [-2, 5, 2], "size": [1, 6, 1], "pivot": [-2, 5, 2], "rotation": [-35, -40, 0], "uv": [0, 19]},
+						{"origin": [-5, 0, -1], "size": [6, 1, 6], "uv": [0, 12]},
+						{"origin": [-8, 0.1, -7], "size": [6, 0, 6], "uv": [-6, 30]},
+						{"origin": [3, 0, -6], "size": [2, 2, 2], "uv": [0, 26]},
+						{"origin": [2, 0, -4], "size": [2, 2, 2], "uv": [0, 26]},
+						{"origin": [4, 0, -4], "size": [2, 3, 2], "uv": [4, 20]}
+					]
+				}
+			]
+		}
+	]
+}

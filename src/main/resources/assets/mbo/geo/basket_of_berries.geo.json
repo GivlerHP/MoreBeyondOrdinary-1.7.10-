@@ -1,0 +1,28 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 0.75, 0]
+			},
+			"bones": [
+				{
+					"name": "basketofberries",
+					"pivot": [0, 0, 0],
+					"rotation": [0, 57.5, 0],
+					"cubes": [
+						{"origin": [0, 5, -6], "size": [0, 6, 12], "pivot": [0, 5, 0], "rotation": [0, 0, -25], "uv": [0, 17]},
+						{"origin": [-4, 6, -5], "size": [8, 2, 10], "uv": [0, 37]},
+						{"origin": [-4, 0, -5], "size": [8, 6, 10], "uv": [0, 13]},
+						{"origin": [-7, 0.05, -6], "size": [14, 0, 13], "pivot": [0, 0, 0], "rotation": [0, -57.5, 0], "uv": [0, 0]}
+					]
+				}
+			]
+		}
+	]
+}

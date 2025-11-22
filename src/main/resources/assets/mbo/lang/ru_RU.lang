@@ -1,0 +1,598 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Креативные вкладки/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+itemGroup.MBOblocks=[MBO] Блоки
+itemGroup.MBOitems=[MBO] Предметы
+itemGroup.MBOfoods=[MBO] Еда и напитки
+itemGroup.MBOdecors=[MBO] Декор
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Сообщения в чат/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+message.fog.warning=За туманом скрывается нечто ужасное... Если ты осмелишься ступить внутрь, готовься к сражению!
+message.fog.closed=Ты касаешься тумана, но он словно живая стена — не пропускает тебя внутрь...
+tooltip.durability=Прочность
+message.amulet_ready_in=Амулет будет готов через %s сек
+message.amulet_not_xp=Не хватает опыта, необходимо минимум: %s уровня
+key.mbo.amulet.desc=Кнопка активации амулета
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Блоки, ступеньки, плиты, ограда/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.BlockGreyStone.name=Серый камень
+tile.BlockGreyCobblestone.name=Серый булыжник
+tile.BlockGreyCobblesMossy.name=Серый замшелый булыжник
+tile.BlockEndbrick.name=Кирпич края
+tile.BlockImperialBrick.name=Имперский кирпич
+tile.BlockHeneizenBrick.name=Генезийский кирпич
+tile.BlockIrgadBrick.name=Иргадский кирпич
+tile.BlockFiredClay.name=Обожженные кирпичи
+
+tile.BlockClayWall.name=Старая глиняная стена
+
+tile.BlockSandstone.0.name=Крепкий песчаник
+tile.BlockSandstone.1.name=Крепкий гладкий песчаник
+tile.BlockSandstone.2.name=Крепкий резной песчаник
+
+tile.BlockStonebrick.0.name=Кирпич из серого камня
+tile.BlockStonebrick.1.name=Потрескавшийся кирпич из серого камня
+tile.BlockStonebrick.2.name=Замшелый кирпич из серого камня
+tile.BlockStonebrick.3.name=Резной кирпич из серого камня
+
+tile.BlockFogWhite.name=Белый туман
+tile.BlockFogGrey.name=Серый туман
+tile.BlockGlass.name=Блок завесы
+
+tile.TotemStone.name=Каменный тотем
+
+tile.BooksheelSkull.name=Книжная полка с черепом
+tile.BooksheelWeb.name=Книжная полка с паутиной
+tile.BooksheelSkullWeb.name=Книжная полка с черепом и паутиной
+tile.BooksheelSkullCandle.name=Книжная полка со свечой и черепом
+tile.BooksheelCandle.name=Книжная полка со свечой
+tile.BooksheelVoid.name=Полупустая книжная полка
+
+tile.DebarkedOak.name=Окоренный дуб
+tile.DebarkedSpruce.name=Окоренная ель
+tile.DebarkedBirch.name=Окоренная берёза
+tile.DebarkedJungle.name=Окоренное тропическое дерево
+tile.DebarkedAcacia.name=Окоренная акация
+tile.DebarkedBigOak.name=Окоренный тёмный дуб
+
+tile.WoodTotemOak.name=Тотемный дуб
+tile.WoodTotemSpruce.name=Тотемная ель
+tile.WoodTotemBirch.name=Тотемная берёза
+tile.WoodTotemJungle.name=Тотемное тропическое дерева
+tile.WoodTotemAcacia.name=Тотемная акация
+tile.WoodTotemBigOak.name=Тотемный тёмный дуб
+
+tile.tile.BlockStonebrick_stairs_0.0.name=Ступеньки из серого кирпича
+tile.tile.BlockSandstone_stairs_0.0.name=Ступеньки из крепкого песчаника
+
+tile.tile.BlockGreyStone_stairs.name=Ступеньки из серого камня
+tile.tile.BlockGreyCobblestone_stairs.name=Ступеньки из серого булыжника
+tile.tile.BlockEndbrick_stairs.name=Ступеньки из кирпича края
+tile.tile.BlockImperialBrick_stairs.name=Ступеньки из имперского кирпича
+tile.tile.BlockHeneizenBrick_stairs.name=Ступеньки из генезийского кирпича
+tile.tile.BlockIrgadBrick_stairs.name=Ступеньки из иргадского кирпича
+tile.tile.BlockFiredClay_stairs.name=Ступеньки из обожженных кирпичей
+
+tile.SlabStonebrick_slab.name=Плита из серого кирпича
+tile.SlabSandstone_slab.name=Плита из крепкого песчаника
+
+tile.SlabStone_slab.name=Плита из серого камня
+tile.SlabCobblestone_slab.name=Плита из серого булыжника
+tile.SlabEndbrick_slab.name=Плита из кирпича края
+tile.SlabImperialBrick_slab.name=Плита из имперского кирпича
+tile.SlabHeneizenBrick_slab.name=Плита из генезийского кирпича
+tile.SlabIrgadBrick_slab.name=Плита из иргадского кирпича
+tile.SlabFiredClay_slab.name=Плита из обоженных кирпичей
+
+tile.WallStonebrick_wall.name=Ограда из серого кирпича
+tile.WallSandstone_wall.name=Ограда из крепкого песчаника
+tile.WallFiredClay_wall.name=Ограда из обоженных кирпичей
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Блоки черепицы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.FlakeRoof.0.name=Черная чешуйчатая черепица
+tile.FlakeRoof.1.name=Синяя чешуйчатая черепица
+tile.FlakeRoof.2.name=Коричневая чешуйчатая черепица
+tile.FlakeRoof.3.name=Голубая чешуйчатая черепица
+tile.FlakeRoof.4.name=Серая чешуйчатая черепица
+tile.FlakeRoof.5.name=Зеленая чешуйчатая черепица
+tile.FlakeRoof.6.name=Бирюзовая чешуйчатая черепица
+tile.FlakeRoof.7.name=Лаймовая чешуйчатая черепица
+tile.FlakeRoof.8.name=Пурпурная чешуйчатая черепица
+tile.FlakeRoof.9.name=Желтая чешуйчатая черепица
+tile.FlakeRoof.10.name=Розовая чешуйчатая черепица
+tile.FlakeRoof.11.name=Фиолетовая чешуйчатая черепица
+tile.FlakeRoof.12.name=Красная чешуйчатая черепица
+tile.FlakeRoof.13.name=Светло-серая чешуйчатая черепица
+tile.FlakeRoof.14.name=Белая чешуйчатая черепица
+tile.FlakeRoof.15.name=Оранжевая чешуйчатая черепица
+
+tile.LaminatedRoof.0.name=Черная пластинчатая черепица
+tile.LaminatedRoof.1.name=Синяя пластинчатая черепица
+tile.LaminatedRoof.2.name=Коричневая пластинчатая черепица
+tile.LaminatedRoof.3.name=Голубая пластинчатая черепица
+tile.LaminatedRoof.4.name=Серая пластинчатая черепица
+tile.LaminatedRoof.5.name=Зеленая пластинчатая черепица
+tile.LaminatedRoof.6.name=Бирюзовая пластинчатая черепица
+tile.LaminatedRoof.7.name=Лаймовая пластинчатая черепица
+tile.LaminatedRoof.8.name=Пурпурная пластинчатая черепица
+tile.LaminatedRoof.9.name=Желтая пластинчатая черепица
+tile.LaminatedRoof.10.name=Розовая пластинчатая черепица
+tile.LaminatedRoof.11.name=Фиолетовая пластинчатая черепица
+tile.LaminatedRoof.12.name=Красная пластинчатая черепица
+tile.LaminatedRoof.13.name=Светло-серая пластинчатая черепица
+tile.LaminatedRoof.14.name=Белая пластинчатая черепица
+tile.LaminatedRoof.15.name=Оранжевая пластинчатая черепица
+
+tile.SheetRoof.0.name=Черная листовая черепица
+tile.SheetRoof.1.name=Синяя листовая черепица
+tile.SheetRoof.2.name=Коричневая листовая черепица
+tile.SheetRoof.3.name=Голубая листовая черепица
+tile.SheetRoof.4.name=Серая листовая черепица
+tile.SheetRoof.5.name=Зеленая листовая черепица
+tile.SheetRoof.6.name=Бирюзовая листовая черепица
+tile.SheetRoof.7.name=Лаймовая листовая черепица
+tile.SheetRoof.8.name=Пурпурная листовая черепица
+tile.SheetRoof.9.name=Желтая листовая черепица
+tile.SheetRoof.10.name=Розовая листовая черепица
+tile.SheetRoof.11.name=Фиолетовая листовая черепица
+tile.SheetRoof.12.name=Красная листовая черепица
+tile.SheetRoof.13.name=Светло-серая листовая черепица
+tile.SheetRoof.14.name=Белая листовая черепица
+tile.SheetRoof.15.name=Оранжевая листовая черепица
+
+tile.StandartRoof.0.name=Пластинчатая черепица
+tile.StandartRoof.1.name=Листовая черепица
+tile.StandartRoof.2.name=Чешуйчатая черепица
+
+tile.UnfiredRoof.0.name=Необжаренная пластинчатая черепица
+tile.UnfiredRoof.1.name=Необжаренная листовая черепица
+tile.UnfiredRoof.2.name=Необжаренная чешуйчатая черепица
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Ступеньки из черепицы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.tile.LaminatedRoof_stairs_0.0.name=Ступеньки из черной пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_1.0.name=Ступеньки из синей пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_2.0.name=Ступеньки из коричневой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_3.0.name=Ступеньки из голубой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_4.0.name=Ступеньки из серой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_5.0.name=Ступеньки из зеленой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_6.0.name=Ступеньки из бирюзовой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_7.0.name=Ступеньки из лаймовой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_8.0.name=Ступеньки из пурпурной пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_9.0.name=Ступеньки из желтой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_10.0.name=Ступеньки из розовой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_11.0.name=Ступеньки из фиолетовой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_12.0.name=Ступеньки из красной пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_13.0.name=Ступеньки из светло-серой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_14.0.name=Ступеньки из белой пластинчатой черепицы
+tile.tile.LaminatedRoof_stairs_15.0.name=Ступеньки из оранжевой пластинчатой черепицы
+
+tile.tile.SheetRoof_stairs_0.0.name=Ступеньки из черной листовой черепицы
+tile.tile.SheetRoof_stairs_1.0.name=Ступеньки из синей листовой черепицы
+tile.tile.SheetRoof_stairs_2.0.name=Ступеньки из коричневой листовой черепицы
+tile.tile.SheetRoof_stairs_3.0.name=Ступеньки из голубой листовой черепицы
+tile.tile.SheetRoof_stairs_4.0.name=Ступеньки из серой листовой черепицы
+tile.tile.SheetRoof_stairs_5.0.name=Ступеньки из зеленой листовой черепицы
+tile.tile.SheetRoof_stairs_6.0.name=Ступеньки из бирюзовой листовой черепицы
+tile.tile.SheetRoof_stairs_7.0.name=Ступеньки из лаймовой листовой черепицы
+tile.tile.SheetRoof_stairs_8.0.name=Ступеньки из пурпурной листовой черепицы
+tile.tile.SheetRoof_stairs_9.0.name=Ступеньки из желтой листовой черепицы
+tile.tile.SheetRoof_stairs_10.0.name=Ступеньки из розовой листовой черепицы
+tile.tile.SheetRoof_stairs_11.0.name=Ступеньки из фиолетовой листовой черепицы
+tile.tile.SheetRoof_stairs_12.0.name=Ступеньки из красной листовой черепицы
+tile.tile.SheetRoof_stairs_13.0.name=Ступеньки из светло-серой листовой черепицы
+tile.tile.SheetRoof_stairs_14.0.name=Ступеньки из белой листовой черепицы
+tile.tile.SheetRoof_stairs_15.0.name=Ступеньки из оранжевой листовой черепицы
+
+tile.tile.FlakeRoof_stairs_0.0.name=Ступеньки из черной чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_1.0.name=Ступеньки из синей чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_2.0.name=Ступеньки из коричневой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_3.0.name=Ступеньки из голубой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_4.0.name=Ступеньки из серой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_5.0.name=Ступеньки из зеленой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_6.0.name=Ступеньки из бирюзовой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_7.0.name=Ступеньки из лаймовой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_8.0.name=Ступеньки из пурпурной чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_9.0.name=Ступеньки из желтой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_10.0.name=Ступеньки из розовой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_11.0.name=Ступеньки из фиолетовой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_12.0.name=Ступеньки из красной чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_13.0.name=Ступеньки из светло-серой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_14.0.name=Ступеньки из белой чешуйчатой черепицы
+tile.tile.FlakeRoof_stairs_15.0.name=Ступеньки из оранжевой чешуйчатой черепицы
+
+tile.tile.StandartRoof_stairs_0.0.name=Ступеньки из пластинчатой черепицы
+tile.tile.StandartRoof_stairs_1.0.name=Ступеньки из листовой черепицы
+tile.tile.StandartRoof_stairs_2.0.name=Ступеньки из чешуйчатой черепицы
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Плита из черепицы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.tile.LaminatedRoof_slab_0.0.name=Плита из черной пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_1.0.name=Плита из синей пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_2.0.name=Плита из коричневой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_3.0.name=Плита из голубой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_4.0.name=Плита из серой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_5.0.name=Плита из зеленой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_6.0.name=Плита из бирюзовой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_7.0.name=Плита из лаймовой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_8.0.name=Плита из пурпурной пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_9.0.name=Плита из желтой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_10.0.name=Плита из розовой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_11.0.name=Плита из фиолетовой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_12.0.name=Плита из красной пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_13.0.name=Плита из светло-серой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_14.0.name=Плита из белой пластинчатой черепицы
+tile.tile.LaminatedRoof_slab_15.0.name=Плита из оранжевой пластинчатой черепицы
+
+tile.tile.SheetRoof_slab_0.0.name=Плита из черной листовой черепицы
+tile.tile.SheetRoof_slab_1.0.name=Плита из синей листовой черепицы
+tile.tile.SheetRoof_slab_2.0.name=Плита из коричневой листовой черепицы
+tile.tile.SheetRoof_slab_3.0.name=Плита из голубой листовой черепицы
+tile.tile.SheetRoof_slab_4.0.name=Плита из серой листовой черепицы
+tile.tile.SheetRoof_slab_5.0.name=Плита из зеленой листовой черепицы
+tile.tile.SheetRoof_slab_6.0.name=Плита из бирюзовой листовой черепицы
+tile.tile.SheetRoof_slab_7.0.name=Плита из лаймовой листовой черепицы
+tile.tile.SheetRoof_slab_8.0.name=Плита из пурпурной листовой черепицы
+tile.tile.SheetRoof_slab_9.0.name=Плита из желтой листовой черепицы
+tile.tile.SheetRoof_slab_10.0.name=Плита из розовой листовой черепицы
+tile.tile.SheetRoof_slab_11.0.name=Плита из фиолетовой листовой черепицы
+tile.tile.SheetRoof_slab_12.0.name=Плита из красной листовой черепицы
+tile.tile.SheetRoof_slab_13.0.name=Плита из светло-серой листовой черепицы
+tile.tile.SheetRoof_slab_14.0.name=Плита из белой листовой черепицы
+tile.tile.SheetRoof_slab_15.0.name=Плита из оранжевой листовой черепицы
+
+tile.tile.FlakeRoof_slab_0.0.name=Плита из черной чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_1.0.name=Плита из синей чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_2.0.name=Плита из коричневой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_3.0.name=Плита из голубой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_4.0.name=Плита из серой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_5.0.name=Плита из зеленой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_6.0.name=Плита из бирюзовой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_7.0.name=Плита из лаймовой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_8.0.name=Плита из пурпурной чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_9.0.name=Плита из желтой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_10.0.name=Плита из розовой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_11.0.name=Плита из фиолетовой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_12.0.name=Плита из красной чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_13.0.name=Плита из светло-серой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_14.0.name=Плита из белой чешуйчатой черепицы
+tile.tile.FlakeRoof_slab_15.0.name=Плита из оранжевой чешуйчатой черепицы
+
+tile.tile.StandartRoof_slab_0.0.name=Плита из пластинчатой черепицы
+tile.tile.StandartRoof_slab_1.0.name=Плита из листовой черепицы
+tile.tile.StandartRoof_slab_2.0.name=Плита из чешуйчатой черепицы
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Кровля/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.RoofWood.0.name=Дубовая кровля
+tile.RoofWood.1.name=Еловая кровля
+tile.RoofWood.2.name=Березовая кровля
+tile.RoofWood.3.name=Кровля из тропического дерева
+tile.RoofWood.4.name=Кровля из акации
+tile.RoofWood.5.name=Кровля из темного дуба
+
+tile.tile.RoofWood_stairs_0.0.name=Ступеньки из дубовой кровли
+tile.tile.RoofWood_stairs_1.0.name=Ступеньки из еловой кровли
+tile.tile.RoofWood_stairs_2.0.name=Ступеньки из березовой кровли
+tile.tile.RoofWood_stairs_3.0.name=Ступеньки из кровли тропического дерева
+tile.tile.RoofWood_stairs_4.0.name=Ступеньки из кровли акации
+tile.tile.RoofWood_stairs_5.0.name=Ступеньки из кровли темного дуба
+
+tile.tile.RoofWood_slab_0.0.name=Плита из дубовой кровли
+tile.tile.RoofWood_slab_1.0.name=Плита из еловой кровли
+tile.tile.RoofWood_slab_2.0.name=Плита из березовой кровли
+tile.tile.RoofWood_slab_3.0.name=Плита из кровли тропического дерева
+tile.tile.RoofWood_slab_4.0.name=Плита из кровли акации
+tile.tile.RoofWood_slab_5.0.name=Плита из кровли темного дуба
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели портного/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelThreads.name=Катушки с нитками  
+tile.ModelTailorShelf.name=Портняжная полка  
+tile.ModelCloth.name=Рулон ткани  
+tile.ModelDummy.name=Манекен для одежды  
+tile.ModelHangers.name=Вешалки  
+tile.ModelPillow.name=Подушка для иголок
+tile.ModelRulers.name=Набор линеек
+tile.ModelScissors.name=Портняжные ножницы  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели алхимика/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelIngredients.name=Алхимические ингредиенты  
+tile.ModelCauldron.name=Алхимический котел  
+tile.ModelBottles.name=Алхимические бутылочки  
+tile.ModelBooks.name=Алхимические книги  
+tile.ModelAlchemistShelf.name=Полка алхимика  
+tile.ModelAlchemicalFlag.name=Алхимический флаг  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели охотника/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelArrow.name=Стрелы  
+tile.ModelBowWall.name=Лук на стене  
+tile.ModelBow.name=Лук  
+tile.ModelDucks.name=Трупы уток  
+tile.ModelFurKnife.name=Нож в шкуре
+tile.ModelFur.name=Шкура  
+tile.ModelHorn.name=Рог  
+tile.ModelLeatherDryer.name=Сушилка для кожи  
+tile.ModelRabbits.name=Трупы кроликов  
+tile.ModelMooseHead.name=Голова лося  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели обменщика/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelMagnifyinGlass.name=Лупа  
+tile.ModelBagGold.name=Мешок с золотом  
+tile.ModelCoins.name=Монеты  
+tile.ModelSmallChest.name=Маленький сундук  
+tile.ModelScales.name=Весы  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели фермера/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelBagsPotatoes.name=Мешки с картофелем  
+tile.ModelBasketApples.name=Корзина с яблоками  
+tile.ModelBasketBerries.name=Корзина с ягодами  
+tile.ModelBucket.name=Ведро  
+tile.ModelCarrot.name=Морковь  
+tile.ModelGarlic.name=Чеснок  
+tile.ModelHay.name=Сено
+tile.ModelHayfork.name=Вилы  
+tile.ModelJugs.name=Кувшины  
+tile.ModelShelfFlower.name=Полка фермера
+tile.ModelWateringСan.name=Лейка  
+tile.ModelWheelBarrow.name=Тачка 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели ювелира/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelFilledChest.name=Наполненный драгоценностями сундук  
+tile.ModelPliers.name=Плоскогубцы ювелира
+tile.ModelJewelryHammer.name=Ювелирный молоток  
+tile.ModelAmulet.name=Амулет  
+tile.ModelInstruments.name=Набор инструментов ювелира
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели регистраторши/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelLute.name=Лютня  
+tile.ModelBroom.name=Метла  
+tile.ModelWanted.name=Объявление
+tile.ModelPapers.name=Стопка бумаг  
+tile.ModelKeys.name=Набор ключей
+tile.ModelDeskBell.name=Настольный колокольчик  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели оружейника/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelSword.name=Меч  
+tile.ModelSwords.name=Мечи 
+tile.ModelShield1.name=Настенный щит с флагом
+tile.ModelShield2.name=Настенный деревянный щит
+tile.ModelShield3.name=Настенный железный щит  
+tile.ModelHelmet.name=Шлем  
+tile.ModelHammer.name=Молот  
+tile.ModelDragonSlayer.name=Убийца драконов
+tile.ModelAxe.name=Настенный топор
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели инженера/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelGas.name=Газовый баллон  
+tile.ModelOiler.name=Маслёнка  
+tile.ModelGears.name=Шестерёнки  
+tile.ModelDrawing1.name=Чертёж I  
+tile.ModelDrawing2.name=Чертёж II  
+tile.ModelClock.name=Настенные часы  
+tile.ModelBrokenMechanism.name=Сломанный механизм  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Глифы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.GlyphAmphibian.name=Глиф амфибии
+item.GlyphDragon.name=Глиф дракона
+item.GlyphHawk.name=Глиф ястреба
+item.GlyphMiner.name=Глиф землекопа
+item.GlyphOwl.name=Глиф совы
+item.GlyphWeapon.name=Глиф призрачного оружия
+item.GlyphCleansing.name=Глиф очищения
+item.GlyphHealing.name=Глиф массового лечения
+item.BrokenStaffHealing.name=Колокольчик клирика
+item.GlyphVoid.name=Неозарённый глиф
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Оружие/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.BrokenLongsword.name=Ржавый двуручный меч
+item.BrokenSword.name=Сломанный меч
+item.BrokenDagger.name=Затупленный кинжал
+item.BrokenRapier.name=Затупленная рапира
+item.BrokenMace.name=Старый шестопёр
+item.BrokenAxe.name=Ржавый топор
+item.BrokenCudgel.name=Дубина
+item.WeaponRapier.name=Призрачная рапира
+
+item.BrokenBowHunting.name=Старый лук
+item.BrokenStaffFire.name=Старый посох пироманта
+item.BrokenGrimoireWater.name=Потрепанный гримуар воды
+item.Uchigatana.name=Утигата
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Напитки/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.DrinkWine.name=Вино  
+item.DrinkAle.name=Эль  
+item.DrinkMead.name=Медовуха
+item.DrinkCider.name=Сидр  
+item.DrinkBarrelBeer.name=Бочка пива 
+item.DrinkBrandy.name=Бренди  
+item.DrinkMulledWine.name=Глинтвейн  
+item.DrinkTincure.name=Ягодная настойка  
+item.DrinkBreathWyvern.name=Дыхание виверны  
+item.DrinkBeer.name=Пиво  
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Еда/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.FoodBacon.name=Бекон  
+item.FoodBlackBread.name=Чёрный хлеба  
+item.FoodBurger.name=Бутерброд 
+item.FoodChowder.name=Чаудер
+item.FoodDeliciousChicken.name=Куриная ножка
+item.FoodDeliciousSalad.name=Салат  
+item.FoodDivineSteak.name=Сочный стейк  
+item.FoodFreshBread.name=Свежий хлеб  
+item.FoodFriedSausage.name=Жареная колбаска 
+item.FoodCheese.name=Сыр  
+item.FoodSoup.name=Суп  
+item.FoodMeatPie.name=Мясной пирог  
+item.FoodStrangeFish.name=Странная рыба
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Материалы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.Metal.0.name=Необработанная нержавеющая сталь
+item.SapphireEye.name=Сапфировый глаз голема
+item.SapphireHeart.name=Сапфировое сердце голема
+
+item.Crystall.0.name=Осколок Рубриусского кристалла
+item.Crystall.1.name=Осколок Виридитского кристалла
+item.Crystall.2.name=Осколок Омбрумского кристалла
+item.Crystall.3.name=Осколок Церулинского кристалла
+
+item.Crystall.4.name=Рубриусский кристалл
+item.Crystall.5.name=Виридитский кристалл
+item.Crystall.6.name=Омбрумский кристалл
+item.Crystall.7.name=Церулинский кристалл
+
+item.Crystall.8.name=Кристалл пылающего феникса
+item.Crystall.9.name=Кристалл пустоты
+item.Crystall.10.name=Кристалл крови
+item.Crystall.11.name=Кристалл призрака
+item.Crystall.12.name=Кристалл драконьего сердца
+item.Crystall.13.name=Кристалл боли
+item.Crystall.14.name=Кристалл эфира
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Растения и грибы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.Glowshroom.0.name=Радужные сны
+tile.Glowshroom.1.name=Сопляк
+tile.Glowshroom.2.name=Фиолетовая радость
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Эффекты/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+potion.melee_damage=Сила ближнего боя
+potion.vampirism=Вампиризм
+potion.dodge=Уклонение
+potion.hex=Сглаз
+potion.phoenix=Благославление феникса
+potion.sixth_sense=Шестое чувство
+potion.magnetism=Магнетизм
+potion.bushstun=Оглушение
+potion.apply_stun=Оглушающий удар
+potion.vulnerability=Уязвимость
+potion.dodge_hit=Отмена уклонения
+potion.disarm=Обезоруженный
+potion.thorns=Шипы
+potion.curse=Проклятье
+potion.miner_luck=Удача
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Бижютерия/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+description.ring.0.LifeSmallRing=+1 к здоровью
+description.ring.0.StaminaSmallRing=+15 к выносливости
+description.ring.0.DamageSmallRing=+5% к урону
+description.ring.0.SpeedSmallRing=+5% к скорости
+
+description.ring.1.LifeRing=+2 к здоровью
+description.ring.1.StaminaRing=+25 к выносливости
+description.ring.1.DamageRing=+7.5 к урону
+description.ring.1.SpeedRing=+7.5% к скорости
+
+item.LifeSmallRing.name=Малое кольцо жизни
+item.DamageSmallRing.name=Малое кольцо силы
+item.StaminaSmallRing.name=Малое кольцо выносливости
+item.SpeedSmallRing.name=Малое кольцо скорости
+
+item.LifeRing.name=Кольцо жизни
+item.DamageRing.name=Кольцо силы
+item.StaminaRing.name=Кольцо выносливости
+item.SpeedRing.name=Кольцо скорости
+
+item.SmallBasicRing.name=Малое пустое кольцо
+item.BasicRing.name=Пустое кольцо
+
+item.HealingAmulet.name=Амулет жизни
+item.StaminaAmulet.name=Амулет выносливости
+item.StrengthAmulet.name=Амулет силы
+
+item.VampirismAmulet.name=Амулет вампира
+item.CleansingAmulet.name=Амулет очищения
+item.PhoenixAmulet.name=Амулет феникса
+item.CowardAmulet.name=Амулет труса
+item.DragonAmulet.name=Амулет дракона
+item.VeilAmulet.name=Амулет завесы
+item.ThronsAmulet.name=Амулет шипов
+item.MercenaryAmulet.name=Амулет наёмника
+
+item.GoldBasicAmulet.name=Пустой амулет из золота
+item.SilverBasicAmulet.name=Пустой амулет из серебра
+
+item.FertilityBelt.name=Пояс фермера
+item.FallBelt.name=Пояс мягкого падения
+item.MinerBelt.name=Пояс шахтёра
+item.WaterminerBelt.name=Пояс подводного шахтёра
+item.KnightBelt.name=Трофей на пояс
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Броня/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.KnightHelmet.name=Старый шлем рыцаря
+item.KnightChest.name=Старый нагрудник рыцаря
+item.KnightLegs.name=Старые поножи рыцаря
+item.KnightBoots.name=Старые ботинки рыцаря
+
+item.MercenaryHelmet.name=Изношенный шлем наёмника
+item.MercenaryChest.name=Изношенный нагрудник наёмника
+item.MercenaryLegs.name=Изношенные поножи наёмника
+item.MercenaryBoots.name=Изношенные ботинки
+
+item.WandererHelmet.name=Потрёпанный капюшон странника
+item.WandererChest.name=Потрёпанный кафтан странника
+item.WandererLegs.name=Потрёпанные штаны странника
+item.WandererBoots.name=Потрёпанные ботинки странника
+
+item.PyromancerHelmet.name=Увядший капюшон пироманта
+item.PyromancerChest.name=Увядший кафтан пироманта
+item.PyromancerLegs.name=Увядшие штаны пироманта
+item.PyromancerBoots.name=Увядшие ботинки пироманта
+
+item.ClericHelmet.name=Потрёпанный капюшон клирика
+item.ClericChest.name=Потрёпанная роба клирика
+item.ClericLegs.name=Потрёпанные шаровары клирика
+item.ClericBoots.name=Потрёпанные сапоги клирика
+
+item.WizardHelmet.name=Увядшая шапка волшебника
+item.WizardChest.name=Увядший кафтан волшебника
+item.WizardLegs.name=Увядшие штаны волшебника
+item.WizardBoots.name=Увядшиe ботинки волшебника
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Крафтовые блоки/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.MagicFurnace.name=Арканный тигель
+method.arcanum_crucible=Арканный тигель
+gui.arcanum_crucible=Арканный тигель
