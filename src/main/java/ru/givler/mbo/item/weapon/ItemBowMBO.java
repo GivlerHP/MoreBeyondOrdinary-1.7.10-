@@ -1,4 +1,4 @@
-package ru.givler.mbo.item;
+package ru.givler.mbo.item.weapon;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.enchantment.Enchantment;
@@ -15,13 +15,13 @@ import cpw.mods.fml.relauncher.SideOnly;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
-public class ItemBow extends net.minecraft.item.ItemBow {
+public class ItemBowMBO extends net.minecraft.item.ItemBow {
     private final float drawSpeed;
     private final float damageMultiplier;
     public IIcon[] icons;
     private final String texture;
 
-    public ItemBow(String name, String texture, int maxDamage, float drawSpeed, float damageMultiplier) {
+    public ItemBowMBO(String name, String texture, int maxDamage, float drawSpeed, float damageMultiplier) {
         this.setUnlocalizedName(name);
         this.texture = texture;
         this.setMaxDamage(maxDamage);
@@ -53,7 +53,7 @@ public class ItemBow extends net.minecraft.item.ItemBow {
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining) {
-        if (usingItem == null || !(usingItem.getItem() instanceof ItemBow)) {
+        if (usingItem == null || !(usingItem.getItem() instanceof ItemBowMBO)) {
             return icons[0];
         }
 

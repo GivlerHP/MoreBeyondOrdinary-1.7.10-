@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.registry.ItemRegistry.*;
 
-public class ItemStaffBasic extends ItemStaff {
+public class ItemStaffBase extends ItemStaff {
 
     @Override
     public void renderSpecial() {
@@ -29,7 +29,7 @@ public class ItemStaffBasic extends ItemStaff {
         }
     }
 
-    public ItemStaffBasic(int id, EnumNpcToolMaterial material) {
+    public ItemStaffBase(int id, EnumNpcToolMaterial material) {
         super(id, material);
         setCreativeTab(CustomItems.tabWeapon);
     }

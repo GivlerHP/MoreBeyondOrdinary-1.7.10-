@@ -14,57 +14,60 @@ import ru.givler.mbo.item.ring.*;
 import ru.givler.mbo.item.glyph.*;
 
 import ru.givler.mbo.item.glyph.ItemGlyphWeapon;
-
+import ru.givler.mbo.item.weapon.*;
 
 
 public class ItemRegistry {
-    //Ниже переменные для предметов тотемов
+    //переменные  предметов тотемов
     public static Item GlyphAmphibian, GlyphDragon, GlyphHawk, GlyphMiner, GlyphOwl, GlyphWeapon, GlyphCleansing, GlyphHealing, BrokenStaffHealing;
-    //ниже переменные для оружия ближнего боя
-    public static ItemWeapon BrokenLongsword, BrokenSword, BrokenRapier, BrokenMace, BrokenAxe, BrokenDagger, BrokenCudgel, Uchigatana;
-    //ниже переменные для призрачного оружия
+    // переменные оружия ближнего боя
+    public static ItemWeaponBase BrokenLongsword, BrokenSword, BrokenRapier, BrokenMace, BrokenAxe, BrokenDagger, BrokenCudgel, Uchigatana, DragonSlayer;
+    // переменные призрачного оружия
     public static ItemGhostWeapon WeaponRapier;
-    //ниже переменные для луков
+    // переменные луков
     public static net.minecraft.item.ItemBow BrokenBowHunting ;
-    //ниже переменные для материалов
+    // переменные материалов
     public static Item Metal, SapphireHeart, SapphireEye, Crystall, GlyphVoid;
-    //ниже переменные для амулетов
+    // переменные амулетов
     public static Item HealingAmulet, VampirismAmulet, CleansingAmulet, PhoenixAmulet, CowardAmulet, DragonAmulet, StaminaAmulet, VeilAmulet,
         ThornsAmulet, StrengthAmulet, MercenaryAmulet, GoldBasicAmulet, SilverBasicAmulet;
-    //ниже переменные для колец
+    // переменные колец
     public static Item LifeRing, StaminaRing, DamageRing, SpeedRing, LifeSmallRing, StaminaSmallRing, DamageSmallRing, SpeedSmallRing,
         SmallBasicRing, BasicRing;
-    //ниже переменные для пояса
+    // переменные пояса
     public static Item FertilityBelt, FallBelt, MinerBelt, WaterminerBelt, KnightBelt;
     //магические посохи
     public static Item BrokenStaffFire, BrokenGrimoireWater;
+    public static  Item Chalk, SilverCross;
 
     static {
-        Item.ToolMaterial BrokenLongswordMat = ItemWeapon.createMaterial("BrokenLongswordMat", 0, 800, 0.0F, 1.5F, 30);
-        Item.ToolMaterial BrokenSwordMat = ItemWeapon.createMaterial("BrokenSwordMat", 0, 800, 0.0F, 0.0F, 30);
-        Item.ToolMaterial BrokenRapierMat = ItemWeapon.createMaterial("BrokenRapierMat", 0, 800, 0.0F, -1.0F, 30);
-        Item.ToolMaterial BrokenDaggerMat = ItemWeapon.createMaterial("BrokenDaggerMat", 0, 800, 0.0F, -2.0F, 30);
-        Item.ToolMaterial BrokenMaceMat = ItemWeapon.createMaterial("BrokenMaceMat", 0, 800, 0.0F, 1.0F, 30);
-        Item.ToolMaterial BrokenAxeMat = ItemWeapon.createMaterial("BrokenAxeMat", 0, 800, 0.0F, 0.5F, 30);
-        Item.ToolMaterial Divine = ItemWeapon.createMaterial("Divine", 3, 10000, 0.0F, 10000.0f, 30);
+        Item.ToolMaterial BrokenLongswordMat = ItemWeaponBase.createMaterial("BrokenLongswordMat", 0, 800, 0.0F, 1.5F, 30);
+        Item.ToolMaterial BrokenSwordMat = ItemWeaponBase.createMaterial("BrokenSwordMat", 0, 800, 0.0F, 0.0F, 30);
+        Item.ToolMaterial BrokenRapierMat = ItemWeaponBase.createMaterial("BrokenRapierMat", 0, 800, 0.0F, -1.0F, 30);
+        Item.ToolMaterial BrokenDaggerMat = ItemWeaponBase.createMaterial("BrokenDaggerMat", 0, 800, 0.0F, -2.0F, 30);
+        Item.ToolMaterial BrokenMaceMat = ItemWeaponBase.createMaterial("BrokenMaceMat", 0, 800, 0.0F, 1.0F, 30);
+        Item.ToolMaterial BrokenAxeMat = ItemWeaponBase.createMaterial("BrokenAxeMat", 0, 800, 0.0F, 0.5F, 30);
+        Item.ToolMaterial Divine = ItemWeaponBase.createMaterial("Divine", 3, 10000, 0.0F, 10000.0f, 30);
+        Item.ToolMaterial DragonSlayerMat  = ItemWeaponBase.createMaterial("DragonSlayerMat", 3, 800, 0.0F, 12.0f, 30);
 
-        BrokenLongsword = new ItemWeapon("BrokenLongsword", "broadsword", BrokenLongswordMat, 80, 1, 1.3F);
-        BrokenSword = new ItemWeapon("BrokenSword", "brokenstraightsword", BrokenSwordMat, 80, 1, 1F);
-        BrokenDagger = new ItemWeapon("BrokenDagger", "ruineddagger", BrokenDaggerMat, 60, 1, 0.9F);
-        BrokenRapier = new ItemWeapon("BrokenRapier", "bluntedrapier", BrokenRapierMat, 50, 1, 1F);
-        BrokenMace = new ItemWeapon("BrokenMace", "brokenshestoper", BrokenMaceMat, 50, 1, 1F);
-        BrokenAxe = new ItemWeapon("BrokenAxe", "therustyaxe", BrokenAxeMat, 50, 1, 1F);
-        BrokenCudgel = new ItemWeapon("BrokenCudgel", "cudgel", BrokenSwordMat, 80, 1, 1F);
+        BrokenLongsword = new ItemGreatswordMBO("BrokenLongsword", "broadsword", BrokenLongswordMat, 80, 1, 1.3F);
+        BrokenSword = new ItemSwordMBO("BrokenSword", "brokenstraightsword", BrokenSwordMat, 80, 1, 1F);
+        BrokenDagger = new ItemDaggerMBO("BrokenDagger", "ruineddagger", BrokenDaggerMat, 60, 1, 0.9F);
+        BrokenRapier = new ItemRapierMBO("BrokenRapier", "bluntedrapier", BrokenRapierMat, 50, 1, 1F);
+        BrokenMace = new ItemMaceMBO("BrokenMace", "brokenshestoper", BrokenMaceMat, 50, 1, 1F);
+        BrokenAxe = new ItemBattleaxeMBO("BrokenAxe", "therustyaxe", BrokenAxeMat, 50, 1, 1F);
+        BrokenCudgel = new ItemMaceMBO("BrokenCudgel", "cudgel", BrokenSwordMat, 80, 1, 1F);
 
-        BrokenBowHunting = new ItemBow("BrokenBowHunting", "brokenlittlecrossbow", 30, 0.25F, 0.7F);
+        BrokenBowHunting = new ItemBowMBO("BrokenBowHunting", "brokenlittlecrossbow", 30, 0.25F, 0.7F);
         WeaponRapier = new ItemGhostWeapon("WeaponRapier", "mithrilsword", BrokenSwordMat, 40, 1, 1.0F);
-        Uchigatana = new ItemWeapon("Uchigatana", "uchigatana", Divine, 10000, 1, 1.6F);
+        Uchigatana = new ItemSwordMBO("Uchigatana", "uchigatana", Divine, 10000, 1, 1.6F);
+        DragonSlayer = new ItemDragonSlayerMBO("DragonSlayer", "dragon_slayer", DragonSlayerMat, 1750, 1, 1.8F);
 
     }
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
-        //ниже тотемы
+        //глифы
         GlyphAmphibian = new ItemGlyphAmphibian("GlyphAmphibian", "glyph_amphibian", 1);
         GlyphDragon = new ItemGlyphDragon("GlyphDragon", "glyph_dragon", 1);
         GlyphHawk = new ItemGlyphHawk("GlyphHawk", "glyph_hawk", 1);
@@ -75,14 +78,14 @@ public class ItemRegistry {
         GlyphHealing = new ItemGlyphMHealing("GlyphHealing", "glyph_healing", 1);
         BrokenStaffHealing = new ItemStaffHealing("BrokenStaffHealing", "staff", 1);
 
-        //ниже материлаы
+        //материлаы
         Metal = new ItemMeta("Metal", "material/metal", 64, 1);
-        SapphireHeart = new ItemBasic("SapphireHeart", "material/sapphire_heart", 64);
-        SapphireEye = new ItemBasic("SapphireEye", "material/sapphire_eye", 64);
-        Crystall = new ItemMeta("Crystall", "material/crystall", 64, 15);
-        GlyphVoid = new ItemBasic("GlyphVoid", "glyph/glyph_void", 1);
+        SapphireHeart = new ItemBase("SapphireHeart", "material/sapphire_heart", 64);
+        SapphireEye = new ItemBase("SapphireEye", "material/sapphire_eye", 64);
+        Crystall = new ItemMeta("Crystall", "material/crystall", 64, 16);
+        GlyphVoid = new ItemBase("GlyphVoid", "glyph/glyph_void", 1);
 
-        //ниже бижютерия
+        //бижютерия
         GoldBasicAmulet = new ItemVoidAmulet("GoldBasicAmulet", "bijouterie/amulet_basic_gold");
         SilverBasicAmulet = new ItemVoidAmulet("SilverBasicAmulet", "bijouterie/amulet_basic_silver");
 
@@ -118,13 +121,16 @@ public class ItemRegistry {
         KnightBelt = new ItemMinerBelt("KnightBelt", "bijouterie/belt_knight").setMaxDamage(1);
 
         if (Loader.isModLoaded("customnpcs")) {
-            BrokenStaffFire = new ItemStaffBasic(26780, EnumNpcToolMaterial.WOOD).setFull3D().setMaxStackSize(1)
+            BrokenStaffFire = new ItemStaffBase(26780, EnumNpcToolMaterial.WOOD).setFull3D().setMaxStackSize(1)
                     .setUnlocalizedName("BrokenStaffFire").setMaxDamage(10)
                     .setTextureName("mbo:brokenwizardswand");
-            BrokenGrimoireWater = new ItemStaffBasic(26780, EnumNpcToolMaterial.WOOD).setMaxStackSize(1)
+            BrokenGrimoireWater = new ItemStaffBase(26780, EnumNpcToolMaterial.WOOD).setMaxStackSize(1)
                     .setUnlocalizedName("BrokenGrimoireWater").setMaxDamage(10)
                     .setTextureName("mbo:distortedholyscripture");
         }
+
+        Chalk = new ItemChalk("Chalk", "chalk", 1);
+        SilverCross = new ItemSilverCross("SilverCross", "silver_cross", 1);
 
         BrokenLongsword.register();
         BrokenSword.register();
@@ -132,9 +138,11 @@ public class ItemRegistry {
         BrokenMace.register();
         BrokenAxe.register();
         BrokenDagger.register();
+        WeaponRapier.register();
         Uchigatana.register();
         BrokenCudgel.register();
-        ((ItemBow) BrokenBowHunting).register();
+        DragonSlayer.register();
+        ((ItemBowMBO) BrokenBowHunting).register();
     }
 
 }

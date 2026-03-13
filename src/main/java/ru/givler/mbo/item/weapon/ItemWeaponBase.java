@@ -1,4 +1,4 @@
-package ru.givler.mbo.item;
+package ru.givler.mbo.item.weapon;
 
 import net.minecraft.item.ItemSword;
 import net.minecraftforge.common.util.EnumHelper;
@@ -6,10 +6,10 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
-public class ItemWeapon extends ItemSword {
+public class ItemWeaponBase extends ItemSword {
     private float scale;
 
-    public ItemWeapon(String name, String texture, ToolMaterial material, int maxDamage, int maxStackSize, float scale) {
+    public ItemWeaponBase(String name, String texture, ToolMaterial material, int maxDamage, int maxStackSize, float scale) {
         super(material);
         this.canRepair = false;
         this.setUnlocalizedName(name);
@@ -21,7 +21,7 @@ public class ItemWeapon extends ItemSword {
 
     }
 
-    // Методы для создания материалов
+    // Метод для создания материалов
     public static ToolMaterial createMaterial(String name, int harvestLevel, int durability, float damage, float efficiency, int enchantability) {
         return EnumHelper.addToolMaterial(name, harvestLevel, durability, damage, efficiency, enchantability);
     }

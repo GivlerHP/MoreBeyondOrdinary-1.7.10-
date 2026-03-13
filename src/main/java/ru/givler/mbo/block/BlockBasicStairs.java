@@ -2,14 +2,13 @@ package ru.givler.mbo.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.BlockStairs;
-import ru.givler.mbo.block.BlockBasic;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 
-//класс создающий ступеньки из блоков добавленных через класс BlockBasic
+//класс создающий ступеньки из блоков добавленных через класс BlockBase
 public class BlockBasicStairs extends BlockStairs {
 
-    public BlockBasicStairs(BlockBasic baseBlock) {
+    public BlockBasicStairs(BlockBase baseBlock) {
         super(baseBlock, 0); // Используем текстуру базового блока
 
         this.setBlockName(baseBlock.getUnlocalizedName() + "_stairs"); // Название блока

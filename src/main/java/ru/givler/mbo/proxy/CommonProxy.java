@@ -12,10 +12,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.block.blockmodels.ModelTileBase;
-import ru.givler.mbo.handler.BeltEventHandler;
-import ru.givler.mbo.handler.PacketActivateAmulet;
-import ru.givler.mbo.handler.PotionCommonHandler;
-import ru.givler.mbo.handler.SpawnHandler;
+import ru.givler.mbo.handler.*;
+import ru.givler.mbo.integration.biomesoplenty.DoorRegistry;
 import ru.givler.mbo.recipes.registry.ArcanumRecipeRegistry;
 import ru.givler.mbo.recipes.registry.BlockRecipeRegistry;
 import ru.givler.mbo.recipes.registry.RoofRecipeRegistry;
@@ -48,6 +46,7 @@ public class CommonProxy {
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);
         ArmorRegistry.preLoad(event);
+        DoorRegistry.init();
         MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
         MinecraftForge.EVENT_BUS.register(new BeltEventHandler());
         FMLCommonHandler.instance().bus().register(new BeltEventHandler());
@@ -62,6 +61,7 @@ public class CommonProxy {
         BlockRecipeRegistry.init();
         RoofRecipeRegistry.init();
         ArcanumRecipeRegistry.init();
+
 
     }
 

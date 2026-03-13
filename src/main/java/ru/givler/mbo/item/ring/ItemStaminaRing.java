@@ -30,9 +30,11 @@ public class ItemStaminaRing extends ItemRingBase {
         this.level = level;
     }
 
-
     @Override
     public void onWornTick(ItemStack itemstack, EntityLivingBase player) {
+        // Выполняем только на сервере
+        if (player.worldObj.isRemote) return;
+
         if (!itemstack.hasTagCompound()) {
             itemstack.setTagCompound(new net.minecraft.nbt.NBTTagCompound());
         }
@@ -47,6 +49,9 @@ public class ItemStaminaRing extends ItemRingBase {
 
     @Override
     public void onUnequipped(ItemStack itemstack, EntityLivingBase player) {
+        // Выполняем только на сервере
+        if (player.worldObj.isRemote) return;
+
         if (itemstack.hasTagCompound() && itemstack.getTagCompound().getBoolean("StaminaAdded")) {
             if (Loader.isModLoaded("minefantasy2")) {
                 StaminaBar.removeBuffStaminaInfinite(player, this.value);

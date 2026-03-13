@@ -1,5 +1,6 @@
 package ru.givler.mbo.item.glyph;
 
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -8,7 +9,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
+import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.network.packet.PacketSpawnParticle;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 //класс для создания предметов
@@ -26,30 +30,17 @@ public class ItemGlyphAmphibian extends ItemGlyphBasic {
 
     @Override
     public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
-        player.addPotionEffect(new PotionEffect(Potion.weakness.id, 300, 2));
-        player.addPotionEffect(new PotionEffect(Potion.waterBreathing.id, 400, 0));
+        if (!world.isRemote) {
+            player.addPotionEffect(new PotionEffect(Potion.weakness.id, 300, 2));
+            player.addPotionEffect(new PotionEffect(Potion.waterBreathing.id, 400, 0));
 
-        if (world.isRemote) {
-            for (int i = 0; i < 30; i++) {
-                world.spawnParticle("splash",
-                        player.posX + (world.rand.nextDouble() - 0.5) * 2.0,
-                        player.posY + (world.rand.nextDouble() * 0.5) * -1.5,
-                        player.posZ + (world.rand.nextDouble() - 0.5) * 2.0,
-                        0.0, 0.0, 0.0);
-            }
-            for (int i = 0; i < 30; i++) {
-                world.spawnParticle("bubble",
-                        player.posX + (world.rand.nextDouble() - 0.5) * 2.0,
-                        player.posY + (world.rand.nextDouble() * 0.5) * -1.5,
-                        player.posZ + (world.rand.nextDouble() - 0.5) * 2.0,
-                        0.0, 0.0, 0.0);
-            }
+            world.playSoundAtEntity(player, "mbo:bubble", 1.0F, 1.0F);
+            player.swingItem();
+            itemStack.damageItem(50, player);
 
-
+            PacketSpawnParticle.send(EnumParticleType.VANILLA_SPLASH, world, player, 30, 2.0, 3.0,  2.0,1.0,   0.0, 0.0, 0.0);
+            PacketSpawnParticle.send(EnumParticleType.VANILLA_BUBBLE, world, player, 30, 2.0, 3.0, 2.0, 1.0,   0.0, 0.0, 0.0);
         }
-        world.playSoundAtEntity(player, "mbo:bubble", 1.0F, 1.0F);
-        player.swingItem();
-        itemStack.damageItem(50, player);
 
         return itemStack;
     }
@@ -65,31 +56,6 @@ public class ItemGlyphAmphibian extends ItemGlyphBasic {
             if (equipped == stack) {
                 player.addPotionEffect(new PotionEffect(Potion.waterBreathing.id, 2, 0, true));
 
-                // Используем уникальное время для каждого предмета
-                if (!stack.hasTagCompound()) {
-                    stack.setTagCompound(new NBTTagCompound());
-                }
-
-                long lastTimeChecked = stack.getTagCompound().getLong("lastTimeChecked");
-
-                // Уменьшаем прочность каждую секунду
-                if (!world.isRemote) {
-                    long currentTimeMillis = System.currentTimeMillis();
-
-                    // Если прошло больше 1000 миллисекунд (1 секунда)
-                    if (currentTimeMillis - lastTimeChecked >= 1000) {
-                        stack.getTagCompound().setLong("lastTimeChecked", currentTimeMillis); // Обновляем время последней проверки
-
-                        if (stack.getItemDamage() < stack.getMaxDamage()) {
-                            stack.setItemDamage(stack.getItemDamage() + 1); // Уменьшаем прочность на 1
-                        }
-
-                        // Если прочность предмета достигла максимального значения (предмет ломается)
-                        if (stack.getItemDamage() >= stack.getMaxDamage() - 1) {
-                            player.setCurrentItemOrArmor(0, null);  // Убирает сломанный предмет
-                        }
-                    }
-                }
             }
         }
     }

@@ -1,13 +1,16 @@
 package ru.givler.mbo.item.glyph;
 
         import cpw.mods.fml.common.registry.GameRegistry;
+        import net.minecraft.entity.Entity;
         import net.minecraft.entity.player.EntityPlayer;
         import net.minecraft.item.ItemStack;
         import net.minecraft.potion.Potion;
         import net.minecraft.potion.PotionEffect;
 
         import net.minecraft.world.World;
+        import ru.givler.mbo.EnumParticleType;
         import ru.givler.mbo.MoreBeyondOrdinary;
+        import ru.givler.mbo.network.packet.PacketSpawnParticle;
         import ru.givler.mbo.registry.CreativeTabRegistry;
 
 //класс для создания предметов
@@ -26,22 +29,17 @@ public class ItemGlyphMiner extends ItemGlyphBasic {
     @Override
     public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
         player.addPotionEffect(new PotionEffect(Potion.digSpeed.id, 400, 0));
-        player.addPotionEffect(new PotionEffect(Potion.hunger.id, 400, 2));
+        player.addPotionEffect(new PotionEffect(Potion.hunger.id, 400, 1));
 
-        if (world.isRemote) {
-            for (int i = 0; i < 20; i++) {
-                world.spawnParticle("witchMagic",
-                        player.posX + (world.rand.nextDouble() - 0.5) * 2.0,
-                        player.posY + (world.rand.nextDouble() * 0.5) * -1.5,
-                        player.posZ + (world.rand.nextDouble() - 0.5) * 2.0,
-                        0.0, 0.1, 0.0);
-            }
-
-        }
         world.playSoundAtEntity(player, "mbo:aura", 1.0F, 1.0F);
         player.swingItem();
         itemStack.damageItem(50, player);
 
+        PacketSpawnParticle.send(EnumParticleType.VANILLA_WITCH_MAGIC, world, player, 30, 2.0, 2.0, 2.0, 0.0,   0.0, 0.0, 0.0);
+
         return itemStack;
     }
+
+    @Override
+    public void onUpdate(ItemStack stack, World world, Entity entity, int par4, boolean par5) { }
 }

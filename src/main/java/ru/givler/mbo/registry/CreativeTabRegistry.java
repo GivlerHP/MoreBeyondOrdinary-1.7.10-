@@ -230,6 +230,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(WizardBoots));
 
             list.add(new ItemStack(Uchigatana));
+            list.add(new ItemStack(DragonSlayer));
 
 
         }

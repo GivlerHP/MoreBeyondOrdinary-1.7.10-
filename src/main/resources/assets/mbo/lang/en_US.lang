@@ -290,6 +290,51 @@ tile.tile.RoofWood_slab_4.0.name=Acacia Roof Slab
 tile.tile.RoofWood_slab_5.0.name=Dark Oak Roof Slab
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Doors and trapdoors/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.sacred_door_item.name=Sacred Oak Door
+item.cherry_door_item.name=Cherry Door
+item.dark_door_item.name=Dark Door
+item.fir_door_item.name=Fir Door
+item.ethereal_door_item.name=Ethereal Door
+item.magic_door_item.name=Magic Door
+item.mangrove_door_item.name=Mangrove Door
+item.palm_door_item.name=Palm Door
+item.redwood_door_item.name=Redwood Door
+item.willow_door_item.name=Willow Door
+item.pine_door_item.name=Pine Door
+item.hellbark_door_item.name=Hellbark Door
+item.jacaranda_door_item.name=Jacaranda Door
+item.mahogany_door_item.name=Mahogany Door
+
+tile.trapdoor_sacred.name=Sacred Oak Trapdoor
+tile.trapdoor_cherry.name=Cherry Trapdoor
+tile.trapdoor_dark.name=Dark Trapdoor
+tile.trapdoor_fir.name=Fir Trapdoor
+tile.trapdoor_ethereal.name=Ethereal Trapdoor
+tile.trapdoor_magic.name=Magic Trapdoor
+tile.trapdoor_mangrove.name=Mangrove Trapdoor
+tile.trapdoor_palm.name=Palm Trapdoor
+tile.trapdoor_redwood.name=Redwood Trapdoor
+tile.trapdoor_willow.name=Willow Trapdoor
+tile.trapdoor_pine.name=Pine Trapdoor
+tile.trapdoor_hellbark.name=Hellbark Trapdoor
+tile.trapdoor_jacaranda.name=Jacaranda Trapdoor
+tile.trapdoor_mahogany.name=Mahogany Trapdoor
+
+item.spruce_door_item.name=Spruce Door
+item.birch_door_item.name=Birch Door
+item.jungle_door_item.name=Jungle Door
+item.acacia_door_item.name=Acacia Door
+item.dark_oak_door_item.name=Dark Oak Door
+
+tile.trapdoor_spruce.name=Spruce Trapdoor
+tile.trapdoor_birch.name=Birch Trapdoor
+tile.trapdoor_jungle.name=Jungle Trapdoor
+tile.trapdoor_acacia.name=Acacia Trapdoor
+tile.trapdoor_darkoak.name=Dark Oak Trapdoor
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Tailor Models/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 tile.ModelThreads.name=Spools of Thread

@@ -6,11 +6,9 @@ import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 //класс для создания предметов
-public class ItemBasic extends Item {
+public class ItemBase extends Item {
 
-    boolean mode = false;
-
-    public ItemBasic(String name, String texture, int maxStackSize) {
+    public ItemBase(String name, String texture, int maxStackSize) {
         this.canRepair = false;
         this.setUnlocalizedName(name);
         this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
@@ -18,5 +16,4 @@ public class ItemBasic extends Item {
         this.maxStackSize = maxStackSize;
         GameRegistry.registerItem(this, name);
     }
-
 }

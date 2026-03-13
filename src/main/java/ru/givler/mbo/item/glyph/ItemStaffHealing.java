@@ -1,6 +1,7 @@
 package ru.givler.mbo.item.glyph;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemStack;
@@ -40,6 +41,9 @@ public class ItemStaffHealing extends ItemGlyphBasic {
 
         return itemStack;
     }
+
+    @Override
+    public void onUpdate(ItemStack stack, World world, Entity entity, int par4, boolean par5) { }
 
     public EnumRarity getRarity(ItemStack itemStack) {
         return EnumRarity.rare;

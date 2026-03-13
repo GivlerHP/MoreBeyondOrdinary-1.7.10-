@@ -73,6 +73,9 @@ public class EntityStoneGolem extends EntityIronGolem {
 
     @Override
     public boolean getCanSpawnHere() {
+        if (this.worldObj.provider.dimensionId != 0) {
+            return false;
+        }
 
         if (this.worldObj.difficultySetting == EnumDifficulty.PEACEFUL) {
             return false;
@@ -96,7 +99,7 @@ public class EntityStoneGolem extends EntityIronGolem {
                 (int) Math.floor(this.posY) - 1,
                 (int) Math.floor(this.posZ)
         );
-        if (blockBelow == Blocks.grass ) {
+        if (blockBelow == Blocks.grass) {
             return false;
         }
 
@@ -104,6 +107,7 @@ public class EntityStoneGolem extends EntityIronGolem {
                 && this.worldObj.getCollidingBoundingBoxes(this, this.boundingBox).isEmpty()
                 && !this.worldObj.isAnyLiquid(this.boundingBox);
     }
+
 
     @Override
     public boolean isPlayerCreated() {

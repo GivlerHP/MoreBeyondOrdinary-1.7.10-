@@ -4,7 +4,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
@@ -12,6 +14,8 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.network.packet.PacketSpawnParticle;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 import ru.givler.mbo.registry.PotionRegistry;
 
@@ -58,9 +62,7 @@ public class ItemGlyphCleansing extends ItemGlyphBasic {
 
             for (Object obj : player.getActivePotionEffects()) {
                 PotionEffect effect = (PotionEffect) obj;
-                int potionID = effect.getPotionID();
-                Potion potion = Potion.potionTypes[potionID];
-                if (isForceRemove(potionID)) {
+                if (isForceRemove(effect.getPotionID())) {
                     effectsToRemove.add(effect);
                 }
             }
@@ -68,23 +70,19 @@ public class ItemGlyphCleansing extends ItemGlyphBasic {
             for (PotionEffect effect : effectsToRemove) {
                 player.removePotionEffect(effect.getPotionID());
             }
+
             itemStack.damageItem(50, player);
+            world.playSoundAtEntity(player, "mbo:temple", 1.0F, 1.0F);
+            player.swingItem();
+
+            PacketSpawnParticle.send(EnumParticleType.SACRED, world, player, 30, 2.0, 2.0, 2.0,1.0,   0.0, 0.0, 0.0);
         }
 
-        if (world.isRemote) {
-            for (int i = 0; i < 30; i++) {
-                MoreBeyondOrdinary.proxy.spawnParticle(
-                        EnumParticleType.SACRED, world,
-                        player.posX + (world.rand.nextDouble() - 0.5) * 2.0,
-                        player.posY + (world.rand.nextDouble() * 0.5) * -1.5,
-                        player.posZ + (world.rand.nextDouble() - 0.5) * 2.0,
-                        0.0, 0.1, 0.0
-                );
-            }
-        }
-
-        world.playSoundAtEntity(player, "mbo:temple", 1.0F, 1.0F);
-        player.swingItem();
         return itemStack;
+    }
+
+    @Override
+    public void onUpdate(ItemStack stack, World world, Entity entity, int par4, boolean par5) {
+
     }
 }

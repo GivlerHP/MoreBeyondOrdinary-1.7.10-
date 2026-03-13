@@ -2,11 +2,13 @@ package ru.givler.mbo.item.glyph;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import ru.givler.mbo.EnumParticleType;
 import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.network.packet.PacketSpawnParticle;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import static ru.givler.mbo.registry.ItemRegistry.WeaponRapier;
@@ -36,17 +38,15 @@ public class ItemGlyphWeapon extends ItemGlyphBasic {
             itemStack.damageItem(10, player);
         }
 
-        if (world.isRemote) {
-            for (int i = 0; i < 30; i++) {
-                MoreBeyondOrdinary.proxy.spawnParticle(EnumParticleType.DARK_MAGIC, world,
-                        player.posX + (world.rand.nextDouble() - 0.5) * 2.0,
-                        player.posY + (world.rand.nextDouble() * 0.5) * -1.5,
-                        player.posZ + (world.rand.nextDouble() - 0.5) * 2.0,
-                        0.0, 0.1, 0.0);
-            }
-        }
+
         world.playSoundAtEntity(player, "mbo:blind", 1.0F, 1.0F);
         player.swingItem();
+
+        PacketSpawnParticle.send(EnumParticleType.DARK_MAGIC, world, player, 30, 2.0, 2.0, 2.0, 0.0,   0.0, 0.0, 0.0);
+
         return itemStack;
     }
+
+    @Override
+    public void onUpdate(ItemStack stack, World world, Entity entity, int par4, boolean par5) {}
 }

@@ -138,6 +138,18 @@ public class ArcanumRecipeRegistry {
                     'A', ComponentListMF.air_shard_dust, 'B', ComponentListMF.order_shard_dust,
                     ' ', null
             );
+
+            ArcanumRecipesManager.getInstance().addRecipe(
+                    new ItemStack(ItemRegistry.Crystall, 1, 15),
+                    1200,
+                    "XYZ",
+                    "BIB",
+                    "BAB",
+                    'I', new ItemStack(ItemRegistry.Crystall, 1, 5),
+                    'X', ComponentListMF.sapphire_dust, 'Y', ComponentListMF.amber_dust, 'Z', ComponentListMF.malachite_dust,
+                    'A', ComponentListMF.earth_shard_dust, 'B', ComponentListMF.water_shard_dust,
+                    ' ', null
+            );
         }
     }
 }

@@ -6,9 +6,9 @@ import net.minecraft.block.material.Material;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
-public class BlockBasic extends Block {
+public class BlockBase extends Block {
 
-        public BlockBasic(Material material, String name, String texture) {
+        public BlockBase(Material material, String name, String texture) {
             super(material);
 
             this.setBlockName(name);   // Устанавливаем внутреннее (регистрационное) имя блока

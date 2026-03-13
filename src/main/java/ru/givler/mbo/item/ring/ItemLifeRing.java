@@ -6,7 +6,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import ru.givler.mbo.item.ItemRingBase;
@@ -33,6 +35,9 @@ public class ItemLifeRing extends ItemRingBase {
 
     @Override
     public void onWornTick(ItemStack itemstack, EntityLivingBase player) {
+        // Выполняем только на сервере
+        if (player.worldObj.isRemote) return;
+
         if (!itemstack.hasTagCompound()) {
             itemstack.setTagCompound(new net.minecraft.nbt.NBTTagCompound());
         }
@@ -43,27 +48,38 @@ public class ItemLifeRing extends ItemRingBase {
         }
 
         UUID uniqueId = UUID.fromString(itemstack.getTagCompound().getString("UniqueRingID"));
+        IAttributeInstance healthAttribute = player.getEntityAttribute(SharedMonsterAttributes.maxHealth);
 
-        if (player.getEntityAttribute(SharedMonsterAttributes.maxHealth)
-                .getModifier(uniqueId) == null) {
-
+        if (healthAttribute.getModifier(uniqueId) == null) {
             AttributeModifier modifier = new AttributeModifier(uniqueId, "ring_life", this.value, 0);
-            player.getEntityAttribute(SharedMonsterAttributes.maxHealth).applyModifier(modifier);
+            healthAttribute.applyModifier(modifier);
+
+            // Помечаем, что модификатор был применён
+            itemstack.getTagCompound().setBoolean("HealthAdded", true);
         }
     }
 
     @Override
     public void onUnequipped(ItemStack itemstack, EntityLivingBase player) {
+        // Выполняем только на сервере
+        if (player.worldObj.isRemote) return;
+
         if (!itemstack.hasTagCompound()) return;
         if (!itemstack.getTagCompound().hasKey("UniqueRingID")) return;
 
         UUID uniqueId = UUID.fromString(itemstack.getTagCompound().getString("UniqueRingID"));
+        IAttributeInstance healthAttribute = player.getEntityAttribute(SharedMonsterAttributes.maxHealth);
 
-        if (player.getEntityAttribute(SharedMonsterAttributes.maxHealth)
-                .getModifier(uniqueId) != null) {
-            player.getEntityAttribute(SharedMonsterAttributes.maxHealth)
-                    .removeModifier(player.getEntityAttribute(SharedMonsterAttributes.maxHealth)
-                            .getModifier(uniqueId));
+        if (healthAttribute.getModifier(uniqueId) != null) {
+            healthAttribute.removeModifier(healthAttribute.getModifier(uniqueId));
+
+            // Ограничиваем здоровье новым максимумом
+            if (player.getHealth() > player.getMaxHealth()) {
+                player.setHealth(player.getMaxHealth());
+            }
+
+            // Убираем пометку
+            itemstack.getTagCompound().setBoolean("HealthAdded", false);
         }
     }
 
@@ -75,5 +91,4 @@ public class ItemLifeRing extends ItemRingBase {
             list.add(StatCollector.translateToLocal(key));
         }
     }
-
 }

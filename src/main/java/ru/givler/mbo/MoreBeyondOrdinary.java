@@ -7,13 +7,14 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import ru.givler.mbo.handler.GuiHandler;
+import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.proxy.CommonProxy;
 import ru.givler.mbo.registry.EntityMobRegistry;
+import ru.givler.mbo.util.VanillaBlockReplacer;
+import ru.givler.mbo.config.IntegrationConfig;
 
-@Mod(modid = MoreBeyondOrdinary.MODID, name = MoreBeyondOrdinary.MODNAME, version = MoreBeyondOrdinary.VERSION)
+@Mod(modid = MoreBeyondOrdinary.MODID, name = MoreBeyondOrdinary.MODNAME, version = MoreBeyondOrdinary.VERSION, dependencies = "before:Growthcraft;before:Growthcraft|Apples")
 public class MoreBeyondOrdinary {
-
-
 
     @SidedProxy(clientSide = "ru.givler.mbo.proxy.ClientProxy", serverSide = "ru.givler.mbo.proxy.CommonProxy")
     public static CommonProxy proxy;
@@ -31,7 +32,11 @@ public class MoreBeyondOrdinary {
     @Mod.EventHandler
     public void preLoad(FMLPreInitializationEvent event) {
         proxy.preInit(event);
+        VanillaBlockReplacer.replaceTrapdoor();
         EntityMobRegistry.registerEntities();
+        IntegrationConfig.load(event.getModConfigurationDirectory());
+        PacketManager.registerPackets();
+
     }
 
     @Mod.EventHandler

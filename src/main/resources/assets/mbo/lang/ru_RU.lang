@@ -294,6 +294,51 @@ tile.tile.RoofWood_slab_4.0.name=Плита из кровли акации
 tile.tile.RoofWood_slab_5.0.name=Плита из кровли темного дуба
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Двери и люки/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.sacred_door_item.name=Дверь из священного дуба
+item.cherry_door_item.name=Вишнёвая дверь
+item.dark_door_item.name=Тёмная дверь
+item.fir_door_item.name=Пихтовая дверь
+item.ethereal_door_item.name=Эфирная дверь
+item.magic_door_item.name=Магическая дверь
+item.mangrove_door_item.name=Мангровая дверь
+item.palm_door_item.name=Пальмовая дверь
+item.redwood_door_item.name=Дверь из красного дерева
+item.willow_door_item.name=Ивовая дверь
+item.pine_door_item.name=Сосновая дверь
+item.hellbark_door_item.name=Дверь из адской коры
+item.jacaranda_door_item.name=Жакарандовая дверь
+item.mahogany_door_item.name=Махагониевая дверь
+
+tile.trapdoor_sacred.name=Люк из священного дуба
+tile.trapdoor_cherry.name=Вишнёвый люк
+tile.trapdoor_dark.name=Тёмный люк
+tile.trapdoor_fir.name=Пихтовый люк
+tile.trapdoor_ethereal.name=Эфирный люк
+tile.trapdoor_magic.name=Магический люк
+tile.trapdoor_mangrove.name=Мангровый люк
+tile.trapdoor_palm.name=Пальмовый люк
+tile.trapdoor_redwood.name=Люк из красного дерева
+tile.trapdoor_willow.name=Ивовый люк
+tile.trapdoor_pine.name=Сосновый люк
+tile.trapdoor_hellbark.name=Люк из адской коры
+tile.trapdoor_jacaranda.name=Жакарандовый люк
+tile.trapdoor_mahogany.name=Махагониевый люк
+
+item.spruce_door_item.name=Еловая дверь
+item.birch_door_item.name=Берёзовая дверь
+item.jungle_door_item.name=Дверь из тропического дерева
+item.acacia_door_item.name=Акациевая дверь
+item.dark_oak_door_item.name=Дверь из тёмного дуба
+
+tile.trapdoor_spruce.name=Еловый люк
+tile.trapdoor_birch.name=Берёзовый люк
+tile.trapdoor_jungle.name=Люк из тропического дерева
+tile.trapdoor_acacia.name=Акациевый люк
+tile.trapdoor_darkoak.name=Люк из тёмного дуба
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Модели портного/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 tile.ModelThreads.name=Катушки с нитками  
@@ -427,6 +472,7 @@ item.BrokenBowHunting.name=Старый лук
 item.BrokenStaffFire.name=Старый посох пироманта
 item.BrokenGrimoireWater.name=Потрепанный гримуар воды
 item.Uchigatana.name=Утигата
+item.DragonSlayer.name=Убийца драконов
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Напитки/
@@ -460,6 +506,12 @@ item.FoodMeatPie.name=Мясной пирог
 item.FoodStrangeFish.name=Странная рыба
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Предметы/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.Chalk.name=Мел-ловушка
+item.SilverCross.name=Серебряный крест
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Материалы/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 item.Metal.0.name=Необработанная нержавеющая сталь
@@ -483,6 +535,7 @@ item.Crystall.11.name=Кристалл призрака
 item.Crystall.12.name=Кристалл драконьего сердца
 item.Crystall.13.name=Кристалл боли
 item.Crystall.14.name=Кристалл эфира
+item.Crystall.15.name=Кристалл воды
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Растения и грибы/

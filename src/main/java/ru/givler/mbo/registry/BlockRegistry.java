@@ -13,7 +13,7 @@ public class BlockRegistry {
     //переменные для блоков
     public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofUnfired, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
             BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
-            RoofWood, BlockFiredClay, BlockClayWall, BlockGlass;
+            RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockExorcism;
     //переменные для ступенек
     public static Block StairsStone, StairsSandstone, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
             StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay;
@@ -35,16 +35,16 @@ public class BlockRegistry {
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
-        BlockGreyStone = new BlockBasic(Material.rock, "BlockGreyStone", "stone/stone");
-        BlockGreyCobblestone = new BlockBasic(Material.rock, "BlockGreyCobblestone", "stone/cobblestone");
-        BlockEndbrick = new BlockBasic(Material.rock, "BlockEndbrick", "stone/end_bricks");
-        BlockGreyCobblesMossy = new BlockBasic(Material.rock, "BlockGreyCobblesMossy", "stone/cobblestone_mossy");
+        BlockGreyStone = new BlockBase(Material.rock, "BlockGreyStone", "stone/stone");
+        BlockGreyCobblestone = new BlockBase(Material.rock, "BlockGreyCobblestone", "stone/cobblestone");
+        BlockEndbrick = new BlockBase(Material.rock, "BlockEndbrick", "stone/end_bricks");
+        BlockGreyCobblesMossy = new BlockBase(Material.rock, "BlockGreyCobblesMossy", "stone/cobblestone_mossy");
 
-        BlockImperialBrick = new BlockBasic(Material.rock, "BlockImperialBrick", "stone/imperial_brick");
-        BlockHeneizenBrick = new BlockBasic(Material.rock, "BlockHeneizenBrick", "stone/heneizen_brick");
-        BlockIrgadBrick = new BlockBasic(Material.rock, "BlockIrgadBrick", "stone/irgad_brick");
-        BlockFiredClay = new BlockBasic(Material.rock, "BlockFiredClay", "stone/brick_firedclay");
-        BlockClayWall = new BlockBasic(Material.wood, "BlockClayWall", "wood/clay_wall_old").setStepSound(Block.soundTypeWood);;
+        BlockImperialBrick = new BlockBase(Material.rock, "BlockImperialBrick", "stone/imperial_brick");
+        BlockHeneizenBrick = new BlockBase(Material.rock, "BlockHeneizenBrick", "stone/heneizen_brick");
+        BlockIrgadBrick = new BlockBase(Material.rock, "BlockIrgadBrick", "stone/irgad_brick");
+        BlockFiredClay = new BlockBase(Material.rock, "BlockFiredClay", "stone/brick_firedclay");
+        BlockClayWall = new BlockBase(Material.wood, "BlockClayWall", "wood/clay_wall_old").setStepSound(Block.soundTypeWood);;
 
         RoofStandart = new BlockMeta(Material.rock, "StandartRoof", "roof/roofk", 3);
         RoofUnfired = new BlockMeta(Material.clay, "UnfiredRoof", "roof/roofu", 3).setStepSound(Block.soundTypeGravel);
@@ -92,14 +92,16 @@ public class BlockRegistry {
 
         MagicFurnace = new BlockArcanum(Material.rock, "MagicFurnace");
 
+        BlockExorcism = new BlockExorcismCircle(Material.rock, "BlockExorcism", "another/exorcism");
+
         //НИЖЕ НАХОДИТСЯ СТУПЕНЬКИ
-        StairsStone = new BlockBasicStairs((BlockBasic) BlockGreyStone);
-        StairsGreyCobblestone = new BlockBasicStairs((BlockBasic) BlockGreyCobblestone);;
-        StairsIrgadBrick = new BlockBasicStairs((BlockBasic) BlockIrgadBrick);
-        StairsEndbrick = new BlockBasicStairs((BlockBasic) BlockEndbrick);
-        StairsImperialBrick = new BlockBasicStairs((BlockBasic) BlockImperialBrick);
-        StairsHeneizenBrick = new BlockBasicStairs((BlockBasic) BlockHeneizenBrick);
-        StairsFiredClay = new BlockBasicStairs((BlockBasic) BlockFiredClay);
+        StairsStone = new BlockBasicStairs((BlockBase) BlockGreyStone);
+        StairsGreyCobblestone = new BlockBasicStairs((BlockBase) BlockGreyCobblestone);;
+        StairsIrgadBrick = new BlockBasicStairs((BlockBase) BlockIrgadBrick);
+        StairsEndbrick = new BlockBasicStairs((BlockBase) BlockEndbrick);
+        StairsImperialBrick = new BlockBasicStairs((BlockBase) BlockImperialBrick);
+        StairsHeneizenBrick = new BlockBasicStairs((BlockBase) BlockHeneizenBrick);
+        StairsFiredClay = new BlockBasicStairs((BlockBase) BlockFiredClay);
 
         StairsSandstone = new BlockMetaStairs((BlockMeta) BlockSandstone, 0);
         StairsStonebrick = new BlockMetaStairs((BlockMeta) BlockStonebrick, 0);

@@ -147,21 +147,28 @@ public class PotionCommonHandler {
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event) {
         if (!(event.entityLiving instanceof EntityPlayer)) return;
-        EntityPlayer player = (EntityPlayer) event.entityLiving;
 
+        EntityPlayer player = (EntityPlayer) event.entityLiving;
         if (!player.isPotionActive(PotionEnum.DODGE)) return;
 
         DamageSource source = event.source;
-        if (
-                source == DamageSource.fall ||
-                        source == DamageSource.inFire ||
-                        source == DamageSource.onFire ||
-                        source == DamageSource.lava ||
-                        source == DamageSource.magic ||
-                        source == DamageSource.drown ||
-                        source == DamageSource.starve  ||
-                        player.isPotionActive(PotionRegistry.DodgeHit)
-        ) {
+
+        boolean isPotionDamage = (source == DamageSource.magic) &&
+                (player.isPotionActive(Potion.poison) ||
+                        player.isPotionActive(Potion.wither));
+
+        if (source == DamageSource.fall ||
+                source == DamageSource.inFire ||
+                source == DamageSource.onFire ||
+                source == DamageSource.lava ||
+                source == DamageSource.drown ||
+                source == DamageSource.starve ||
+                source == DamageSource.wither ||
+                source == DamageSource.inWall ||
+                source == DamageSource.outOfWorld ||
+                source.isDamageAbsolute() ||
+                isPotionDamage ||
+                player.isPotionActive(PotionRegistry.DodgeHit)) {
             return;
         }
 

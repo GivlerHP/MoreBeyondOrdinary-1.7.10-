@@ -53,6 +53,8 @@ public class ClientProxy extends CommonProxy {
         ClientRegistry.registerKeyBinding(activateAmuletKey);
         FMLCommonHandler.instance().bus().register(new ClientKeyHandler());
 
+
+
         if (Loader.isModLoaded("NotEnoughItems")) {
             codechicken.nei.api.API.registerRecipeHandler(new ArcanumRecipeHandler());
             codechicken.nei.api.API.registerUsageHandler(new ArcanumRecipeHandler());
@@ -159,6 +161,7 @@ public class ClientProxy extends CommonProxy {
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenLongsword, new RenderLongsword(ItemRegistry.BrokenLongsword.getScale()));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenDagger, new RenderDagger(ItemRegistry.BrokenDagger.getScale()));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.Uchigatana, new RenderUchigatana(ItemRegistry.Uchigatana.getScale()));
+        MinecraftForgeClient.registerItemRenderer(ItemRegistry.DragonSlayer, new RenderDragonSlayer(ItemRegistry.DragonSlayer.getScale()));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenBowHunting, new RenderCrossbow());
         RenderStoneGolem.register();
     }
