@@ -114,6 +114,7 @@
   "telptout": {"category": "player", "sounds": [{"name": "telptout", "stream": false}]},
   "temple": {"category": "player", "sounds": [{"name": "temple", "stream": false}]},
   "visions": {"category": "player", "sounds": [{"name": "visions", "stream": false}]},
+  "heavysword": {"category": "player", "sounds": [{"name": "heavysword", "stream": false}]},
 
   "theend": {"category": "music", "sounds": [{"name": "theend", "stream": true}]},
 

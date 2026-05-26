@@ -13,7 +13,7 @@ public class ItemDragonSlayerMBO extends ItemWeaponBase {
     public boolean hitEntity(ItemStack stack, EntityLivingBase target, EntityLivingBase attacker) {
         attacker.worldObj.playSoundAtEntity(
                 attacker,
-                "random.anvil_land",
+                "mbo:heavysword",
                 1.0F,
                 1.0F
         );

@@ -10,6 +10,7 @@ import ru.givler.mbo.item.amulets.*;
 import ru.givler.mbo.item.belt.ItemFallBelt;
 import ru.givler.mbo.item.belt.ItemFertilityBelt;
 import ru.givler.mbo.item.belt.ItemMinerBelt;
+import ru.givler.mbo.integration.thaumcraft.item.focus.ItemFocusMHealing;
 import ru.givler.mbo.item.ring.*;
 import ru.givler.mbo.item.glyph.*;
 
@@ -38,7 +39,8 @@ public class ItemRegistry {
     public static Item FertilityBelt, FallBelt, MinerBelt, WaterminerBelt, KnightBelt;
     //магические посохи
     public static Item BrokenStaffFire, BrokenGrimoireWater;
-    public static  Item Chalk, SilverCross;
+    public static Item Chalk, SilverCross;
+
 
     static {
         Item.ToolMaterial BrokenLongswordMat = ItemWeaponBase.createMaterial("BrokenLongswordMat", 0, 800, 0.0F, 1.5F, 30);
@@ -143,6 +145,7 @@ public class ItemRegistry {
         BrokenCudgel.register();
         DragonSlayer.register();
         ((ItemBowMBO) BrokenBowHunting).register();
+
     }
 
 }

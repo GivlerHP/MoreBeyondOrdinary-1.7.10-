@@ -15,6 +15,7 @@ tooltip.durability=Прочность
 message.amulet_ready_in=Амулет будет готов через %s сек
 message.amulet_not_xp=Не хватает опыта, необходимо минимум: %s уровня
 key.mbo.amulet.desc=Кнопка активации амулета
+focus.mhealing.no_armor=Ваши одеяния не подходят для использование этого Набалдашника
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Блоки, ступеньки, плиты, ограда/
@@ -306,6 +307,7 @@ item.mangrove_door_item.name=Мангровая дверь
 item.palm_door_item.name=Пальмовая дверь
 item.redwood_door_item.name=Дверь из красного дерева
 item.willow_door_item.name=Ивовая дверь
+item.bamboo_door_item.name=Бамбуковая дверь
 item.pine_door_item.name=Сосновая дверь
 item.hellbark_door_item.name=Дверь из адской коры
 item.jacaranda_door_item.name=Жакарандовая дверь
@@ -321,6 +323,7 @@ tile.trapdoor_mangrove.name=Мангровый люк
 tile.trapdoor_palm.name=Пальмовый люк
 tile.trapdoor_redwood.name=Люк из красного дерева
 tile.trapdoor_willow.name=Ивовый люк
+tile.trapdoor_bamboo.name=Бамбуковый люк
 tile.trapdoor_pine.name=Сосновый люк
 tile.trapdoor_hellbark.name=Люк из адской коры
 tile.trapdoor_jacaranda.name=Жакарандовый люк
@@ -562,6 +565,7 @@ potion.disarm=Обезоруженный
 potion.thorns=Шипы
 potion.curse=Проклятье
 potion.miner_luck=Удача
+potion.stamina=Приток выносливости
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Бижютерия/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -649,3 +653,20 @@ item.WizardBoots.name=Увядшиe ботинки волшебника
 tile.MagicFurnace.name=Арканный тигель
 method.arcanum_crucible=Арканный тигель
 gui.arcanum_crucible=Арканный тигель
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Набалдашники/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+item.focusMHealing.name=Набалдашник: Божественное лечение
+focus.upgrade.mhealing.spirit.name=Сглаживание импульса
+focus.upgrade.mhealing.spirit.text=Это улучшение уменьшает уровень негативных эффектов за использование Набалдашника.
+focus.upgrade.mhealing.inspiration.name=Второе дыхание
+focus.upgrade.mhealing.inspiration.text=Это улучшение дополнительно накладывает на всех союзников в радиусе эффект "Приток выносливости".
+focus.upgrade.mhealing.vitality.name=Великое исцеление
+focus.upgrade.mhealing.vitality.text=Это улучшение увеличивает исцеление ещё сильнее.
+
+item.focusCleansing.name=Набалдашник: Очищение
+focus.upgrade.cleansing.cooldown.name=Перезарядка
+focus.upgrade.cleansing.cooldown.text=Это улучшение уменьшает время перезарядки на 10 секунд
+focus.upgrade.cleansing.divine.name=Божественная защита
+focus.upgrade.cleansing.divine.text=Это улучшение даёт 5 секунд сопротивления урону союзникам

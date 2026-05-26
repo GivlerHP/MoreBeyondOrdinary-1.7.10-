@@ -1,4 +1,4 @@
-package ru.givler.mbo;
+package ru.givler.mbo.particles;
 
 public enum EnumParticleType {
 

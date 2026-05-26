@@ -6,8 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import ru.givler.mbo.EnumParticleType;
-import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.network.packet.PacketSpawnParticle;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 

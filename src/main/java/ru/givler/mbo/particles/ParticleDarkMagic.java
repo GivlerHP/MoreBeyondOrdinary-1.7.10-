@@ -18,7 +18,6 @@ public class ParticleDarkMagic extends EntityFX {
         super(par1World, par2, par4, par6, par8, par10, par12);
         this.motionY *= 0.20000000298023224D;
 
-        // Устанавливаем цвет
         this.particleRed = r;
         this.particleGreen = g;
         this.particleBlue = b;

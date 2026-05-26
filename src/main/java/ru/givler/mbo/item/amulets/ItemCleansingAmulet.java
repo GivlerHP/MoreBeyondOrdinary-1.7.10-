@@ -56,6 +56,8 @@ public class ItemCleansingAmulet extends ItemAmuletBase {
         player.removePotionEffect(Potion.wither.id);
         player.removePotionEffect(Potion.blindness.id);
         player.removePotionEffect(Potion.confusion.id);
+        player.removePotionEffect(Potion.moveSlowdown.id);
+        player.removePotionEffect(Potion.weakness.id);
     }
 
     private NBTTagCompound getOrCreateTag(ItemStack stack) {

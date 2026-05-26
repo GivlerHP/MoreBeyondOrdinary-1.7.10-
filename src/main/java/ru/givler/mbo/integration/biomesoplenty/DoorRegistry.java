@@ -18,20 +18,20 @@ public class DoorRegistry {
     // Блоки дверей BoP
     public static Block doorSacredBlock, doorCherryBlock, doorDarkBlock, doorFirBlock,
             doorEtherealBlock, doorMagicBlock, doorMangroveBlock, doorPalmBlock,
-            doorRedWoodBlock, doorWillowBlock, doorPineBlock, doorHellbarkBlock,
-            doorJacarandaBlock, doorMahoganyBlock;
+            doorRedWoodBlock, doorWillowBlock, doorBambooBlock, doorPineBlock,
+            doorHellbarkBlock, doorJacarandaBlock, doorMahoganyBlock;
 
     // Предметы дверей BoP
     public static Item doorSacredItem, doorCherryItem, doorDarkItem, doorFirItem,
             doorEtherealItem, doorMagicItem, doorMangroveItem, doorPalmItem,
-            doorRedWoodItem, doorWillowItem, doorPineItem, doorHellbarkItem,
-            doorJacarandaItem, doorMahoganyItem;
+            doorRedWoodItem, doorWillowItem, doorBambooItem, doorPineItem,
+            doorHellbarkItem, doorJacarandaItem, doorMahoganyItem;
 
     // Люки BoP
     public static Block trapdoorSacred, trapdoorCherry, trapdoorDark, trapdoorFir,
             trapdoorEthereal, trapdoorMagic, trapdoorMangrove, trapdoorPalm,
-            trapdoorRedWood, trapdoorWillow, trapdoorPine, trapdoorHellbark,
-            trapdoorJacaranda, trapdoorMahogany;
+            trapdoorRedWood, trapdoorWillow, trapdoorBamboo, trapdoorPine,
+            trapdoorHellbark, trapdoorJacaranda, trapdoorMahogany;
 
     // Ванильные двери и люки
     public static Block doorSpruceBlock, doorBirchBlock, doorJungleBlock, doorAcaciaBlock, doorDarkoakBlock;
@@ -86,6 +86,11 @@ public class DoorRegistry {
                 doorWillowItem = new DoorItemBase(doorWillowBlock, "willow_door_item", "door_willow");
                 ((DoorBase) doorWillowBlock).setDropItem(doorWillowItem);
 
+                doorBambooBlock = new DoorBase(Material.wood, "door_bamboo_block", "door_bamboo", null);
+                doorBambooItem = new DoorItemBase(doorBambooBlock, "bamboo_door_item", "door_bamboo");
+                ((DoorBase) doorBambooBlock).setDropItem(doorBambooItem);
+
+
                 doorPineBlock = new DoorBase(Material.wood, "door_pine_block", "door_pine", null);
                 doorPineItem = new DoorItemBase(doorPineBlock, "pine_door_item", "door_pine");
                 ((DoorBase) doorPineBlock).setDropItem(doorPineItem);
@@ -105,8 +110,8 @@ public class DoorRegistry {
                 doorItemsBoP = new Item[]{
                         doorSacredItem, doorCherryItem, doorDarkItem, doorFirItem,
                         doorEtherealItem, doorMagicItem, doorMangroveItem, doorPalmItem,
-                        doorRedWoodItem, doorWillowItem, doorPineItem, doorHellbarkItem,
-                        doorJacarandaItem, doorMahoganyItem
+                        doorRedWoodItem, doorWillowItem, doorBambooItem, doorPineItem,
+                        doorHellbarkItem, doorJacarandaItem, doorMahoganyItem
                 };
             }
 
@@ -121,6 +126,7 @@ public class DoorRegistry {
                 trapdoorPalm = new TrapDoorBase(Material.wood, "trapdoor_palm", "trapdoor_palm");
                 trapdoorRedWood = new TrapDoorBase(Material.wood, "trapdoor_redwood", "trapdoor_redwood");
                 trapdoorWillow = new TrapDoorBase(Material.wood, "trapdoor_willow", "trapdoor_willow");
+                trapdoorBamboo = new TrapDoorBase(Material.wood, "trapdoor_bamboo", "trapdoor_bamboo");
                 trapdoorPine = new TrapDoorBase(Material.wood, "trapdoor_pine", "trapdoor_pine");
                 trapdoorHellbark = new TrapDoorBase(Material.wood, "trapdoor_hellbark", "trapdoor_hellbark");
                 trapdoorJacaranda = new TrapDoorBase(Material.wood, "trapdoor_jacaranda", "trapdoor_jacaranda");
@@ -129,8 +135,8 @@ public class DoorRegistry {
                 trapdoorBlocksBoP = new Block[]{
                         trapdoorSacred, trapdoorCherry, trapdoorDark, trapdoorFir,
                         trapdoorEthereal, trapdoorMagic, trapdoorMangrove, trapdoorPalm,
-                        trapdoorRedWood, trapdoorWillow, trapdoorPine, trapdoorHellbark,
-                        trapdoorJacaranda, trapdoorMahogany
+                        trapdoorRedWood, trapdoorWillow, trapdoorBamboo, trapdoorPine,
+                        trapdoorHellbark, trapdoorJacaranda, trapdoorMahogany
                 };
             }
         }

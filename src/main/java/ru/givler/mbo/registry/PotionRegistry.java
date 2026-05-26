@@ -23,6 +23,7 @@ public class PotionRegistry {
      * Thorns - возвращает 10% урона за уровень
      * Curse - уменьшает макс. здоровье на 50%
      * Luck - увеличивает шанс дропа с руд на 20% за уровень
+     * Stamina - увеличивает восстановление выносливости (MineFantasy Integration)
      */
 
     public static Potion MeleeDamage;
@@ -40,6 +41,7 @@ public class PotionRegistry {
     public static Potion Thorns;
     public static Potion Curse;
     public static Potion Luck;
+    public static Potion Stamina;
 
 
     public static void preLoad(FMLPreInitializationEvent event) {
@@ -76,6 +78,8 @@ public class PotionRegistry {
         Potion.potionTypes[PotionConfig.curseID] = Curse;
         Luck = new Luck(PotionConfig.luckID, false, 0x3CB371);
         Potion.potionTypes[PotionConfig.luckID] = Luck;
+        Stamina = new Stamina(PotionConfig.staminaID, false, 0x44FF88);
+        Potion.potionTypes[PotionConfig.staminaID] = Stamina;
     }
 }
 

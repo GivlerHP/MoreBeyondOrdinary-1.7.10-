@@ -21,6 +21,7 @@ public class PotionConfig {
     public static int thornsID = 67;
     public static int curseID = 68;
     public static int luckID = 69;
+    public static int staminaID = 70;
 
     public static void load(File configDir) {
         try {
@@ -43,6 +44,7 @@ public class PotionConfig {
             thornsID        = cfg.getInt("Thorns", "potions", 67, 1, 255, "Potion ID");
             curseID         = cfg.getInt("Curse", "potions", 68, 1, 255, "Potion ID");
             luckID         = cfg.getInt("Luck", "potions", 69, 1, 255, "Potion ID");
+            staminaID         = cfg.getInt("Stamina", "potions", 70, 1, 255, "Potion ID");
 
             if (cfg.hasChanged()) cfg.save();
 

@@ -2,14 +2,11 @@ package ru.givler.mbo.network.packet;
 
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-import ru.givler.mbo.EnumParticleType;
-import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.network.PacketManager;
 
 public class PacketSpawnParticle implements IMessage {
@@ -31,7 +28,7 @@ public class PacketSpawnParticle implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeInt(type.ordinal());
-        buf.writeDouble(x);   buf.writeDouble(y);   buf.writeDouble(z);
+        buf.writeDouble(x);    buf.writeDouble(y);    buf.writeDouble(z);
         buf.writeDouble(motX); buf.writeDouble(motY); buf.writeDouble(motZ);
     }
 
@@ -42,31 +39,14 @@ public class PacketSpawnParticle implements IMessage {
         motX = buf.readDouble(); motY = buf.readDouble(); motZ = buf.readDouble();
     }
 
-    public static class Handler implements IMessageHandler<PacketSpawnParticle, IMessage> {
-
-        @Override
-        public IMessage onMessage(PacketSpawnParticle pkt, MessageContext ctx) {
-            World world = Minecraft.getMinecraft().theWorld;
-            if (world == null) return null;
-
-            if (pkt.type.isVanilla()) {
-                world.spawnParticle(
-                        pkt.type.getVanillaName(),
-                        pkt.x, pkt.y, pkt.z,
-                        pkt.motX, pkt.motY, pkt.motZ
-                );
-            } else {
-                MoreBeyondOrdinary.proxy.spawnParticle(
-                        pkt.type, world,
-                        pkt.x, pkt.y, pkt.z,
-                        pkt.motX, pkt.motY, pkt.motZ
-                );
-            }
-
-            return null;
-        }
-    }
-
+    // Геттеры для Handler-а
+    public EnumParticleType getType() { return type; }
+    public double getX() { return x; }
+    public double getY() { return y; }
+    public double getZ() { return z; }
+    public double getMotX() { return motX; }
+    public double getMotY() { return motY; }
+    public double getMotZ() { return motZ; }
 
     public static void send(EnumParticleType type, World world, EntityPlayer player,
                             int count,

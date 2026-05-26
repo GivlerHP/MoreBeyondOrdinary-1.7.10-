@@ -1,10 +1,8 @@
 package ru.givler.mbo.item.glyph;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,9 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
-import ru.givler.mbo.EnumParticleType;
-import ru.givler.mbo.MoreBeyondOrdinary;
-import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.network.packet.PacketSpawnParticle;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 import ru.givler.mbo.registry.PotionRegistry;
@@ -83,6 +79,5 @@ public class ItemGlyphCleansing extends ItemGlyphBasic {
 
     @Override
     public void onUpdate(ItemStack stack, World world, Entity entity, int par4, boolean par5) {
-
     }
 }

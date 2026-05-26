@@ -10,7 +10,9 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import ru.givler.mbo.EnumParticleType;
+import ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry;
+import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.block.blockmodels.ModelTileBase;
 import ru.givler.mbo.handler.*;
 import ru.givler.mbo.integration.biomesoplenty.DoorRegistry;
@@ -23,13 +25,16 @@ import ru.givler.mbo.util.PotionArrayExpander;
 
 
 public class CommonProxy {
-    public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel("Amulet");
 
     public void initPackets() {
-        NETWORK.registerMessage(PacketActivateAmulet.Handler.class, PacketActivateAmulet.class, 0, Side.SERVER);
+        PacketManager.registerCommonPackets();
     }
 
     public void registerRenderers() {
+    }
+
+    public void registerPackets() {
+
     }
 
     public World getClientWorld() {
@@ -47,6 +52,7 @@ public class CommonProxy {
         PlantRegistry.preLoad(event);
         ArmorRegistry.preLoad(event);
         DoorRegistry.init();
+        ThaumcraftRegistry.init();
         MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
         MinecraftForge.EVENT_BUS.register(new BeltEventHandler());
         FMLCommonHandler.instance().bus().register(new BeltEventHandler());

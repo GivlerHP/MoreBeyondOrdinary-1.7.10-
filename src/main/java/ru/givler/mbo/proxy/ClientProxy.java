@@ -19,7 +19,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Keyboard;
-import ru.givler.mbo.EnumParticleType;
+import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.handler.ClientKeyHandler;
 import ru.givler.mbo.handler.PotionClientHandler;
@@ -33,10 +34,14 @@ import ru.givler.mbo.render.*;
 import ru.givler.mbo.render.decormodels.TemplateModelRenderer;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 
-
-
 public class ClientProxy extends CommonProxy {
     public static KeyBinding activateAmuletKey;
+
+    @Override
+    public void initPackets() {
+        super.initPackets();
+        PacketManager.registerClientPackets();
+    }
 
     @Override
     public World getClientWorld() {

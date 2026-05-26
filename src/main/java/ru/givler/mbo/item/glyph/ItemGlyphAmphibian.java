@@ -1,21 +1,17 @@
 package ru.givler.mbo.item.glyph;
 
-import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
-import ru.givler.mbo.EnumParticleType;
-import ru.givler.mbo.MoreBeyondOrdinary;
-import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.particles.EnumParticleType;
+
 import ru.givler.mbo.network.packet.PacketSpawnParticle;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
-//класс для создания предметов
 public class ItemGlyphAmphibian extends ItemGlyphBasic {
 
     public ItemGlyphAmphibian(String name, String texture, int maxStackSize) {

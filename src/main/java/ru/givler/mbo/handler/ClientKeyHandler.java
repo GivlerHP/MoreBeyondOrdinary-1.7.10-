@@ -3,9 +3,9 @@ package ru.givler.mbo.handler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ChatComponentText;
+import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.network.packet.PacketActivateAmulet;
 import ru.givler.mbo.proxy.ClientProxy;
-import ru.givler.mbo.proxy.CommonProxy;
 
 public class ClientKeyHandler {
 
@@ -14,7 +14,7 @@ public class ClientKeyHandler {
         if (event.phase != TickEvent.Phase.END || Minecraft.getMinecraft().currentScreen != null) return;
 
         if (ClientProxy.activateAmuletKey.isPressed()) {
-                CommonProxy.NETWORK.sendToServer(new PacketActivateAmulet());
+            PacketManager.INSTANCE.sendToServer(new PacketActivateAmulet());
         }
     }
 }
