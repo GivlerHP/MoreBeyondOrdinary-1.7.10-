@@ -37,10 +37,8 @@ import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 public class ClientProxy extends CommonProxy {
     public static KeyBinding activateAmuletKey;
 
-    @Override
     public void initPackets() {
         super.initPackets();
-        PacketManager.registerClientPackets();
     }
 
     @Override

@@ -5,6 +5,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -128,15 +129,15 @@ public class ItemFocusMHealing extends ItemFocusPartyBasic {
                 double yOffset = world.rand.nextDouble() * 1.0;
                 double zOffset = Math.sin(angle) * r * (world.rand.nextDouble() - 0.5) * 2;
 
-                PacketManager.INSTANCE.sendToAllAround(
-                        new PacketSpawnParticle(
-                                EnumParticleType.VANILLA_HEART,
-                                player.posX + xOffset,
-                                player.posY + yOffset,
-                                player.posZ + zOffset,
-                                0.0, 0.1, 0.0
-                        ), point
+                PacketSpawnParticle pkt = new PacketSpawnParticle(
+                        EnumParticleType.VANILLA_HEART,
+                        player.posX + xOffset,
+                        player.posY + yOffset,
+                        player.posZ + zOffset,
+                        0.0, 0.1, 0.0
                 );
+                PacketManager.INSTANCE.sendToAllAround(pkt, point);
+                PacketManager.INSTANCE.sendTo(pkt, (EntityPlayerMP) player);
             }
         }
     }

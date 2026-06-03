@@ -41,8 +41,9 @@ public class ItemGlyphWeapon extends ItemGlyphBasic {
         world.playSoundAtEntity(player, "mbo:blind", 1.0F, 1.0F);
         player.swingItem();
 
-        PacketSpawnParticle.send(EnumParticleType.DARK_MAGIC, world, player, 30, 2.0, 2.0, 2.0, 0.0,   0.0, 0.0, 0.0);
-
+        if (!world.isRemote) {
+            PacketSpawnParticle.send(EnumParticleType.DARK_MAGIC, world, player, 30, 2.0, 2.0, 2.0, 0.0, 0.0, 0.0, 0.0);
+        }
         return itemStack;
     }
 

@@ -136,14 +136,8 @@ public class ItemFocusCleansing extends ItemFocusPartyBasic {
                     target.addPotionEffect(new PotionEffect(Potion.resistance.id, 100, 0));
                 }
 
-                PacketSpawnParticle.send(
-                        EnumParticleType.SACRED,
-                        world, target,
-                        30,
-                        2.0, 2.0, 2.0,
-                        1.0,
-                        0.0, 0.0, 0.0
-                );
+                    PacketSpawnParticle.send(EnumParticleType.SACRED, world, target, 30, 2.0, 2.0, 2.0, 1.0, 0.0, 0.0, 0.0);
+
             }
 
             world.playSoundAtEntity(player, "mbo:temple", 1.0F, 1.0F);

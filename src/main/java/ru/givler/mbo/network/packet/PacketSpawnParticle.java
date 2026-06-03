@@ -5,6 +5,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.network.PacketManager;
@@ -52,6 +53,7 @@ public class PacketSpawnParticle implements IMessage {
                             int count,
                             double spreadX, double spreadY, double spreadZ, double offsetY,
                             double motX, double motY, double motZ) {
+        System.out.println("[DEBUG] send() вызван на isRemote=" + world.isRemote + " игрок=" + player.getCommandSenderName());
         NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint(
                 player.dimension,
                 player.posX, player.posY, player.posZ, 64.0
@@ -64,15 +66,16 @@ public class PacketSpawnParticle implements IMessage {
             double oy = (world.rand.nextDouble() - 0.5) * spreadY;
             double oz = (world.rand.nextDouble() - 0.5) * spreadZ;
 
-            PacketManager.INSTANCE.sendToAllAround(
-                    new PacketSpawnParticle(
-                            type,
-                            player.posX + ox,
-                            baseY + oy,
-                            player.posZ + oz,
-                            motX, motY, motZ
-                    ), point
+            PacketSpawnParticle pkt = new PacketSpawnParticle(
+                    type,
+                    player.posX + ox,
+                    baseY + oy,
+                    player.posZ + oz,
+                    motX, motY, motZ
             );
+
+            PacketManager.INSTANCE.sendToAllAround(pkt, point);
+            PacketManager.INSTANCE.sendTo(pkt, (EntityPlayerMP) player);
         }
     }
 }

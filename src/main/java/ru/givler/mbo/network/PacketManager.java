@@ -16,6 +16,7 @@ public class PacketManager {
     public static int nextID = 0;
 
     public static void registerCommonPackets() {
+        System.out.println("[DEBUG] registerCommonPackets, ID=" + nextID);
         INSTANCE.registerMessage(
                 PacketActivateAmulet.Handler.class,
                 PacketActivateAmulet.class,
@@ -25,6 +26,7 @@ public class PacketManager {
     }
 
     public static void registerClientPackets() {
+        System.out.println("[DEBUG] registerClientPackets, ID=" + nextID);
         INSTANCE.registerMessage(
                 PacketSpawnParticleHandler.class,
                 PacketSpawnParticle.class,

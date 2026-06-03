@@ -9,28 +9,41 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
 
-@SideOnly(Side.CLIENT)
 public class PacketSpawnParticleHandler implements IMessageHandler<PacketSpawnParticle, IMessage> {
 
     @Override
-    public IMessage onMessage(PacketSpawnParticle pkt, MessageContext ctx) {
-        World world = Minecraft.getMinecraft().theWorld;
-        if (world == null) return null;
-
-        if (pkt.getType().isVanilla()) {
-            world.spawnParticle(
-                    pkt.getType().getVanillaName(),
-                    pkt.getX(), pkt.getY(), pkt.getZ(),
-                    pkt.getMotX(), pkt.getMotY(), pkt.getMotZ()
-            );
-        } else {
-            MoreBeyondOrdinary.proxy.spawnParticle(
-                    pkt.getType(), world,
-                    pkt.getX(), pkt.getY(), pkt.getZ(),
-                    pkt.getMotX(), pkt.getMotY(), pkt.getMotZ()
-            );
+    public IMessage onMessage(final PacketSpawnParticle pkt, MessageContext ctx) {
+        if (ctx.side == Side.CLIENT) {
+            ClientHandler.handle(pkt);
         }
-
         return null;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private static class ClientHandler {
+        static void handle(final PacketSpawnParticle pkt) {
+            final Minecraft mc = Minecraft.getMinecraft();
+            mc.func_152344_a(new Runnable() {
+                @Override
+                public void run() {
+                    World world = mc.theWorld;
+                    if (world == null) return;
+
+                    if (pkt.getType().isVanilla()) {
+                        world.spawnParticle(
+                                pkt.getType().getVanillaName(),
+                                pkt.getX(), pkt.getY(), pkt.getZ(),
+                                pkt.getMotX(), pkt.getMotY(), pkt.getMotZ()
+                        );
+                    } else {
+                        MoreBeyondOrdinary.proxy.spawnParticle(
+                                pkt.getType(), world,
+                                pkt.getX(), pkt.getY(), pkt.getZ(),
+                                pkt.getMotX(), pkt.getMotY(), pkt.getMotZ()
+                        );
+                    }
+                }
+            });
+        }
     }
 }

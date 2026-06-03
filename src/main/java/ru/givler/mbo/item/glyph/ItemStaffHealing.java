@@ -31,8 +31,9 @@ public class ItemStaffHealing extends ItemGlyphBasic {
         player.swingItem();
         itemStack.damageItem(1, player);
 
-        PacketSpawnParticle.send(EnumParticleType.VANILLA_HEART, world, player, 30, 2.0, 2.0, 2.0,1.0,   0.0, 0.0, 0.0);
-
+        if (!world.isRemote) {
+            PacketSpawnParticle.send(EnumParticleType.VANILLA_HEART, world, player, 30, 2.0, 2.0, 2.0, 1.0, 0.0, 0.0, 0.0);
+        }
         return itemStack;
     }
 

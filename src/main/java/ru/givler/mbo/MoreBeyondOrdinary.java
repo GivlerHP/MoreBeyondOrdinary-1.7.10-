@@ -32,6 +32,7 @@ public class MoreBeyondOrdinary {
     @Mod.EventHandler
     public void preLoad(FMLPreInitializationEvent event) {
         proxy.preInit(event);
+        proxy.initPackets();
         VanillaBlockReplacer.replaceTrapdoor();
         EntityMobRegistry.registerEntities();
         IntegrationConfig.load(event.getModConfigurationDirectory());
@@ -41,7 +42,6 @@ public class MoreBeyondOrdinary {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event){
         proxy.init(event);
-        proxy.initPackets();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
     }
 

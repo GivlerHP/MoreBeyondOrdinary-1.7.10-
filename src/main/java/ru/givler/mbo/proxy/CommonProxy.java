@@ -28,6 +28,7 @@ public class CommonProxy {
 
     public void initPackets() {
         PacketManager.registerCommonPackets();
+        PacketManager.registerClientPackets();
     }
 
     public void registerRenderers() {

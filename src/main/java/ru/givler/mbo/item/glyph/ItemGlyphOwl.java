@@ -32,8 +32,9 @@ public class ItemGlyphOwl extends ItemGlyphBasic {
         player.swingItem();
         itemStack.damageItem(50, player);
 
-        PacketSpawnParticle.send(EnumParticleType.VANILLA_WITCH_MAGIC, world, player, 30, 2.0, 2.0, 2.0, 0.0,   0.0, 0.0, 0.0);
-
+        if (!world.isRemote) {
+            PacketSpawnParticle.send(EnumParticleType.VANILLA_WITCH_MAGIC, world, player, 30, 2.0, 2.0, 2.0, 0.0, 0.0, 0.0, 0.0);
+        }
         return itemStack;
     }
 
