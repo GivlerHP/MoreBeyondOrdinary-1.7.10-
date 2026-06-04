@@ -15,7 +15,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import ru.givler.mbo.block.blockmodels.ModelTileBase;
+import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class BlockModels extends BlockDirectional implements ITileEntityProvider {

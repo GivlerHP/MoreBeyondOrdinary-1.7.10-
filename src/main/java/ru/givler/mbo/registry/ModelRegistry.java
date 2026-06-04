@@ -4,8 +4,12 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.block.material.Material;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.block.blockmodels.RotatableModelDragonSlayer;
+import ru.givler.mbo.tileentity.AnimatedModelTileBase;
+
 import static net.minecraft.block.Block.soundTypeAnvil;
 
 public class ModelRegistry {
@@ -31,6 +35,8 @@ public class ModelRegistry {
             ModelDragonSlayer, ModelAxe;
     //Интерьер инженера
     public static BlockModels ModelGas, ModelOiler, ModelGears, ModelDrawing1, ModelDrawing2, ModelClock, ModelBrokenMechanism;
+    //анимированные модели
+    public static BlockModels ModelWisp;
 
     public static void preInit(FMLPreInitializationEvent event){
         ModelThreads = new BlockModels(Material.cloth, "ModelThreads", "threads", "threads");
@@ -253,6 +259,16 @@ public class ModelRegistry {
         ModelBrokenMechanism = new BlockModels(Material.cloth,"ModelBrokenMechanism", "broken_mechanism", "broken_mechanism");
 
         ModelBrokenMechanism.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.3F, 0.7F);
+
+        //анимированные модели
+        ModelWisp = new BlockModels(Material.cloth,"ModelWisp", "wisp", "wisp"){
+            @Override
+            public TileEntity createNewTileEntity(World world, int meta) {
+                return AnimatedModelTileBase.createAnimated("wisp", "wisp", "idle", 6, 100);
+            }
+        };
+
+        ModelWisp.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.3F, 0.7F);
     }
 
     @Mod.EventHandler
@@ -342,6 +358,7 @@ public class ModelRegistry {
         ModelDrawing2.register();
         ModelClock.register();
         ModelBrokenMechanism.register();
+        ModelWisp.register();
 
 
 

@@ -443,7 +443,12 @@ tile.ModelGears.name=Шестерёнки
 tile.ModelDrawing1.name=Чертёж I  
 tile.ModelDrawing2.name=Чертёж II  
 tile.ModelClock.name=Настенные часы  
-tile.ModelBrokenMechanism.name=Сломанный механизм  
+tile.ModelBrokenMechanism.name=Сломанный механизм
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Анимированные модели/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelWisp.name=Висп
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Глифы/

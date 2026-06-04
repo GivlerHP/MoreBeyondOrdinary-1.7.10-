@@ -1,4 +1,4 @@
-package ru.givler.mbo.block.blockmodels;
+package ru.givler.mbo.tileentity;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;

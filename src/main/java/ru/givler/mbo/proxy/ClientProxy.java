@@ -31,7 +31,11 @@ import ru.givler.mbo.particles.ParticleWhiteMagic;
 import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.registry.ModelRegistry;
 import ru.givler.mbo.render.*;
+import ru.givler.mbo.render.decormodels.AnimatedTemplateModelRenderer;
 import ru.givler.mbo.render.decormodels.TemplateModelRenderer;
+import ru.givler.mbo.tileentity.AnimatedModelTileBase;
+import ru.givler.mbo.tileentity.ModelTileBase;
+import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 
 public class ClientProxy extends CommonProxy {
@@ -55,6 +59,7 @@ public class ClientProxy extends CommonProxy {
         activateAmuletKey = new KeyBinding("key.mbo.amulet.desc", Keyboard.KEY_R, "MoreBeyondOrdinary");
         ClientRegistry.registerKeyBinding(activateAmuletKey);
         FMLCommonHandler.instance().bus().register(new ClientKeyHandler());
+
 
 
 
@@ -139,6 +144,18 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelDrawing2);
         bindDefaultRender(ModelRegistry.ModelClock);
         bindDefaultRender(ModelRegistry.ModelBrokenMechanism);
+
+        bindAnimatedRender(ModelRegistry.ModelWisp);
+
+        AnimationController.addModelFetcher((AnimationController.ModelFetcher<AnimatedModelTileBase>) animatable -> {
+            if (animatable instanceof AnimatedModelTileBase) {
+                return new ru.givler.mbo.models.AnimatedBlockTemplateModel();
+            }
+            return null;
+        });
+
+
+
         registerRenderers();
         MinecraftForge.EVENT_BUS.register(new PotionClientHandler());
         MinecraftForge.EVENT_BUS.register(new TooltipEvents());
@@ -156,6 +173,19 @@ public class ClientProxy extends CommonProxy {
         Item blockItem = ItemBlock.getItemFromBlock(block);
         MinecraftForgeClient.registerItemRenderer(blockItem, new RenderBlockItem(tesr, tile));
     }
+
+    public static void bindAnimatedRender(BlockModels block) {
+        AnimatedTemplateModelRenderer animatedTesr = new AnimatedTemplateModelRenderer();
+        TileEntity animatedTile = block.createNewTileEntity(null, 0);
+        ClientRegistry.bindTileEntitySpecialRenderer(animatedTile.getClass(), animatedTesr);
+
+        // используем тот же animatedTile вместо создания нового ModelTileBase
+        TemplateModelRenderer staticTesr = new TemplateModelRenderer();
+        Item blockItem = ItemBlock.getItemFromBlock(block);
+        MinecraftForgeClient.registerItemRenderer(blockItem, new RenderBlockItem(staticTesr, animatedTile));
+    }
+
+
 
     @Override
     public void registerRenderers() {

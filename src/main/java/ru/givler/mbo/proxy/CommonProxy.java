@@ -4,16 +4,14 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;
-import ru.givler.mbo.block.blockmodels.ModelTileBase;
+import ru.givler.mbo.tileentity.AnimatedModelTileBase;
+import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.handler.*;
 import ru.givler.mbo.integration.biomesoplenty.DoorRegistry;
 import ru.givler.mbo.recipes.registry.ArcanumRecipeRegistry;
@@ -64,7 +62,9 @@ public class CommonProxy {
         CreativeTabRegistry.init(event);
         ModelRegistry.init(event);
         GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
+        GameRegistry.registerTileEntity(AnimatedModelTileBase.class, "AnimatedModelTileBase");
         GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
+
         BlockRecipeRegistry.init();
         RoofRecipeRegistry.init();
         ArcanumRecipeRegistry.init();

@@ -1,6 +1,6 @@
 package ru.givler.mbo.models;
 
-import ru.givler.mbo.block.blockmodels.ModelTileBase;
+import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.model.provider.GeoModelProvider;
