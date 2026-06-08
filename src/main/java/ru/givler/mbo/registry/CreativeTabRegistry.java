@@ -358,6 +358,19 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(ModelClock));
             list.add(new ItemStack(ModelBrokenMechanism));
 
+            list.add(new ItemStack(ModelBook0));
+            list.add(new ItemStack(ModelBook1));
+            list.add(new ItemStack(ModelBook2));
+            list.add(new ItemStack(ModelBook3));
+            list.add(new ItemStack(ModelBook4));
+            list.add(new ItemStack(ModelBook5));
+            list.add(new ItemStack(ModelBook6));
+            list.add(new ItemStack(ModelBook7));
+            list.add(new ItemStack(ModelBook8));
+
+            list.add(new ItemStack(ModelWisp));
+
+
         }
     };
 

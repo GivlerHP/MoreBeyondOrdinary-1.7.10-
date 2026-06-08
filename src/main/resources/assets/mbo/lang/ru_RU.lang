@@ -446,6 +446,18 @@ tile.ModelClock.name=Настенные часы
 tile.ModelBrokenMechanism.name=Сломанный механизм
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели книг/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelBook0.name=Книга
+tile.ModelBook1.name=Книги
+tile.ModelBook2.name=Книги
+tile.ModelBook3.name=Книги
+tile.ModelBook4.name=Книги
+tile.ModelBook5.name=Книги
+tile.ModelBook6.name=Книги
+tile.ModelBook7.name=Книги
+tile.ModelBook8.name=Волшебная книга
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Анимированные модели/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 tile.ModelWisp.name=Висп

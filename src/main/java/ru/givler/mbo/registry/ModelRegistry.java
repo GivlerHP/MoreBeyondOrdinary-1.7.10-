@@ -7,7 +7,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import ru.givler.mbo.block.BlockModels;
-import ru.givler.mbo.block.blockmodels.RotatableModelDragonSlayer;
 import ru.givler.mbo.tileentity.AnimatedModelTileBase;
 
 import static net.minecraft.block.Block.soundTypeAnvil;
@@ -35,6 +34,8 @@ public class ModelRegistry {
             ModelDragonSlayer, ModelAxe;
     //Интерьер инженера
     public static BlockModels ModelGas, ModelOiler, ModelGears, ModelDrawing1, ModelDrawing2, ModelClock, ModelBrokenMechanism;
+    //Книжки
+    public static BlockModels ModelBook0, ModelBook1, ModelBook2, ModelBook3, ModelBook4, ModelBook5, ModelBook6, ModelBook7, ModelBook8;
     //анимированные модели
     public static BlockModels ModelWisp;
 
@@ -226,8 +227,15 @@ public class ModelRegistry {
 
         ModelHammer = new BlockModels(Material.cloth,"ModelHammer", "hammer", "hammer");
 
+        ModelDragonSlayer = new BlockModels(Material.cloth, "ModelDragonSlayer", "dragon_slayer", "dragon_slayer")
+                .setModelHeight(2)
+                .setRotationBounds(new float[][] {
+                        {0.0F, 0.0F, 0.4F, 0.7F, 2.0F, 0.6F},
+                        {0.4F, 0.0F, 0.0F, 0.6F, 2.0F, 0.7F},
+                        {0.3F, 0.0F, 0.4F, 1.0F, 2.0F, 0.6F},
+                        {0.4F, 0.0F, 0.3F, 0.6F, 2.0F, 1.0F}
+                });
 
-        ModelDragonSlayer = new RotatableModelDragonSlayer(Material.cloth,"ModelDragonSlayer", "dragon_slayer", "dragon_slayer");
         ModelDragonSlayer.setStepSound(soundTypeAnvil);
 
         ModelAxe = new BlockModels(Material.cloth,"ModelAxe", "axe", "axe");
@@ -259,6 +267,26 @@ public class ModelRegistry {
         ModelBrokenMechanism = new BlockModels(Material.cloth,"ModelBrokenMechanism", "broken_mechanism", "broken_mechanism");
 
         ModelBrokenMechanism.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.3F, 0.7F);
+
+
+        ModelBook0 = new BlockModels(Material.cloth, "ModelBook0", "book_0", "book_0");
+        ModelBook0.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.3F, 0.8F);
+        ModelBook1 = new BlockModels(Material.cloth, "ModelBook1", "book_1", "book_1");
+        ModelBook1.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.5F, 0.8F);
+        ModelBook2 = new BlockModels(Material.cloth, "ModelBook2", "book_2", "book_2");
+        ModelBook2.setBlockBounds(0.1F, 0.0F, 0.1F, 0.9F, 0.6F, 0.9F);
+        ModelBook3 = new BlockModels(Material.cloth, "ModelBook3", "book_3", "book_3");
+        ModelBook3.setBlockBounds(0.1F, 0.0F, 0.1F, 0.9F, 0.7F, 0.9F);
+        ModelBook4 = new BlockModels(Material.cloth, "ModelBook4", "book_4", "book_4");
+        ModelBook4.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.65F, 1.0F);
+        ModelBook5 = new BlockModels(Material.cloth, "ModelBook5", "book_5", "book_5");
+        ModelBook5.setBlockBounds(0.1F, 0.0F, 0.1F, 0.9F, 0.75F, 0.9F);
+        ModelBook6 = new BlockModels(Material.cloth, "ModelBook6", "book_6", "book_6");
+        ModelBook6.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.65F, 1.0F);
+        ModelBook7 = new BlockModels(Material.cloth, "ModelBook7", "book_7", "book_7");
+        ModelBook7.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.65F, 1.0F);
+        ModelBook8 = new BlockModels(Material.cloth, "ModelBook8", "book_8", "book_8");
+        ModelBook8.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.3F, 0.8F);
 
         //анимированные модели
         ModelWisp = new BlockModels(Material.cloth,"ModelWisp", "wisp", "wisp"){
@@ -358,6 +386,17 @@ public class ModelRegistry {
         ModelDrawing2.register();
         ModelClock.register();
         ModelBrokenMechanism.register();
+
+        ModelBook0.register();
+        ModelBook1.register();
+        ModelBook2.register();
+        ModelBook3.register();
+        ModelBook4.register();
+        ModelBook5.register();
+        ModelBook6.register();
+        ModelBook7.register();
+        ModelBook8.register();
+
         ModelWisp.register();
 
 
