@@ -2,6 +2,7 @@ package ru.givler.mbo.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.BlockStairs;
+import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 
@@ -24,5 +25,13 @@ public class BlockBasicStairs extends BlockStairs {
         GameRegistry.registerBlock(this, baseBlock.getUnlocalizedName() + "_stairs"); // Регистрация блока
     }
 
-
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
+        super.setBlockBoundsBasedOnState(world, x, y, z);
+        int meta = world.getBlockMetadata(x, y, z);
+        if ((meta & 4) != 0) {
+            this.minY = 0.0F;
+            this.maxY = 1.0F;
+        }
+    }
 }

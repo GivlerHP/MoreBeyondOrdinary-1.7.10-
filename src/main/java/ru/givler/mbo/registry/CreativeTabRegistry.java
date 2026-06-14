@@ -368,6 +368,8 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(ModelBook7));
             list.add(new ItemStack(ModelBook8));
 
+            list.add(new ItemStack(ModelVishroom));
+
             list.add(new ItemStack(ModelWisp));
 
 

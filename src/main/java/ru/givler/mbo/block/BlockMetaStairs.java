@@ -4,6 +4,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.item.Item;
+import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.ItemBlockMetadata;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
@@ -30,6 +31,16 @@ public class BlockMetaStairs extends BlockStairs {
         this.useNeighborBrightness = true; // Улучшенная обработка освещения
 
         GameRegistry.registerBlock(this, ItemBlockMetadata.class, baseBlock.getUnlocalizedName() + "_stairs_" + meta);
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
+        super.setBlockBoundsBasedOnState(world, x, y, z);
+        int meta = world.getBlockMetadata(x, y, z);
+        if ((meta & 4) != 0) {
+            this.minY = 0.0F;
+            this.maxY = 1.0F;
+        }
     }
 
     // Указываем, какой ItemStack выпадает при разрушении

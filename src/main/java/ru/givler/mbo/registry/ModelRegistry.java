@@ -36,6 +36,8 @@ public class ModelRegistry {
     public static BlockModels ModelGas, ModelOiler, ModelGears, ModelDrawing1, ModelDrawing2, ModelClock, ModelBrokenMechanism;
     //Книжки
     public static BlockModels ModelBook0, ModelBook1, ModelBook2, ModelBook3, ModelBook4, ModelBook5, ModelBook6, ModelBook7, ModelBook8;
+    //гриюы
+    public static BlockModels ModelVishroom;
     //анимированные модели
     public static BlockModels ModelWisp;
 
@@ -288,6 +290,9 @@ public class ModelRegistry {
         ModelBook8 = new BlockModels(Material.cloth, "ModelBook8", "book_8", "book_8");
         ModelBook8.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.3F, 0.8F);
 
+        ModelVishroom = new BlockModels(Material.cloth, "ModelVishroom", "vishroom", "vishroom");
+        ModelVishroom.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.5F, 0.8F);
+
         //анимированные модели
         ModelWisp = new BlockModels(Material.cloth,"ModelWisp", "wisp", "wisp"){
             @Override
@@ -396,6 +401,8 @@ public class ModelRegistry {
         ModelBook6.register();
         ModelBook7.register();
         ModelBook8.register();
+
+        ModelVishroom.register();
 
         ModelWisp.register();
 

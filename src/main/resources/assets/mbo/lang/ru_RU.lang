@@ -457,6 +457,12 @@ tile.ModelBook5.name=Книги
 tile.ModelBook6.name=Книги
 tile.ModelBook7.name=Книги
 tile.ModelBook8.name=Волшебная книга
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели грибов/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelVishroom.name=Висомор
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Анимированные модели/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -586,12 +592,12 @@ potion.stamina=Приток выносливости
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Бижютерия/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-description.ring.0.LifeSmallRing=+1 к здоровью
+description.ring.0.LifeSmallRing=+2 к здоровью
 description.ring.0.StaminaSmallRing=+15 к выносливости
 description.ring.0.DamageSmallRing=+5% к урону
 description.ring.0.SpeedSmallRing=+5% к скорости
 
-description.ring.1.LifeRing=+2 к здоровью
+description.ring.1.LifeRing=+3 к здоровью
 description.ring.1.StaminaRing=+25 к выносливости
 description.ring.1.DamageRing=+7.5 к урону
 description.ring.1.SpeedRing=+7.5% к скорости

@@ -25,7 +25,7 @@ public class ItemStaminaAmulet extends ItemAmuletBase {
     @Override
     public void activate(EntityPlayer player, ItemStack stack) {
         if (Loader.isModLoaded("minefantasy2")) {
-            StaminaBar.modifyStaminaValue(player, 70.0F);
+            StaminaBar.modifyStaminaValue(player, 30.0F);
         }
         player.addPotionEffect(new PotionEffect(Potion.moveSpeed.id, 240, 0));
     }

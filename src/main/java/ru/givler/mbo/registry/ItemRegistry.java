@@ -106,12 +106,12 @@ public class ItemRegistry {
         SmallBasicRing = new ItemVoidRing("SmallBasicRing", "bijouterie/ring_basic_small");
         BasicRing = new ItemVoidRing("BasicRing", "bijouterie/ring_basic");
 
-        LifeSmallRing = new ItemLifeRing("LifeSmallRing", "bijouterie/ring_small_life", 2.0D, "0");
+        LifeSmallRing = new ItemLifeRing("LifeSmallRing", "bijouterie/ring_small_life", 4.0D, "0");
         StaminaSmallRing  = new ItemStaminaRing("StaminaSmallRing", "bijouterie/ring_small_stamina", 15F, "0");
         DamageSmallRing = new ItemDamageRing("DamageSmallRing", "bijouterie/ring_small_damage", 0.05D, "0" );
         SpeedSmallRing = new ItemSpeedRing("SpeedSmallRing", "bijouterie/ring_small_speed", 0.05D, "0");
 
-        LifeRing = new ItemLifeRing("LifeRing", "bijouterie/ring_life", 4.0D, "1");
+        LifeRing = new ItemLifeRing("LifeRing", "bijouterie/ring_life", 6.0D, "1");
         StaminaRing  = new ItemStaminaRing("StaminaRing", "bijouterie/ring_stamina", 25F, "1");
         DamageRing = new ItemDamageRing("DamageRing", "bijouterie/ring_damage", 0.075D, "1" );
         SpeedRing = new ItemSpeedRing("SpeedRing", "bijouterie/ring_speed", 0.075D, "1");
