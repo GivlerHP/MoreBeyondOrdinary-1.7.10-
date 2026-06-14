@@ -464,6 +464,23 @@ tile.ModelBook8.name=Волшебная книга
 tile.ModelVishroom.name=Висомор
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели еды/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelPlateVoid.name=Миска
+tile.ModelPlate1.name=Миска куринного отбивного
+tile.ModelPlate2.name=Миска риса
+tile.ModelPlate3.name=Миска с борщом
+tile.ModelPlate4.name=Миска с мясом
+tile.ModelPlate5.name=Миска с сосиской
+tile.ModelPlate6.name=Миска с морковным салатом
+tile.ModelPlate7.name=Миска картошки с котлетой
+tile.ModelPlate8.name=Миска с яичницой
+tile.ModelPlate9.name=Миска с салатом
+tile.ModelPlate10.name=Миска висоморового супа
+
+tile.ModelBottle.name=Бутылка
+tile.ModelCup.name=Бутылка
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Анимированные модели/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 tile.ModelWisp.name=Висп

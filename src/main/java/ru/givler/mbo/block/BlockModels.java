@@ -162,6 +162,9 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 		return super.getSelectedBoundingBoxFromPool(world, x, y, z);
 	}
 
+	protected String getTextureName() { return textureName; }
+	protected String getModelName() { return modelName; }
+
 	public void register() {
 		GameRegistry.registerBlock(this, name);
 	}

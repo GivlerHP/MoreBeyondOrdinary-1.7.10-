@@ -44,8 +44,8 @@ public class CommonProxy {
         PotionArrayExpander.expand(128);
         BlockRegistry.preLoad(event);
         ItemRegistry.preLoad(event);
-        ModelRegistry.preInit(event);
         PotionRegistry.preLoad(event);
+        ModelRegistry.preInit(event);
         DrinkRegistry.preLoad(event);
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);

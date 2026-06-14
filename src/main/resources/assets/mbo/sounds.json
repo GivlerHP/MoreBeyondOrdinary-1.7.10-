@@ -116,6 +116,8 @@
   "visions": {"category": "player", "sounds": [{"name": "visions", "stream": false}]},
   "heavysword": {"category": "player", "sounds": [{"name": "heavysword", "stream": false}]},
 
+  "omnomnom": {"category": "player", "sounds": [{"name": "omnomnom", "stream": false}]},
+
   "theend": {"category": "music", "sounds": [{"name": "theend", "stream": true}]},
 
   	"stonegolem_walk": {"category": "hostile","sounds": [

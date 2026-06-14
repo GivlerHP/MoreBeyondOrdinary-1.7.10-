@@ -157,6 +157,21 @@ public class ClientProxy extends CommonProxy {
 
         bindDefaultRender(ModelRegistry.ModelVishroom);
 
+        bindDefaultRender(ModelRegistry.ModelPlateVoid);
+        bindDefaultRender(ModelRegistry.ModelPlate1);
+        bindDefaultRender(ModelRegistry.ModelPlate2);
+        bindDefaultRender(ModelRegistry.ModelPlate3);
+        bindDefaultRender(ModelRegistry.ModelPlate4);
+        bindDefaultRender(ModelRegistry.ModelPlate5);
+        bindDefaultRender(ModelRegistry.ModelPlate6);
+        bindDefaultRender(ModelRegistry.ModelPlate7);
+        bindDefaultRender(ModelRegistry.ModelPlate8);
+        bindDefaultRender(ModelRegistry.ModelPlate9);
+        bindDefaultRender(ModelRegistry.ModelPlate10);
+        bindDefaultRender(ModelRegistry.ModelBottle);
+        bindDefaultRender(ModelRegistry.ModelCup);
+
+
         bindAnimatedRender(ModelRegistry.ModelWisp);
 
         AnimationController.addModelFetcher((AnimationController.ModelFetcher<AnimatedModelTileBase>) animatable -> {
