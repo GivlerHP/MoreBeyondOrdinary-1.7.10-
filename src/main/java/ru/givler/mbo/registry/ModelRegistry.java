@@ -12,8 +12,7 @@ import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.block.blockmodels.BlockModelFood;
 import ru.givler.mbo.tileentity.AnimatedModelTileBase;
 
-import static net.minecraft.block.Block.soundTypeAnvil;
-import static net.minecraft.block.Block.soundTypeGlass;
+import static net.minecraft.block.Block.*;
 
 public class ModelRegistry {
     //Интерьер портного
@@ -45,6 +44,9 @@ public class ModelRegistry {
     //еда
     public static BlockModels ModelPlateVoid, ModelPlate1, ModelPlate2, ModelPlate3, ModelPlate4, ModelPlate5, ModelPlate6, ModelPlate7,
             ModelPlate8, ModelPlate9, ModelPlate10, ModelCup, ModelBottle;
+    //кирпичи
+    public static BlockModels ModelBricks1, ModelBricks2, ModelBricks3, ModelBricks4, ModelBricks5, ModelBricks6, ModelBricks7;
+
     //анимированные модели
     public static BlockModels ModelWisp;
 
@@ -304,70 +306,70 @@ public class ModelRegistry {
         ModelPlateVoid.setStepSound(soundTypeGlass);
         ModelPlateVoid.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
 
-        ModelPlate1 = ((BlockModelFood) new BlockModelFood(Material.cake, "ModelPlate1", "plate_1", "plate"))
+        ModelPlate1 = ((BlockModelFood) new BlockModelFood(Material.cloth, "ModelPlate1", "plate_1", "plate"))
                 .setEmptyBlock(ModelPlateVoid)
                 .setFoodAmount(6)
                 .setSaturationModifier(0.4F)
                 .setEatDelay(30);
         ModelPlate1.setStepSound(soundTypeGlass);
         ModelPlate1.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
-        ModelPlate2 = ((BlockModelFood) new BlockModelFood(Material.cake, "ModelPlate2", "plate_2", "plate"))
+        ModelPlate2 = ((BlockModelFood) new BlockModelFood(Material.cloth, "ModelPlate2", "plate_2", "plate"))
                 .setEmptyBlock(ModelPlateVoid)
                 .setFoodAmount(4)
                 .setSaturationModifier(0.4F)
                 .setEatDelay(30);
         ModelPlate2.setStepSound(soundTypeGlass);
         ModelPlate2.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
-        ModelPlate3 = ((BlockModelFood) new BlockModelFood(Material.cake, "ModelPlate3", "plate_3", "plate"))
+        ModelPlate3 = ((BlockModelFood) new BlockModelFood(Material.cloth, "ModelPlate3", "plate_3", "plate"))
                 .setEmptyBlock(ModelPlateVoid)
                 .setFoodAmount(6)
                 .setSaturationModifier(0.4F)
                 .setEatDelay(30);
         ModelPlate3.setStepSound(soundTypeGlass);
         ModelPlate3.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
-        ModelPlate4 = ((BlockModelFood) new BlockModelFood(Material.cake, "ModelPlate4", "plate_4", "plate"))
+        ModelPlate4 = ((BlockModelFood) new BlockModelFood(Material.cloth, "ModelPlate4", "plate_4", "plate"))
                 .setEmptyBlock(ModelPlateVoid)
                 .setFoodAmount(7)
                 .setSaturationModifier(0.4F)
                 .setEatDelay(30);
         ModelPlate4.setStepSound(soundTypeGlass);
         ModelPlate4.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
-        ModelPlate5 = ((BlockModelFood) new BlockModelFood(Material.cake, "ModelPlate5", "plate_5", "plate"))
+        ModelPlate5 = ((BlockModelFood) new BlockModelFood(Material.cloth, "ModelPlate5", "plate_5", "plate"))
                 .setEmptyBlock(ModelPlateVoid)
                 .setFoodAmount(8)
                 .setSaturationModifier(0.4F)
                 .setEatDelay(30);
         ModelPlate5.setStepSound(soundTypeGlass);
         ModelPlate5.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
-        ModelPlate6 = ((BlockModelFood) new BlockModelFood(Material.cake, "ModelPlate6", "plate_6", "plate"))
+        ModelPlate6 = ((BlockModelFood) new BlockModelFood(Material.cloth, "ModelPlate6", "plate_6", "plate"))
                 .setEmptyBlock(ModelPlateVoid)
                 .setFoodAmount(6)
                 .setSaturationModifier(0.4F)
                 .setEatDelay(30);
         ModelPlate6.setStepSound(soundTypeGlass);
         ModelPlate6.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
-        ModelPlate7 = ((BlockModelFood) new BlockModelFood(Material.cake, "ModelPlate7", "plate_7", "plate"))
+        ModelPlate7 = ((BlockModelFood) new BlockModelFood(Material.cloth, "ModelPlate7", "plate_7", "plate"))
                 .setEmptyBlock(ModelPlateVoid)
                 .setFoodAmount(7)
                 .setSaturationModifier(0.4F)
                 .setEatDelay(30);
         ModelPlate7.setStepSound(soundTypeGlass);
         ModelPlate7.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
-        ModelPlate8 = ((BlockModelFood) new BlockModelFood(Material.cake, "ModelPlate8", "plate_8", "plate"))
+        ModelPlate8 = ((BlockModelFood) new BlockModelFood(Material.cloth, "ModelPlate8", "plate_8", "plate"))
                 .setEmptyBlock(ModelPlateVoid)
                 .setFoodAmount(4)
                 .setSaturationModifier(0.4F)
                 .setEatDelay(30);
         ModelPlate8.setStepSound(soundTypeGlass);
         ModelPlate8.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
-        ModelPlate9 = ((BlockModelFood) new BlockModelFood(Material.cake, "ModelPlate9", "plate_9", "plate"))
+        ModelPlate9 = ((BlockModelFood) new BlockModelFood(Material.cloth, "ModelPlate9", "plate_9", "plate"))
                 .setEmptyBlock(ModelPlateVoid)
                 .setFoodAmount(4)
                 .setSaturationModifier(0.4F)
                 .setEatDelay(30);
         ModelPlate9.setStepSound(soundTypeGlass);
         ModelPlate9.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
-        ModelPlate10 = ((BlockModelFood) new BlockModelFood(Material.cake, "ModelPlate10", "plate_10", "plate"))
+        ModelPlate10 = ((BlockModelFood) new BlockModelFood(Material.cloth, "ModelPlate10", "plate_10", "plate"))
                 .setEmptyBlock(ModelPlateVoid)
                 .setFoodAmount(4)
                 .setSaturationModifier(0.4F)
@@ -392,6 +394,22 @@ public class ModelRegistry {
 
         ModelBottle  = new BlockModels(Material.cloth, "ModelBottle", "bottle", "bottle");
         ModelBottle.setBlockBounds(0.4F, 0.0F, 0.4F, 0.6F, 0.5F, 0.6F);
+
+        ModelBricks1 = new BlockModels(Material.rock, "ModelBricks1", "bricks_1", "bricks_1");
+        ModelBricks1.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+        ModelBricks1.setStepSound(soundTypeStone);
+        ModelBricks2 = new BlockModels(Material.rock, "ModelBricks2", "bricks_2", "bricks_2");
+        ModelBricks2.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+        ModelBricks2.setStepSound(soundTypeStone);
+        ModelBricks3 = new BlockModels(Material.rock, "ModelBricks3", "bricks_3", "bricks_3");
+        ModelBricks3.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+        ModelBricks3.setStepSound(soundTypeStone);
+       // ModelBricks4 = new BlockModels(Material.rock, "ModelBricks4", "bricks_4", "bricks_4");
+       // ModelBricks5 = new BlockModels(Material.rock, "ModelBricks5", "bricks_5", "bricks_5");
+        ModelBricks6 = new BlockModels(Material.rock, "ModelBricks6", "bricks_6", "bricks_6");
+        ModelBricks6.setStepSound(soundTypeStone);
+        ModelBricks7 = new BlockModels(Material.rock, "ModelBricks7", "bricks_7", "bricks_7");
+        ModelBricks7.setStepSound(soundTypeStone);
 
         ModelWisp.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.3F, 0.7F);
     }
@@ -509,6 +527,14 @@ public class ModelRegistry {
         ModelPlate8.register();
         ModelPlate9.register();
         ModelPlate10.register();
+
+        ModelBricks1.register();
+        ModelBricks2.register();
+        ModelBricks3.register();
+      //  ModelBricks4.register();
+      // ModelBricks5.register();
+        ModelBricks6.register();
+        ModelBricks7.register();
 
         ModelBottle.register();
         ModelCup.register();

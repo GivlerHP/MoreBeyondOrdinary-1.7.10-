@@ -54,7 +54,7 @@ public class CreativeTabRegistry {
 
             list.add(new ItemStack(BlockHeneizenBrick));
             list.add(new ItemStack(StairsHeneizenBrick));
-            list.add(new ItemStack(SlabImperialBrick));
+            list.add(new ItemStack(SlabHeneizenBrick));
 
             list.add(new ItemStack(BlockIrgadBrick));
             list.add(new ItemStack(StairsIrgadBrick));
@@ -94,26 +94,27 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(WoodTotemAcacia));
             list.add(new ItemStack(WoodTotemBigOak));
 
-            for(int i=0; i<=5; i++) { list.add(new ItemStack(RoofWood, 0, i)); }
+            for(int i=0; i<=5; i++) { list.add(new ItemStack(RoofWood, 1, i)); }
             for (int i = 0; i <=5; i++) { list.add(new ItemStack(StairsRoofWood[i])); }
             for (int i = 0; i <=5; i++) { list.add(new ItemStack(SlabRoofWood[i])); }
 
-            for(int i=0; i<=2; i++) { list.add(new ItemStack(RoofUnfired, 0, i)); }
-            for(int i=0; i<=2; i++) { list.add(new ItemStack(RoofStandart, 0, i)); }
+            for(int i=0; i<=2; i++) { list.add(new ItemStack(RoofUnfired, 1, i)); }
+            for(int i=0; i<=2; i++) { list.add(new ItemStack(RoofStandart, 1, i)); }
             for (int i = 0; i <=2; i++) { list.add(new ItemStack(StairsRoofStandart[i])); }
             for (int i = 0; i <=2; i++) { list.add(new ItemStack(SlabRoofStandart[i])); }
 
-            for(int i=0; i<=15; i++) { list.add(new ItemStack(RoofLaminated, 0, i)); }
+            for(int i=0; i<=15; i++) { list.add(new ItemStack(RoofLaminated, 1, i)); }
             for (int i = 0; i <=15; i++) { list.add(new ItemStack(StairsRoofLaminated[i])); }
             for (int i = 0; i <=15; i++) { list.add(new ItemStack(SlabRoofLaminated[i])); }
 
-            for(int i=0; i<=15; i++) { list.add(new ItemStack(RoofSheet, 0, i)); }
+            for(int i=0; i<=15; i++) { list.add(new ItemStack(RoofSheet, 1, i)); }
             for (int i = 0; i <=15; i++) { list.add(new ItemStack(StairsRoofSheet[i])); }
             for (int i = 0; i <=15; i++) { list.add(new ItemStack(SlabRoofSheet[i])); }
 
-            for(int i=0; i<=15; i++) { list.add(new ItemStack(RoofFlake, 0, i)); }
+            for(int i=0; i<=15; i++) { list.add(new ItemStack(RoofFlake, 1, i)); }
             for (int i = 0; i <=15; i++) { list.add(new ItemStack(StairsRoofFlake[i])); }
             for (int i = 0; i <=15; i++) { list.add(new ItemStack(SlabRoofFlake[i])); }
+
 
 
 

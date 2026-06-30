@@ -16,6 +16,9 @@ public class ModelTileBase extends TileEntity {
         this.modelName = modelName;
     }
 
+    public ModelTileBase() {
+    }
+
     @Override
     public void writeToNBT(NBTTagCompound tag) {
         super.writeToNBT(tag);

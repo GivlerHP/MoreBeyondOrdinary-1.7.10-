@@ -1,0 +1,49 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.тарелка",
+				"texture_width": 32,
+				"texture_height": 32,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 0.75, 0]
+			},
+			"bones": [
+				{
+					"name": "plate",
+					"pivot": [8, 0, -8],
+					"cubes": [
+						{
+							"origin": [-5, 0, -5],
+							"size": [10, 1, 10],
+							"uv": {
+								"north": {"uv": [10, 6], "uv_size": [10, 1]},
+								"east": {"uv": [10, 7], "uv_size": [10, 1]},
+								"south": {"uv": [10, 8], "uv_size": [10, 1]},
+								"west": {"uv": [10, 9], "uv_size": [10, 1]},
+								"up": {"uv": [0, 0], "uv_size": [10, 10]},
+								"down": {"uv": [0, 20], "uv_size": [10, -10]}
+							}
+						},
+						{
+							"origin": [1.12471, 2.15911, -2.5],
+							"size": [8, 0.05, 3],
+							"pivot": [5, 1.32154, -2.25],
+							"rotation": [0, 0, -22.5],
+							"uv": {
+								"north": {"uv": [24, 0], "uv_size": [8, 0]},
+								"east": {"uv": [29, 0], "uv_size": [3, 0]},
+								"south": {"uv": [24, 0], "uv_size": [8, 0]},
+								"west": {"uv": [29, 0], "uv_size": [3, 0]},
+								"up": {"uv": [10, 0], "uv_size": [8, 3]},
+								"down": {"uv": [10, 3], "uv_size": [8, -3]}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -34,20 +34,14 @@ public class BlockRecipeRegistry {
                 "xxx",
                 'x', new ItemStack(BlockRegistry.BlockGreyStone, 1)
         );
-        GameRegistry.addRecipe(new ItemStack(BlockRegistry.SlabStone, 6),
-                "xxx",
-                'x', new ItemStack(BlockRegistry.BlockGreyStone, 1)
-        );
+
         GameRegistry.addRecipe(new ItemStack(BlockRegistry.StairsGreyCobblestone, 4),
                 "x  ",
                 "xx ",
                 "xxx",
                 'x', new ItemStack(BlockRegistry.BlockGreyCobblestone, 1)
         );
-        GameRegistry.addRecipe(new ItemStack(BlockRegistry.SlabCobblestone, 6),
-                "xxx",
-                'x', new ItemStack(BlockRegistry.BlockGreyCobblestone, 1)
-        );
+
 
         //Серые кирпичи
         GameRegistry.addRecipe(new ItemStack(BlockRegistry.BlockStonebrick, 4, 0),
@@ -83,10 +77,7 @@ public class BlockRecipeRegistry {
                 "xxx",
                 'x', new ItemStack(BlockRegistry.BlockStonebrick, 1, 0)
         );
-        GameRegistry.addRecipe(new ItemStack(BlockRegistry.SlabStonebrick, 6),
-                "xxx",
-                'x', new ItemStack(BlockRegistry.BlockStonebrick, 1, 0)
-        );
+
         GameRegistry.addRecipe(new ItemStack(BlockRegistry.WallStonebrick, 6),
                 "xxx",
                 "xxx",
@@ -102,10 +93,7 @@ public class BlockRecipeRegistry {
                 "xxx",
                 'x', new ItemStack(BlockRegistry.BlockFiredClay, 8, 0)
         );
-        GameRegistry.addRecipe(new ItemStack(BlockRegistry.SlabFiredClay, 6 ),
-                "xxx",
-                'x', new ItemStack(BlockRegistry.BlockFiredClay, 8, 0)
-        );
+
         GameRegistry.addRecipe(new ItemStack(BlockRegistry.WallFiredClay, 6 ),
                 "xxx",
                 "xxx",
@@ -137,10 +125,7 @@ public class BlockRecipeRegistry {
                 "xxx",
                 'x', new ItemStack(BlockRegistry.BlockSandstone, 8, 0)
         );
-        GameRegistry.addRecipe(new ItemStack(BlockRegistry.SlabSandstone, 6 ),
-                "xxx",
-                'x', new ItemStack(BlockRegistry.BlockSandstone, 8, 0)
-        );
+   ;
         GameRegistry.addRecipe(new ItemStack(BlockRegistry.WallSandstone, 6 ),
                 "xxx",
                 "xxx",
@@ -153,39 +138,27 @@ public class BlockRecipeRegistry {
                 "xxx",
                 'x', new ItemStack(BlockRegistry.BlockImperialBrick, 8, 0)
         );
-        GameRegistry.addRecipe(new ItemStack(BlockRegistry.SlabImperialBrick, 6 ),
-                "xxx",
-                'x', new ItemStack(BlockRegistry.BlockImperialBrick, 8, 0)
-        );
+
         GameRegistry.addRecipe(new ItemStack(BlockRegistry.StairsIrgadBrick, 4 ),
                 "x  ",
                 "xx ",
                 "xxx",
                 'x', new ItemStack(BlockRegistry.BlockIrgadBrick, 8, 0)
         );
-        GameRegistry.addRecipe(new ItemStack(BlockRegistry.SlabIrgadBrick, 6 ),
-                "xxx",
-                'x', new ItemStack(BlockRegistry.BlockIrgadBrick, 8, 0)
-        );
+
         GameRegistry.addRecipe(new ItemStack(BlockRegistry.StairsHeneizenBrick, 4 ),
                 "x  ",
                 "xx ",
                 "xxx",
                 'x', new ItemStack(BlockRegistry.BlockHeneizenBrick, 8, 0)
         );
-        GameRegistry.addRecipe(new ItemStack(BlockRegistry.SlabHeneizenBrick, 6 ),
-                "xxx",
-                'x', new ItemStack(BlockRegistry.BlockHeneizenBrick, 8, 0)
-        );
+
         GameRegistry.addRecipe(new ItemStack(BlockRegistry.StairsEndbrick, 4 ),
                 "x  ",
                 "xx ",
                 "xxx",
                 'x', new ItemStack(BlockRegistry.BlockEndbrick, 8, 0)
         );
-        GameRegistry.addRecipe(new ItemStack(BlockRegistry.SlabEndbrick, 6 ),
-                "xxx",
-                'x', new ItemStack(BlockRegistry.BlockEndbrick, 8, 0)
-        );
+
     }
 }

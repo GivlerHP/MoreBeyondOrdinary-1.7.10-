@@ -2,27 +2,34 @@ package ru.givler.mbo.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.BlockStairs;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
-
-//класс создающий ступеньки из блоков добавленных через класс BlockBase
 public class BlockBasicStairs extends BlockStairs {
 
+    private final BlockBase baseBlock;
+
     public BlockBasicStairs(BlockBase baseBlock) {
-        super(baseBlock, 0); // Используем текстуру базового блока
+        super(baseBlock, 0);
 
-        this.setBlockName(baseBlock.getUnlocalizedName() + "_stairs"); // Название блока
+        this.baseBlock = baseBlock;
+        this.setBlockName(baseBlock.getUnlocalizedName() + "_stairs");
         this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
-        this.setHardness(baseBlock.getBlockHardness(null, 0, 0, 0)); // Твёрдость
-        this.setResistance(baseBlock.getExplosionResistance(null)); // Сопротивление взрывам
-        this.setStepSound(baseBlock.stepSound); // Звук шага
-        this.setHarvestLevel("pick_axe", 0); // Инструмент для добычи
-        this.setLightLevel(baseBlock.getLightValue()); // Уровень освещения
-        this.setLightOpacity(baseBlock.getLightOpacity()); // Прозрачность
-        this.useNeighborBrightness = true; // Улучшенная обработка освещения
+        this.setHardness(baseBlock.getBlockHardness(null, 0, 0, 0));
+        this.setResistance(baseBlock.getExplosionResistance(null));
+        this.setStepSound(baseBlock.stepSound);
+        this.setHarvestLevel("pickaxe", 0);
+        this.setLightLevel(baseBlock.getLightValue());
+        this.setLightOpacity(baseBlock.getLightOpacity());
+        this.useNeighborBrightness = true;
 
-        GameRegistry.registerBlock(this, baseBlock.getUnlocalizedName() + "_stairs"); // Регистрация блока
+        GameRegistry.registerBlock(this, baseBlock.getUnlocalizedName() + "_stairs");
+    }
+
+    public void addStandardRecipes() {
+        GameRegistry.addRecipe(new ItemStack(this, 4),
+                new Object[]{"X  ", "XX ", "XXX", 'X', baseBlock});
     }
 
     @Override

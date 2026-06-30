@@ -3,49 +3,65 @@ package ru.givler.mbo.block;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
+import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
-import ru.givler.mbo.ItemBlockMetadata;
+import net.minecraft.item.ItemSlab;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
-// Класс создающий полублоки из метаблоков (BlockMeta)
+import java.util.Random;
+
 public class BlockMetaSlab extends BlockSlab {
-    private final BlockMeta baseBlock;
-    private final int meta;
 
-    public BlockMetaSlab(BlockMeta baseBlock, String texture, int meta) {
-        super(false, baseBlock.getMaterial()); // Указываем материал блока
-        this.baseBlock = baseBlock;
-        this.meta = meta;
-
-        this.setBlockName(baseBlock.getUnlocalizedName() + "_slab_" + meta); // Уникальное имя
-        this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
-        this.setHardness(baseBlock.getBlockHardness(null, 0, 0, 0)); // Твёрдость
-        this.setResistance(baseBlock.getExplosionResistance(null)); // Сопротивление взрывам
-        this.setStepSound(baseBlock.stepSound); // Звук шага
-        this.setHarvestLevel("pick_axe", 0); // Инструмент для добычи
-        this.setLightLevel(baseBlock.getLightValue()); // Уровень освещения
-        this.setLightOpacity(baseBlock.getLightOpacity()); // Прозрачность
-        this.useNeighborBrightness = true; // Улучшенная обработка освещения
-
-        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture + "_" + meta);
-
-        GameRegistry.registerBlock(this, ItemBlockMetadata.class, baseBlock.getUnlocalizedName() + "_slab_" + meta);
+    public static class ItemMetaSlab extends ItemSlab {
+        public ItemMetaSlab(Block block, BlockMetaSlab single, BlockMetaSlab dbl, Boolean isDouble) {
+            super(block, single, dbl, isDouble);
+        }
     }
 
-    // Указываем, какой ItemStack выпадает при разрушении
+    private BlockMetaSlab singleSlabForDrops;
+
+    private BlockMetaSlab(boolean isDouble, BlockMeta baseBlock, String texture, int meta) {
+        super(isDouble, baseBlock.getMaterial());
+
+        this.setBlockName(baseBlock.getUnlocalizedName() + "_slab_" + meta);
+        this.setHardness(baseBlock.getBlockHardness(null, 0, 0, 0));
+        this.setResistance(baseBlock.getExplosionResistance(null));
+        this.setStepSound(baseBlock.stepSound);
+        if (baseBlock.getMaterial() == Material.rock || baseBlock.getMaterial() == Material.iron) {
+            this.setHarvestLevel("pickaxe", 0);
+        } else if (baseBlock.getMaterial() == Material.wood) {
+            this.setHarvestLevel("axe", 0);
+        }
+        this.setLightOpacity(0);
+        this.useNeighborBrightness = true;
+        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture + "_" + meta);
+
+        if (!isDouble) {
+            this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
+        }
+    }
+
     @Override
-    public Item getItemDropped(int metadata, java.util.Random random, int fortune) {
+    public Item getItem(World world, int x, int y, int z) {
         return Item.getItemFromBlock(this);
     }
 
-    // Регистрация всех вариаций полублоков (по метаданным)
-    public static Block[] registerSlabs(BlockMeta baseBlock, int count, String texture) {
-        Block[] slabsArray = new Block[count];
-        for (int i = 0; i < count; i++) {
-            slabsArray[i] = new BlockMetaSlab(baseBlock, texture, i);
+
+    @Override
+    public Item getItemDropped(int meta, Random rand, int fortune) {
+        if (field_150004_a && singleSlabForDrops != null) {
+            return Item.getItemFromBlock(singleSlabForDrops);
         }
-        return slabsArray;
+        return Item.getItemFromBlock(this);
+    }
+
+    @Override
+    public int quantityDropped(Random rand) {
+        if (field_150004_a && singleSlabForDrops != null) return 2;
+        return 1;
     }
 
     @Override
@@ -53,4 +69,32 @@ public class BlockMetaSlab extends BlockSlab {
         return this.getUnlocalizedName();
     }
 
+    public static BlockMetaSlab[] registerSlabs(BlockMeta baseBlock, int count, String texture) {
+        BlockMetaSlab[] result = new BlockMetaSlab[count];
+
+        for (int i = 0; i < count; i++) {
+            BlockMetaSlab single = new BlockMetaSlab(false, baseBlock, texture, i);
+            BlockMetaSlab dbl    = new BlockMetaSlab(true,  baseBlock, texture, i);
+            dbl.singleSlabForDrops = single;
+
+            String singleName = baseBlock.getUnlocalizedName() + "_slab_" + i;
+            String doubleName = baseBlock.getUnlocalizedName() + "_slab_double_" + i;
+
+            GameRegistry.registerBlock(single, ItemMetaSlab.class, singleName, single, dbl, Boolean.FALSE);
+            GameRegistry.registerBlock(dbl,    ItemMetaSlab.class, doubleName, single, dbl, Boolean.TRUE);
+
+            result[i] = single;
+        }
+
+        return result;
+    }
+
+    public static void addStandardRecipes(BlockMetaSlab[] slabs, BlockMeta parent) {
+        for (int i = 0; i < slabs.length; i++) {
+            GameRegistry.addRecipe(new ItemStack(slabs[i], 6),
+                    new Object[]{"XXX", 'X', new ItemStack(parent, 1, i)});
+            GameRegistry.addRecipe(new ItemStack(parent, 1, i),
+                    new Object[]{"X", "X", 'X', new ItemStack(slabs[i], 1)});
+        }
+    }
 }

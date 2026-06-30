@@ -34,7 +34,6 @@ import ru.givler.mbo.render.*;
 import ru.givler.mbo.render.decormodels.AnimatedTemplateModelRenderer;
 import ru.givler.mbo.render.decormodels.TemplateModelRenderer;
 import ru.givler.mbo.tileentity.AnimatedModelTileBase;
-import ru.givler.mbo.tileentity.ModelTileBase;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 
@@ -168,6 +167,15 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelPlate8);
         bindDefaultRender(ModelRegistry.ModelPlate9);
         bindDefaultRender(ModelRegistry.ModelPlate10);
+
+        bindDefaultRender(ModelRegistry.ModelBricks1);
+        bindDefaultRender(ModelRegistry.ModelBricks2);
+        bindDefaultRender(ModelRegistry.ModelBricks3);
+      //  bindDefaultRender(ModelRegistry.ModelBricks4);
+      //  bindDefaultRender(ModelRegistry.ModelBricks5);
+        bindDefaultRender(ModelRegistry.ModelBricks6);
+        bindDefaultRender(ModelRegistry.ModelBricks7);
+
         bindDefaultRender(ModelRegistry.ModelBottle);
         bindDefaultRender(ModelRegistry.ModelCup);
 

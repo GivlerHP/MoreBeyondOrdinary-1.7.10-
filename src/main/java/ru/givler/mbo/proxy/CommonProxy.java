@@ -68,6 +68,7 @@ public class CommonProxy {
         BlockRecipeRegistry.init();
         RoofRecipeRegistry.init();
         ArcanumRecipeRegistry.init();
+        BlockRegistry.initRecipe();
 
 
     }

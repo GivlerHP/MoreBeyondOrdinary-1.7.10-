@@ -13,17 +13,17 @@ public class BlockRegistry {
     //переменные для блоков
     public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofUnfired, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
             BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
-            RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockExorcism;
+            RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockExorcism, BlockAshgarBrick;
     //переменные для ступенек
-    public static Block StairsStone, StairsSandstone, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
-            StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay;
+    public static Block  StairsStone, StairsSandstone, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
+            StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay, StairsAshgarBrick;
     //переменные для ступенек с методанными
     public static Block[] StairsRoofLaminated, StairsRoofStandart, StairsRoofSheet, StairsRoofFlake, StairsRoofWood;
     //переменные для плит
-    public static Block SlabStone, SlabCobblestone, SlabStonebrick, SlabSandstone, SlabIrgadBrick, SlabEndbrick,
-             SlabImperialBrick, SlabHeneizenBrick, SlabFiredClay;
+    public static BlockBasicSlab  SlabStone, SlabCobblestone, SlabStonebrick, SlabSandstone, SlabIrgadBrick, SlabEndbrick,
+             SlabImperialBrick, SlabHeneizenBrick, SlabFiredClay, SlabAshgarBrick;
     //переменные для плит с метаданными
-    public static Block[] SlabRoofLaminated, SlabRoofStandart, SlabRoofSheet, SlabRoofFlake, SlabRoofWood;
+    public static BlockMetaSlab[] SlabRoofLaminated, SlabRoofStandart, SlabRoofSheet, SlabRoofFlake, SlabRoofWood;
     //переменные для мультитекстурных блоков
     public static Block BooksheelSkull, BooksheelVoid, BooksheelWeb, BooksheelCandle, BooksheelSkullWeb, BooksheelSkullCandle,
             TotemStone, DebarkedOak, DebarkedSpruce, DebarkedBirch, DebarkedJungle, DebarkedAcacia, DebarkedBigOak,
@@ -44,7 +44,8 @@ public class BlockRegistry {
         BlockHeneizenBrick = new BlockBase(Material.rock, "BlockHeneizenBrick", "stone/heneizen_brick");
         BlockIrgadBrick = new BlockBase(Material.rock, "BlockIrgadBrick", "stone/irgad_brick");
         BlockFiredClay = new BlockBase(Material.rock, "BlockFiredClay", "stone/brick_firedclay");
-        BlockClayWall = new BlockBase(Material.wood, "BlockClayWall", "wood/clay_wall_old").setStepSound(Block.soundTypeWood);;
+        BlockClayWall = new BlockBase(Material.wood, "BlockClayWall", "wood/clay_wall_old").setStepSound(Block.soundTypeWood);
+        BlockAshgarBrick = new BlockBase(Material.rock, "BlockAshgarBrick", "stone/ashgar_brick");
 
         RoofStandart = new BlockMeta(Material.rock, "StandartRoof", "roof/roofk", 3);
         RoofUnfired = new BlockMeta(Material.clay, "UnfiredRoof", "roof/roofu", 3).setStepSound(Block.soundTypeGravel);
@@ -72,19 +73,19 @@ public class BlockRegistry {
 
         TotemStone = new BlockMultiTexture(Material.rock, "TotemStone", "stone/stone_slab_top", "stone/totem_truesight");
 
-        DebarkedOak = new BlockRotatableWood("DebarkedOak", "wood/log_oak_top",  "wood/scratched_log_oak_side");
-        DebarkedSpruce = new BlockRotatableWood("DebarkedSpruce", "wood/log_spruce_top",  "wood/scratched_log_spruce_side");
-        DebarkedBirch = new BlockRotatableWood("DebarkedBirch", "wood/log_birch_top",  "wood/scratched_log_birch_side");
-        DebarkedJungle = new BlockRotatableWood("DebarkedJungle", "wood/log_jungle_top",  "wood/scratched_log_jungle_side");
-        DebarkedAcacia = new BlockRotatableWood("DebarkedAcacia", "wood/log_acacia_top",  "wood/scratched_log_acacia_side");
-        DebarkedBigOak = new BlockRotatableWood("DebarkedBigOak", "wood/log_big_oak_top",  "wood/scratched_log_dark_oak_side");
+        DebarkedOak = new BlockRotatableWood("DebarkedOak", "wood/log_oak_top", "wood/scratched_log_oak_side");
+        DebarkedSpruce = new BlockRotatableWood("DebarkedSpruce", "wood/log_spruce_top", "wood/scratched_log_spruce_side");
+        DebarkedBirch = new BlockRotatableWood("DebarkedBirch", "wood/log_birch_top", "wood/scratched_log_birch_side");
+        DebarkedJungle = new BlockRotatableWood("DebarkedJungle", "wood/log_jungle_top", "wood/scratched_log_jungle_side");
+        DebarkedAcacia = new BlockRotatableWood("DebarkedAcacia", "wood/log_acacia_top", "wood/scratched_log_acacia_side");
+        DebarkedBigOak = new BlockRotatableWood("DebarkedBigOak", "wood/log_big_oak_top", "wood/scratched_log_dark_oak_side");
 
-        WoodTotemOak = new BlockRotatableWood("WoodTotemOak", "wood/log_oak_top",  "wood/carved_log_oak_side");
-        WoodTotemSpruce = new BlockRotatableWood("WoodTotemSpruce", "wood/log_spruce_top",  "wood/carved_log_spruce_side");
-        WoodTotemBirch = new BlockRotatableWood("WoodTotemBirch", "wood/log_birch_top",  "wood/carved_log_birch_side");
-        WoodTotemJungle = new BlockRotatableWood("WoodTotemJungle", "wood/log_jungle_top",  "wood/carved_log_jungle_side");
-        WoodTotemAcacia = new BlockRotatableWood("WoodTotemAcacia", "wood/log_acacia_top",  "wood/carved_log_acacia_side");
-        WoodTotemBigOak = new BlockRotatableWood("WoodTotemBigOak", "wood/log_big_oak_top",  "wood/carved_log_dark_oak_side");
+        WoodTotemOak = new BlockRotatableWood("WoodTotemOak", "wood/log_oak_top", "wood/carved_log_oak_side");
+        WoodTotemSpruce = new BlockRotatableWood("WoodTotemSpruce", "wood/log_spruce_top", "wood/carved_log_spruce_side");
+        WoodTotemBirch = new BlockRotatableWood("WoodTotemBirch", "wood/log_birch_top", "wood/carved_log_birch_side");
+        WoodTotemJungle = new BlockRotatableWood("WoodTotemJungle", "wood/log_jungle_top", "wood/carved_log_jungle_side");
+        WoodTotemAcacia = new BlockRotatableWood("WoodTotemAcacia", "wood/log_acacia_top", "wood/carved_log_acacia_side");
+        WoodTotemBigOak = new BlockRotatableWood("WoodTotemBigOak", "wood/log_big_oak_top", "wood/carved_log_dark_oak_side");
 
         BlockFogWhite = new BlockFog(Material.web, "BlockFogWhite", "another/fogwhite");
         BlockFogGrey = new BlockFogGrey(Material.web, "BlockFogGrey", "another/foggrey");
@@ -96,12 +97,15 @@ public class BlockRegistry {
 
         //НИЖЕ НАХОДИТСЯ СТУПЕНЬКИ
         StairsStone = new BlockBasicStairs((BlockBase) BlockGreyStone);
-        StairsGreyCobblestone = new BlockBasicStairs((BlockBase) BlockGreyCobblestone);;
+        StairsGreyCobblestone = new BlockBasicStairs((BlockBase) BlockGreyCobblestone);
+        ;
         StairsIrgadBrick = new BlockBasicStairs((BlockBase) BlockIrgadBrick);
         StairsEndbrick = new BlockBasicStairs((BlockBase) BlockEndbrick);
         StairsImperialBrick = new BlockBasicStairs((BlockBase) BlockImperialBrick);
         StairsHeneizenBrick = new BlockBasicStairs((BlockBase) BlockHeneizenBrick);
         StairsFiredClay = new BlockBasicStairs((BlockBase) BlockFiredClay);
+        StairsAshgarBrick = new BlockBasicStairs((BlockBase) BlockAshgarBrick);
+
 
         StairsSandstone = new BlockMetaStairs((BlockMeta) BlockSandstone, 0);
         StairsStonebrick = new BlockMetaStairs((BlockMeta) BlockStonebrick, 0);
@@ -114,28 +118,52 @@ public class BlockRegistry {
 
 
         //НИЖЕ НАХОДИТСЯ ПОЛУБЛОКИe
-        SlabCobblestone = new BlockBasicSlab(false,"SlabCobblestone", "stone/cobblestone");
-        SlabStone = new BlockBasicSlab(false,"SlabStone", "stone/stone");
-        SlabStonebrick = new BlockBasicSlab(false,"SlabStonebrick", "stone/stonebrick_0");
-        SlabSandstone = new BlockBasicSlab(false,"SlabSandstone", "stone/sandstone_0");
+        SlabCobblestone = BlockBasicSlab.registerPair("SlabCobblestone", "stone/cobblestone");
+        SlabStone = BlockBasicSlab.registerPair("SlabStone", "stone/stone");
+        SlabStonebrick = BlockBasicSlab.registerPair("SlabStonebrick", "stone/stonebrick_0");
+        SlabSandstone = BlockBasicSlab.registerPair("SlabSandstone", "stone/sandstone_0");
 
-        SlabIrgadBrick = new BlockBasicSlab(false,"SlabIrgadBrick", "stone/irgad_brick");
-        SlabEndbrick = new BlockBasicSlab(false,"SlabEndbrick", "stone/end_bricks");
-        SlabImperialBrick = new BlockBasicSlab(false,"SlabImperialBrick", "stone/imperial_brick");
-        SlabHeneizenBrick = new BlockBasicSlab(false,"SlabHeneizenBrick", "stone/heneizen_brick");
-        SlabFiredClay = new BlockBasicSlab(false,"SlabFiredClay", "stone/brick_firedclay");
+        SlabIrgadBrick = BlockBasicSlab.registerPair("SlabIrgadBrick", "stone/irgad_brick");
+        SlabEndbrick = BlockBasicSlab.registerPair("SlabEndbrick", "stone/end_bricks");
+        SlabImperialBrick = BlockBasicSlab.registerPair("SlabImperialBrick", "stone/imperial_brick");
+        SlabHeneizenBrick = BlockBasicSlab.registerPair("SlabHeneizenBrick", "stone/heneizen_brick");
+        SlabAshgarBrick = BlockBasicSlab.registerPair("SlabAshgarBrick", "stone/ashgar_brick");
+        SlabFiredClay = BlockBasicSlab.registerPair("SlabFiredClay", "stone/brick_firedclay");
 
-        SlabRoofStandart = BlockMetaSlab.registerSlabs((BlockMeta) RoofStandart, 3, "roof/roofk" );
-        SlabRoofLaminated = BlockMetaSlab.registerSlabs((BlockMeta) RoofLaminated, 16, "roof/roof1" );
-        SlabRoofSheet = BlockMetaSlab.registerSlabs((BlockMeta) RoofSheet, 16, "roof/roof2" );
-        SlabRoofFlake = BlockMetaSlab.registerSlabs((BlockMeta) RoofFlake, 16, "roof/roof3" );
-        SlabRoofWood = BlockMetaSlab.registerSlabs((BlockMeta) RoofWood, 6, "wood/roofwood" );
+        SlabRoofStandart  = BlockMetaSlab.registerSlabs((BlockMeta) RoofStandart,  3,  "roof/roofk");
+        SlabRoofLaminated = BlockMetaSlab.registerSlabs((BlockMeta) RoofLaminated, 16, "roof/roof1");
+        SlabRoofSheet     = BlockMetaSlab.registerSlabs((BlockMeta) RoofSheet,     16, "roof/roof2");
+        SlabRoofFlake     = BlockMetaSlab.registerSlabs((BlockMeta) RoofFlake,     16, "roof/roof3");
+        SlabRoofWood      = BlockMetaSlab.registerSlabs((BlockMeta) RoofWood,       6, "wood/roofwood");
+
 
         //НИЖЕ НАХОИДТСЯ ЗАБОР
         WallStonebrick = new BlockBasicWall(Blocks.stone, "WallStonebrick", "stone/stonebrick_0");
         WallSandstone = new BlockBasicWall(Blocks.stone, "WallSandstone", "stone/sandstone_0");
         WallFiredClay = new BlockBasicWall(Blocks.stone, "WallFiredClay", "stone/brick_firedclay");
+
     }
 
+    public static void initRecipe() {
+        ((BlockBasicStairs) StairsAshgarBrick).addStandardRecipes();
+
+        BlockMetaSlab.addStandardRecipes(SlabRoofStandart,  (BlockMeta) RoofStandart);
+        BlockMetaSlab.addStandardRecipes(SlabRoofLaminated, (BlockMeta) RoofLaminated);
+        BlockMetaSlab.addStandardRecipes(SlabRoofSheet,     (BlockMeta) RoofSheet);
+        BlockMetaSlab.addStandardRecipes(SlabRoofFlake,     (BlockMeta) RoofFlake);
+        BlockMetaSlab.addStandardRecipes(SlabRoofWood,      (BlockMeta) RoofWood);
+
+        BlockBasicSlab.addStandardRecipes(SlabCobblestone,   BlockGreyCobblestone);
+        BlockBasicSlab.addStandardRecipes(SlabStone,         BlockGreyStone);
+        BlockBasicSlab.addStandardRecipes(SlabStonebrick,    BlockStonebrick);
+        BlockBasicSlab.addStandardRecipes(SlabSandstone,     BlockSandstone);
+
+        BlockBasicSlab.addStandardRecipes(SlabIrgadBrick,    BlockIrgadBrick);
+        BlockBasicSlab.addStandardRecipes(SlabEndbrick,      BlockEndbrick);
+        BlockBasicSlab.addStandardRecipes(SlabImperialBrick, BlockImperialBrick);
+        BlockBasicSlab.addStandardRecipes(SlabHeneizenBrick, BlockHeneizenBrick);
+        BlockBasicSlab.addStandardRecipes(SlabAshgarBrick, BlockAshgarBrick);
+        BlockBasicSlab.addStandardRecipes(SlabFiredClay,     BlockFiredClay);
+    }
 }
 

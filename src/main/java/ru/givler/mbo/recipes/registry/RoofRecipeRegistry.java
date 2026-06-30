@@ -422,42 +422,7 @@ public class RoofRecipeRegistry {
                     'x', new ItemStack(BlockRegistry.RoofWood, 1, meta)
             );
         }
-        //плиты из черепицы
-        for (int meta = 0; meta < 16; meta++) {
-            GameRegistry.addRecipe(
-                    new ItemStack(BlockRegistry.SlabRoofLaminated[meta], 6),
-                    "xxx",
-                    'x', new ItemStack(BlockRegistry.RoofLaminated, 1, meta)
-            );
-        }
-        for (int meta = 0; meta < 16; meta++) {
-            GameRegistry.addRecipe(
-                    new ItemStack(BlockRegistry.SlabRoofSheet[meta], 6),
-                    "xxx",
-                    'x', new ItemStack(BlockRegistry.RoofSheet, 1, meta)
-            );
-        }
-        for (int meta = 0; meta < 16; meta++) {
-            GameRegistry.addRecipe(
-                    new ItemStack(BlockRegistry.SlabRoofFlake[meta], 6),
-                    "xxx",
-                    'x', new ItemStack(BlockRegistry.RoofFlake, 1, meta)
-            );
-        }
-        for (int meta = 0; meta < 3; meta++) {
-            GameRegistry.addRecipe(
-                    new ItemStack(BlockRegistry.SlabRoofStandart[meta], 6),
-                    "xxx",
-                    'x', new ItemStack(BlockRegistry.RoofStandart, 1, meta)
-            );
-        }
-        for (int meta = 0; meta < 6; meta++) {
-            GameRegistry.addRecipe(
-                    new ItemStack(BlockRegistry.SlabRoofWood[meta], 6),
-                    "xxx",
-                    'x', new ItemStack(BlockRegistry.RoofWood, 1, meta)
-            );
-        }
+
     }
 
 }

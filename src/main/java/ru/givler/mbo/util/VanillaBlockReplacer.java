@@ -17,7 +17,6 @@ public final class VanillaBlockReplacer {
 
         Block old = (Block) GameData.getBlockRegistry().getObject(key);
 
-        // защита от повторной подмены
         if (old instanceof MBOBlockTrapDoor) {
             return;
         }
@@ -28,10 +27,8 @@ public final class VanillaBlockReplacer {
                 .setBlockName("trapdoor")
                 .setBlockTextureName("trapdoor");
 
-        // 🔥 ПОДМЕНА ВАНИЛЬНОГО БЛОКА
         GameData.getBlockRegistry().putObject(key, trapdoor);
 
-        // 🔥 ПОДМЕНА ItemBlock
         ItemBlock itemBlock = new ItemBlock(trapdoor);
         ((Item) itemBlock).setUnlocalizedName("trapdoor");
         GameData.getItemRegistry().putObject(key, itemBlock);

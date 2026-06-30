@@ -13,10 +13,14 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 public class AnimatedModelTileBase extends ModelTileBase implements IAnimatable {
 
     private final AnimationFactory factory = new AnimationFactory(this);
-    private final String animationName;
+    private String animationName;
     public boolean isItemRender = false;
     public int frameCount = 1;
     public int frameSpeed = 100;
+
+    public AnimatedModelTileBase() {
+        super();
+    }
 
     public AnimatedModelTileBase(String textureName, String modelName, String animationName) {
         super(textureName, modelName);
@@ -60,10 +64,17 @@ public class AnimatedModelTileBase extends ModelTileBase implements IAnimatable 
     public void writeToNBT(NBTTagCompound tag) {
         super.writeToNBT(tag);
         tag.setString("animation", animationName);
+        tag.setInteger("frameCount", frameCount);
+        tag.setInteger("frameSpeed", frameSpeed);
+        tag.setBoolean("isItemRender", isItemRender);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tag) {
         super.readFromNBT(tag);
+        animationName = tag.getString("animation");
+        frameCount = tag.hasKey("frameCount") ? tag.getInteger("frameCount") : 1;
+        frameSpeed = tag.hasKey("frameSpeed") ? tag.getInteger("frameSpeed") : 100;
+        isItemRender = tag.getBoolean("isItemRender");
     }
 }
