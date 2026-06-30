@@ -11,7 +11,7 @@ thumbs.db
 .mtj.tmp/
 
 # Package Files #
-*.jar
+/libs
 *.war
 *.ear
 *.txt
@@ -74,9 +74,6 @@ local.properties
 classes/
 
 /out/
-gradle/wrapper/gradle-wrapper.properties
-gradlew
-gradlew.bat
 
 # Linux
 *~
