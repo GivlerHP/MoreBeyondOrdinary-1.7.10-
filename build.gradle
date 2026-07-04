@@ -27,21 +27,32 @@ minecraft {
 
 repositories {
     mavenCentral()
-    maven { name = "chickenbones"; url = "http://chickenbones.net/maven/" }
+    maven { name = "chickenbones"; url = "https://chickenbones.net/maven/" }
     flatDir { dirs 'libs' }
 }
 
 dependencies {
-    compile name: "geckolib-unofficial-1.7.10-1.0.3-dev"
-    compile name: "Baubles-1.7.10-1.0.1.10-dev"
-    compile name: "MF2-dev"
-    compile name: "AntiqueAtlas-deobf"
+//    compile name: "geckolib-unofficial-1.7.10-1.0.3-dev"
+//    compile name: "Baubles-1.7.10-1.0.1.10-dev"
+//    compile name: "MF2-dev"
+//    compile name: "AntiqueAtlas-deobf"
+//    implementation name: 'AriamisBOB'
+//    compile name: "CustomNPC-Plus-1.10.2"
+//    compile name: "Thaumcraft"
+//    compile name: "CodeChickenLib-1.7.10-1.1.3.141-universal"
+//    compile name: "CodeChickenCore-1.7.10-1.0.7.48-universal"
+//    compile name: "NotEnoughItems-1.7.10-1.0.5.120-universal"
+
+    implementation name: "geckolib-unofficial-1.7.10-1.0.3-dev"
+    implementation name: "Baubles-1.7.10-1.0.1.10-dev"
+    implementation name: "MF2-dev"
+    implementation name: "AntiqueAtlas-deobf"
     implementation name: 'AriamisBOB'
-    compile name: "CustomNPC-Plus-1.10.2"
-    compile name: "Thaumcraft"
-    compile name: "CodeChickenLib-1.7.10-1.1.3.141-universal"
-    compile name: "CodeChickenCore-1.7.10-1.0.7.48-universal"
-    compile name: "NotEnoughItems-1.7.10-1.0.5.120-universal"
+    implementation name: "CustomNPC-Plus-1.10.2"
+    implementation name: "Thaumcraft"
+    implementation name: "CodeChickenLib-1.7.10-1.1.3.141-universal"
+    implementation name: "CodeChickenCore-1.7.10-1.0.7.48-universal"
+    implementation name: "NotEnoughItems-1.7.10-1.0.5.120-universal"
 }
 
 jar {
@@ -67,6 +78,7 @@ idea {
 tasks.build.dependsOn('deobfJar')
 
 processResources {
+    duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.EXCLUDE
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
@@ -80,9 +92,11 @@ processResources {
     }
 }
 
-task copyMod(type: Copy) {
-    from jar
-    into 'E:\\.minecraft2\\mods'
-}
+//task copyMod(type: Copy) {
+//    def localModsDir = file('E:\\.minecraft2\\mods')
+//    onlyIf { localModsDir.exists() }
+//    from jar
+//    into localModsDir
+//}
 
-jar.finalizedBy(copyMod)
+//jar.finalizedBy(copyMod)
