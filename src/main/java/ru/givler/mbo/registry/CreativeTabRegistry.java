@@ -24,6 +24,7 @@ public class CreativeTabRegistry {
             return Item.getItemFromBlock(BlockImperialBrick);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         @SideOnly(Side.CLIENT)
         //list.add(new ItemStack());
@@ -128,6 +129,7 @@ public class CreativeTabRegistry {
             return WeaponRapier;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         @SideOnly(Side.CLIENT)
         public void displayAllReleventItems(List list) {
@@ -243,6 +245,7 @@ public class CreativeTabRegistry {
             return DrinkWine;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         @SideOnly(Side.CLIENT)
         public void displayAllReleventItems(List list) {
@@ -279,6 +282,7 @@ public class CreativeTabRegistry {
             return Item.getItemFromBlock(ModelDummy);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         @SideOnly(Side.CLIENT)
         public void displayAllReleventItems(List list) {
@@ -325,7 +329,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(ModelHayfork));
             list.add(new ItemStack(ModelJugs));
             list.add(new ItemStack(ModelShelfFlower));
-            list.add(new ItemStack(ModelWateringСan));
+            list.add(new ItemStack(ModelWateringCan));
             list.add(new ItemStack(ModelWheelBarrow));
 
             list.add(new ItemStack(ModelFilledChest));

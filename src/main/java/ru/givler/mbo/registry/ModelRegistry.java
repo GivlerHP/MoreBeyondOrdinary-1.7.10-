@@ -9,6 +9,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.specialblocks.BlockDestructibleLootContainer;
 import ru.givler.mbo.block.blockmodels.BlockModelFood;
 import ru.givler.mbo.tileentity.AnimatedModelTileBase;
 
@@ -27,7 +28,7 @@ public class ModelRegistry {
     public static BlockModels ModelMagnifyinGlass, ModelBagGold, ModelCoins, ModelSmallChest, ModelScales;
     //Интерьер фермера
     public static BlockModels ModelBagsPotatoes, ModelBasketApples, ModelBasketBerries, ModelBucket, ModelCarrot, ModelGarlic, ModelHay,
-            ModelHayfork, ModelJugs, ModelShelfFlower, ModelWateringСan, ModelWheelBarrow;
+            ModelHayfork, ModelJugs, ModelShelfFlower, ModelWateringCan, ModelWheelBarrow;
     //Интерьер ювелира
     public static BlockModels ModelFilledChest, ModelPliers, ModelJewelryHammer, ModelAmulet, ModelInstruments;
     //Интерьер регистраторши
@@ -46,6 +47,7 @@ public class ModelRegistry {
             ModelPlate8, ModelPlate9, ModelPlate10, ModelCup, ModelBottle;
     //кирпичи
     public static BlockModels ModelBricks1, ModelBricks2, ModelBricks3, ModelBricks4, ModelBricks5, ModelBricks6, ModelBricks7;
+    public static BlockModels LootContainer;
 
     //анимированные модели
     public static BlockModels ModelWisp;
@@ -161,9 +163,9 @@ public class ModelRegistry {
 
         ModelShelfFlower = new BlockModels(Material.cloth,"ModelShelfFlower", "shelf_with_flower", "shelf_with_flower");
 
-        ModelWateringСan = new BlockModels(Material.cloth,"ModelWateringСan", "watering_can", "watering_can");
-        ModelWateringСan.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-        ModelWateringСan.setCollisionEnabled(false);
+        ModelWateringCan = new BlockModels(Material.cloth,"ModelWateringСan", "watering_can", "watering_can");
+        ModelWateringCan.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+        ModelWateringCan.setCollisionEnabled(false);
 
 
         ModelWheelBarrow = new BlockModels(Material.cloth,"ModelWheelBarrow", "wheelbarrow", "wheelbarrow");
@@ -395,6 +397,8 @@ public class ModelRegistry {
         ModelBottle  = new BlockModels(Material.cloth, "ModelBottle", "bottle", "bottle");
         ModelBottle.setBlockBounds(0.4F, 0.0F, 0.4F, 0.6F, 0.5F, 0.6F);
 
+        LootContainer = new BlockDestructibleLootContainer(Material.cloth, "LootContainer");
+
         ModelBricks1 = new BlockModels(Material.rock, "ModelBricks1", "bricks_1", "bricks_1");
         ModelBricks1.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelBricks1.setStepSound(soundTypeStone);
@@ -464,7 +468,7 @@ public class ModelRegistry {
         ModelHayfork.register();
         ModelJugs.register();
         ModelShelfFlower.register();
-        ModelWateringСan.register();
+        ModelWateringCan.register();
         ModelWheelBarrow.register();
 
 
@@ -537,6 +541,7 @@ public class ModelRegistry {
         ModelBricks7.register();
 
         ModelBottle.register();
+        LootContainer.register();
         ModelCup.register();
     }
 }

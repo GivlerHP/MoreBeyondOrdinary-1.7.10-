@@ -19,6 +19,7 @@ import ru.givler.mbo.recipes.registry.BlockRecipeRegistry;
 import ru.givler.mbo.recipes.registry.RoofRecipeRegistry;
 import ru.givler.mbo.registry.*;
 import ru.givler.mbo.tileentity.TileEntityArcanum;
+import ru.givler.mbo.tileentity.TileEntityLootContainer;
 import ru.givler.mbo.util.PotionArrayExpander;
 
 
@@ -64,6 +65,7 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
         GameRegistry.registerTileEntity(AnimatedModelTileBase.class, "AnimatedModelTileBase");
         GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
+        GameRegistry.registerTileEntity(TileEntityLootContainer.class, "loot_container_tile");
 
         BlockRecipeRegistry.init();
         RoofRecipeRegistry.init();

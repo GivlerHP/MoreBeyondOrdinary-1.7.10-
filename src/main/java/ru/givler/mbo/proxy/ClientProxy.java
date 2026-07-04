@@ -19,7 +19,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Keyboard;
-import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.handler.ClientKeyHandler;
@@ -32,13 +31,21 @@ import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.registry.ModelRegistry;
 import ru.givler.mbo.render.*;
 import ru.givler.mbo.render.decormodels.AnimatedTemplateModelRenderer;
+import ru.givler.mbo.render.decormodels.RenderLootContainerItem;
+import ru.givler.mbo.render.decormodels.RenderLootContainerTile;
 import ru.givler.mbo.render.decormodels.TemplateModelRenderer;
 import ru.givler.mbo.tileentity.AnimatedModelTileBase;
+import ru.givler.mbo.tileentity.TileEntityLootContainer;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ClientProxy extends CommonProxy {
     public static KeyBinding activateAmuletKey;
+
+    public static final Map<String, BlockModels> MODEL_REGISTRY = new HashMap<>();
 
     public void initPackets() {
         super.initPackets();
@@ -110,7 +117,7 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelHayfork);
         bindDefaultRender(ModelRegistry.ModelJugs);
         bindDefaultRender(ModelRegistry.ModelShelfFlower);
-        bindDefaultRender(ModelRegistry.ModelWateringСan);
+        bindDefaultRender(ModelRegistry.ModelWateringCan);
         bindDefaultRender(ModelRegistry.ModelWheelBarrow);
 
         bindDefaultRender(ModelRegistry.ModelFilledChest);
@@ -178,6 +185,7 @@ public class ClientProxy extends CommonProxy {
 
         bindDefaultRender(ModelRegistry.ModelBottle);
         bindDefaultRender(ModelRegistry.ModelCup);
+        bindLootContainerRender(ModelRegistry.LootContainer);
 
 
         bindAnimatedRender(ModelRegistry.ModelWisp);
@@ -203,10 +211,11 @@ public class ClientProxy extends CommonProxy {
     }
 
 
-    public static void bindRender(Block block, TileEntity tile, TileEntitySpecialRenderer tesr) {
+    public static void bindRender(BlockModels block, TileEntity tile, TileEntitySpecialRenderer tesr) {
         ClientRegistry.bindTileEntitySpecialRenderer(tile.getClass(), tesr);
         Item blockItem = ItemBlock.getItemFromBlock(block);
         MinecraftForgeClient.registerItemRenderer(blockItem, new RenderBlockItem(tesr, tile));
+        MODEL_REGISTRY.put(block.getModelName(), block);
     }
 
     public static void bindAnimatedRender(BlockModels block) {
@@ -218,6 +227,14 @@ public class ClientProxy extends CommonProxy {
         TemplateModelRenderer staticTesr = new TemplateModelRenderer();
         Item blockItem = ItemBlock.getItemFromBlock(block);
         MinecraftForgeClient.registerItemRenderer(blockItem, new RenderBlockItem(staticTesr, animatedTile));
+    }
+
+    public static void bindLootContainerRender(BlockModels block) {
+        RenderLootContainerTile tesr = new RenderLootContainerTile();
+        TileEntityLootContainer tile = new TileEntityLootContainer();
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLootContainer.class, tesr);
+        Item blockItem = ItemBlock.getItemFromBlock(block);
+        MinecraftForgeClient.registerItemRenderer(blockItem, new RenderLootContainerItem(tesr, tile));
     }
 
 
@@ -269,5 +286,4 @@ public class ClientProxy extends CommonProxy {
     }
 
 }
-
 
