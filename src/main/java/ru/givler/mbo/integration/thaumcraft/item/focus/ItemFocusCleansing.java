@@ -1,6 +1,5 @@
 package ru.givler.mbo.integration.thaumcraft.item.focus;
 
-import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -18,7 +17,6 @@ import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.wands.FocusUpgradeType;
 import thaumcraft.common.items.wands.ItemWandCasting;
-import thaumcraft.common.items.wands.WandManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +24,6 @@ import java.util.List;
 public class ItemFocusCleansing extends ItemFocusPartyBasic {
 
     private static int[] REMOVABLE_EFFECTS = null;
-
-    public static FocusUpgradeType cooldownUpgrade;
-    public static FocusUpgradeType divineProtectionUpgrade;
 
     private static int[] getRemovableEffects() {
         if (REMOVABLE_EFFECTS == null) {
@@ -56,7 +51,6 @@ public class ItemFocusCleansing extends ItemFocusPartyBasic {
     private IIcon depthIcon;
 
     public ItemFocusCleansing() {
-
         this.maxStackSize = 1;
         this.canRepair = false;
         this.setMaxDamage(0);
@@ -81,7 +75,7 @@ public class ItemFocusCleansing extends ItemFocusPartyBasic {
     @Override
     public int getActivationCooldown(ItemStack focusstack) {
         int cd = 40000;
-        cd -= getUpgradeLevel(focusstack, cooldownUpgrade) * 10000;
+        cd -= getUpgradeLevel(focusstack, TMFocusUpgrades.cooldown) * 10000;
         return Math.max(cd, 10000);
     }
 
@@ -132,12 +126,11 @@ public class ItemFocusCleansing extends ItemFocusPartyBasic {
                     target.removePotionEffect(effect.getPotionID());
                 }
 
-                if (isUpgradedWith(wand.getFocusItem(wandstack), divineProtectionUpgrade)) {
+                if (isUpgradedWith(wand.getFocusItem(wandstack), TMFocusUpgrades.divineProtection)) {
                     target.addPotionEffect(new PotionEffect(Potion.resistance.id, 100, 0));
                 }
 
-                    PacketSpawnParticle.send(EnumParticleType.SACRED, world, target, 30, 2.0, 2.0, 2.0, 1.0, 0.0, 0.0, 0.0);
-
+                PacketSpawnParticle.send(EnumParticleType.SACRED, world, target, 30, 2.0, 2.0, 2.0, 1.0, 0.0, 0.0, 0.0);
             }
 
             world.playSoundAtEntity(player, "mbo:temple", 1.0F, 1.0F);
@@ -158,28 +151,11 @@ public class ItemFocusCleansing extends ItemFocusPartyBasic {
     public FocusUpgradeType[] getPossibleUpgradesByRank(ItemStack focusstack, int rank) {
         switch (rank) {
             case 1: return new FocusUpgradeType[]{FocusUpgradeType.frugal, FocusUpgradeType.enlarge};
-            case 2: return new FocusUpgradeType[]{FocusUpgradeType.frugal, cooldownUpgrade};
+            case 2: return new FocusUpgradeType[]{FocusUpgradeType.frugal, TMFocusUpgrades.cooldown};
             case 3: return new FocusUpgradeType[]{FocusUpgradeType.frugal, FocusUpgradeType.enlarge};
-            case 4: return new FocusUpgradeType[]{FocusUpgradeType.frugal, cooldownUpgrade};
-            case 5: return new FocusUpgradeType[]{FocusUpgradeType.frugal, cooldownUpgrade, divineProtectionUpgrade};
+            case 4: return new FocusUpgradeType[]{FocusUpgradeType.frugal, TMFocusUpgrades.cooldown};
+            case 5: return new FocusUpgradeType[]{FocusUpgradeType.frugal, TMFocusUpgrades.cooldown, TMFocusUpgrades.divineProtection};
             default: return null;
         }
-    }
-
-    static {
-        cooldownUpgrade = new FocusUpgradeType(
-                54,
-                new ResourceLocation("thaumcraft", "textures/foci/extend.png"),
-                "focus.upgrade.cleansing.cooldown.name",
-                "focus.upgrade.cleansing.cooldown.text",
-                new AspectList().add(Aspect.AIR, 1)
-        );
-        divineProtectionUpgrade = new FocusUpgradeType(
-                55,
-                new ResourceLocation("mbo", "textures/foci/divine_protection.png"),
-                "focus.upgrade.cleansing.divine.name",
-                "focus.upgrade.cleansing.divine.text",
-                new AspectList().add(Aspect.ORDER, 1)
-        );
     }
 }

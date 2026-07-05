@@ -1,6 +1,7 @@
 package ru.givler.mbo.proxy;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -21,7 +22,6 @@ import ru.givler.mbo.registry.*;
 import ru.givler.mbo.tileentity.TileEntityArcanum;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
 import ru.givler.mbo.util.PotionArrayExpander;
-
 
 public class CommonProxy {
 
@@ -51,17 +51,17 @@ public class CommonProxy {
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);
         ArmorRegistry.preLoad(event);
+        ThaumcraftRegistry.preLoad(event);
         DoorRegistry.init();
-        ThaumcraftRegistry.init();
         MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
         MinecraftForge.EVENT_BUS.register(new BeltEventHandler());
         FMLCommonHandler.instance().bus().register(new BeltEventHandler());
-        SpawnHandler.registerSpawns();
     }
 
     public void init(FMLInitializationEvent event){
         CreativeTabRegistry.init(event);
         ModelRegistry.init(event);
+        ThaumcraftRegistry.init();
         GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
         GameRegistry.registerTileEntity(AnimatedModelTileBase.class, "AnimatedModelTileBase");
         GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
@@ -71,7 +71,6 @@ public class CommonProxy {
         RoofRecipeRegistry.init();
         ArcanumRecipeRegistry.init();
         BlockRegistry.initRecipe();
-
 
     }
 

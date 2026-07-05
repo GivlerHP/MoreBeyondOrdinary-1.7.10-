@@ -1,6 +1,7 @@
 package ru.givler.mbo.proxy;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -19,6 +20,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Keyboard;
+import ru.givler.mbo.integration.thaumcraft.entities.EntityDarkMatter;
+import ru.givler.mbo.integration.thaumcraft.entities.EntityDiffusion;
+import ru.givler.mbo.integration.thaumcraft.entities.EntityHomingShard;
+import ru.givler.mbo.integration.thaumcraft.renderer.RenderEntityDiffusion;
+import ru.givler.mbo.integration.thaumcraft.renderer.RenderEntityHomingShard;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.handler.ClientKeyHandler;
@@ -38,6 +44,7 @@ import ru.givler.mbo.tileentity.AnimatedModelTileBase;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
+import thaumcraft.client.renderers.entity.RenderEldritchOrb;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -241,8 +248,11 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void registerRenderers() {
-        // Используем метод регистрации рендерера для предмета
-
+        if (Loader.isModLoaded("Thaumcraft")) {
+            RenderingRegistry.registerEntityRenderingHandler(EntityDarkMatter.class, new RenderEldritchOrb());
+            RenderingRegistry.registerEntityRenderingHandler(EntityHomingShard.class, new RenderEntityHomingShard());
+            RenderingRegistry.registerEntityRenderingHandler(EntityDiffusion.class, new RenderEntityDiffusion());
+        }
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenLongsword, new RenderLongsword(ItemRegistry.BrokenLongsword.getScale()));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenDagger, new RenderDagger(ItemRegistry.BrokenDagger.getScale()));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.Uchigatana, new RenderUchigatana(ItemRegistry.Uchigatana.getScale()));

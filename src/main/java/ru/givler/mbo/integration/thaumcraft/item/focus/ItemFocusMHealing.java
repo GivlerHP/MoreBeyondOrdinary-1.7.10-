@@ -35,9 +35,6 @@ public class ItemFocusMHealing extends ItemFocusPartyBasic {
     }
 
     long soundDelay = 0L;
-    public static FocusUpgradeType spiritUpgrade;
-    public static FocusUpgradeType vitalityUpgrade;
-    public static FocusUpgradeType inspirationUpgrade;
 
     @Override
     public AspectList getVisCost(ItemStack focusstack) {
@@ -78,6 +75,7 @@ public class ItemFocusMHealing extends ItemFocusPartyBasic {
     public int getFocusColor(ItemStack focusstack) {
         return 0xFF44FF;
     }
+
     @Override
     public void onUsingFocusTick(ItemStack wandstack, EntityPlayer player, int count) {
         World world = player.worldObj;
@@ -95,23 +93,23 @@ public class ItemFocusMHealing extends ItemFocusPartyBasic {
             soundDelay = System.currentTimeMillis() + 2000L;
         }
 
-        int slowLevel = isUpgradedWith(wand.getFocusItem(wandstack), spiritUpgrade) ? 0 : 1;
-        int weakLevel = isUpgradedWith(wand.getFocusItem(wandstack), spiritUpgrade) ? 1 : 2;
+        int slowLevel = isUpgradedWith(wand.getFocusItem(wandstack), TMFocusUpgrades.spirit) ? 0 : 1;
+        int weakLevel = isUpgradedWith(wand.getFocusItem(wandstack), TMFocusUpgrades.spirit) ? 1 : 2;
         player.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 100, slowLevel));
         player.addPotionEffect(new PotionEffect(Potion.weakness.id, 200, weakLevel));
 
         List<EntityPlayer> targets = getPartyTargets(world, player, wandstack);
 
         for (EntityPlayer target : targets) {
-            int regenLevel = isUpgradedWith(wand.getFocusItem(wandstack), vitalityUpgrade) ? 1 : 0;
+            int regenLevel = isUpgradedWith(wand.getFocusItem(wandstack), TMFocusUpgrades.vitality) ? 1 : 0;
             target.addPotionEffect(new PotionEffect(Potion.regeneration.id, 60, regenLevel, true));
 
             if (world.getTotalWorldTime() % 60 == 0 && target.getHealth() < target.getMaxHealth()) {
-                float healAmount = isUpgradedWith(wandstack, vitalityUpgrade) ? 2.0F : 1.0F;
+                float healAmount = isUpgradedWith(wand.getFocusItem(wandstack), TMFocusUpgrades.vitality) ? 2.0F : 1.0F;
                 target.heal(healAmount);
             }
 
-            if (isUpgradedWith(wand.getFocusItem(wandstack), inspirationUpgrade)) {
+            if (isUpgradedWith(wand.getFocusItem(wandstack), TMFocusUpgrades.inspiration)) {
                 target.addPotionEffect(new PotionEffect(PotionRegistry.Stamina.id, 20, 0, true));
             }
         }
@@ -171,33 +169,9 @@ public class ItemFocusMHealing extends ItemFocusPartyBasic {
             case 1: return new FocusUpgradeType[]{FocusUpgradeType.frugal};
             case 2: return new FocusUpgradeType[]{FocusUpgradeType.frugal, enlarge};
             case 3: return new FocusUpgradeType[]{FocusUpgradeType.frugal, enlarge};
-            case 4: return new FocusUpgradeType[]{FocusUpgradeType.frugal, spiritUpgrade};
-            case 5: return new FocusUpgradeType[]{FocusUpgradeType.frugal, vitalityUpgrade, inspirationUpgrade};
+            case 4: return new FocusUpgradeType[]{FocusUpgradeType.frugal, TMFocusUpgrades.spirit};
+            case 5: return new FocusUpgradeType[]{FocusUpgradeType.frugal, TMFocusUpgrades.vitality, TMFocusUpgrades.inspiration};
             default: return null;
         }
-    }
-
-    static {
-        spiritUpgrade = new FocusUpgradeType(
-                51,
-                new ResourceLocation("mbo", "textures/foci/spirit.png"),
-                "focus.upgrade.mhealing.spirit.name",
-                "focus.upgrade.mhealing.spirit.text",
-                new AspectList().add(Aspect.MIND, 1)
-        );
-        vitalityUpgrade = new FocusUpgradeType(
-                52,
-                new ResourceLocation("mbo", "textures/foci/vitality.png"),
-                "focus.upgrade.mhealing.vitality.name",
-                "focus.upgrade.mhealing.vitality.text",
-                new AspectList().add(Aspect.LIFE, 1)
-        );
-        inspirationUpgrade = new FocusUpgradeType(
-                53,
-                new ResourceLocation("mbo", "textures/foci/inspiration.png"),
-                "focus.upgrade.mhealing.inspiration.name",
-                "focus.upgrade.mhealing.inspiration.text",
-                new AspectList().add(Aspect.AURA, 1)
-        );
     }
 }
