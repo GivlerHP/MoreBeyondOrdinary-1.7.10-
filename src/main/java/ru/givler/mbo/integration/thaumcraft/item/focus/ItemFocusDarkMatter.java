@@ -32,14 +32,14 @@ public class ItemFocusDarkMatter extends ItemFocusPartyBasic {
 
     public ItemFocusDarkMatter () {
         setCreativeTab(CreativeTabRegistry.tabMBOitems);
-        setUnlocalizedName("ItemFocusDarkMatter");
+        setUnlocalizedName("focusDarkMatter");
     }
 
     @Override
     @SideOnly (Side.CLIENT)
     public void registerIcons (final IIconRegister ir) {
-        icon = ir.registerIcon("mbo:ItemFocusDarkMatter");
-        depthIcon = ir.registerIcon("mbo:ItemFocusDarkMatter_depth");
+        icon = ir.registerIcon("mbo:focus_darkmatter");
+        depthIcon = ir.registerIcon("mbo:focus_darkmatter_depth");
         ornIcon = ir.registerIcon("thaumcraft:focus_warding_orn");
     }
 
@@ -121,7 +121,7 @@ public class ItemFocusDarkMatter extends ItemFocusPartyBasic {
         }
         else {
             if (!world.isRemote && wand.consumeAllVis(stack, player, getVisCost(wand.getFocusItem(stack)), true, false)) {
-                final EntityDarkMatter proj = new EntityDarkMatter(world, player, 16F + wand.getFocusPotency(stack),
+                final EntityDarkMatter proj = new EntityDarkMatter(world, player, 8F + wand.getFocusPotency(stack),
                         wand.getFocusEnlarge(stack), isUpgradedWith(wand.getFocusItem(stack), TMFocusUpgrades.corrosive));
                 world.spawnEntityInWorld(proj);
 
@@ -156,7 +156,7 @@ public class ItemFocusDarkMatter extends ItemFocusPartyBasic {
                 final EntityDiffusion proj = new EntityDiffusion(player.worldObj, player,
                         isUpgradedWith(wand.getFocusItem(stack), FocusUpgradeType.enlarge) ? 12.0F + wand.getFocusEnlarge(stack)
                                 : 9.0F,
-                        12F + wand.getFocusPotency(stack), isUpgradedWith(wand.getFocusItem(stack), TMFocusUpgrades.corrosive));
+                        5F + wand.getFocusPotency(stack), isUpgradedWith(wand.getFocusItem(stack), TMFocusUpgrades.corrosive));
 
                 proj.posX += proj.motionX;
                 proj.posY += proj.motionY;

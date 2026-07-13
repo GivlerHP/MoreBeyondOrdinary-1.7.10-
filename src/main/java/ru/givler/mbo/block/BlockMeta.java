@@ -55,9 +55,11 @@ public class BlockMeta extends Block {
     //определяет какую текстуру будет использовать блок
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
+        if (meta < 0 || meta >= this.icon.length) {
+            return this.icon[0]; // fallback-текстура вместо краша
+        }
         return this.icon[meta];
     }
-
     //регестрирует текстуры для блока.  Для каждого возможного варианта метаданных регистрируется отдельная текстура.
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister icon) {

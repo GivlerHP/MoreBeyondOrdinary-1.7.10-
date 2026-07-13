@@ -17,6 +17,8 @@ public class TMFocusUpgrades {
     public static FocusUpgradeType corrosive;
     public static FocusUpgradeType persistent;
     public static FocusUpgradeType diffusion;
+    public static FocusUpgradeType tripleEye;
+    public static FocusUpgradeType corrosive_darklight;
 
     public static void initFocusUpgrades() {
 
@@ -90,6 +92,21 @@ public class TMFocusUpgrades {
                 "focus.upgrade.diffusion.name",
                 "focus.upgrade.diffusion.text",
                 new AspectList().add(Aspect.DARKNESS, 1).add(Aspect.ELDRITCH, 2).add(Aspect.AURA, 4)
+        );
+
+        tripleEye = new FocusUpgradeType(
+                ConfigHandler.TRIPLE_EYE_UPGRADE_ID,
+                new ResourceLocation("mbo", "textures/foci/IconTripleEye.png"),
+                "focus.upgrade.tripleeye.name",
+                "focus.upgrade.tripleeye.text",
+                new AspectList().add(Aspect.DARKNESS, 2).add(Aspect.SENSES, 3).add(Aspect.AURA, 2)
+        );
+        corrosive_darklight  = new FocusUpgradeType(
+                ConfigHandler.CORROSIVEDARKLIGHT_UPGRADE_ID,
+                new ResourceLocation("mbo", "textures/foci/IconCorrosive.png"),
+                "focus.upgrade.corrosive_darklight.name",
+                "focus.upgrade.corrosive_darklight.text",
+                new AspectList().add(Aspect.TAINT, 1).add(Aspect.POISON, 1)
         );
     }
 }

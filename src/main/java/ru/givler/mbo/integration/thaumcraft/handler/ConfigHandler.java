@@ -16,6 +16,8 @@ public class ConfigHandler {
     public static int CORROSIVE_UPGRADE_ID = 57;
     public static int PERSISTENT_UPGRADE_ID = 58;
     public static int DIFFUSION_UPGRADE_ID = 59;
+    public static int TRIPLE_EYE_UPGRADE_ID = 60;
+    public static int CORROSIVEDARKLIGHT_UPGRADE_ID = 61;
 
     public static void initConfig() {
         config.load();
@@ -46,6 +48,12 @@ public class ConfigHandler {
 
         DIFFUSION_UPGRADE_ID = config.getInt("DIFFUSION_UPGRADE_ID", "wands_and_foci", DIFFUSION_UPGRADE_ID,
                 FocusUpgradeType.types.length + 1, Short.MAX_VALUE, "The ID for the Diffusion focus upgrade.");
+
+        TRIPLE_EYE_UPGRADE_ID = config.getInt("TRIPLE_EYE_UPGRADE_ID", "wands_and_foci", TRIPLE_EYE_UPGRADE_ID,
+                FocusUpgradeType.types.length + 1, Short.MAX_VALUE, "The ID for the Triple Eye (Dark Lightning) focus upgrade.");
+
+        CORROSIVEDARKLIGHT_UPGRADE_ID = config.getInt("CORROSIVEDARKLIGHT_UPGRADE_ID", "wands_and_foci", TRIPLE_EYE_UPGRADE_ID,
+                FocusUpgradeType.types.length + 1, Short.MAX_VALUE, "The ID for the Triple Eye (Dark Lightning) focus upgrade.");
 
         config.save();
     }

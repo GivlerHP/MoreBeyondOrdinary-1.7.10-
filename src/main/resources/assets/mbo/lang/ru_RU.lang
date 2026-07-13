@@ -29,6 +29,7 @@ tile.BlockHeneizenBrick.name=Генезийский кирпич
 tile.BlockIrgadBrick.name=Иргадский кирпич
 tile.BlockFiredClay.name=Обожженные кирпичи
 tile.BlockAshgarBrick.name=Ашгарский кирпич
+tile.BlockWoodenBox.name=Ящик
 
 tile.BlockClayWall.name=Старая глиняная стена
 
@@ -510,6 +511,7 @@ item.GlyphWeapon.name=Глиф призрачного оружия
 item.GlyphCleansing.name=Глиф очищения
 item.GlyphHealing.name=Глиф массового лечения
 item.BrokenStaffHealing.name=Колокольчик клирика
+item.BrokenStaffHealing.desc=Звон этого колокольчика исцеляет ваши раны
 item.GlyphVoid.name=Неозарённый глиф
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -525,8 +527,10 @@ item.BrokenCudgel.name=Дубина
 item.WeaponRapier.name=Призрачная рапира
 
 item.BrokenBowHunting.name=Старый лук
-item.BrokenStaffFire.name=Старый посох пироманта
-item.BrokenGrimoireWater.name=Потрепанный гримуар воды
+item.wandPyromancer.name=Старый жезл пироманта
+item.wandPyromancer.desc=Позволяет выпускать разрушительные огненные шары
+item.wandWizard.name=Старый жезл волшебника
+item.wandWizard.desc=Наделяет владельца силой выпускать магические стрелы
 item.Uchigatana.name=Утигата
 item.DragonSlayer.name=Убийца драконов
 
@@ -657,6 +661,7 @@ item.DragonAmulet.name=Амулет дракона
 item.VeilAmulet.name=Амулет завесы
 item.ThronsAmulet.name=Амулет шипов
 item.MercenaryAmulet.name=Амулет наёмника
+item.MercenaryAmulet.desc=Древний амулет наёмников. При активации он дарует владельцу силу, скорость и способность видеть в темноте,\nно после этого разрушается. Приберегите его для самых опасных сражений
 
 item.GoldBasicAmulet.name=Пустой амулет из золота
 item.SilverBasicAmulet.name=Пустой амулет из серебра
@@ -666,7 +671,7 @@ item.FallBelt.name=Пояс мягкого падения
 item.MinerBelt.name=Пояс шахтёра
 item.WaterminerBelt.name=Пояс подводного шахтёра
 item.KnightBelt.name=Трофей на пояс
-
+item.KnightBelt.desc=Этот странный череп, который нужно повесить на пояс, хранит древнюю силу.\nКогда жизнь владельца оказывается под угрозой, он дарует сопротивление и регенерацию ценой своего исчезновения
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Броня/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -708,7 +713,7 @@ method.arcanum_crucible=Арканный тигель
 gui.arcanum_crucible=Арканный тигель
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Набалдашники/
+/Набалдашники и посохи/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 item.focusMHealing.name=Набалдашник: Божественное лечение
 focus.upgrade.mhealing.spirit.name=Сглаживание импульса
@@ -723,3 +728,26 @@ focus.upgrade.cleansing.cooldown.name=Перезарядка
 focus.upgrade.cleansing.cooldown.text=Это улучшение уменьшает время перезарядки на 10 секунд
 focus.upgrade.cleansing.divine.name=Божественная защита
 focus.upgrade.cleansing.divine.text=Это улучшение даёт 5 секунд сопротивления урону союзникам
+
+item.focusDarkMatter.name=Набалдашник: Тёмная материя
+focus.upgrade.corrosive.name=Некроз
+focus.upgrade.corrosive.text=Набалдашник с этим улучшением будет накладыватьна на цель эффект "Иссушение".
+focus.upgrade.sanity.name=Ясность ума
+focus.upgrade.sanity.text=Используя набалдашник с этим улучшением, вы больше не будете получать Искажение.
+focus.upgrade.persistent.name=Распыление
+focus.upgrade.persistent.text=
+
+item.focusVisShard.name=Набалдашник: Сферы аспектов
+
+item.focusDarkLightning.name=Набалдашник: Тёмная молния
+
+item.staffNature.name=Посох природы
+item.staffNaturalMoon.name=Посох природной луны
+item.staffLightningDragon.name=Посох молниеносного дракона
+item.staffFrost.name=Посох льда
+item.staffChillSorrow.name=Посох скорбного хлада
+item.staffDarkMoon.name=Посох тёмной луны
+item.staffDemonic.name=Посох Демонов
+item.staffLantern.name=Посох с фонарём
+item.staffLight.name=Посох света
+item.staffFire.name=Посох огня

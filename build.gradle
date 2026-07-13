@@ -15,7 +15,7 @@ apply plugin: 'idea'
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.10.3"
+version = "1.12.1"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 
@@ -50,6 +50,7 @@ dependencies {
     implementation name: 'AriamisBOB'
     implementation name: "CustomNPC-Plus-1.10.2"
     implementation name: "Thaumcraft"
+    implementation name: "Thaumic-Dyes-deobf"
     implementation name: "CodeChickenLib-1.7.10-1.1.3.141-universal"
     implementation name: "CodeChickenCore-1.7.10-1.0.7.48-universal"
     implementation name: "NotEnoughItems-1.7.10-1.0.5.120-universal"

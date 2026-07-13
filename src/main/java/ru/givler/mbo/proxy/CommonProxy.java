@@ -9,6 +9,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry;
+import ru.givler.mbo.integration.thaumcraft.util.DarkMoonCastQueue;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.tileentity.AnimatedModelTileBase;
@@ -55,6 +56,9 @@ public class CommonProxy {
         DoorRegistry.init();
         MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
         MinecraftForge.EVENT_BUS.register(new BeltEventHandler());
+        if (Loader.isModLoaded("Thaumcraft")) {
+            FMLCommonHandler.instance().bus().register(new DarkMoonCastQueue());
+        }
         FMLCommonHandler.instance().bus().register(new BeltEventHandler());
     }
 

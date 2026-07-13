@@ -47,8 +47,8 @@ public class EntityDarkMatter extends EntityEldritchOrb {
                     entity.attackEntityFrom(DamageSource.causeIndirectMagicDamage(this, getThrower()), dmg);
                     if (corrosive) {
                         entity.addPotionEffect(new PotionEffect(Potion.wither.id, 160, 1));
+                        entity.addPotionEffect(new PotionEffect(Potion.weakness.id, 160, 0));
                     }
-                    entity.addPotionEffect(new PotionEffect(Potion.weakness.id, 160, 1));
                 }
             }
             worldObj.playSoundAtEntity(this, "random.fizz", 0.5F, 2.6F + (rand.nextFloat() - rand.nextFloat()) * 0.8F);

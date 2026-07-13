@@ -4,6 +4,7 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.item.Item;
+import net.minecraft.util.EnumChatFormatting;
 import noppes.npcs.constants.EnumNpcToolMaterial;
 import ru.givler.mbo.item.*;
 import ru.givler.mbo.item.amulets.*;
@@ -15,6 +16,8 @@ import ru.givler.mbo.item.ring.*;
 import ru.givler.mbo.item.glyph.*;
 
 import ru.givler.mbo.item.glyph.ItemGlyphWeapon;
+import ru.givler.mbo.item.wand.ItemWandPyromancer;
+import ru.givler.mbo.item.wand.ItemWandWizard;
 import ru.givler.mbo.item.weapon.*;
 
 
@@ -38,8 +41,7 @@ public class ItemRegistry {
     // переменные пояса
     public static Item FertilityBelt, FallBelt, MinerBelt, WaterminerBelt, KnightBelt;
     //магические посохи
-    public static Item BrokenStaffFire, BrokenGrimoireWater;
-    public static Item Chalk, SilverCross;
+    public static ItemWandBase BrokenWandWizard, BrokenWandPyromancer;
 
 
     static {
@@ -78,7 +80,8 @@ public class ItemRegistry {
         GlyphWeapon = new ItemGlyphWeapon("GlyphWeapon", "glyph_weapon", 1);
         GlyphCleansing = new ItemGlyphCleansing("GlyphCleansing", "glyph_cleansing", 1);
         GlyphHealing = new ItemGlyphMHealing("GlyphHealing", "glyph_healing", 1);
-        BrokenStaffHealing = new ItemStaffHealing("BrokenStaffHealing", "staff", 1);
+        BrokenStaffHealing = new ItemStaffHealing("BrokenStaffHealing", "staff", 1)
+                .setDescription("item.BrokenStaffHealing.desc", EnumChatFormatting.RED);
 
         //материлаы
         Metal = new ItemMeta("Metal", "material/metal", 64, 1);
@@ -101,7 +104,8 @@ public class ItemRegistry {
         VeilAmulet = new ItemVeilAmulet("VeilAmulet", "bijouterie/amulet_veil");
         ThornsAmulet = new ItemThornsAmulet("ThronsAmulet", "bijouterie/amulet_thorns");
         StrengthAmulet = new ItemStrengthAmulet("StrengthAmulet", "bijouterie/amulet_strength");
-        MercenaryAmulet = new ItemMercenaryAmulet("MercenaryAmulet", "bijouterie/amulet_mercenary");
+        MercenaryAmulet = new ItemMercenaryAmulet("MercenaryAmulet", "bijouterie/amulet_mercenary")
+                .setDescription("item.MercenaryAmulet.desc", EnumChatFormatting.BLUE);;
 
         SmallBasicRing = new ItemVoidRing("SmallBasicRing", "bijouterie/ring_basic_small");
         BasicRing = new ItemVoidRing("BasicRing", "bijouterie/ring_basic");
@@ -120,19 +124,10 @@ public class ItemRegistry {
         FallBelt = new ItemFallBelt("FallBelt", "bijouterie/belt_fall");
         MinerBelt = new ItemMinerBelt("MinerBelt", "bijouterie/belt_miner");
         WaterminerBelt = new ItemMinerBelt("WaterminerBelt", "bijouterie/belt_waterminer");
-        KnightBelt = new ItemMinerBelt("KnightBelt", "bijouterie/belt_knight").setMaxDamage(1);
+        KnightBelt = new ItemMinerBelt("KnightBelt", "bijouterie/belt_knight").setMaxDamage(1).setDescription("item.KnightBelt.desc", EnumChatFormatting.YELLOW);
 
-        if (Loader.isModLoaded("customnpcs")) {
-            BrokenStaffFire = new ItemStaffBase(26780, EnumNpcToolMaterial.WOOD).setFull3D().setMaxStackSize(1)
-                    .setUnlocalizedName("BrokenStaffFire").setMaxDamage(10)
-                    .setTextureName("mbo:brokenwizardswand");
-            BrokenGrimoireWater = new ItemStaffBase(26780, EnumNpcToolMaterial.WOOD).setMaxStackSize(1)
-                    .setUnlocalizedName("BrokenGrimoireWater").setMaxDamage(10)
-                    .setTextureName("mbo:distortedholyscripture");
-        }
-
-        Chalk = new ItemChalk("Chalk", "chalk", 1);
-        SilverCross = new ItemSilverCross("SilverCross", "silver_cross", 1);
+        BrokenWandWizard = new ItemWandWizard(15);
+        BrokenWandPyromancer = new ItemWandPyromancer(15);
 
         BrokenLongsword.register();
         BrokenSword.register();
@@ -144,6 +139,8 @@ public class ItemRegistry {
         Uchigatana.register();
         BrokenCudgel.register();
         DragonSlayer.register();
+        BrokenWandWizard.register();
+        BrokenWandPyromancer.register();
         ((ItemBowMBO) BrokenBowHunting).register();
 
     }

@@ -27,13 +27,13 @@ public class ItemFocusVisShard extends ItemFocusPartyBasic {
 
     public ItemFocusVisShard () {
         setCreativeTab(CreativeTabRegistry.tabMBOitems);
-        setUnlocalizedName("ItemFocusVisShard");
+        setUnlocalizedName("focusVisShard");
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons (final IIconRegister ir) {
-        icon = ir.registerIcon("mbo:ItemFocusVisShard");
+        icon = ir.registerIcon("mbo:focus_visshard");
     }
 
     @Override

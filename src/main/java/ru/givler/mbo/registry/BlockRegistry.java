@@ -13,7 +13,7 @@ public class BlockRegistry {
     //переменные для блоков
     public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofUnfired, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
             BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
-            RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockExorcism, BlockAshgarBrick;
+            RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockAshgarBrick, BlockWoodenBox;
     //переменные для ступенек
     public static Block  StairsStone, StairsSandstone, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
             StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay, StairsAshgarBrick;
@@ -46,6 +46,8 @@ public class BlockRegistry {
         BlockFiredClay = new BlockBase(Material.rock, "BlockFiredClay", "stone/brick_firedclay");
         BlockClayWall = new BlockBase(Material.wood, "BlockClayWall", "wood/clay_wall_old").setStepSound(Block.soundTypeWood);
         BlockAshgarBrick = new BlockBase(Material.rock, "BlockAshgarBrick", "stone/ashgar_brick");
+
+        BlockWoodenBox = new BlockBase(Material.wood, "BlockWoodenBox", "wood/wooden_box").setStepSound(Block.soundTypeWood);
 
         RoofStandart = new BlockMeta(Material.rock, "StandartRoof", "roof/roofk", 3);
         RoofUnfired = new BlockMeta(Material.clay, "UnfiredRoof", "roof/roofu", 3).setStepSound(Block.soundTypeGravel);
@@ -92,8 +94,6 @@ public class BlockRegistry {
         BlockGlass = new BlockTemporaryGlass("BlockGlass");
 
         MagicFurnace = new BlockArcanum(Material.rock, "MagicFurnace");
-
-        BlockExorcism = new BlockExorcismCircle(Material.rock, "BlockExorcism", "another/exorcism");
 
         //НИЖЕ НАХОДИТСЯ СТУПЕНЬКИ
         StairsStone = new BlockBasicStairs((BlockBase) BlockGreyStone);

@@ -61,6 +61,10 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(StairsIrgadBrick));
             list.add(new ItemStack(SlabIrgadBrick));
 
+            list.add(new ItemStack(BlockAshgarBrick));
+            list.add(new ItemStack(StairsAshgarBrick));
+            list.add(new ItemStack(SlabAshgarBrick));
+
             list.add(new ItemStack(BlockEndbrick));
             list.add(new ItemStack(StairsEndbrick));
             list.add(new ItemStack(SlabEndbrick));
@@ -73,6 +77,8 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BlockClayWall));
             list.add(new ItemStack(BlockFogWhite));
             list.add(new ItemStack(BlockFogGrey));
+
+            list.add(new ItemStack(BlockWoodenBox));
 
             list.add(new ItemStack(BooksheelSkull));
             list.add(new ItemStack(BooksheelVoid));
@@ -195,10 +201,8 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BrokenBowHunting));
             list.add(new ItemStack(BrokenStaffHealing));
 
-            if (Loader.isModLoaded("customnpcs")) {
-            list.add(new ItemStack(BrokenStaffFire));
-            list.add(new ItemStack(BrokenGrimoireWater));
-            }
+            list.add(new ItemStack(BrokenWandWizard));
+            list.add(new ItemStack(BrokenWandPyromancer));
 
             list.add(new ItemStack(WeaponRapier));
 

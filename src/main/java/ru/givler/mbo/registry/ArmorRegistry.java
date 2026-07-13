@@ -14,13 +14,13 @@ public class ArmorRegistry {
     public static ItemCustomArmor ClericHelmet, ClericChest, ClericLegs, ClericBoots;
     public static ItemCustomArmor WizardHelmet, WizardChest, WizardLegs, WizardBoots;
     static {
-        RustyKnight = ItemCustomArmor.createArmorMaterial("RustyKnight", 4,
-                new int[]{2, 4, 3, 2}, 10);
-        RustyMercenary = ItemCustomArmor.createArmorMaterial("RustyMercenary", 4,
-                new int[]{1, 4, 3, 1}, 10);
-        RustyWanderer = ItemCustomArmor.createArmorMaterial("RustyWanderer", 4,
-                new int[]{1, 3, 2, 1}, 10);
-        RustyWizard = ItemCustomArmor.createArmorMaterial("RustyWizard", 4,
+        RustyKnight = ItemCustomArmor.createArmorMaterial("RustyKnight", 8,
+                new int[]{2, 4, 4, 2}, 10);
+        RustyMercenary = ItemCustomArmor.createArmorMaterial("RustyMercenary", 8,
+                new int[]{1, 4, 4, 1}, 10);
+        RustyWanderer = ItemCustomArmor.createArmorMaterial("RustyWanderer", 8,
+                new int[]{1, 3, 3, 1}, 10);
+        RustyWizard = ItemCustomArmor.createArmorMaterial("RustyWizard", 8,
                 new int[]{1, 2, 2, 1}, 10);
 
         KnightHelmet = new ItemCustomArmor("KnightHelmet", "knight_helmet", "knight", RustyKnight, 0, 0);

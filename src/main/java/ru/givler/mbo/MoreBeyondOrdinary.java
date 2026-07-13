@@ -6,6 +6,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import electroblob.wizardry.Wizardry;
 import ru.givler.mbo.handler.GuiHandler;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.proxy.CommonProxy;
@@ -24,7 +25,7 @@ public class MoreBeyondOrdinary {
     public static final String MODNAME = "MoreBeyondOrdinary";
     public static final String VERSION = "${version}";
 
-    @Mod.Instance
+    @Mod.Instance(value = MoreBeyondOrdinary.MODID)
     public static MoreBeyondOrdinary instance;
 
     public static final int GUI_INFUSION_WORKBENCH = 0;

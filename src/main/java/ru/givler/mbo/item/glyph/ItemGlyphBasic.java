@@ -1,6 +1,8 @@
 package ru.givler.mbo.item.glyph;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -8,11 +10,21 @@ import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.item.ItemBeltBase;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
+import java.util.List;
+
 public class ItemGlyphBasic extends Item {
+
+    private String descriptionKey;
+    private EnumChatFormatting descriptionColor = EnumChatFormatting.GRAY;
+
+
     public ItemGlyphBasic(String name, String texture, int maxStackSize) {
         this.canRepair = false;
         this.setUnlocalizedName(name);
@@ -72,6 +84,24 @@ public class ItemGlyphBasic extends Item {
 
             if (stack.getItemDamage() >= stack.getMaxDamage() - 1) {
                 player.setCurrentItemOrArmor(0, null);
+            }
+        }
+    }
+
+    public ItemGlyphBasic setDescription(String langKey, EnumChatFormatting color) {
+        this.descriptionKey = langKey;
+        this.descriptionColor = color;
+        return this;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
+        super.addInformation(stack, player, list, advanced);
+        if (descriptionKey != null) {
+            String translated = StatCollector.translateToLocal(descriptionKey);
+            for (String line : translated.replace("\\n", "\n").split("\n")) {
+                list.add(descriptionColor + line);
             }
         }
     }
