@@ -379,6 +379,40 @@ public class CreativeTabRegistry {
 
             list.add(new ItemStack(ModelVishroom));
 
+            list.add(new ItemStack(ModelPlateVoid));
+            list.add(new ItemStack(ModelPlate1));
+            list.add(new ItemStack(ModelPlate2));
+            list.add(new ItemStack(ModelPlate3));
+            list.add(new ItemStack(ModelPlate4));
+            list.add(new ItemStack(ModelPlate5));
+            list.add(new ItemStack(ModelPlate6));
+            list.add(new ItemStack(ModelPlate7));
+            list.add(new ItemStack(ModelPlate8));
+            list.add(new ItemStack(ModelPlate9));
+            list.add(new ItemStack(ModelPlate10));
+
+            list.add(new ItemStack(ModelCup));
+            list.add(new ItemStack(ModelBottle));
+
+            list.add(new ItemStack(ModelBricks1));
+            list.add(new ItemStack(ModelBricks2));
+            list.add(new ItemStack(ModelBricks3));
+            list.add(new ItemStack(ModelBricks6));
+            list.add(new ItemStack(ModelBricks7));
+
+            list.add(new ItemStack(ModelPileBones0));
+            list.add(new ItemStack(ModelPileBones1));
+            list.add(new ItemStack(ModelPileBones2));
+            list.add(new ItemStack(ModelPileBones3));
+            list.add(new ItemStack(ModelPileBones4));
+            list.add(new ItemStack(ModelPileBones5));
+            list.add(new ItemStack(ModelPileBones6));
+            list.add(new ItemStack(ModelPileBones7));
+            list.add(new ItemStack(ModelPileBones8));
+            list.add(new ItemStack(ModelPileBones9));
+
+            list.add(new ItemStack(LootContainer));
+
             list.add(new ItemStack(ModelWisp));
 
 

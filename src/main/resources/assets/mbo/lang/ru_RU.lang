@@ -473,6 +473,20 @@ tile.ModelBricks6.name=Кучка кирпичей
 tile.ModelBricks7.name=Кучка кирпичей
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели груды костей/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelPileBones0.name=Груда костей
+tile.ModelPileBones1.name=Груда костей
+tile.ModelPileBones2.name=Груда костей
+tile.ModelPileBones3.name=Груда костей
+tile.ModelPileBones4.name=Груда костей
+tile.ModelPileBones5.name=Груда костей
+tile.ModelPileBones6.name=Груда костей
+tile.ModelPileBones7.name=Груда костей
+tile.ModelPileBones8.name=Груда костей
+tile.ModelPileBones9.name=Груда костей
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Модели грибов/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 tile.ModelVishroom.name=Висомор

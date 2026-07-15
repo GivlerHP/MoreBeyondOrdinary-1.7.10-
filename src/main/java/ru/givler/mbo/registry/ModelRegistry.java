@@ -47,6 +47,9 @@ public class ModelRegistry {
             ModelPlate8, ModelPlate9, ModelPlate10, ModelCup, ModelBottle;
     //кирпичи
     public static BlockModels ModelBricks1, ModelBricks2, ModelBricks3, ModelBricks4, ModelBricks5, ModelBricks6, ModelBricks7;
+    //скелеты
+    public static BlockModels ModelPileBones0, ModelPileBones1, ModelPileBones2, ModelPileBones3, ModelPileBones4, ModelPileBones5,
+            ModelPileBones6, ModelPileBones7, ModelPileBones8, ModelPileBones9;
     public static BlockModels LootContainer;
 
     //анимированные модели
@@ -415,6 +418,94 @@ public class ModelRegistry {
         ModelBricks7 = new BlockModels(Material.rock, "ModelBricks7", "bricks_7", "bricks_7");
         ModelBricks7.setStepSound(soundTypeStone);
 
+        ModelPileBones0 = new BlockModels(Material.rock, "ModelPileBones0", "pile_of_bones_0", "pile_of_bones_0");
+        ModelPileBones0.setStepSound(soundTypeStone);
+        ModelPileBones0.setRotationBounds(new float[][] {
+                {0.25F, 0.0F, 0.6F, 0.8F, 0.35F, 0.9F},
+                {0.1F, 0.0F, 0.2F, 0.4F, 0.35F, 0.75F},
+                {0.2F, 0.0F, 0.1F, 0.75F, 0.35F, 0.4F},
+                {0.6F, 0.0F, 0.25F, 0.9F, 0.35F, 0.8F}
+        });
+
+        ModelPileBones1 = new BlockModels(Material.rock, "ModelPileBones1", "pile_of_bones_1", "pile_of_bones_1");
+        ModelPileBones1.setStepSound(soundTypeStone);
+        ModelPileBones1.setRotationBounds(new float[][] {
+                {0.1F, 0.0F, 0.2F, 0.7F, 0.5F, 0.7F},
+                {0.3F, 0.0F, 0.1F, 0.8F, 0.5F, 0.7F},
+                {0.3F, 0.0F, 0.3F, 0.9F, 0.5F, 0.8F},
+                {0.2F, 0.0F, 0.3F, 0.7F, 0.5F, 0.9F}
+        });
+
+        ModelPileBones2 = new BlockModels(Material.rock, "ModelPileBones2", "pile_of_bones_2", "pile_of_bones_2");
+        ModelPileBones2.setStepSound(soundTypeStone);
+        ModelPileBones2.setRotationBounds(new float[][] {
+                {0.2F,  0.0F, 0.0F,  0.8F, 0.8F, 0.35F},
+                {0.65F, 0.0F, 0.2F,  1.0F, 0.8F, 0.8F},
+                {0.2F,  0.0F, 0.65F, 0.8F, 0.8F, 1.0F},
+                {0.0F,  0.0F, 0.2F,  0.35F,0.8F, 0.8F}
+        });
+
+        ModelPileBones3 = new BlockModels(Material.rock, "ModelPileBones3", "pile_of_bones_3", "pile_of_bones_3");
+        ModelPileBones3.setStepSound(soundTypeStone);
+        ModelPileBones3.setRotationBounds(new float[][] {
+                {0.15F, 0.0F, 0.0F, 0.9F, 0.5F, 0.9F},
+                {0.1F, 0.0F, 0.15F, 1.0F, 0.5F, 0.9F},
+                {0.1F, 0.0F, 0.1F, 0.85F, 0.5F, 1.0F},
+                {0.0F, 0.0F, 0.1F, 0.9F, 0.5F, 0.85F}
+        });
+
+        ModelPileBones4 = new BlockModels(Material.rock, "ModelPileBones4", "pile_of_bones_4", "pile_of_bones_4");
+        ModelPileBones4.setStepSound(soundTypeStone);
+        ModelPileBones4.setRotationBounds(new float[][] {
+                {0.3F, 0.0F, 0.1F, 1.0F, 0.7F, 0.65F},
+                {0.35F, 0.0F, 0.3F, 0.9F, 0.7F, 1.0F},
+                {0.0F, 0.0F, 0.35F, 0.7F, 0.7F, 0.9F},
+                {0.1F, 0.0F, 0.0F, 0.65F, 0.7F, 0.7F}
+        });
+
+        ModelPileBones5 = new BlockModels(Material.rock, "ModelPileBones5", "pile_of_bones_5", "pile_of_bones_5");
+        ModelPileBones5.setStepSound(soundTypeStone);
+        ModelPileBones5.setRotationBounds(new float[][] {
+                {0.15F, 0.0F, 0.0F,  0.85F, 0.25F, 1.0F},
+                {0.0F,  0.0F, 0.15F, 1.0F,  0.25F, 0.85F},
+                {0.15F, 0.0F, 0.0F,  0.85F, 0.25F, 1.0F},
+                {0.0F,  0.0F, 0.15F, 1.0F,  0.25F, 0.85F}
+        });
+
+        ModelPileBones6 = new BlockModels(Material.rock, "ModelPileBones6", "pile_of_bones_6", "pile_of_bones_6");
+        ModelPileBones6.setStepSound(soundTypeStone);
+        ModelPileBones6.setRotationBounds(new float[][] {
+                {0.3F, 0.0F, 0.0F, 0.8F, 0.45F, 1.0F},
+                {0.0F, 0.0F, 0.2F, 1.0F, 0.45F, 0.7F},
+                {0.2F, 0.0F, 0.0F, 0.7F, 0.45F, 1.0F},
+                {0.0F, 0.0F, 0.3F, 1.0F, 0.45F, 0.8F}
+        });
+
+        ModelPileBones7 = new BlockModels(Material.rock, "ModelPileBones7", "pile_of_bones_7", "pile_of_bones_7");
+        ModelPileBones7.setStepSound(soundTypeStone);
+        ModelPileBones7.setRotationBounds(new float[][] {
+                {0.15F, 0.0F, 0.1F,  0.85F, 0.3F, 1.0F},
+                {0.0F,  0.0F, 0.15F, 0.9F,  0.3F, 0.85F},
+                {0.15F, 0.0F, 0.0F,  0.85F, 0.3F, 0.9F},
+                {0.1F,  0.0F, 0.15F, 1.0F,  0.3F, 0.85F}
+        });
+        ModelPileBones8 = new BlockModels(Material.rock, "ModelPileBones8", "pile_of_bones_8", "pile_of_bones_8");
+        ModelPileBones8.setStepSound(soundTypeStone);
+        ModelPileBones8.setRotationBounds(new float[][] {
+                {0.15F, 0.0F, 0.0F,  0.85F, 0.25F, 1.0F},
+                {0.0F,  0.0F, 0.15F, 1.0F,  0.25F, 0.85F},
+                {0.15F, 0.0F, 0.0F,  0.85F, 0.25F, 1.0F},
+                {0.0F,  0.0F, 0.15F, 1.0F,  0.25F, 0.85F}
+        });
+        ModelPileBones9 = new BlockModels(Material.rock, "ModelPileBones9", "pile_of_bones_9", "pile_of_bones_9");
+        ModelPileBones9.setStepSound(soundTypeStone);
+        ModelPileBones9.setRotationBounds(new float[][] {
+                {0.2F,  0.0F, 0.0F,  0.8F, 0.8F, 0.35F},
+                {0.65F, 0.0F, 0.2F,  1.0F, 0.8F, 0.8F},
+                {0.2F,  0.0F, 0.65F, 0.8F, 0.8F, 1.0F},
+                {0.0F,  0.0F, 0.2F,  0.35F,0.8F, 0.8F}
+        });
+
         ModelWisp.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.3F, 0.7F);
     }
 
@@ -539,6 +630,17 @@ public class ModelRegistry {
       // ModelBricks5.register();
         ModelBricks6.register();
         ModelBricks7.register();
+
+        ModelPileBones0.register();
+        ModelPileBones1.register();
+        ModelPileBones2.register();
+        ModelPileBones3.register();
+        ModelPileBones4.register();
+        ModelPileBones5.register();
+        ModelPileBones6.register();
+        ModelPileBones7.register();
+        ModelPileBones8.register();
+        ModelPileBones9.register();
 
         ModelBottle.register();
         LootContainer.register();

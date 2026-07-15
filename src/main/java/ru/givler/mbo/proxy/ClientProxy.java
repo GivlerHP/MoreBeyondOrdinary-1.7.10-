@@ -192,6 +192,17 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelBricks6);
         bindDefaultRender(ModelRegistry.ModelBricks7);
 
+        bindDefaultRender(ModelRegistry.ModelPileBones0);
+        bindDefaultRender(ModelRegistry.ModelPileBones1);
+        bindDefaultRender(ModelRegistry.ModelPileBones2);
+        bindDefaultRender(ModelRegistry.ModelPileBones3);
+        bindDefaultRender(ModelRegistry.ModelPileBones4);
+        bindDefaultRender(ModelRegistry.ModelPileBones5);
+        bindDefaultRender(ModelRegistry.ModelPileBones6);
+        bindDefaultRender(ModelRegistry.ModelPileBones7);
+        bindDefaultRender(ModelRegistry.ModelPileBones8);
+        bindDefaultRender(ModelRegistry.ModelPileBones9);
+
         bindDefaultRender(ModelRegistry.ModelBottle);
         bindDefaultRender(ModelRegistry.ModelCup);
         bindLootContainerRender(ModelRegistry.LootContainer);

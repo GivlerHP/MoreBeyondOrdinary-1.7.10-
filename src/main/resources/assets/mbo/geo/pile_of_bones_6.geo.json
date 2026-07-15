@@ -1,0 +1,122 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 4,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "pile_of_bones_6",
+					"pivot": [1.14216, 2.59011, -1.91762],
+					"cubes": [
+						{
+							"origin": [-3.00419, -0.99373, -8],
+							"size": [4, 8, 12],
+							"pivot": [-1.00419, 2.00627, -3],
+							"rotation": [0, 0, 22.5],
+							"uv": {
+								"north": {"uv": [28, 8], "uv_size": [4, 8]},
+								"east": {"uv": [0, 0], "uv_size": [12, 8]},
+								"south": {"uv": [28, 16], "uv_size": [4, 8]},
+								"west": {"uv": [0, 8], "uv_size": [12, 8]},
+								"up": {"uv": [24, 8], "uv_size": [4, 12]},
+								"down": {"uv": [16, 36], "uv_size": [4, -12]}
+							}
+						},
+						{
+							"origin": [-3.00419, -0.99373, 4.25],
+							"size": [8, 8, 8],
+							"inflate": 0.25,
+							"pivot": [0.99581, 3.00627, 8.25],
+							"rotation": [0, 10, 0],
+							"uv": {
+								"north": {"uv": [0, 16], "uv_size": [8, 8]},
+								"east": {"uv": [8, 16], "uv_size": [8, 8]},
+								"south": {"uv": [16, 16], "uv_size": [8, 8]},
+								"west": {"uv": [0, 24], "uv_size": [8, 8]},
+								"up": {"uv": [24, 0], "uv_size": [8, 8]},
+								"down": {"uv": [8, 32], "uv_size": [8, -8]}
+							}
+						},
+						{
+							"origin": [1.24581, 0.27904, -8.30494],
+							"size": [2, 2, 12],
+							"pivot": [-4.75419, 1.27904, -3.30494],
+							"rotation": [12, 0, 0],
+							"uv": {
+								"north": {"uv": [34, 6], "uv_size": [2, 2]},
+								"east": {"uv": [32, 0], "uv_size": [12, 2]},
+								"south": {"uv": [34, 8], "uv_size": [2, 2]},
+								"west": {"uv": [32, 2], "uv_size": [12, 2]},
+								"up": {"uv": [4, 32], "uv_size": [2, 12]},
+								"down": {"uv": [32, 16], "uv_size": [2, -12]}
+							}
+						},
+						{
+							"origin": [4.4361, -2.27926, -1.06807],
+							"size": [2, 12, 2],
+							"pivot": [5.4361, 3.72074, -0.06807],
+							"rotation": [-16.32495, 15.69986, -47.26579],
+							"uv": {
+								"north": {"uv": [6, 32], "uv_size": [2, 12]},
+								"east": {"uv": [8, 32], "uv_size": [2, 12]},
+								"south": {"uv": [10, 32], "uv_size": [2, 12]},
+								"west": {"uv": [12, 32], "uv_size": [2, 12]},
+								"up": {"uv": [34, 10], "uv_size": [2, 2]},
+								"down": {"uv": [34, 14], "uv_size": [2, -2]}
+							}
+						},
+						{
+							"origin": [-1.24301, 1.64032, -19.16059],
+							"size": [2, 2, 12],
+							"pivot": [-0.24301, 2.64032, -13.16059],
+							"rotation": [22.5, 0, 0],
+							"uv": {
+								"north": {"uv": [34, 14], "uv_size": [2, 2]},
+								"east": {"uv": [32, 16], "uv_size": [12, 2]},
+								"south": {"uv": [26, 34], "uv_size": [2, 2]},
+								"west": {"uv": [32, 18], "uv_size": [12, 2]},
+								"up": {"uv": [14, 32], "uv_size": [2, 12]},
+								"down": {"uv": [32, 32], "uv_size": [2, -12]}
+							}
+						},
+						{
+							"origin": [1.94975, 0, -17.53553],
+							"size": [2, 2, 12],
+							"pivot": [2.94975, 1, -11.53553],
+							"rotation": [0, -45, 0],
+							"uv": {
+								"north": {"uv": [28, 34], "uv_size": [2, 2]},
+								"east": {"uv": [24, 32], "uv_size": [12, 2]},
+								"south": {"uv": [30, 34], "uv_size": [2, 2]},
+								"west": {"uv": [34, 4], "uv_size": [12, 2]},
+								"up": {"uv": [34, 20], "uv_size": [2, 12]},
+								"down": {"uv": [24, 46], "uv_size": [2, -12]}
+							}
+						},
+						{
+							"origin": [-3.00419, 7.00627, -8],
+							"size": [4, -8, 12],
+							"pivot": [-1.00419, 2.00627, -3],
+							"rotation": [0, 0, 22.5],
+							"uv": {
+								"north": {"uv": [28, 24], "uv_size": [4, 8]},
+								"east": {"uv": [12, 0], "uv_size": [12, 8]},
+								"south": {"uv": [0, 32], "uv_size": [4, 8]},
+								"west": {"uv": [12, 8], "uv_size": [12, 8]},
+								"up": {"uv": [20, 24], "uv_size": [4, 12]},
+								"down": {"uv": [24, 32], "uv_size": [4, -12]}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

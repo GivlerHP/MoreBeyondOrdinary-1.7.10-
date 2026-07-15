@@ -15,12 +15,11 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import ru.givler.mbo.integration.thaumcraft.client.DarkMoonStaffClientFX;
 import ru.givler.mbo.integration.thaumcraft.util.DarkMoonCastQueue;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.wands.IWandable;
-import thaumcraft.client.fx.ParticleEngine;
-import thaumcraft.client.fx.particles.FXSparkle;
 import thaumcraft.common.Thaumcraft;
 import thaumcraft.common.lib.utils.EntityUtils;
 
@@ -28,12 +27,10 @@ public class ItemStaffDarkMoon extends ItemStaffBasic {
     @SideOnly(Side.CLIENT)
     private IIcon darkMoonIcon;
 
-    private static final int MAX_SPHERES = 8;
-    private static final int TICKS_PER_SPHERE = 8;      // сколько тиков удержания требуется на каждую следующую сферу
-    private static final int LAUNCH_INTERVAL_TICKS = 4; // интервал между запусками сфер при отпускании (0.2 сек)
-    private static final int STRENGTH = 0;              // передаётся в снаряд (влияет на доп. урон)
-    private static final double ORBIT_RADIUS = 1.3D;
-    private static final double ORBIT_ROTATION_SPEED = 0.15D;
+    static final int MAX_SPHERES = 8;
+    static final int TICKS_PER_SPHERE = 8;
+    private static final int LAUNCH_INTERVAL_TICKS = 4;
+    private static final int STRENGTH = 0;
 
     private static final String TAG_PAID_SPHERES = "darkMoonPaidSpheres";
 
@@ -72,9 +69,6 @@ public class ItemStaffDarkMoon extends ItemStaffBasic {
         return 150 * 100;
     }
 
-    /**
-     * Стоимость виса ЗА ОДНУ сферу (списывается по мере зарядки, а не одной суммой в конце).
-     */
     public AspectList getVisCost(ItemStack stack) {
         return (new AspectList()).add(Aspect.ORDER, 20).add(Aspect.ENTROPY, 20);
     }
@@ -142,11 +136,6 @@ public class ItemStaffDarkMoon extends ItemStaffBasic {
         return itemstack;
     }
 
-    /**
-     * Вызывается каждый тик, пока игрок держит ПКМ.
-     * На сервере - постепенно списывает вис за каждую новую сферу (если виса не хватает, зарядка перестаёт расти).
-     * На клиенте - рисует кружащиеся сферы и проигрывает звуки зарядки.
-     */
     @Override
     public void onUsingTick(ItemStack stack, EntityPlayer player, int count) {
         int maxDuration = this.getMaxItemUseDuration(stack);
@@ -154,6 +143,7 @@ public class ItemStaffDarkMoon extends ItemStaffBasic {
         int desiredSpheres = getSphereCountForTicks(ticksUsed);
 
         if (!player.worldObj.isRemote) {
+            World world = player.worldObj;
 
             int paid = getPaidSpheres(stack);
             while (paid < desiredSpheres) {
@@ -164,37 +154,23 @@ public class ItemStaffDarkMoon extends ItemStaffBasic {
                 }
             }
             setPaidSpheres(stack, paid);
+
+            if (ticksUsed % 6 == 0) {
+                world.playSoundAtEntity(player, "mbo:shard", 0.15F,
+                        1.6F + world.rand.nextFloat() * 0.2F);
+            }
+
+            if (ticksUsed > 0 && ticksUsed % TICKS_PER_SPHERE == 0) {
+                world.playSoundAtEntity(player, "mbo:shard", 0.4F,
+                        0.8F + world.rand.nextFloat() * 0.1F);
+            }
             return;
         }
 
         int paidClientSide = getPaidSpheres(stack);
-        int visibleSpheres = Math.max(1, Math.min(desiredSpheres, paidClientSide == 0 ? desiredSpheres : paidClientSide));
+        int visibleSpheres = (paidClientSide == 0) ? desiredSpheres : Math.min(desiredSpheres, paidClientSide);
 
-        double baseAngle = ticksUsed * ORBIT_ROTATION_SPEED;
-
-        for (int i = 0; i < visibleSpheres; ++i) {
-            double angle = baseAngle + (2.0D * Math.PI * i / visibleSpheres);
-            double ox = Math.cos(angle) * ORBIT_RADIUS;
-            double oz = Math.sin(angle) * ORBIT_RADIUS;
-
-            double px = player.posX + ox;
-            double py = player.posY + player.getEyeHeight() - 0.2D;
-            double pz = player.posZ + oz;
-
-            FXSparkle fx = new FXSparkle(player.worldObj, px, py, pz, 1.2F, 0, 5);
-            fx.setGravity(0.0F);
-            ParticleEngine.instance.addEffect(player.worldObj, fx);
-        }
-
-        if (ticksUsed % 6 == 0) {
-            player.worldObj.playSound(player.posX, player.posY, player.posZ,
-                    "mbo:shard", 0.15F, 1.6F + player.worldObj.rand.nextFloat() * 0.2F, false);
-        }
-
-        if (ticksUsed > 0 && ticksUsed % TICKS_PER_SPHERE == 0 && desiredSpheres <= MAX_SPHERES) {
-            player.worldObj.playSound(player.posX, player.posY, player.posZ,
-                    "mbo:shard", 0.4F, 0.8F + player.worldObj.rand.nextFloat() * 0.1F, false);
-        }
+        DarkMoonStaffClientFX.renderOrbitingSpheres(player, ticksUsed, visibleSpheres);
     }
 
     @Override
