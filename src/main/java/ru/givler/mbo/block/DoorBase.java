@@ -49,7 +49,7 @@ public class DoorBase extends BlockDoor {
         this.setHardness(material == Material.wood ? 3.0F : 5.0F);
         this.setResistance(material == Material.wood ? 5.0F : 25.0F);
         this.setStepSound(material == Material.wood ? soundTypeWood : soundTypeMetal);
-        this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
+        this.setCreativeTab(null);
 
         GameRegistry.registerBlock(this, name);
     }

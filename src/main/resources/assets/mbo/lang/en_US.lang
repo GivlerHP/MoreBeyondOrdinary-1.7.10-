@@ -26,6 +26,7 @@ tile.BlockIrgadBrick.name=Irgad Brick
 tile.BlockFiredClay.name=Fired Bricks
 
 tile.BlockClayWall.name=Old Clay Wall
+tile.Barrier.name=Barrier
 
 tile.BlockSandstone.0.name=Reinforced Sandstone
 tile.BlockSandstone.1.name=Reinforced Smooth Sandstone
@@ -88,6 +89,55 @@ tile.SlabFiredClay_slab.name=Fired Brick Slab
 tile.WallStonebrick_wall.name=Grey Brick Wall
 tile.WallSandstone_wall.name=Reinforced Sandstone Wall
 tile.WallFiredClay_wall.name=Fired Brick Wall
+tile.WallVanillaStonebrick_wall.name=Stone Brick Wall
+tile.WallVanillaBrick_wall.name=Brick Wall
+tile.FenceSpruce.name=Spruce Fence
+tile.FenceBirch.name=Birch Fence
+tile.FenceJungle.name=Jungle Fence
+tile.FenceAcacia.name=Acacia Fence
+tile.FenceDarkOak.name=Dark Oak Fence
+tile.FenceGateSpruce.name=Spruce Fence Gate
+tile.FenceGateBirch.name=Birch Fence Gate
+tile.FenceGateJungle.name=Jungle Fence Gate
+tile.FenceGateAcacia.name=Acacia Fence Gate
+tile.FenceGateDarkOak.name=Dark Oak Fence Gate
+tile.FenceVanilla.0.name=Spruce Fence
+tile.FenceVanilla.1.name=Birch Fence
+tile.FenceVanilla.2.name=Jungle Fence
+tile.FenceVanilla.3.name=Acacia Fence
+tile.FenceVanilla.4.name=Dark Oak Fence
+
+tile.FenceBoP.0.name=Sacred Oak Fence
+tile.FenceBoP.1.name=Cherry Fence
+tile.FenceBoP.2.name=Dark Fence
+tile.FenceBoP.3.name=Fir Fence
+tile.FenceBoP.4.name=Ethereal Fence
+tile.FenceBoP.5.name=Magic Fence
+tile.FenceBoP.6.name=Mangrove Fence
+tile.FenceBoP.7.name=Palm Fence
+tile.FenceBoP.8.name=Redwood Fence
+tile.FenceBoP.9.name=Willow Fence
+tile.FenceBoP.10.name=Bamboo Fence
+tile.FenceBoP.11.name=Pine Fence
+tile.FenceBoP.12.name=Hellbark Fence
+tile.FenceBoP.13.name=Jacaranda Fence
+tile.FenceBoP.14.name=Mahogany Fence
+
+tile.FenceGateBoPSacred.name=Sacred Oak Fence Gate
+tile.FenceGateBoPCherry.name=Cherry Fence Gate
+tile.FenceGateBoPDark.name=Dark Fence Gate
+tile.FenceGateBoPFir.name=Fir Fence Gate
+tile.FenceGateBoPEthereal.name=Ethereal Fence Gate
+tile.FenceGateBoPMagic.name=Magic Fence Gate
+tile.FenceGateBoPMangrove.name=Mangrove Fence Gate
+tile.FenceGateBoPPalm.name=Palm Fence Gate
+tile.FenceGateBoPRedwood.name=Redwood Fence Gate
+tile.FenceGateBoPWillow.name=Willow Fence Gate
+tile.FenceGateBoPBamboo.name=Bamboo Fence Gate
+tile.FenceGateBoPPine.name=Pine Fence Gate
+tile.FenceGateBoPHellbark.name=Hellbark Fence Gate
+tile.FenceGateBoPJacaranda.name=Jacaranda Fence Gate
+tile.FenceGateBoPMahogany.name=Mahogany Fence Gate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Roof/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

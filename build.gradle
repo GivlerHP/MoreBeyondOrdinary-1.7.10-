@@ -15,7 +15,7 @@ apply plugin: 'idea'
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.12.2"
+version = "1.12.3"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 

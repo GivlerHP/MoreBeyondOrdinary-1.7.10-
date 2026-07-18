@@ -29,12 +29,14 @@ import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEntityHom
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.handler.ClientKeyHandler;
+import ru.givler.mbo.handler.BarrierVisibilityHandler;
 import ru.givler.mbo.handler.PotionClientHandler;
 import ru.givler.mbo.handler.TooltipEvents;
 import ru.givler.mbo.integration.nei.ArcanumRecipeHandler;
 import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
 import ru.givler.mbo.registry.ItemRegistry;
+import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.registry.ModelRegistry;
 import ru.givler.mbo.render.*;
 import ru.givler.mbo.render.decormodels.AnimatedTemplateModelRenderer;
@@ -71,9 +73,12 @@ public class ClientProxy extends CommonProxy {
 
     public void init(FMLInitializationEvent event) {
         super.init(event);
+        registerFenceRenderer();
+        registerBarrierRenderer();
         activateAmuletKey = new KeyBinding("key.mbo.amulet.desc", Keyboard.KEY_R, "MoreBeyondOrdinary");
         ClientRegistry.registerKeyBinding(activateAmuletKey);
         FMLCommonHandler.instance().bus().register(new ClientKeyHandler());
+        FMLCommonHandler.instance().bus().register(new BarrierVisibilityHandler());
 
 
 
@@ -223,6 +228,24 @@ public class ClientProxy extends CommonProxy {
         MinecraftForge.EVENT_BUS.register(new PotionClientHandler());
         MinecraftForge.EVENT_BUS.register(new TooltipEvents());
 
+    }
+
+    private void registerFenceRenderer() {
+        int renderId = RenderingRegistry.getNextAvailableRenderId();
+        RenderMetaFence renderer = new RenderMetaFence(renderId);
+        BlockRegistry.FenceVanilla.setFenceRenderType(renderId);
+        ru.givler.mbo.block.BlockBasicFence bopFence =
+                ru.givler.mbo.integration.biomesoplenty.FenceRegistry.FenceBoP;
+        if (bopFence != null) {
+            bopFence.setFenceRenderType(renderId);
+        }
+        RenderingRegistry.registerBlockHandler(renderer);
+    }
+
+    private void registerBarrierRenderer() {
+        int renderId = RenderingRegistry.getNextAvailableRenderId();
+        BlockRegistry.Barrier.setBarrierRenderType(renderId);
+        RenderingRegistry.registerBlockHandler(new RenderBarrier(renderId));
     }
 
 

@@ -4,6 +4,7 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -224,6 +225,31 @@ public class DoorRegistry {
                     "PPP",
                     'P', new ItemStack(Blocks.planks, 1, plankMetadata[i])
             );
+        }
+    }
+
+    public static void setBoPCreativeTab(CreativeTabs tab) {
+        setItemTabs(doorItemsBoP, tab);
+        setBlockTabs(trapdoorBlocksBoP, tab);
+    }
+
+    private static void setItemTabs(Item[] items, CreativeTabs tab) {
+        if (items != null) {
+            for (Item item : items) {
+                if (item != null) {
+                    item.setCreativeTab(tab);
+                }
+            }
+        }
+    }
+
+    private static void setBlockTabs(Block[] blocks, CreativeTabs tab) {
+        if (blocks != null) {
+            for (Block block : blocks) {
+                if (block != null) {
+                    block.setCreativeTab(tab);
+                }
+            }
         }
     }
 }

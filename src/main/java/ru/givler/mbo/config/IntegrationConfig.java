@@ -8,6 +8,8 @@ public class IntegrationConfig {
 
     public static boolean enableBoPDoors = true;
     public static boolean enableBoPTrapdoors = true;
+    public static boolean enableBoPFences = true;
+    public static boolean enableBoPFenceGates = true;
     public static boolean enableVanillaDoors = true;
     public static boolean enableVanillaTrapdoors = true;
 
@@ -21,6 +23,11 @@ public class IntegrationConfig {
                     "Добавлять двери из Biomes O' Plenty");
             enableBoPTrapdoors = cfg.getBoolean("EnableBoPTrapdoors", "biomesoplenty", true,
                     "Добавлять люки из Biomes O' Plenty");
+
+            enableBoPFences = cfg.getBoolean("EnableBoPFences", "biomesoplenty", true,
+                    "Add fences from Biomes O' Plenty");
+            enableBoPFenceGates = cfg.getBoolean("EnableBoPFenceGates", "biomesoplenty", true,
+                    "Add fence gates from Biomes O' Plenty");
 
             enableVanillaDoors = cfg.getBoolean("EnableVanillaDoors", "vanilla", true,
                     "Добавлять ванильные двери (ель, береза, джунгли, акация, темный дуб)");

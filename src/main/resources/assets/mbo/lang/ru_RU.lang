@@ -32,6 +32,7 @@ tile.BlockAshgarBrick.name=Ашгарский кирпич
 tile.BlockWoodenBox.name=Ящик
 
 tile.BlockClayWall.name=Старая глиняная стена
+tile.Barrier.name=Барьер
 
 tile.BlockSandstone.0.name=Крепкий песчаник
 tile.BlockSandstone.1.name=Крепкий гладкий песчаник
@@ -96,6 +97,55 @@ tile.SlabAshgarBrick_slab.name=Плита из ашгарского кирпич
 tile.WallStonebrick_wall.name=Ограда из серого кирпича
 tile.WallSandstone_wall.name=Ограда из крепкого песчаника
 tile.WallFiredClay_wall.name=Ограда из обоженных кирпичей
+tile.WallVanillaStonebrick_wall.name=Ограда из каменного кирпича
+tile.WallVanillaBrick_wall.name=Кирпичная ограда
+tile.FenceSpruce.name=Еловый забор
+tile.FenceBirch.name=Берёзовый забор
+tile.FenceJungle.name=Тропический забор
+tile.FenceAcacia.name=Акациевый забор
+tile.FenceDarkOak.name=Забор из тёмного дуба
+tile.FenceGateSpruce.name=Еловая калитка
+tile.FenceGateBirch.name=Берёзовая калитка
+tile.FenceGateJungle.name=Тропическая калитка
+tile.FenceGateAcacia.name=Акациевая калитка
+tile.FenceGateDarkOak.name=Калитка из тёмного дуба
+tile.FenceVanilla.0.name=Еловый забор
+tile.FenceVanilla.1.name=Берёзовый забор
+tile.FenceVanilla.2.name=Тропический забор
+tile.FenceVanilla.3.name=Акациевый забор
+tile.FenceVanilla.4.name=Забор из тёмного дуба
+
+tile.FenceBoP.0.name=Забор из священного дуба
+tile.FenceBoP.1.name=Вишнёвый забор
+tile.FenceBoP.2.name=Тёмный забор
+tile.FenceBoP.3.name=Пихтовый забор
+tile.FenceBoP.4.name=Эфирный забор
+tile.FenceBoP.5.name=Магический забор
+tile.FenceBoP.6.name=Мангровый забор
+tile.FenceBoP.7.name=Пальмовый забор
+tile.FenceBoP.8.name=Забор из красного дерева
+tile.FenceBoP.9.name=Ивовый забор
+tile.FenceBoP.10.name=Бамбуковый забор
+tile.FenceBoP.11.name=Сосновый забор
+tile.FenceBoP.12.name=Забор из адской коры
+tile.FenceBoP.13.name=Жакарандовый забор
+tile.FenceBoP.14.name=Махагониевый забор
+
+tile.FenceGateBoPSacred.name=Калитка из священного дуба
+tile.FenceGateBoPCherry.name=Вишнёвая калитка
+tile.FenceGateBoPDark.name=Тёмная калитка
+tile.FenceGateBoPFir.name=Пихтовая калитка
+tile.FenceGateBoPEthereal.name=Эфирная калитка
+tile.FenceGateBoPMagic.name=Магическая калитка
+tile.FenceGateBoPMangrove.name=Мангровая калитка
+tile.FenceGateBoPPalm.name=Пальмовая калитка
+tile.FenceGateBoPRedwood.name=Калитка из красного дерева
+tile.FenceGateBoPWillow.name=Ивовая калитка
+tile.FenceGateBoPBamboo.name=Бамбуковая калитка
+tile.FenceGateBoPPine.name=Сосновая калитка
+tile.FenceGateBoPHellbark.name=Калитка из адской коры
+tile.FenceGateBoPJacaranda.name=Жакарандовая калитка
+tile.FenceGateBoPMahogany.name=Калитка из махагони
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Блоки черепицы/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

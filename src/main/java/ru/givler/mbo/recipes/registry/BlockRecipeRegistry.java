@@ -84,6 +84,18 @@ public class BlockRecipeRegistry {
                 'x', new ItemStack(BlockRegistry.BlockStonebrick, 1, 0)
         );
 
+        GameRegistry.addRecipe(new ItemStack(BlockRegistry.WallVanillaStonebrick, 6),
+                "xxx",
+                "xxx",
+                'x', Blocks.stonebrick
+        );
+
+        GameRegistry.addRecipe(new ItemStack(BlockRegistry.WallVanillaBrick, 6),
+                "xxx",
+                "xxx",
+                'x', Blocks.brick_block
+        );
+
         //Обоженные глиняные кирпичи
         GameRegistry.addSmelting(new ItemStack(Blocks.brick_block, 1, 0),
                 new ItemStack(BlockRegistry.BlockFiredClay, 1, 0), 0.2F);

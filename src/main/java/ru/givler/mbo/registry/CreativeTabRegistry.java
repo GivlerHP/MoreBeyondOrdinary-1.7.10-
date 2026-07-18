@@ -42,6 +42,8 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(StairsStonebrick));
             list.add(new ItemStack(SlabStonebrick));
             list.add(new ItemStack(WallStonebrick));
+            list.add(new ItemStack(WallVanillaStonebrick));
+            list.add(new ItemStack(WallVanillaBrick));
             list.add(new ItemStack(TotemStone));
 
             for(int i=0; i<=2; i++) { list.add(new ItemStack(BlockSandstone, 0, i)); }
@@ -79,6 +81,27 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BlockFogGrey));
 
             list.add(new ItemStack(BlockWoodenBox));
+            list.add(new ItemStack(Barrier));
+
+            for (int i = 0; i < FenceVanilla.getVariantCount(); ++i) {
+                list.add(new ItemStack(FenceVanilla, 1, i));
+            }
+            list.add(new ItemStack(FenceGateSpruce));
+            list.add(new ItemStack(FenceGateBirch));
+            list.add(new ItemStack(FenceGateJungle));
+            list.add(new ItemStack(FenceGateAcacia));
+            list.add(new ItemStack(FenceGateDarkOak));
+
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorSpruceItem);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorBirchItem);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorJungleItem);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorAcaciaItem);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorDarkoakItem);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.trapdoorSpruce);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.trapdoorBirch);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.trapdoorJungle);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.trapdoorAcacia);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.trapdoorDarkoak);
 
             list.add(new ItemStack(BooksheelSkull));
             list.add(new ItemStack(BooksheelVoid));
@@ -128,6 +151,14 @@ public class CreativeTabRegistry {
 
         }
     };
+
+    private static void addIfPresent(List list, Object itemOrBlock) {
+        if (itemOrBlock instanceof Item) {
+            list.add(new ItemStack((Item) itemOrBlock));
+        } else if (itemOrBlock instanceof net.minecraft.block.Block) {
+            list.add(new ItemStack((net.minecraft.block.Block) itemOrBlock));
+        }
+    }
 
     public static final CreativeTabs tabMBOitems = new CreativeTabs("MBOitems") {
         @Override

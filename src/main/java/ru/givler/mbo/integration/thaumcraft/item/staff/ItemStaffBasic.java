@@ -85,25 +85,49 @@ public class ItemStaffBasic extends ItemWandCasting {
     @SideOnly(Side.CLIENT)
     public void getSubItems(Item item, CreativeTabs tab, List list) {
         ItemStack stack = new ItemStack(this, 1, 0);
-        this.storeVis(stack, Aspect.FIRE, this.getMaxVis(stack));
-        this.storeVis(stack, Aspect.AIR, this.getMaxVis(stack));
-        this.storeVis(stack, Aspect.ORDER, this.getMaxVis(stack));
-        this.storeVis(stack, Aspect.WATER, this.getMaxVis(stack));
-        this.storeVis(stack, Aspect.EARTH, this.getMaxVis(stack));
-        this.storeVis(stack, Aspect.ENTROPY, this.getMaxVis(stack));
+        for (Aspect aspect : this.getAcceptedAspects(stack).getAspects()) {
+            this.storeVis(stack, aspect, this.getMaxVis(stack));
+        }
         list.add(stack);
     }
 
     @Override
     public void onCreated(ItemStack stack, World world, EntityPlayer player) {
-        if (!stack.hasTagCompound() || !stack.stackTagCompound.hasKey(Aspect.FIRE.getTag())) {
-            this.storeVis(stack, Aspect.FIRE, 0);
-            this.storeVis(stack, Aspect.AIR, 0);
-            this.storeVis(stack, Aspect.ORDER, 0);
-            this.storeVis(stack, Aspect.WATER, 0);
-            this.storeVis(stack, Aspect.EARTH, 0);
-            this.storeVis(stack, Aspect.ENTROPY, 0);
+        for (Aspect aspect : this.getAcceptedAspects(stack).getAspects()) {
+            if (!stack.hasTagCompound() || !stack.stackTagCompound.hasKey(aspect.getTag())) {
+                this.storeVis(stack, aspect, 0);
+            }
         }
+    }
+
+    private AspectList getAcceptedAspects(ItemStack stack) {
+        AspectList cost = this.getVisCost(stack);
+        return cost == null ? new AspectList() : cost;
+    }
+
+    private boolean acceptsAspect(ItemStack stack, Aspect aspect) {
+        return aspect != null && this.getAcceptedAspects(stack).getAmount(aspect) > 0;
+    }
+
+    @Override
+    public AspectList getAspectsWithRoom(ItemStack stack) {
+        AspectList result = new AspectList();
+        for (Aspect aspect : this.getAcceptedAspects(stack).getAspects()) {
+            if (this.getVis(stack, aspect) < this.getMaxVis(stack)) {
+                result.add(aspect, 1);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public int addVis(ItemStack stack, Aspect aspect, int amount, boolean doit) {
+        return this.acceptsAspect(stack, aspect) ? super.addVis(stack, aspect, amount, doit) : amount;
+    }
+
+    @Override
+    public int addRealVis(ItemStack stack, Aspect aspect, int amount, boolean doit) {
+        return this.acceptsAspect(stack, aspect) ? super.addRealVis(stack, aspect, amount, doit) : amount;
     }
 
     @Override
@@ -155,7 +179,7 @@ public class ItemStaffBasic extends ItemWandCasting {
         int tot = 0;
         int num = 0;
 
-        for (Aspect aspect : Aspect.getPrimalAspects()) {
+        for (Aspect aspect : this.getAcceptedAspects(stack).getAspects()) {
             int raw = this.getVis(stack, aspect);
             String amount = this.myFormatter.format(raw / 100.0F);
             float mod = this.getConsumptionModifier(stack, player, aspect, false);

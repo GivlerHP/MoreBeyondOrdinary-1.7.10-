@@ -14,6 +14,7 @@ public class BlockRegistry {
     public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofUnfired, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
             BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
             RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockAshgarBrick, BlockWoodenBox;
+    public static BlockBarrier Barrier;
     //переменные для ступенек
     public static Block  StairsStone, StairsSandstone, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
             StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay, StairsAshgarBrick;
@@ -29,7 +30,9 @@ public class BlockRegistry {
             TotemStone, DebarkedOak, DebarkedSpruce, DebarkedBirch, DebarkedJungle, DebarkedAcacia, DebarkedBigOak,
             WoodTotemOak, WoodTotemSpruce, WoodTotemBirch, WoodTotemJungle, WoodTotemAcacia, WoodTotemBigOak;
     //переменные для ограды
-    public static Block WallStonebrick, WallSandstone, WallFiredClay;
+    public static Block WallStonebrick, WallSandstone, WallFiredClay, WallVanillaStonebrick, WallVanillaBrick;
+    public static BlockBasicFence FenceVanilla;
+    public static BlockBasicFenceGate FenceGateSpruce, FenceGateBirch, FenceGateJungle, FenceGateAcacia, FenceGateDarkOak;
     //переменные для крафтовых блоков
     public static Block MagicFurnace;
 
@@ -48,6 +51,7 @@ public class BlockRegistry {
         BlockAshgarBrick = new BlockBase(Material.rock, "BlockAshgarBrick", "stone/ashgar_brick");
 
         BlockWoodenBox = new BlockBase(Material.wood, "BlockWoodenBox", "wood/wooden_box").setStepSound(Block.soundTypeWood);
+        Barrier = new BlockBarrier();
 
         RoofStandart = new BlockMeta(Material.rock, "StandartRoof", "roof/roofk", 3);
         RoofUnfired = new BlockMeta(Material.clay, "UnfiredRoof", "roof/roofu", 3).setStepSound(Block.soundTypeGravel);
@@ -141,6 +145,18 @@ public class BlockRegistry {
         WallStonebrick = new BlockBasicWall(Blocks.stone, "WallStonebrick", "stone/stonebrick_0");
         WallSandstone = new BlockBasicWall(Blocks.stone, "WallSandstone", "stone/sandstone_0");
         WallFiredClay = new BlockBasicWall(Blocks.stone, "WallFiredClay", "stone/brick_firedclay");
+        WallVanillaStonebrick = new BlockBasicWall(
+                Blocks.stonebrick, "WallVanillaStonebrick", "minecraft:stonebrick");
+        WallVanillaBrick = new BlockBasicWall(
+                Blocks.brick_block, "WallVanillaBrick", "minecraft:brick");
+
+        FenceVanilla = new BlockBasicFence("FenceVanilla", Blocks.planks, 1, 2, 3, 4, 5);
+
+        FenceGateSpruce = new BlockBasicFenceGate("FenceGateSpruce", Blocks.planks, 1);
+        FenceGateBirch = new BlockBasicFenceGate("FenceGateBirch", Blocks.planks, 2);
+        FenceGateJungle = new BlockBasicFenceGate("FenceGateJungle", Blocks.planks, 3);
+        FenceGateAcacia = new BlockBasicFenceGate("FenceGateAcacia", Blocks.planks, 4);
+        FenceGateDarkOak = new BlockBasicFenceGate("FenceGateDarkOak", Blocks.planks, 5);
 
     }
 
@@ -164,6 +180,14 @@ public class BlockRegistry {
         BlockBasicSlab.addStandardRecipes(SlabHeneizenBrick, BlockHeneizenBrick);
         BlockBasicSlab.addStandardRecipes(SlabAshgarBrick, BlockAshgarBrick);
         BlockBasicSlab.addStandardRecipes(SlabFiredClay,     BlockFiredClay);
+
+        FenceVanilla.addStandardRecipes();
+
+        FenceGateSpruce.addStandardRecipe();
+        FenceGateBirch.addStandardRecipe();
+        FenceGateJungle.addStandardRecipe();
+        FenceGateAcacia.addStandardRecipe();
+        FenceGateDarkOak.addStandardRecipe();
     }
 }
 
