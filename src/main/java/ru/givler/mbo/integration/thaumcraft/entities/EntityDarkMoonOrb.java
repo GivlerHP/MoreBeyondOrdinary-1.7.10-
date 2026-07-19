@@ -3,6 +3,7 @@ package ru.givler.mbo.integration.thaumcraft.entities;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.util.DamageSource;
+import thaumcraft.common.lib.utils.ProtectionUtils;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -109,8 +110,10 @@ public class EntityDarkMoonOrb extends EntityThrowable {
         if (!worldObj.isRemote) {
             if (mop.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY
                     && (getThrower() == null || mop.entityHit != getThrower())) {
-                mop.entityHit.attackEntityFrom(DamageSource.causeIndirectMagicDamage(this, getThrower()),
-                        2.0F + strength * 0.5F);
+                if (ProtectionUtils.canEntityDamage(this.getThrower(), mop.entityHit)) {
+                    mop.entityHit.attackEntityFrom(DamageSource.causeIndirectMagicDamage(this, getThrower()),
+                            2.0F + strength * 0.5F);
+                }
                 worldObj.playSoundAtEntity(this, "thaumcraft:zap", 1.0F, 1.0F + (rand.nextFloat() - rand.nextFloat()) * 0.2F);
             }
             setDead();

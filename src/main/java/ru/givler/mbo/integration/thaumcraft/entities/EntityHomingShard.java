@@ -15,6 +15,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.util.DamageSource;
+import thaumcraft.common.lib.utils.ProtectionUtils;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -101,8 +102,10 @@ public class EntityHomingShard extends EntityThrowable implements IEntityAdditio
     protected void onImpact (final MovingObjectPosition mop) {
         if (!worldObj.isRemote && mop.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY
                 && (getThrower() == null || getThrower() != null && mop.entityHit != getThrower())) {
-            mop.entityHit.attackEntityFrom(DamageSource.causeIndirectMagicDamage(this, getThrower()),
-                    2.0F + getStrength() * 0.5F);
+            if (ProtectionUtils.canEntityDamage(this.getThrower(), mop.entityHit)) {
+                mop.entityHit.attackEntityFrom(DamageSource.causeIndirectMagicDamage(this, getThrower()),
+                        2.0F + getStrength() * 0.5F);
+            }
             worldObj.playSoundAtEntity(this, "thaumcraft:zap", 1.0F, 1.0F + (rand.nextFloat() - rand.nextFloat()) * 0.2F);
             worldObj.setEntityState(this, (byte) 16);
             setDead();

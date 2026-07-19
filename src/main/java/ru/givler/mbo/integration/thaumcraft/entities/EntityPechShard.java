@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
+import thaumcraft.common.lib.utils.ProtectionUtils;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import thaumcraft.common.Thaumcraft;
@@ -55,7 +56,8 @@ public class EntityPechShard extends EntityPechBlast {
 
             for (Object o : list) {
                 Entity entity1 = (Entity) o;
-                if (!(entity1 instanceof EntityPech) && entity1 instanceof EntityLivingBase) {
+                if (!(entity1 instanceof EntityPech) && entity1 instanceof EntityLivingBase
+                        && ProtectionUtils.canEntityDamage(this.getThrower(), entity1)) {
                     // только урон, без ядовитых/слоу/слабость эффектов
                     entity1.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), SHARD_DAMAGE);
                 }
