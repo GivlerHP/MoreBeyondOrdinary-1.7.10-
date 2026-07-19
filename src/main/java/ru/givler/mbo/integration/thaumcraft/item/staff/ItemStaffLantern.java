@@ -17,6 +17,7 @@ import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.wands.IWandable;
 import thaumcraft.common.Thaumcraft;
+import thaumcraft.common.lib.utils.ProtectionUtils;
 
 public class ItemStaffLantern extends ItemStaffBasic {
     @SideOnly(Side.CLIENT)
@@ -107,7 +108,8 @@ public class ItemStaffLantern extends ItemStaffBasic {
                     case 5: blockHitX++; break;
                 }
 
-                if (world.isAirBlock(blockHitX, blockHitY, blockHitZ)) {
+                if (world.isAirBlock(blockHitX, blockHitY, blockHitZ)
+                        && ProtectionUtils.canPlayerPlaceBlock(world, player, blockHitX, blockHitY, blockHitZ)) {
                     if (!world.isRemote) {
                         world.setBlock(blockHitX, blockHitY, blockHitZ, Wizardry.magicLight);
                         if (world.getTileEntity(blockHitX, blockHitY, blockHitZ) instanceof TileEntityTimer) {
@@ -122,7 +124,8 @@ public class ItemStaffLantern extends ItemStaffBasic {
                 int y = (int) (Math.floor(player.posY) + player.eyeHeight + player.getLookVec().yCoord * 4);
                 int z = (int) (Math.floor(player.posZ) + player.getLookVec().zCoord * 4);
 
-                if (world.isAirBlock(x, y, z)) {
+                if (world.isAirBlock(x, y, z)
+                        && ProtectionUtils.canPlayerPlaceBlock(world, player, x, y, z)) {
                     if (!world.isRemote) {
                         world.setBlock(x, y, z, Wizardry.magicLight);
                         if (world.getTileEntity(x, y, z) instanceof TileEntityTimer) {

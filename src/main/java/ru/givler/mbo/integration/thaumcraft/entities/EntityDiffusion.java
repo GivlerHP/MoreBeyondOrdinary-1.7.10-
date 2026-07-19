@@ -16,6 +16,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import thaumcraft.common.Thaumcraft;
+import thaumcraft.common.lib.utils.ProtectionUtils;
 
 public class EntityDiffusion extends EntityThrowable {
 
@@ -100,7 +101,7 @@ public class EntityDiffusion extends EntityThrowable {
                     worldObj.getEntitiesWithinAABBExcludingEntity(getThrower(), boundingBox.expand(1.0D, 1.0D, 1.0D));
 
             for (final Entity e : entities) {
-                if (e instanceof EntityLivingBase) {
+                if (e instanceof EntityLivingBase && ProtectionUtils.canEntityDamage(this.getThrower(), e)) {
                     final EntityLivingBase entity = (EntityLivingBase) e;
                     if (mop.entityHit != null) {
                         entity.attackEntityFrom(DamageSource.causeIndirectMagicDamage(this, getThrower()), dmg);
