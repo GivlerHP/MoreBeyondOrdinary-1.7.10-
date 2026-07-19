@@ -10,6 +10,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import thaumcraft.common.Thaumcraft;
 import thaumcraft.common.entities.projectile.EntityEldritchOrb;
+import thaumcraft.common.lib.utils.ProtectionUtils;
 
 public class EntityLightMatter extends EntityEldritchOrb {
 
@@ -61,7 +62,7 @@ public class EntityLightMatter extends EntityEldritchOrb {
                     worldObj.getEntitiesWithinAABBExcludingEntity(getThrower(), boundingBox.expand(expand, expand, expand));
 
             for (final Entity e : entities) {
-                if (e instanceof EntityLivingBase) {
+                if (e instanceof EntityLivingBase && ProtectionUtils.canEntityDamage(this.getThrower(), e)) {
                     final EntityLivingBase entity = (EntityLivingBase) e;
                     float actualDmg = dmg;
                     if (entity.getCreatureAttribute() == EnumCreatureAttribute.UNDEAD) {

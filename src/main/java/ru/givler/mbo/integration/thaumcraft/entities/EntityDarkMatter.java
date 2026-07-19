@@ -10,6 +10,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import thaumcraft.common.entities.projectile.EntityEldritchOrb;
+import thaumcraft.common.lib.utils.ProtectionUtils;
 
 public class EntityDarkMatter extends EntityEldritchOrb {
 
@@ -42,7 +43,7 @@ public class EntityDarkMatter extends EntityEldritchOrb {
                     worldObj.getEntitiesWithinAABBExcludingEntity(getThrower(), boundingBox.expand(expand, expand, expand));
 
             for (final Entity e : entities) {
-                if (e instanceof EntityLivingBase) {
+                if (e instanceof EntityLivingBase && ProtectionUtils.canEntityDamage(this.getThrower(), e)) {
                     final EntityLivingBase entity = (EntityLivingBase) e;
                     entity.attackEntityFrom(DamageSource.causeIndirectMagicDamage(this, getThrower()), dmg);
                     if (corrosive) {
