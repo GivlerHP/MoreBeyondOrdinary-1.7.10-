@@ -20,6 +20,7 @@ import java.util.List;
 public class BlockMeta extends Block {
 
     private int count;
+    private String[] textureNames;
     @SideOnly(Side.CLIENT)
     private IIcon[] icon;
 
@@ -39,6 +40,11 @@ public class BlockMeta extends Block {
     }
 
     //какой блока выпадет при разрушение
+    public BlockMeta(Material material, String name, String[] textures) {
+        this(material, name, textures[0], textures.length);
+        this.textureNames = textures;
+    }
+
     @Override
     public int damageDropped(int meta) {
         return meta;
@@ -65,7 +71,10 @@ public class BlockMeta extends Block {
     public void registerBlockIcons(IIconRegister icon) {
         this.icon = new IIcon[this.count];
         for (int i = 0; i < this.count; ++i) {
-            this.icon[i] = icon.registerIcon(this.getTextureName() + "_" + i);
+            String texture = this.textureNames == null
+                    ? this.getTextureName() + "_" + i
+                    : MoreBeyondOrdinary.MODID + ":" + this.textureNames[i];
+            this.icon[i] = icon.registerIcon(texture);
         }
     }
 }

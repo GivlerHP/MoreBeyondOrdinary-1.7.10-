@@ -4,6 +4,8 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import ru.givler.mbo.block.BlockMeta;
+import ru.givler.mbo.block.BlockMetaSlab;
 import ru.givler.mbo.registry.BlockRegistry;
 
 public class BlockRecipeRegistry {
@@ -171,6 +173,53 @@ public class BlockRecipeRegistry {
                 "xxx",
                 'x', new ItemStack(BlockRegistry.BlockEndbrick, 8, 0)
         );
+
+        // Туф
+        BlockMetaSlab.addStandardRecipes(
+                BlockRegistry.SlabTuff, (BlockMeta) BlockRegistry.BlockTuff);
+
+        for (int meta = 0; meta < 3; meta++) {
+            GameRegistry.addRecipe(new ItemStack(BlockRegistry.StairsTuff[meta], 4),
+                    "x  ",
+                    "xx ",
+                    "xxx",
+                    'x', new ItemStack(BlockRegistry.BlockTuff, 1, meta)
+            );
+            GameRegistry.addRecipe(new ItemStack(BlockRegistry.WallTuff[meta], 6),
+                    "xxx",
+                    "xxx",
+                    'x', new ItemStack(BlockRegistry.BlockTuff, 1, meta)
+            );
+        }
+
+        GameRegistry.addRecipe(new ItemStack(BlockRegistry.BlockChiseledTuff),
+                "x",
+                "x",
+                'x', new ItemStack(BlockRegistry.SlabTuff[0])
+        );
+        GameRegistry.addRecipe(new ItemStack(BlockRegistry.BlockChiseledTuffBricks),
+                "x",
+                "x",
+                'x', new ItemStack(BlockRegistry.SlabTuff[2])
+        );
+
+        // Призмарин
+        BlockMetaSlab.addStandardRecipes(
+                BlockRegistry.SlabPrismarine, (BlockMeta) BlockRegistry.BlockPrismarine);
+
+        for (int meta = 0; meta < 3; meta++) {
+            GameRegistry.addRecipe(new ItemStack(BlockRegistry.StairsPrismarine[meta], 4),
+                    "x  ",
+                    "xx ",
+                    "xxx",
+                    'x', new ItemStack(BlockRegistry.BlockPrismarine, 1, meta)
+            );
+            GameRegistry.addRecipe(new ItemStack(BlockRegistry.WallPrismarine[meta], 6),
+                    "xxx",
+                    "xxx",
+                    'x', new ItemStack(BlockRegistry.BlockPrismarine, 1, meta)
+            );
+        }
 
     }
 }

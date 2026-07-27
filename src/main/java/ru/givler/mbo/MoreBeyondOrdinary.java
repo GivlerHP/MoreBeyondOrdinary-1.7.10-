@@ -33,9 +33,9 @@ public class MoreBeyondOrdinary {
 
     @Mod.EventHandler
     public void preLoad(FMLPreInitializationEvent event) {
+        VanillaBlockReplacer.replaceTrapdoor();
         proxy.preInit(event);
         proxy.initPackets();
-        VanillaBlockReplacer.replaceTrapdoor();
         EntityMobRegistry.registerEntities();
         IntegrationConfig.load(event.getModConfigurationDirectory());
 

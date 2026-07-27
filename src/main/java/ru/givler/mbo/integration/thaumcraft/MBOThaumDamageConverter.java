@@ -33,7 +33,7 @@ public class MBOThaumDamageConverter {
 
         Entity attacker = source.getEntity();
         if (!ProtectionUtils.canEntityDamage(attacker, event.entityLiving)) {
-            event.setCanceled();
+            event.setCanceled(true);
         }
     }
 

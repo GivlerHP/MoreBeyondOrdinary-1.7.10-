@@ -28,6 +28,40 @@ tile.BlockImperialBrick.name=Имперский кирпич
 tile.BlockHeneizenBrick.name=Генезийский кирпич
 tile.BlockIrgadBrick.name=Иргадский кирпич
 tile.BlockFiredClay.name=Обожженные кирпичи
+tile.BlockTuff.0.name=Туф
+tile.BlockTuff.1.name=Гладкий туф
+tile.BlockTuff.2.name=Туфовые кирпичи
+tile.BlockChiseledTuff.name=Резной туф
+tile.BlockChiseledTuffBricks.name=Резные туфовые кирпичи
+
+tile.tile.BlockTuff_stairs_0.0.name=Туфовые ступеньки
+tile.tile.BlockTuff_stairs_1.0.name=Ступеньки из гладкого туфа
+tile.tile.BlockTuff_stairs_2.0.name=Ступеньки из туфовых кирпичей
+
+tile.tile.BlockTuff_slab_0.name=Туфовая плита
+tile.tile.BlockTuff_slab_1.name=Плита из гладкого туфа
+tile.tile.BlockTuff_slab_2.name=Плита из туфовых кирпичей
+
+tile.WallTuff_wall.name=Туфовая ограда
+tile.WallSmoothTuff_wall.name=Ограда из гладкого туфа
+tile.WallTuffBricks_wall.name=Ограда из туфовых кирпичей
+
+tile.BlockPrismarine.0.name=Призмарин
+tile.BlockPrismarine.1.name=Призмариновые кирпичи
+tile.BlockPrismarine.2.name=Тёмный призмарин
+tile.BlockSeaLantern.name=Морской фонарь
+
+tile.tile.BlockPrismarine_stairs_0.0.name=Призмариновые ступеньки
+tile.tile.BlockPrismarine_stairs_1.0.name=Ступеньки из призмариновых кирпичей
+tile.tile.BlockPrismarine_stairs_2.0.name=Ступеньки из тёмного призмарина
+
+tile.tile.BlockPrismarine_slab_0.name=Призмариновая плита
+tile.tile.BlockPrismarine_slab_1.name=Плита из призмариновых кирпичей
+tile.tile.BlockPrismarine_slab_2.name=Плита из тёмного призмарина
+
+tile.WallPrismarine_wall.name=Призмариновая ограда
+tile.WallPrismarineBricks_wall.name=Ограда из призмариновых кирпичей
+tile.WallDarkPrismarine_wall.name=Ограда из тёмного призмарина
 tile.BlockAshgarBrick.name=Ашгарский кирпич
 tile.BlockWoodenBox.name=Ящик
 
@@ -146,6 +180,51 @@ tile.FenceGateBoPPine.name=Сосновая калитка
 tile.FenceGateBoPHellbark.name=Калитка из адской коры
 tile.FenceGateBoPJacaranda.name=Жакарандовая калитка
 tile.FenceGateBoPMahogany.name=Калитка из махагони
+
+tile.ButtonSpruce.name=Еловая кнопка
+tile.ButtonBirch.name=Берёзовая кнопка
+tile.ButtonJungle.name=Тропическая кнопка
+tile.ButtonAcacia.name=Акациевая кнопка
+tile.ButtonDarkOak.name=Кнопка из тёмного дуба
+
+tile.PressurePlateSpruce.name=Еловая нажимная плита
+tile.PressurePlateBirch.name=Берёзовая нажимная плита
+tile.PressurePlateJungle.name=Тропическая нажимная плита
+tile.PressurePlateAcacia.name=Акациевая нажимная плита
+tile.PressurePlateDarkOak.name=Нажимная плита из тёмного дуба
+
+tile.ButtonBoPSacred.name=Кнопка из священного дуба
+tile.ButtonBoPCherry.name=Вишнёвая кнопка
+tile.ButtonBoPDark.name=Кнопка из тёмного дерева
+tile.ButtonBoPFir.name=Пихтовая кнопка
+tile.ButtonBoPEthereal.name=Эфирная кнопка
+tile.ButtonBoPMagic.name=Магическая кнопка
+tile.ButtonBoPMangrove.name=Мангровая кнопка
+tile.ButtonBoPPalm.name=Пальмовая кнопка
+tile.ButtonBoPRedwood.name=Кнопка из секвойи
+tile.ButtonBoPWillow.name=Ивовая кнопка
+tile.ButtonBoPBamboo.name=Бамбуковая кнопка
+tile.ButtonBoPPine.name=Сосновая кнопка
+tile.ButtonBoPHellbark.name=Кнопка из адской коры
+tile.ButtonBoPJacaranda.name=Жакарандовая кнопка
+tile.ButtonBoPMahogany.name=Кнопка из красного дерева
+
+tile.PressurePlateBoPSacred.name=Нажимная плита из священного дуба
+tile.PressurePlateBoPCherry.name=Вишнёвая нажимная плита
+tile.PressurePlateBoPDark.name=Нажимная плита из тёмного дерева
+tile.PressurePlateBoPFir.name=Пихтовая нажимная плита
+tile.PressurePlateBoPEthereal.name=Эфирная нажимная плита
+tile.PressurePlateBoPMagic.name=Магическая нажимная плита
+tile.PressurePlateBoPMangrove.name=Мангровая нажимная плита
+tile.PressurePlateBoPPalm.name=Пальмовая нажимная плита
+tile.PressurePlateBoPRedwood.name=Нажимная плита из секвойи
+tile.PressurePlateBoPWillow.name=Ивовая нажимная плита
+tile.PressurePlateBoPBamboo.name=Бамбуковая нажимная плита
+tile.PressurePlateBoPPine.name=Сосновая нажимная плита
+tile.PressurePlateBoPHellbark.name=Нажимная плита из адской коры
+tile.PressurePlateBoPJacaranda.name=Жакарандовая нажимная плита
+tile.PressurePlateBoPMahogany.name=Нажимная плита из красного дерева
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Блоки черепицы/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -815,3 +894,29 @@ item.staffDemonic.name=Посох Демонов
 item.staffLantern.name=Посох с фонарём
 item.staffLight.name=Посох света
 item.staffFire.name=Посох огня
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Лодки/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+container.mbo.chest_boat=Лодка с сундуком
+item.oak_boat.name=Дубовая лодка
+item.spruce_boat.name=Еловая лодка
+item.birch_boat.name=Берёзовая лодка
+item.jungle_boat.name=Тропическая лодка
+item.acacia_boat.name=Акациевая лодка
+item.dark_oak_boat.name=Лодка из тёмного дуба
+item.sacred_oak_boat.name=Лодка из священного дуба
+item.cherry_boat.name=Вишнёвая лодка
+item.dark_boat.name=Лодка из тёмного дерева
+item.fir_boat.name=Пихтовая лодка
+item.ethereal_boat.name=Эфирная лодка
+item.magic_boat.name=Магическая лодка
+item.mangrove_boat.name=Мангровая лодка
+item.palm_boat.name=Пальмовая лодка
+item.redwood_boat.name=Лодка из секвойи
+item.willow_boat.name=Ивовая лодка
+item.bamboo_boat.name=Бамбуковый плот
+item.pine_boat.name=Сосновая лодка
+item.hellbark_boat.name=Лодка из адской коры
+item.jacaranda_boat.name=Жакарандовая лодка
+item.mahogany_boat.name=Лодка из красного дерева

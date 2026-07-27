@@ -37,7 +37,7 @@ public class BlockMetaSlab extends BlockSlab {
         }
         this.setLightOpacity(0);
         this.useNeighborBrightness = true;
-        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture + "_" + meta);
+        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
 
         if (!isDouble) {
             this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
@@ -70,11 +70,20 @@ public class BlockMetaSlab extends BlockSlab {
     }
 
     public static BlockMetaSlab[] registerSlabs(BlockMeta baseBlock, int count, String texture) {
+        String[] textures = new String[count];
+        for (int i = 0; i < count; i++) {
+            textures[i] = texture + "_" + i;
+        }
+        return registerSlabs(baseBlock, textures);
+    }
+
+    public static BlockMetaSlab[] registerSlabs(BlockMeta baseBlock, String[] textures) {
+        int count = textures.length;
         BlockMetaSlab[] result = new BlockMetaSlab[count];
 
         for (int i = 0; i < count; i++) {
-            BlockMetaSlab single = new BlockMetaSlab(false, baseBlock, texture, i);
-            BlockMetaSlab dbl    = new BlockMetaSlab(true,  baseBlock, texture, i);
+            BlockMetaSlab single = new BlockMetaSlab(false, baseBlock, textures[i], i);
+            BlockMetaSlab dbl    = new BlockMetaSlab(true,  baseBlock, textures[i], i);
             dbl.singleSlabForDrops = single;
 
             String singleName = baseBlock.getUnlocalizedName() + "_slab_" + i;

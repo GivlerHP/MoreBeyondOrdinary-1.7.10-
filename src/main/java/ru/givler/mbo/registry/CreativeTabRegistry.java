@@ -12,6 +12,8 @@ import java.util.List;
 
 import static ru.givler.mbo.registry.ArmorRegistry.*;
 import static ru.givler.mbo.registry.BlockRegistry.*;
+import static ru.givler.mbo.registry.BoatRegistry.vanillaBoats;
+import static ru.givler.mbo.registry.BoatRegistry.vanillaChestBoats;
 import static ru.givler.mbo.registry.DrinkRegistry.*;
 import static ru.givler.mbo.registry.FoodRegistry.*;
 import static ru.givler.mbo.registry.ItemRegistry.*;
@@ -76,6 +78,23 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(SlabFiredClay));
             list.add(new ItemStack(WallFiredClay));
 
+            for (int meta = 0; meta < 3; meta++) {
+                list.add(new ItemStack(BlockTuff, 1, meta));
+                list.add(new ItemStack(StairsTuff[meta]));
+                list.add(new ItemStack(SlabTuff[meta]));
+                list.add(new ItemStack(WallTuff[meta]));
+            }
+            list.add(new ItemStack(BlockChiseledTuff));
+            list.add(new ItemStack(BlockChiseledTuffBricks));
+
+            for (int meta = 0; meta < 3; meta++) {
+                list.add(new ItemStack(BlockPrismarine, 1, meta));
+                list.add(new ItemStack(StairsPrismarine[meta]));
+                list.add(new ItemStack(SlabPrismarine[meta]));
+                list.add(new ItemStack(WallPrismarine[meta]));
+            }
+            list.add(new ItemStack(BlockSeaLantern));
+
             list.add(new ItemStack(BlockClayWall));
             list.add(new ItemStack(BlockFogWhite));
             list.add(new ItemStack(BlockFogGrey));
@@ -91,6 +110,19 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(FenceGateJungle));
             list.add(new ItemStack(FenceGateAcacia));
             list.add(new ItemStack(FenceGateDarkOak));
+
+            if (ru.givler.mbo.integration.biomesoplenty.WoodRedstoneRegistry.vanillaButtons != null) {
+                for (net.minecraft.block.Block button :
+                        ru.givler.mbo.integration.biomesoplenty.WoodRedstoneRegistry.vanillaButtons) {
+                    list.add(new ItemStack(button));
+                }
+            }
+            if (ru.givler.mbo.integration.biomesoplenty.WoodRedstoneRegistry.vanillaPressurePlates != null) {
+                for (net.minecraft.block.Block plate :
+                        ru.givler.mbo.integration.biomesoplenty.WoodRedstoneRegistry.vanillaPressurePlates) {
+                    list.add(new ItemStack(plate));
+                }
+            }
 
             addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorSpruceItem);
             addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorBirchItem);
@@ -266,6 +298,9 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(WizardChest));
             list.add(new ItemStack(WizardLegs));
             list.add(new ItemStack(WizardBoots));
+
+            for (int i = 0; i <= 5; i++) { list.add(new ItemStack(vanillaBoats, 1, i)); }
+            for (int i = 0; i <= 5; i++) { list.add(new ItemStack(vanillaChestBoats, 1, i)); }
 
             list.add(new ItemStack(Uchigatana));
             list.add(new ItemStack(DragonSlayer));

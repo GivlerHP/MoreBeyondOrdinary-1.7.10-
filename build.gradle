@@ -15,7 +15,7 @@ apply plugin: 'idea'
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.12.3"
+version = "1.13.2"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 
@@ -58,6 +58,12 @@ dependencies {
 
 jar {
     from sourceSets.main.output
+    manifest {
+        attributes(
+                'FMLCorePlugin': 'ru.givler.mbo.core.MBOCorePlugin',
+                'FMLCorePluginContainsFMLMod': 'true'
+        )
+    }
 }
 
 task deobfJar(type: Jar) {

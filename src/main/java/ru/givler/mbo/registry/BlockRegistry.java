@@ -13,24 +13,29 @@ public class BlockRegistry {
     //переменные для блоков
     public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofUnfired, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
             BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
-            RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockAshgarBrick, BlockWoodenBox;
+            RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockAshgarBrick, BlockWoodenBox,
+            BlockTuff, BlockChiseledTuff, BlockChiseledTuffBricks, BlockPrismarine, BlockSeaLantern;
     public static BlockBarrier Barrier;
     //переменные для ступенек
     public static Block  StairsStone, StairsSandstone, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
             StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay, StairsAshgarBrick;
     //переменные для ступенек с методанными
-    public static Block[] StairsRoofLaminated, StairsRoofStandart, StairsRoofSheet, StairsRoofFlake, StairsRoofWood;
+    public static Block[] StairsRoofLaminated, StairsRoofStandart, StairsRoofSheet, StairsRoofFlake, StairsRoofWood,
+            StairsTuff, StairsPrismarine;
     //переменные для плит
     public static BlockBasicSlab  SlabStone, SlabCobblestone, SlabStonebrick, SlabSandstone, SlabIrgadBrick, SlabEndbrick,
              SlabImperialBrick, SlabHeneizenBrick, SlabFiredClay, SlabAshgarBrick;
     //переменные для плит с метаданными
-    public static BlockMetaSlab[] SlabRoofLaminated, SlabRoofStandart, SlabRoofSheet, SlabRoofFlake, SlabRoofWood;
+    public static BlockMetaSlab[] SlabRoofLaminated, SlabRoofStandart, SlabRoofSheet, SlabRoofFlake, SlabRoofWood,
+            SlabTuff, SlabPrismarine;
     //переменные для мультитекстурных блоков
     public static Block BooksheelSkull, BooksheelVoid, BooksheelWeb, BooksheelCandle, BooksheelSkullWeb, BooksheelSkullCandle,
             TotemStone, DebarkedOak, DebarkedSpruce, DebarkedBirch, DebarkedJungle, DebarkedAcacia, DebarkedBigOak,
             WoodTotemOak, WoodTotemSpruce, WoodTotemBirch, WoodTotemJungle, WoodTotemAcacia, WoodTotemBigOak;
     //переменные для ограды
     public static Block WallStonebrick, WallSandstone, WallFiredClay, WallVanillaStonebrick, WallVanillaBrick;
+    public static Block[] WallTuff;
+    public static Block[] WallPrismarine;
     public static BlockBasicFence FenceVanilla;
     public static BlockBasicFenceGate FenceGateSpruce, FenceGateBirch, FenceGateJungle, FenceGateAcacia, FenceGateDarkOak;
     //переменные для крафтовых блоков
@@ -62,6 +67,17 @@ public class BlockRegistry {
 
         BlockSandstone = new BlockMeta(Material.rock, "BlockSandstone", "stone/sandstone", 3);
         BlockStonebrick = new BlockMeta(Material.rock, "BlockStonebrick", "stone/stonebrick", 4);
+        BlockTuff = new BlockMeta(Material.rock, "BlockTuff", "stone/tuff", 3);
+        BlockChiseledTuff = new BlockMultiTexture(Material.rock, "BlockChiseledTuff",
+                "stone/chiseled_tuff_top", "stone/chiseled_tuff");
+        BlockChiseledTuffBricks = new BlockMultiTexture(Material.rock, "BlockChiseledTuffBricks",
+                "stone/chiseled_tuff_bricks_top", "stone/chiseled_tuff_bricks");
+        BlockPrismarine = new BlockMeta(Material.rock, "BlockPrismarine", new String[] {
+                "stone/prismarine", "stone/prismarine_bricks", "stone/dark_prismarine"
+        });
+        BlockSeaLantern = new BlockBase(Material.glass, "BlockSeaLantern", "stone/sea_lantern")
+                .setHardness(0.3F).setResistance(1.5F).setLightLevel(1.0F)
+                .setStepSound(Block.soundTypeGlass);
 
         BooksheelSkull = new BlockMultiTexture(Material.wood, "BooksheelSkull", "wood/planks_oak", "wood/bookshelf_skull")
                 .setStepSound(Block.soundTypeWood);
@@ -119,6 +135,8 @@ public class BlockRegistry {
         StairsRoofSheet = BlockMetaStairs.registerStairs((BlockMeta) RoofSheet, 16);
         StairsRoofFlake = BlockMetaStairs.registerStairs((BlockMeta) RoofFlake, 16);
         StairsRoofWood = BlockMetaStairs.registerStairs((BlockMeta) RoofWood, 6);
+        StairsTuff = BlockMetaStairs.registerStairs((BlockMeta) BlockTuff, 3);
+        StairsPrismarine = BlockMetaStairs.registerStairs((BlockMeta) BlockPrismarine, 3);
 
 
         //НИЖЕ НАХОДИТСЯ ПОЛУБЛОКИe
@@ -139,6 +157,10 @@ public class BlockRegistry {
         SlabRoofSheet     = BlockMetaSlab.registerSlabs((BlockMeta) RoofSheet,     16, "roof/roof2");
         SlabRoofFlake     = BlockMetaSlab.registerSlabs((BlockMeta) RoofFlake,     16, "roof/roof3");
         SlabRoofWood      = BlockMetaSlab.registerSlabs((BlockMeta) RoofWood,       6, "wood/roofwood");
+        SlabTuff          = BlockMetaSlab.registerSlabs((BlockMeta) BlockTuff,       3, "stone/tuff");
+        SlabPrismarine    = BlockMetaSlab.registerSlabs((BlockMeta) BlockPrismarine, new String[] {
+                "stone/prismarine", "stone/prismarine_bricks", "stone/dark_prismarine"
+        });
 
 
         //НИЖЕ НАХОИДТСЯ ЗАБОР
@@ -149,6 +171,16 @@ public class BlockRegistry {
                 Blocks.stonebrick, "WallVanillaStonebrick", "minecraft:stonebrick");
         WallVanillaBrick = new BlockBasicWall(
                 Blocks.brick_block, "WallVanillaBrick", "minecraft:brick");
+        WallTuff = new Block[] {
+                new BlockBasicWall(BlockTuff, "WallTuff", "stone/tuff_0"),
+                new BlockBasicWall(BlockTuff, "WallSmoothTuff", "stone/tuff_1"),
+                new BlockBasicWall(BlockTuff, "WallTuffBricks", "stone/tuff_2")
+        };
+        WallPrismarine = new Block[] {
+                new BlockBasicWall(BlockPrismarine, "WallPrismarine", "stone/prismarine"),
+                new BlockBasicWall(BlockPrismarine, "WallPrismarineBricks", "stone/prismarine_bricks"),
+                new BlockBasicWall(BlockPrismarine, "WallDarkPrismarine", "stone/dark_prismarine")
+        };
 
         FenceVanilla = new BlockBasicFence("FenceVanilla", Blocks.planks, 1, 2, 3, 4, 5);
 
@@ -168,7 +200,6 @@ public class BlockRegistry {
         BlockMetaSlab.addStandardRecipes(SlabRoofSheet,     (BlockMeta) RoofSheet);
         BlockMetaSlab.addStandardRecipes(SlabRoofFlake,     (BlockMeta) RoofFlake);
         BlockMetaSlab.addStandardRecipes(SlabRoofWood,      (BlockMeta) RoofWood);
-
         BlockBasicSlab.addStandardRecipes(SlabCobblestone,   BlockGreyCobblestone);
         BlockBasicSlab.addStandardRecipes(SlabStone,         BlockGreyStone);
         BlockBasicSlab.addStandardRecipes(SlabStonebrick,    BlockStonebrick);

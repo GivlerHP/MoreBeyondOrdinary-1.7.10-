@@ -18,6 +18,7 @@ import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.handler.*;
 import ru.givler.mbo.integration.biomesoplenty.DoorRegistry;
 import ru.givler.mbo.integration.biomesoplenty.FenceRegistry;
+import ru.givler.mbo.integration.biomesoplenty.WoodRedstoneRegistry;
 import ru.givler.mbo.recipes.registry.ArcanumRecipeRegistry;
 import ru.givler.mbo.recipes.registry.BlockRecipeRegistry;
 import ru.givler.mbo.recipes.registry.RoofRecipeRegistry;
@@ -57,6 +58,8 @@ public class CommonProxy {
         ThaumcraftRegistry.preLoad(event);
         DoorRegistry.init();
         FenceRegistry.init();
+        WoodRedstoneRegistry.init();
+        BoatRegistry.init();
         MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
         MinecraftForge.EVENT_BUS.register(new BeltEventHandler());
         if (Loader.isModLoaded("Thaumcraft")) {
@@ -68,6 +71,7 @@ public class CommonProxy {
 
     public void init(FMLInitializationEvent event){
         CreativeTabRegistry.init(event);
+        BoatRegistry.registerRecipes();
         moveWoodIntegrationToBoPTab();
         ModelRegistry.init(event);
         ThaumcraftRegistry.init();
@@ -91,6 +95,7 @@ public class CommonProxy {
         net.minecraft.creativetab.CreativeTabs bopTab = biomesoplenty.BiomesOPlenty.tabBiomesOPlenty;
         FenceRegistry.setCreativeTab(bopTab);
         DoorRegistry.setBoPCreativeTab(bopTab);
+        WoodRedstoneRegistry.setBoPCreativeTab(bopTab);
     }
 
     public void postInit(FMLPostInitializationEvent event){

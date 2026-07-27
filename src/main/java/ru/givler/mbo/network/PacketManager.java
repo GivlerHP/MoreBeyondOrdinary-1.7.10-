@@ -10,6 +10,7 @@ import ru.givler.mbo.network.packet.PacketLootContainerGiveItem;
 import ru.givler.mbo.network.packet.PacketLootContainerRestore;
 import ru.givler.mbo.network.packet.PacketSpawnParticle;
 import ru.givler.mbo.network.packet.PacketSpawnParticleHandler;
+import ru.givler.mbo.network.packet.PacketBoatMove;
 
 public class PacketManager {
 
@@ -44,6 +45,7 @@ public class PacketManager {
                 nextID++,
                 Side.SERVER
         );
+        INSTANCE.registerMessage(PacketBoatMove.Handler.class, PacketBoatMove.class, nextID++, Side.SERVER);
     }
 
     public static void registerClientPackets() {
