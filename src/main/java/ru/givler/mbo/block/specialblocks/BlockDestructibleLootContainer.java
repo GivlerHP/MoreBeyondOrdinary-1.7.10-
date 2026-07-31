@@ -11,6 +11,8 @@ import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.item.ItemBlockLootContainer;
@@ -21,6 +23,23 @@ public class BlockDestructibleLootContainer extends BlockModels {
         super(material, name, "jugs", "jugs");
         setCollisionEnabled(false);
         setBlockUnbreakable();
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
+        TileEntity tile = world.getTileEntity(x, y, z);
+        if (tile instanceof TileEntityLootContainer) {
+            float[] bounds = ((TileEntityLootContainer) tile).getCollisionBounds();
+            setBlockBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
+        } else {
+            setBlockBounds(0, 0, 0, 1, 1, 1);
+        }
+    }
+
+    @Override
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+        // The configured bounds are a trigger volume, not a solid obstacle.
+        return null;
     }
 
     @Override
@@ -64,6 +83,7 @@ public class BlockDestructibleLootContainer extends BlockModels {
         TileEntity tile = world.getTileEntity(x, y, z);
         if (!(tile instanceof TileEntityLootContainer)) return;
         TileEntityLootContainer loot = (TileEntityLootContainer) tile;
+        if (!loot.isEntityInsideTrigger(entity)) return;
         if (entity instanceof EntityPlayer) {
             if (loot.shouldDestroyOnPlayerCollide()) {
                 loot.tryDestroy(entity, true);
@@ -107,14 +127,17 @@ public class BlockDestructibleLootContainer extends BlockModels {
 
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, net.minecraft.entity.EntityLivingBase player, ItemStack stack) {
-        super.onBlockPlacedBy(world, x, y, z, player, stack);
+        ru.givler.mbo.lootcontainer.LootContainerData data =
+                ru.givler.mbo.lootcontainer.LootContainerData.fromItemStackNbt(
+                        stack == null ? null : stack.getTagCompound());
+        int facing = 0;
+        world.setBlockMetadataWithNotify(x, y, z, facing, 3);
         if (world.isRemote || stack == null) return;
         TileEntity tile = world.getTileEntity(x, y, z);
         if (tile instanceof TileEntityLootContainer) {
-            ((TileEntityLootContainer) tile).applyConfig(
-                    ru.givler.mbo.lootcontainer.LootContainerData.fromItemStackNbt(stack.getTagCompound()),
-                    true
-            );
+            TileEntityLootContainer loot = (TileEntityLootContainer) tile;
+            loot.setPlacementFacing(facing);
+            loot.applyConfig(data, true);
         }
     }
 }

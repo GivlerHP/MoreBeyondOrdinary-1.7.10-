@@ -28,6 +28,14 @@ public class LootContainerData {
     public boolean destroyOnEntityCollide = false;
     public boolean destroyOnExplosion = false;
     public boolean destroyOnProjectileHit = false;
+    public boolean autoRotate = false;
+    public String destroySound = "dig.stone";
+    public float collisionMinX = 0.0F;
+    public float collisionMinY = 0.0F;
+    public float collisionMinZ = 0.0F;
+    public float collisionMaxX = 1.0F;
+    public float collisionMaxY = 1.0F;
+    public float collisionMaxZ = 1.0F;
     public String actionsJson = "[]";
 
     public static class ModelVariation {
@@ -72,6 +80,14 @@ public class LootContainerData {
         data.destroyOnEntityCollide = tag.getBoolean("lc_destroyEntityCollide");
         data.destroyOnExplosion = tag.hasKey("lc_destroyExplosion") && tag.getBoolean("lc_destroyExplosion");
         data.destroyOnProjectileHit = tag.getBoolean("lc_destroyProjectile");
+        data.autoRotate = tag.getBoolean("lc_autoRotate");
+        data.destroySound = tag.hasKey("lc_destroySound") ? tag.getString("lc_destroySound") : "dig.stone";
+        data.collisionMinX = readFloat(tag, "lc_collisionMinX", 0.0F);
+        data.collisionMinY = readFloat(tag, "lc_collisionMinY", 0.0F);
+        data.collisionMinZ = readFloat(tag, "lc_collisionMinZ", 0.0F);
+        data.collisionMaxX = readFloat(tag, "lc_collisionMaxX", 1.0F);
+        data.collisionMaxY = readFloat(tag, "lc_collisionMaxY", 1.0F);
+        data.collisionMaxZ = readFloat(tag, "lc_collisionMaxZ", 1.0F);
         data.actionsJson = tag.hasKey("lc_actions") ? tag.getString("lc_actions") : "[]";
         data.modelVariations = parseModelVariations(tag.getString("lc_modelVariations"));
         return data;
@@ -86,6 +102,14 @@ public class LootContainerData {
         tag.setBoolean("lc_destroyEntityCollide", destroyOnEntityCollide);
         tag.setBoolean("lc_destroyExplosion", destroyOnExplosion);
         tag.setBoolean("lc_destroyProjectile", destroyOnProjectileHit);
+        tag.setBoolean("lc_autoRotate", autoRotate);
+        tag.setString("lc_destroySound", destroySound == null ? "" : destroySound);
+        tag.setFloat("lc_collisionMinX", collisionMinX);
+        tag.setFloat("lc_collisionMinY", collisionMinY);
+        tag.setFloat("lc_collisionMinZ", collisionMinZ);
+        tag.setFloat("lc_collisionMaxX", collisionMaxX);
+        tag.setFloat("lc_collisionMaxY", collisionMaxY);
+        tag.setFloat("lc_collisionMaxZ", collisionMaxZ);
         tag.setString("lc_actions", actionsJson == null ? "[]" : actionsJson);
         tag.setString("lc_modelVariations", serializeModelVariations(modelVariations));
     }
@@ -122,5 +146,9 @@ public class LootContainerData {
         if (value == null) return "";
         if (value.length() <= MAX_CUSTOM_NAME_LENGTH) return value;
         return value.substring(0, MAX_CUSTOM_NAME_LENGTH);
+    }
+
+    private static float readFloat(NBTTagCompound tag, String key, float fallback) {
+        return tag.hasKey(key) ? tag.getFloat(key) : fallback;
     }
 }

@@ -103,7 +103,7 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
 
     protected EnumFacing getFacing(TileEntity tile) {
         EnumFacing[] faces = {EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.EAST};
-        if (tile.blockType instanceof BlockDirectional) {
+        if (tile.getBlockType() instanceof BlockDirectional) {
             return faces[BlockDirectional.getDirection(tile.getBlockMetadata())];
         }
         return EnumFacing.SOUTH;

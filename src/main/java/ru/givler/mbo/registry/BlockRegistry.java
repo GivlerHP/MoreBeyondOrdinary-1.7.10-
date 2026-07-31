@@ -2,9 +2,11 @@ package ru.givler.mbo.registry;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import ru.givler.mbo.block.*;
 import ru.givler.mbo.block.blockcraft.BlockArcanum;
 import ru.givler.mbo.block.specialblocks.*;
@@ -14,17 +16,20 @@ public class BlockRegistry {
     public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofUnfired, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
             BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
             RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockAshgarBrick, BlockWoodenBox,
-            BlockTuff, BlockChiseledTuff, BlockChiseledTuffBricks, BlockPrismarine, BlockSeaLantern;
+            BlockTuff, BlockChiseledTuff, BlockChiseledTuffBricks, BlockPrismarine, BlockSeaLantern, SmoothStone;
     public static BlockBarrier Barrier;
+    public static BlockSlimeMBO SlimeBlock;
+    public static BlockBouncyMushroom BouncyBrownMushroomBlock, BouncyRedMushroomBlock;
     //переменные для ступенек
     public static Block  StairsStone, StairsSandstone, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
             StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay, StairsAshgarBrick;
+    public static BlockBasicStairs StairsSmoothStone;
     //переменные для ступенек с методанными
     public static Block[] StairsRoofLaminated, StairsRoofStandart, StairsRoofSheet, StairsRoofFlake, StairsRoofWood,
             StairsTuff, StairsPrismarine;
     //переменные для плит
     public static BlockBasicSlab  SlabStone, SlabCobblestone, SlabStonebrick, SlabSandstone, SlabIrgadBrick, SlabEndbrick,
-             SlabImperialBrick, SlabHeneizenBrick, SlabFiredClay, SlabAshgarBrick;
+             SlabImperialBrick, SlabHeneizenBrick, SlabFiredClay, SlabAshgarBrick, SlabSmoothStone;
     //переменные для плит с метаданными
     public static BlockMetaSlab[] SlabRoofLaminated, SlabRoofStandart, SlabRoofSheet, SlabRoofFlake, SlabRoofWood,
             SlabTuff, SlabPrismarine;
@@ -33,7 +38,7 @@ public class BlockRegistry {
             TotemStone, DebarkedOak, DebarkedSpruce, DebarkedBirch, DebarkedJungle, DebarkedAcacia, DebarkedBigOak,
             WoodTotemOak, WoodTotemSpruce, WoodTotemBirch, WoodTotemJungle, WoodTotemAcacia, WoodTotemBigOak;
     //переменные для ограды
-    public static Block WallStonebrick, WallSandstone, WallFiredClay, WallVanillaStonebrick, WallVanillaBrick;
+    public static Block WallStonebrick, WallSandstone, WallFiredClay, WallVanillaStonebrick, WallVanillaBrick, WallSmoothStone;
     public static Block[] WallTuff;
     public static Block[] WallPrismarine;
     public static BlockBasicFence FenceVanilla;
@@ -57,6 +62,12 @@ public class BlockRegistry {
 
         BlockWoodenBox = new BlockBase(Material.wood, "BlockWoodenBox", "wood/wooden_box").setStepSound(Block.soundTypeWood);
         Barrier = new BlockBarrier();
+        SlimeBlock = new BlockSlimeMBO();
+        GameRegistry.registerBlock(SlimeBlock, "SlimeBlock");
+        BouncyBrownMushroomBlock = BlockBouncyMushroom.brown();
+        BouncyRedMushroomBlock = BlockBouncyMushroom.red();
+        GameRegistry.registerBlock(BouncyBrownMushroomBlock, "BouncyBrownMushroomBlock");
+        GameRegistry.registerBlock(BouncyRedMushroomBlock, "BouncyRedMushroomBlock");
 
         RoofStandart = new BlockMeta(Material.rock, "StandartRoof", "roof/roofk", 3);
         RoofUnfired = new BlockMeta(Material.clay, "UnfiredRoof", "roof/roofu", 3).setStepSound(Block.soundTypeGravel);
@@ -78,6 +89,7 @@ public class BlockRegistry {
         BlockSeaLantern = new BlockBase(Material.glass, "BlockSeaLantern", "stone/sea_lantern")
                 .setHardness(0.3F).setResistance(1.5F).setLightLevel(1.0F)
                 .setStepSound(Block.soundTypeGlass);
+        SmoothStone = new BlockSmoothStone();
 
         BooksheelSkull = new BlockMultiTexture(Material.wood, "BooksheelSkull", "wood/planks_oak", "wood/bookshelf_skull")
                 .setStepSound(Block.soundTypeWood);
@@ -125,6 +137,7 @@ public class BlockRegistry {
         StairsHeneizenBrick = new BlockBasicStairs((BlockBase) BlockHeneizenBrick);
         StairsFiredClay = new BlockBasicStairs((BlockBase) BlockFiredClay);
         StairsAshgarBrick = new BlockBasicStairs((BlockBase) BlockAshgarBrick);
+        StairsSmoothStone = new BlockBasicStairs(SmoothStone);
 
 
         StairsSandstone = new BlockMetaStairs((BlockMeta) BlockSandstone, 0);
@@ -151,6 +164,7 @@ public class BlockRegistry {
         SlabHeneizenBrick = BlockBasicSlab.registerPair("SlabHeneizenBrick", "stone/heneizen_brick");
         SlabAshgarBrick = BlockBasicSlab.registerPair("SlabAshgarBrick", "stone/ashgar_brick");
         SlabFiredClay = BlockBasicSlab.registerPair("SlabFiredClay", "stone/brick_firedclay");
+        SlabSmoothStone = BlockBasicSlab.registerPair("SlabSmoothStone", "minecraft:stone_slab_top");
 
         SlabRoofStandart  = BlockMetaSlab.registerSlabs((BlockMeta) RoofStandart,  3,  "roof/roofk");
         SlabRoofLaminated = BlockMetaSlab.registerSlabs((BlockMeta) RoofLaminated, 16, "roof/roof1");
@@ -171,6 +185,8 @@ public class BlockRegistry {
                 Blocks.stonebrick, "WallVanillaStonebrick", "minecraft:stonebrick");
         WallVanillaBrick = new BlockBasicWall(
                 Blocks.brick_block, "WallVanillaBrick", "minecraft:brick");
+        WallSmoothStone = new BlockBasicWall(
+                SmoothStone, "WallSmoothStone", "minecraft:stone_slab_top");
         WallTuff = new Block[] {
                 new BlockBasicWall(BlockTuff, "WallTuff", "stone/tuff_0"),
                 new BlockBasicWall(BlockTuff, "WallSmoothTuff", "stone/tuff_1"),
@@ -194,6 +210,7 @@ public class BlockRegistry {
 
     public static void initRecipe() {
         ((BlockBasicStairs) StairsAshgarBrick).addStandardRecipes();
+        StairsSmoothStone.addStandardRecipes();
 
         BlockMetaSlab.addStandardRecipes(SlabRoofStandart,  (BlockMeta) RoofStandart);
         BlockMetaSlab.addStandardRecipes(SlabRoofLaminated, (BlockMeta) RoofLaminated);
@@ -211,6 +228,18 @@ public class BlockRegistry {
         BlockBasicSlab.addStandardRecipes(SlabHeneizenBrick, BlockHeneizenBrick);
         BlockBasicSlab.addStandardRecipes(SlabAshgarBrick, BlockAshgarBrick);
         BlockBasicSlab.addStandardRecipes(SlabFiredClay,     BlockFiredClay);
+        BlockBasicSlab.addStandardRecipes(SlabSmoothStone,   SmoothStone);
+
+        GameRegistry.addRecipe(new ItemStack(WallSmoothStone, 6),
+                new Object[]{"XXX", "XXX", 'X', SmoothStone});
+
+        GameRegistry.addRecipe(new ItemStack(SlimeBlock),
+                new Object[]{"SSS", "SSS", "SSS", 'S', net.minecraft.init.Items.slime_ball});
+        GameRegistry.addShapelessRecipe(new ItemStack(net.minecraft.init.Items.slime_ball, 9), SlimeBlock);
+        GameRegistry.addRecipe(new ItemStack(BouncyBrownMushroomBlock),
+                new Object[]{"MMM", "MMM", "MMM", 'M', Blocks.brown_mushroom});
+        GameRegistry.addRecipe(new ItemStack(BouncyRedMushroomBlock),
+                new Object[]{"MMM", "MMM", "MMM", 'M', Blocks.red_mushroom});
 
         FenceVanilla.addStandardRecipes();
 

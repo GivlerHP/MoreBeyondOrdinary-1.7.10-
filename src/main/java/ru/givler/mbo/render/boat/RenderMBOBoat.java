@@ -53,7 +53,9 @@ public class RenderMBOBoat extends Render {
         }
         GL11.glColor4f(1, 1, 1, 1);
         GL11.glPopMatrix();
-        renderWaterMask(boat, x, y, z, yaw, partial);
+        if (boat.getPassengers().isEmpty()) {
+            renderWaterMask(boat, x, y, z, yaw, partial);
+        }
     }
 
     private void applyBoatLight(EntityMBOBoat boat, float partial) {
@@ -65,12 +67,15 @@ public class RenderMBOBoat extends Render {
     private void renderWaterMask(EntityMBOBoat boat, double x, double y, double z,
                                  float yaw, float partial) {
         GL11.glPushMatrix();
-        GL11.glTranslatef((float)x, (float)y + 0.375F + EntityMBOBoat.VISUAL_Y_OFFSET, (float)z);
+        GL11.glTranslatef((float)x,
+                (float)y + 0.375F + EntityMBOBoat.VISUAL_Y_OFFSET, (float)z);
         GL11.glRotatef(180F - yaw, 0, 1, 0);
         float hit = boat.getTimeSinceHit() - partial;
         float damage = Math.max(0, boat.getDamageTaken() - partial);
-        if (hit > 0) GL11.glRotatef(MathHelper.sin(hit) * hit * damage / 10F
-                * boat.getForwardDirection(), 1, 0, 0);
+        if (hit > 0) {
+            GL11.glRotatef(MathHelper.sin(hit) * hit * damage / 10F
+                    * boat.getForwardDirection(), 1, 0, 0);
+        }
         GL11.glScalef(-1, -1, 1);
         bindEntityTexture(boat);
         applyBoatLight(boat, partial);

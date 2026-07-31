@@ -39,7 +39,9 @@ public class BlockBasicSlab extends BlockSlab {
         }
         this.setLightOpacity(0);
         this.useNeighborBrightness = true;
-        this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texturePath);
+        this.setBlockTextureName(texturePath.indexOf(':') >= 0
+                ? texturePath
+                : MoreBeyondOrdinary.MODID + ":" + texturePath);
 
         if (!isDouble) {
             this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);

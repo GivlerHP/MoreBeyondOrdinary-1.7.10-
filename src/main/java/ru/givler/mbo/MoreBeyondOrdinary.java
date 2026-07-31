@@ -30,6 +30,7 @@ public class MoreBeyondOrdinary {
 
     public static final int GUI_INFUSION_WORKBENCH = 0;
     public static final int GUI_LOOT_CONTAINER_CONFIG = 1;
+    public static final int GUI_LOOM = 2;
 
     @Mod.EventHandler
     public void preLoad(FMLPreInitializationEvent event) {

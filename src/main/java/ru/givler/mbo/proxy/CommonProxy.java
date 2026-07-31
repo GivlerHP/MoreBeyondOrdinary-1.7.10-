@@ -60,6 +60,7 @@ public class CommonProxy {
         FenceRegistry.init();
         WoodRedstoneRegistry.init();
         BoatRegistry.init();
+        BannerRegistry.init();
         MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
         MinecraftForge.EVENT_BUS.register(new BeltEventHandler());
         if (Loader.isModLoaded("Thaumcraft")) {
@@ -79,11 +80,14 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(AnimatedModelTileBase.class, "AnimatedModelTileBase");
         GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
         GameRegistry.registerTileEntity(TileEntityLootContainer.class, "loot_container_tile");
+        GameRegistry.registerTileEntity(ru.givler.mbo.banner.TileEntityBanner.class, "mbo_banner");
 
         BlockRecipeRegistry.init();
         RoofRecipeRegistry.init();
         ArcanumRecipeRegistry.init();
         BlockRegistry.initRecipe();
+        GameRegistry.addSmelting(net.minecraft.init.Blocks.stone,
+                new net.minecraft.item.ItemStack(BlockRegistry.SmoothStone), 0.1F);
 
     }
 

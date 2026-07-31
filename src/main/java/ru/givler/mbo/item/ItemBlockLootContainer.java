@@ -9,7 +9,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.StatCollector;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.tileentity.TileEntity;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.lootcontainer.LootContainerData;
 import ru.givler.mbo.lootcontainer.action.ApplyEffectAction;
@@ -46,6 +49,34 @@ public class ItemBlockLootContainer extends ItemBlock {
     }
 
     @Override
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world,
+                                int x, int y, int z, int side,
+                                float hitX, float hitY, float hitZ, int metadata) {
+        boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side,
+                hitX, hitY, hitZ, metadata);
+        if (!placed) return false;
+
+        LootContainerData data = LootContainerData.fromItemStackNbt(
+                stack == null ? null : stack.getTagCompound());
+        int facing;
+        if (data.autoRotate) {
+            facing = world.isRemote ? 0 : world.rand.nextInt(4);
+        } else {
+            facing = player == null ? 0
+                    : MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F + 2.5D) & 3;
+        }
+        if (!world.isRemote || !data.autoRotate) {
+            world.setBlockMetadataWithNotify(x, y, z, facing, 3);
+        }
+        TileEntity tile = world.getTileEntity(x, y, z);
+        if ((!world.isRemote || !data.autoRotate)
+                && tile instanceof ru.givler.mbo.tileentity.TileEntityLootContainer) {
+            ((ru.givler.mbo.tileentity.TileEntityLootContainer) tile).setPlacementFacing(facing);
+        }
+        return true;
+    }
+
+    @Override
     public String getItemStackDisplayName(ItemStack stack) {
         LootContainerData data = LootContainerData.fromItemStackNbt(stack == null ? null : stack.getTagCompound());
         if (data.customName != null && !data.customName.trim().isEmpty()) {
@@ -58,9 +89,11 @@ public class ItemBlockLootContainer extends ItemBlock {
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
         LootContainerData data = LootContainerData.fromItemStackNbt(stack == null ? null : stack.getTagCompound());
-        list.add(EnumChatFormatting.GRAY + "Variations:");
+        list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("mbo.loot.tooltip.autoRotate")
+                + ": " + StatCollector.translateToLocal(data.autoRotate ? "options.on" : "options.off"));
+        list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("mbo.loot.tooltip.variations") + ":");
         if (data.modelVariations == null || data.modelVariations.isEmpty()) {
-            list.add(EnumChatFormatting.DARK_GRAY + "  <none>");
+            list.add(EnumChatFormatting.DARK_GRAY + "  " + StatCollector.translateToLocal("mbo.loot.tooltip.none"));
         } else {
             for (int i = 0; i < data.modelVariations.size(); i++) {
                 LootContainerData.ModelVariation variation = data.modelVariations.get(i);
@@ -71,9 +104,9 @@ public class ItemBlockLootContainer extends ItemBlock {
         }
 
         List<LootContainerAction> actions = data.getActions();
-        list.add(EnumChatFormatting.DARK_GRAY + "Actions:");
+        list.add(EnumChatFormatting.DARK_GRAY + StatCollector.translateToLocal("mbo.loot.tooltip.actions") + ":");
         if (actions == null || actions.isEmpty()) {
-            list.add(EnumChatFormatting.DARK_GRAY + "  <none>");
+            list.add(EnumChatFormatting.DARK_GRAY + "  " + StatCollector.translateToLocal("mbo.loot.tooltip.none"));
             return;
         }
 

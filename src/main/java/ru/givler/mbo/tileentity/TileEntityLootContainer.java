@@ -6,6 +6,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.WorldServer;
 import ru.givler.mbo.lootcontainer.LootContainerData;
 import ru.givler.mbo.lootcontainer.action.LootContainerAction;
 
@@ -19,12 +21,18 @@ public class TileEntityLootContainer extends ModelTileBase {
 
     private boolean destroyed = false;
     private long destroyedAtEpochSec = 0L;
+    private long nextRecoveryCheckEpochSec = 0L;
     private int recoveryTimeSec = 5;
     private boolean allowMultiaction = false;
     private boolean destroyOnPlayerCollide = true;
     private boolean destroyOnEntityCollide = false;
     private boolean destroyOnExplosion = false;
     private boolean destroyOnProjectileHit = false;
+    private boolean autoRotate = false;
+    private int placementFacing = 0;
+    private String destroySound = "dig.stone";
+    private float collisionMinX, collisionMinY, collisionMinZ;
+    private float collisionMaxX = 1.0F, collisionMaxY = 1.0F, collisionMaxZ = 1.0F;
     private String customName = "";
     private String actionsJson = "[]";
     private String modelVariationsJson = "[]";
@@ -49,6 +57,10 @@ public class TileEntityLootContainer extends ModelTileBase {
         this.destroyOnEntityCollide = data.destroyOnEntityCollide;
         this.destroyOnExplosion = data.destroyOnExplosion;
         this.destroyOnProjectileHit = data.destroyOnProjectileHit;
+        this.autoRotate = data.autoRotate;
+        this.destroySound = data.destroySound == null ? "" : data.destroySound.trim();
+        setCollisionBounds(data.collisionMinX, data.collisionMinY, data.collisionMinZ,
+                data.collisionMaxX, data.collisionMaxY, data.collisionMaxZ);
         this.actionsJson = data.actionsJson == null ? "[]" : data.actionsJson;
         this.modelVariationsJson = LootContainerData.serializeModelVariations(data.modelVariations);
 
@@ -93,10 +105,12 @@ public class TileEntityLootContainer extends ModelTileBase {
         if (destroyed) return false;
         destroyed = true;
         destroyedAtEpochSec = System.currentTimeMillis() / 1000L;
+        nextRecoveryCheckEpochSec = destroyedAtEpochSec + recoveryTimeSec;
         applyModelForCurrentState();
         if (spawnBreakParticles) {
             spawnBreakParticles();
         }
+        playDestroySound();
         executeActions(source);
         sync();
         return true;
@@ -112,6 +126,7 @@ public class TileEntityLootContainer extends ModelTileBase {
         if (!destroyed && destroyedAtEpochSec == 0L) return;
         destroyed = false;
         destroyedAtEpochSec = 0L;
+        nextRecoveryCheckEpochSec = 0L;
         applyModelForCurrentState();
         sync();
     }
@@ -164,9 +179,17 @@ public class TileEntityLootContainer extends ModelTileBase {
         if (worldObj == null || worldObj.isRemote) return;
         if (!destroyed || recoveryTimeSec <= 0) return;
         long now = System.currentTimeMillis() / 1000L;
-        if (now - destroyedAtEpochSec >= recoveryTimeSec) {
+        if (nextRecoveryCheckEpochSec <= 0L) {
+            nextRecoveryCheckEpochSec = destroyedAtEpochSec + recoveryTimeSec;
+        }
+        if (now >= nextRecoveryCheckEpochSec) {
+            if (hasSurvivalPlayerNearby()) {
+                nextRecoveryCheckEpochSec = now + 5L;
+                return;
+            }
             destroyed = false;
             destroyedAtEpochSec = 0L;
+            nextRecoveryCheckEpochSec = 0L;
             applyModelForCurrentState();
             sync();
         }
@@ -220,6 +243,14 @@ public class TileEntityLootContainer extends ModelTileBase {
         data.destroyOnEntityCollide = destroyOnEntityCollide;
         data.destroyOnExplosion = destroyOnExplosion;
         data.destroyOnProjectileHit = destroyOnProjectileHit;
+        data.autoRotate = autoRotate;
+        data.destroySound = destroySound;
+        data.collisionMinX = collisionMinX;
+        data.collisionMinY = collisionMinY;
+        data.collisionMinZ = collisionMinZ;
+        data.collisionMaxX = collisionMaxX;
+        data.collisionMaxY = collisionMaxY;
+        data.collisionMaxZ = collisionMaxZ;
         data.actionsJson = actionsJson == null ? "[]" : actionsJson;
         data.modelVariations = LootContainerData.parseModelVariations(modelVariationsJson);
         return data;
@@ -238,8 +269,69 @@ public class TileEntityLootContainer extends ModelTileBase {
     private void spawnBreakParticles() {
         if (worldObj == null) return;
         int meta = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
-        worldObj.playAuxSFX(2001, xCoord, yCoord, zCoord,
-                net.minecraft.block.Block.getIdFromBlock(getBlockType()) + (meta << 12));
+        if (worldObj instanceof WorldServer) {
+            int id = net.minecraft.block.Block.getIdFromBlock(getBlockType());
+            ((WorldServer) worldObj).func_147487_a("blockcrack_" + id + "_" + meta,
+                    xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D,
+                    24, 0.35D, 0.35D, 0.35D, 0.08D);
+        }
+    }
+
+    private void playDestroySound() {
+        if (worldObj == null || worldObj.isRemote || destroySound == null || destroySound.isEmpty()) return;
+        worldObj.playSoundEffect(xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D,
+                destroySound, 1.0F, 1.0F);
+    }
+
+    private void setCollisionBounds(float minX, float minY, float minZ,
+                                    float maxX, float maxY, float maxZ) {
+        collisionMinX = clampBound(Math.min(minX, maxX));
+        collisionMinY = clampBound(Math.min(minY, maxY));
+        collisionMinZ = clampBound(Math.min(minZ, maxZ));
+        collisionMaxX = clampBound(Math.max(minX, maxX));
+        collisionMaxY = clampBound(Math.max(minY, maxY));
+        collisionMaxZ = clampBound(Math.max(minZ, maxZ));
+    }
+
+    private static float clampBound(float value) {
+        return Math.max(0.0F, Math.min(1.0F, value));
+    }
+
+    public float[] getCollisionBounds() {
+        return new float[]{collisionMinX, collisionMinY, collisionMinZ,
+                collisionMaxX, collisionMaxY, collisionMaxZ};
+    }
+
+    public int getPlacementFacing() {
+        return placementFacing & 3;
+    }
+
+    public void setPlacementFacing(int facing) {
+        placementFacing = facing & 3;
+        sync();
+    }
+
+    public boolean isEntityInsideTrigger(Entity entity) {
+        if (entity == null || entity.boundingBox == null) return false;
+        AxisAlignedBB trigger = AxisAlignedBB.getBoundingBox(
+                xCoord + collisionMinX, yCoord + collisionMinY, zCoord + collisionMinZ,
+                xCoord + collisionMaxX, yCoord + collisionMaxY, zCoord + collisionMaxZ);
+        return trigger.intersectsWith(entity.boundingBox);
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean hasSurvivalPlayerNearby() {
+        AxisAlignedBB area = AxisAlignedBB.getBoundingBox(
+                xCoord + 0.5D - 20.0D, yCoord + 0.5D - 20.0D, zCoord + 0.5D - 20.0D,
+                xCoord + 0.5D + 20.0D, yCoord + 0.5D + 20.0D, zCoord + 0.5D + 20.0D);
+        List<EntityPlayer> players = worldObj.getEntitiesWithinAABB(EntityPlayer.class, area);
+        for (EntityPlayer player : players) {
+            if (player != null && !player.capabilities.isCreativeMode
+                    && player.getDistanceSq(xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D) <= 400.0D) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void sync() {
@@ -260,12 +352,22 @@ public class TileEntityLootContainer extends ModelTileBase {
         super.writeToNBT(tag);
         tag.setBoolean("lc_destroyed", destroyed);
         tag.setLong("lc_destroyedAt", destroyedAtEpochSec);
+        tag.setLong("lc_nextRecoveryCheck", nextRecoveryCheckEpochSec);
         tag.setInteger("lc_recoverySec", recoveryTimeSec);
         tag.setBoolean("lc_allowMultiaction", allowMultiaction);
         tag.setBoolean("lc_destroyPlayerCollide", destroyOnPlayerCollide);
         tag.setBoolean("lc_destroyEntityCollide", destroyOnEntityCollide);
         tag.setBoolean("lc_destroyExplosion", destroyOnExplosion);
         tag.setBoolean("lc_destroyProjectile", destroyOnProjectileHit);
+        tag.setBoolean("lc_autoRotate", autoRotate);
+        tag.setInteger("lc_placementFacing", placementFacing & 3);
+        tag.setString("lc_destroySound", destroySound == null ? "" : destroySound);
+        tag.setFloat("lc_collisionMinX", collisionMinX);
+        tag.setFloat("lc_collisionMinY", collisionMinY);
+        tag.setFloat("lc_collisionMinZ", collisionMinZ);
+        tag.setFloat("lc_collisionMaxX", collisionMaxX);
+        tag.setFloat("lc_collisionMaxY", collisionMaxY);
+        tag.setFloat("lc_collisionMaxZ", collisionMaxZ);
         tag.setString("lc_customName", customName == null ? "" : customName);
         tag.setString("lc_actions", actionsJson == null ? "[]" : actionsJson);
         tag.setString("lc_modelVariations", modelVariationsJson == null ? "[]" : modelVariationsJson);
@@ -281,12 +383,25 @@ public class TileEntityLootContainer extends ModelTileBase {
         super.readFromNBT(tag);
         destroyed = tag.getBoolean("lc_destroyed");
         destroyedAtEpochSec = tag.getLong("lc_destroyedAt");
+        nextRecoveryCheckEpochSec = tag.getLong("lc_nextRecoveryCheck");
         recoveryTimeSec = tag.getInteger("lc_recoverySec");
         allowMultiaction = tag.getBoolean("lc_allowMultiaction");
         destroyOnPlayerCollide = !tag.hasKey("lc_destroyPlayerCollide") || tag.getBoolean("lc_destroyPlayerCollide");
         destroyOnEntityCollide = tag.getBoolean("lc_destroyEntityCollide");
         destroyOnExplosion = tag.hasKey("lc_destroyExplosion") && tag.getBoolean("lc_destroyExplosion");
         destroyOnProjectileHit = tag.getBoolean("lc_destroyProjectile");
+        autoRotate = tag.getBoolean("lc_autoRotate");
+        placementFacing = tag.hasKey("lc_placementFacing")
+                ? tag.getInteger("lc_placementFacing") & 3
+                : getBlockMetadata() & 3;
+        destroySound = tag.hasKey("lc_destroySound") ? tag.getString("lc_destroySound") : "dig.stone";
+        setCollisionBounds(
+                tag.hasKey("lc_collisionMinX") ? tag.getFloat("lc_collisionMinX") : 0.0F,
+                tag.hasKey("lc_collisionMinY") ? tag.getFloat("lc_collisionMinY") : 0.0F,
+                tag.hasKey("lc_collisionMinZ") ? tag.getFloat("lc_collisionMinZ") : 0.0F,
+                tag.hasKey("lc_collisionMaxX") ? tag.getFloat("lc_collisionMaxX") : 1.0F,
+                tag.hasKey("lc_collisionMaxY") ? tag.getFloat("lc_collisionMaxY") : 1.0F,
+                tag.hasKey("lc_collisionMaxZ") ? tag.getFloat("lc_collisionMaxZ") : 1.0F);
         customName = tag.getString("lc_customName");
         actionsJson = tag.hasKey("lc_actions") ? tag.getString("lc_actions") : "[]";
         modelVariationsJson = tag.hasKey("lc_modelVariations") ? tag.getString("lc_modelVariations") : "[]";

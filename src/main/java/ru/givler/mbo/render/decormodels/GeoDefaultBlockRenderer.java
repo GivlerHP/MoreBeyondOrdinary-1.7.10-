@@ -88,6 +88,7 @@ public class GeoDefaultBlockRenderer<T extends TileEntity> extends TileEntitySpe
                 break;
             case WEST:
                 GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
+                break;
             case NORTH:
             default:
                 break;
@@ -105,7 +106,7 @@ public class GeoDefaultBlockRenderer<T extends TileEntity> extends TileEntitySpe
 
     protected EnumFacing getFacing(TileEntity tile) {
         EnumFacing[] faces = {EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.EAST, };
-        if (tile.blockType instanceof BlockDirectional) {
+        if (tile.getBlockType() instanceof BlockDirectional) {
             return faces[BlockDirectional.getDirection(tile.getBlockMetadata())];
         }
         return EnumFacing.SOUTH; //TODO

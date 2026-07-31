@@ -2,15 +2,16 @@ package ru.givler.mbo.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.BlockStairs;
+import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class BlockBasicStairs extends BlockStairs {
 
-    private final BlockBase baseBlock;
+    private final Block baseBlock;
 
-    public BlockBasicStairs(BlockBase baseBlock) {
+    public BlockBasicStairs(Block baseBlock) {
         super(baseBlock, 0);
 
         this.baseBlock = baseBlock;

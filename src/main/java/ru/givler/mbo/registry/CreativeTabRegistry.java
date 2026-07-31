@@ -44,6 +44,12 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(StairsStonebrick));
             list.add(new ItemStack(SlabStonebrick));
             list.add(new ItemStack(WallStonebrick));
+
+            list.add(new ItemStack(SmoothStone));
+            list.add(new ItemStack(StairsSmoothStone));
+            list.add(new ItemStack(SlabSmoothStone));
+            list.add(new ItemStack(WallSmoothStone));
+
             list.add(new ItemStack(WallVanillaStonebrick));
             list.add(new ItemStack(WallVanillaBrick));
             list.add(new ItemStack(TotemStone));
@@ -101,6 +107,13 @@ public class CreativeTabRegistry {
 
             list.add(new ItemStack(BlockWoodenBox));
             list.add(new ItemStack(Barrier));
+            list.add(new ItemStack(SlimeBlock));
+            list.add(new ItemStack(BouncyBrownMushroomBlock));
+            list.add(new ItemStack(BouncyRedMushroomBlock));
+            list.add(new ItemStack(BannerRegistry.loom));
+            for (int color = 0; color < 16; color++) {
+                list.add(new ItemStack(BannerRegistry.banner, 1, color));
+            }
 
             for (int i = 0; i < FenceVanilla.getVariantCount(); ++i) {
                 list.add(new ItemStack(FenceVanilla, 1, i));

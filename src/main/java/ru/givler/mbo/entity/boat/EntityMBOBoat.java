@@ -145,9 +145,30 @@ public class EntityMBOBoat extends Entity {
         for (int side = 0; side < 2; side++)
             paddlePositions[side] = getPaddleState(side) ? paddlePositions[side] + 0.3926991F : 0;
 
+        spawnWakeParticles();
         func_145775_I();
         if (worldObj.isRemote && riddenByEntity instanceof EntityClientPlayerMP)
             PacketManager.INSTANCE.sendToServer(new PacketBoatMove(this));
+    }
+
+    private void spawnWakeParticles() {
+        if (!worldObj.isRemote || status != Status.IN_WATER) return;
+        double horizontalSpeed = Math.sqrt(motionX * motionX + motionZ * motionZ);
+        if (horizontalSpeed < 0.04D) return;
+
+        int count = Math.min(16, 1 + (int)(horizontalSpeed * 45.0D));
+        double sin = MathHelper.sin(rotationYaw * (float)Math.PI / 180.0F);
+        double cos = MathHelper.cos(rotationYaw * (float)Math.PI / 180.0F);
+
+        for (int i = 0; i < count; ++i) {
+            double longitudinal = (rand.nextDouble() - 0.5D) * 1.6D;
+            double side = rand.nextBoolean() ? 0.75D : -0.75D;
+            double particleX = posX - cos * side + sin * longitudinal;
+            double particleZ = posZ - sin * side - cos * longitudinal;
+            worldObj.spawnParticle("splash", particleX,
+                    boundingBox.minY + 0.15D, particleZ,
+                    motionX * 0.25D, 0.05D, motionZ * 0.25D);
+        }
     }
 
     private void tickLerp() {

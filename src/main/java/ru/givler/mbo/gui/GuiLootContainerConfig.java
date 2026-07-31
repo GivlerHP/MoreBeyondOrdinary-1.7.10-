@@ -17,11 +17,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.StatCollector;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.gui.lootcontainer.ActionEditorHost;
+import ru.givler.mbo.gui.lootcontainer.LootContainerSoundList;
 import ru.givler.mbo.item.ItemBlockLootContainer;
 import ru.givler.mbo.lootcontainer.LootContainerConfigValidator;
 import ru.givler.mbo.lootcontainer.LootContainerData;
@@ -60,6 +62,11 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
 
     private GuiTextField customNameField;
     private GuiTextField recoveryField;
+    private GuiTextField destroySoundField;
+    private final GuiTextField[] collisionFields = new GuiTextField[6];
+    private List<String> availableSounds = Collections.emptyList();
+    private boolean soundDropdownOpen = false;
+    private int soundDropdownScroll = 0;
     private final List<ModelVariationEditor> variationEditors = new ArrayList<>();
     private final List<LootContainerActionEditor> actionEditors = new ArrayList<>();
 
@@ -122,6 +129,16 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         recoveryField = new GuiTextField(fontRendererObj, left + 8, CONTENT_TOP + 348, 100, 16);
         recoveryField.setMaxStringLength(16);
         recoveryField.setText(state.recoveryInput == null ? "" : state.recoveryInput);
+        destroySoundField = new GuiTextField(fontRendererObj, left + 8, CONTENT_TOP + 420, 250, 16);
+        destroySoundField.setMaxStringLength(128);
+        destroySoundField.setText(state.destroySoundInput == null ? "" : state.destroySoundInput);
+        availableSounds = LootContainerSoundList.getSounds();
+        for (int i = 0; i < collisionFields.length; i++) {
+            collisionFields[i] = new GuiTextField(fontRendererObj, left + 8 + (i % 3) * 104,
+                    CONTENT_TOP + 444 + (i / 3) * 22, 96, 16);
+            collisionFields[i].setMaxStringLength(12);
+            collisionFields[i].setText(state.collisionInputs[i]);
+        }
 
         int varTop = CONTENT_TOP + 52;
         for (int i = 0; i < LootContainerData.MAX_VARIATIONS; i++) {
@@ -149,17 +166,19 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             actionY += editor.getHeight();
         }
 
-        buttonList.add(new GuiButton(200, left + 8, CONTENT_TOP + 372, 150, 20, toggleLabel("Allow Multiaction", state.allowMultiaction)));
-        buttonList.add(new GuiButton(201, left + 164, CONTENT_TOP + 372, 150, 20, toggleLabel("Destroy on Player Collide", state.destroyPlayerCollide)));
-        buttonList.add(new GuiButton(202, left + 320, CONTENT_TOP + 372, 150, 20, toggleLabel("Destroy on Entity Collide", state.destroyEntityCollide)));
-        buttonList.add(new GuiButton(203, left + 8, CONTENT_TOP + 396, 150, 20, toggleLabel("Destroy on Explosion", state.destroyExplosion)));
-        buttonList.add(new GuiButton(204, left + 164, CONTENT_TOP + 396, 150, 20, toggleLabel("Destroy on Projectile Hit", state.destroyProjectile)));
+        buttonList.add(new GuiButton(200, left + 8, CONTENT_TOP + 372, 150, 20, toggleLabel(tr("mbo.loot.gui.multiaction"), state.allowMultiaction)));
+        buttonList.add(new GuiButton(201, left + 164, CONTENT_TOP + 372, 150, 20, toggleLabel(tr("mbo.loot.gui.destroyPlayer"), state.destroyPlayerCollide)));
+        buttonList.add(new GuiButton(202, left + 320, CONTENT_TOP + 372, 150, 20, toggleLabel(tr("mbo.loot.gui.destroyEntity"), state.destroyEntityCollide)));
+        buttonList.add(new GuiButton(203, left + 8, CONTENT_TOP + 396, 150, 20, toggleLabel(tr("mbo.loot.gui.destroyExplosion"), state.destroyExplosion)));
+        buttonList.add(new GuiButton(204, left + 164, CONTENT_TOP + 396, 150, 20, toggleLabel(tr("mbo.loot.gui.destroyProjectile"), state.destroyProjectile)));
+        buttonList.add(new GuiButton(208, left + 320, CONTENT_TOP + 396, 150, 20, toggleLabel(tr("mbo.loot.gui.autoRotate"), state.autoRotate)));
+        buttonList.add(new GuiButton(207, left + 264, CONTENT_TOP + 420, 24, 16, "v"));
 
-        doneButton = new GuiButton(1, left + 320, CONTENT_TOP + 420, 70, 20, "Done");
+        doneButton = new GuiButton(1, left + 320, CONTENT_TOP + 420, 70, 20, tr("gui.done"));
         buttonList.add(doneButton);
-        buttonList.add(new GuiButton(2, left + 396, CONTENT_TOP + 420, 70, 20, "Cancel"));
-        getItemButton = new GuiButton(205, left + 236, CONTENT_TOP + 14, 90, 20, "Get Item");
-        restoreButton = new GuiButton(206, left + 332, CONTENT_TOP + 14, 70, 20, "Restore");
+        buttonList.add(new GuiButton(2, left + 396, CONTENT_TOP + 420, 70, 20, tr("gui.cancel")));
+        getItemButton = new GuiButton(205, left + 236, CONTENT_TOP + 14, 90, 20, tr("mbo.loot.gui.getItem"));
+        restoreButton = new GuiButton(206, left + 332, CONTENT_TOP + 14, 70, 20, tr("mbo.loot.gui.restore"));
         buttonList.add(getItemButton);
         buttonList.add(restoreButton);
 
@@ -174,7 +193,7 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
 
     private void updateLayout() {
         int left = width / 2 - GUI_LEFT_PAD;
-        int contentHeight = 220 + variationEditors.size() * 54 + getActionsHeight();
+        int contentHeight = 310 + variationEditors.size() * 54 + getActionsHeight();
         int viewportHeight = height - CONTENT_BOTTOM_MARGIN - CONTENT_TOP;
         maxScroll = Math.max(0, contentHeight - viewportHeight);
         scrollOffset = MathHelper.clamp_int(scrollOffset, 0, maxScroll);
@@ -197,9 +216,17 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             actionY += editor.getHeight();
         }
         int checkboxesTop = actionY + 30;
-        int recoveryTop = checkboxesTop + 62;
+        int soundTop = checkboxesTop + 62;
+        int collisionTop = soundTop + 38;
+        int recoveryTop = collisionTop + 58;
         int doneTop = recoveryTop + 34;
         recoveryField.yPosition = recoveryTop;
+        destroySoundField.xPosition = left + 8;
+        destroySoundField.yPosition = soundTop;
+        for (int i = 0; i < collisionFields.length; i++) {
+            collisionFields[i].xPosition = left + 8 + (i % 3) * 104;
+            collisionFields[i].yPosition = collisionTop + (i / 3) * 22;
+        }
 
         for (Object obj : buttonList) {
             GuiButton button = (GuiButton) obj;
@@ -218,6 +245,9 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             } else if (button.id == 204) {
                 button.xPosition = left + 164;
                 button.yPosition = checkboxesTop + 24;
+            } else if (button.id == 208) {
+                button.xPosition = left + 320;
+                button.yPosition = checkboxesTop + 24;
             } else if (button.id == 1) {
                 button.xPosition = left + 320;
                 button.yPosition = doneTop;
@@ -230,6 +260,9 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             } else if (button.id == 206) {
                 button.xPosition = left + 332;
                 button.yPosition = top + 12;
+            } else if (button.id == 207) {
+                button.xPosition = left + 264;
+                button.yPosition = soundTop;
             }
         }
     }
@@ -265,6 +298,23 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             handleRestore();
             return;
         }
+        if (button.id == 207) {
+            soundDropdownOpen = !soundDropdownOpen;
+            return;
+        }
+        if ((button.id >= 200 && button.id <= 204) || button.id == 208) {
+            switch (button.id) {
+                case 200: state.allowMultiaction = !state.allowMultiaction; break;
+                case 201: state.destroyPlayerCollide = !state.destroyPlayerCollide; break;
+                case 202: state.destroyEntityCollide = !state.destroyEntityCollide; break;
+                case 203: state.destroyExplosion = !state.destroyExplosion; break;
+                case 204: state.destroyProjectile = !state.destroyProjectile; break;
+                case 208: state.autoRotate = !state.autoRotate; break;
+                default: break;
+            }
+            button.displayString = toggleLabel(tr(toggleKey(button.id)), getToggle(button.id));
+            return;
+        }
         if (button.id >= 5000 && button.id < 6000) {
             int idx = button.id - 5000;
             if (idx >= 0 && idx < actionEditors.size()) {
@@ -294,17 +344,6 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             }
             return;
         }
-        if (button.id >= 200 && button.id <= 204) {
-            switch (button.id) {
-                case 200: state.allowMultiaction = !state.allowMultiaction; break;
-                case 201: state.destroyPlayerCollide = !state.destroyPlayerCollide; break;
-                case 202: state.destroyEntityCollide = !state.destroyEntityCollide; break;
-                case 203: state.destroyExplosion = !state.destroyExplosion; break;
-                case 204: state.destroyProjectile = !state.destroyProjectile; break;
-                default: break;
-            }
-            button.displayString = toggleLabel(button.displayString.replace("[x] ", "").replace("[ ] ", ""), getToggle(button.id));
-        }
     }
 
     public void onItemPicked(int actionIndex, ItemStack selected) {
@@ -327,7 +366,17 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         if (id == 202) return state.destroyEntityCollide;
         if (id == 203) return state.destroyExplosion;
         if (id == 204) return state.destroyProjectile;
+        if (id == 208) return state.autoRotate;
         return false;
+    }
+
+    private String toggleKey(int id) {
+        if (id == 200) return "mbo.loot.gui.multiaction";
+        if (id == 201) return "mbo.loot.gui.destroyPlayer";
+        if (id == 202) return "mbo.loot.gui.destroyEntity";
+        if (id == 203) return "mbo.loot.gui.destroyExplosion";
+        if (id == 204) return "mbo.loot.gui.destroyProjectile";
+        return "mbo.loot.gui.autoRotate";
     }
 
     private String toggleLabel(String name, boolean state) {
@@ -438,7 +487,7 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         }
 
         if (!clientErrors.isEmpty()) {
-            errorText = "Error: " + clientErrors.get(0);
+            errorText = tr("mbo.loot.gui.error") + ": " + clientErrors.get(0);
             doneButton.enabled = false;
             return false;
         }
@@ -451,7 +500,7 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             }
         }
         if (!hasAnyNormalModel) {
-            errorText = "Error: no model variation configured.";
+            errorText = tr("mbo.loot.gui.errorNoModel");
             doneButton.enabled = false;
             return false;
         }
@@ -464,18 +513,20 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             }
         }
         if (!hasDestroyed) {
-            warningText = "Warn: destroyed state fallback is jugs.geo.json + missing texture (creative-only).";
+            warningText = tr("mbo.loot.gui.warnDestroyedFallback");
         }
 
         if (collected.getActions().isEmpty()) {
-            warningText = appendWarning(warningText, "Warn: no actions configured.");
+            warningText = appendWarning(warningText, tr("mbo.loot.gui.warnNoActions"));
         }
 
         for (LootContainerActionEditor editor : actionEditors) {
             LootContainerAction action = editor.getAction();
             if (action instanceof SpawnEntityAction && !isEntityValid(((SpawnEntityAction) action).entityId)) {
                 String entityId = ((SpawnEntityAction) action).entityId;
-                warningText = appendWarning(warningText, "Warn: unknown entity id \"" + entityId + "\". Done again to confirm.");
+                warningText = appendWarning(warningText,
+                        tr("mbo.loot.gui.warnUnknownEntity") + " \"" + entityId + "\". "
+                                + tr("mbo.loot.gui.confirmAgain"));
                 doneButton.enabled = true;
                 return false;
             }
@@ -491,6 +542,10 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         }
         state.customNameInput = customNameField == null ? "" : customNameField.getText();
         state.recoveryInput = recoveryField == null ? "" : recoveryField.getText();
+        state.destroySoundInput = destroySoundField == null ? "" : destroySoundField.getText();
+        for (int i = 0; i < collisionFields.length; i++) {
+            state.collisionInputs[i] = collisionFields[i] == null ? state.collisionInputs[i] : collisionFields[i].getText();
+        }
 
         state.modelVariations.clear();
         for (ModelVariationEditor editor : variationEditors) {
@@ -525,11 +580,11 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
 
     private static RecoveryParseResult parseRecoverySecondsResult(String value) {
         if (value == null) {
-            return RecoveryParseResult.error("Recovery time must be a non-negative number with optional m/h/d suffix.");
+            return RecoveryParseResult.error(tr("mbo.loot.gui.recoveryInvalid"));
         }
         String raw = value.trim();
         if (raw.isEmpty()) {
-            return RecoveryParseResult.error("Recovery time must be a non-negative number with optional m/h/d suffix.");
+            return RecoveryParseResult.error(tr("mbo.loot.gui.recoveryInvalid"));
         }
 
         long multiplier = 1L;
@@ -539,7 +594,7 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             char suffix = Character.toLowerCase(last);
             numberPart = raw.substring(0, raw.length() - 1).trim();
             if (numberPart.isEmpty()) {
-                return RecoveryParseResult.error("Recovery time must start with a number.");
+                return RecoveryParseResult.error(tr("mbo.loot.gui.recoveryStartNumber"));
             }
             if (suffix == 'm') {
                 multiplier = 60L;
@@ -548,7 +603,7 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             } else if (suffix == 'd') {
                 multiplier = 24L * 60L * 60L;
             } else {
-                return RecoveryParseResult.error("Recovery time supports only m, h or d suffix.");
+                return RecoveryParseResult.error(tr("mbo.loot.gui.recoverySuffix"));
             }
         }
 
@@ -556,18 +611,18 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         try {
             base = Long.parseLong(numberPart);
         } catch (NumberFormatException ignored) {
-            return RecoveryParseResult.error("Recovery time must be a non-negative whole number.");
+            return RecoveryParseResult.error(tr("mbo.loot.gui.recoveryWhole"));
         }
         if (base < 0L) {
-            return RecoveryParseResult.error("Recovery time must be non-negative.");
+            return RecoveryParseResult.error(tr("mbo.loot.gui.recoveryNonNegative"));
         }
         if (base > (Long.MAX_VALUE / Math.max(1L, multiplier))) {
-            return RecoveryParseResult.error("Recovery time is too large.");
+            return RecoveryParseResult.error(tr("mbo.loot.gui.recoveryTooLarge"));
         }
 
         long seconds = base * multiplier;
         if (seconds > Integer.MAX_VALUE) {
-            return RecoveryParseResult.error("Recovery time is too large.");
+            return RecoveryParseResult.error(tr("mbo.loot.gui.recoveryTooLarge"));
         }
         return RecoveryParseResult.success((int) seconds);
     }
@@ -602,9 +657,16 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
         if (customNameField.textboxKeyTyped(typedChar, keyCode) ||
-                recoveryField.textboxKeyTyped(typedChar, keyCode)) {
+                recoveryField.textboxKeyTyped(typedChar, keyCode) ||
+                destroySoundField.textboxKeyTyped(typedChar, keyCode)) {
             validateState();
             return;
+        }
+        for (GuiTextField field : collisionFields) {
+            if (field.textboxKeyTyped(typedChar, keyCode)) {
+                validateState();
+                return;
+            }
         }
         for (ModelVariationEditor editor : variationEditors) {
             if (editor.keyTyped(typedChar, keyCode)) {
@@ -624,6 +686,10 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int button) {
         updateLayout();
+        if (button == 0 && soundDropdownOpen && clickSoundOption(mouseX, mouseY)) {
+            validateState();
+            return;
+        }
         if (button == 0 && isOverScrollTrack(mouseX, mouseY)) {
             draggingScroll = true;
             dragScrollStartY = mouseY;
@@ -644,6 +710,8 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         super.mouseClicked(mouseX, mouseY, button);
         customNameField.mouseClicked(mouseX, mouseY, button);
         recoveryField.mouseClicked(mouseX, mouseY, button);
+        destroySoundField.mouseClicked(mouseX, mouseY, button);
+        for (GuiTextField field : collisionFields) field.mouseClicked(mouseX, mouseY, button);
         for (ModelVariationEditor editor : variationEditors) {
             if (editor.mouseClicked(mouseX, mouseY, button)) {
                 validateState();
@@ -672,6 +740,11 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
 
         int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
         int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+        if (soundDropdownOpen && isOverSoundDropdown(mouseX, mouseY)) {
+            soundDropdownScroll = MathHelper.clamp_int(soundDropdownScroll + (wheel < 0 ? 1 : -1),
+                    0, Math.max(0, availableSounds.size() - 8));
+            return;
+        }
 
         for (ModelVariationEditor editor : variationEditors) {
             if (editor.handleDropdownScroll(mouseX, mouseY, wheel)) {
@@ -714,14 +787,17 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         int varTop = top + 52;
         int actionsTop = varTop + variationEditors.size() * 54 + 18;
 
-        drawCenteredString(fontRendererObj, "LootContainer Configuration", width / 2, top - 14, 0xFFFFFF);
-        drawString(fontRendererObj, "Custom name", left + 8, top + 2, 0xCFCFCF);
-        drawString(fontRendererObj, "Models (max 5)", left + 8, top + 36, 0xFFD070);
-        drawString(fontRendererObj, "Actions (max 8)", left + 8, actionsTop - 14, 0xFFD070);
+        drawCenteredString(fontRendererObj, tr("mbo.loot.gui.title"), width / 2, top - 14, 0xFFFFFF);
+        drawString(fontRendererObj, tr("mbo.loot.gui.customName"), left + 8, top + 2, 0xCFCFCF);
+        drawString(fontRendererObj, tr("mbo.loot.gui.models"), left + 8, top + 36, 0xFFD070);
+        drawString(fontRendererObj, tr("mbo.loot.gui.actions"), left + 8, actionsTop - 14, 0xFFD070);
         RecoveryParseResult recoveryView = parseRecoverySecondsResult(recoveryField.getText());
-        drawString(fontRendererObj, "Recovery time (no suffix=sec, m=minutes, h=hours, d=days)", left + 8, recoveryField.yPosition - 12, 0xCFCFCF);
+        drawString(fontRendererObj, tr("mbo.loot.gui.recovery"), left + 8, recoveryField.yPosition - 12, 0xCFCFCF);
+        drawString(fontRendererObj, tr("mbo.loot.gui.destroySound"), left + 8, destroySoundField.yPosition - 11, 0xCFCFCF);
+        drawString(fontRendererObj, tr("mbo.loot.gui.collisionMin"), left + 8, collisionFields[0].yPosition - 11, 0xCFCFCF);
+        drawString(fontRendererObj, tr("mbo.loot.gui.collisionMax"), left + 326, collisionFields[3].yPosition + 4, 0xCFCFCF);
         if (recoveryView.valid) {
-            drawString(fontRendererObj, "Value will be set: " + recoveryView.seconds + " sec",
+            drawString(fontRendererObj, tr("mbo.loot.gui.recoveryValue") + ": " + recoveryView.seconds + " " + tr("mbo.loot.gui.seconds"),
                     left + 116, recoveryField.yPosition + 4, 0x9E9E9E);
         } else {
             drawString(fontRendererObj, recoveryView.error,
@@ -730,6 +806,8 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
 
         customNameField.drawTextBox();
         recoveryField.drawTextBox();
+        destroySoundField.drawTextBox();
+        for (GuiTextField field : collisionFields) field.drawTextBox();
 
         for (ModelVariationEditor editor : variationEditors) {
             editor.draw(mouseX, mouseY);
@@ -761,6 +839,7 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
+        drawSoundDropdown(mouseX, mouseY);
 
         for (ModelVariationEditor editor : variationEditors) {
             editor.drawSearchOverlay(mouseX, mouseY);
@@ -789,6 +868,51 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         return mouseX >= x && mouseX <= x + 6 && mouseY >= y1 && mouseY <= y2;
     }
 
+    private static String tr(String key) {
+        return StatCollector.translateToLocal(key);
+    }
+
+    private void drawSoundDropdown(int mouseX, int mouseY) {
+        if (!soundDropdownOpen || destroySoundField == null) return;
+        int x = destroySoundField.xPosition;
+        int y = destroySoundField.yPosition + destroySoundField.height;
+        int width = 280;
+        int visible = Math.min(8, Math.max(1, availableSounds.size()));
+        drawRect(x, y, x + width, y + visible * 12 + 2, 0xEE101010);
+        for (int row = 0; row < visible; row++) {
+            int index = soundDropdownScroll + row;
+            if (index >= availableSounds.size()) break;
+            int rowY = y + 1 + row * 12;
+            boolean hover = mouseX >= x && mouseX < x + width
+                    && mouseY >= rowY && mouseY < rowY + 12;
+            if (hover) drawRect(x + 1, rowY, x + width - 1, rowY + 12, 0xFF365A78);
+            drawString(fontRendererObj, availableSounds.get(index), x + 3, rowY + 2, 0xFFFFFF);
+        }
+    }
+
+    private boolean clickSoundOption(int mouseX, int mouseY) {
+        if (!isOverSoundDropdown(mouseX, mouseY)) {
+            soundDropdownOpen = false;
+            return false;
+        }
+        int row = (mouseY - (destroySoundField.yPosition + destroySoundField.height) - 1) / 12;
+        int index = soundDropdownScroll + row;
+        if (index >= 0 && index < availableSounds.size()) {
+            destroySoundField.setText(availableSounds.get(index));
+            soundDropdownOpen = false;
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isOverSoundDropdown(int mouseX, int mouseY) {
+        if (!soundDropdownOpen || destroySoundField == null) return false;
+        int x = destroySoundField.xPosition;
+        int y = destroySoundField.yPosition + destroySoundField.height;
+        int visible = Math.min(8, Math.max(1, availableSounds.size()));
+        return mouseX >= x && mouseX < x + 280 && mouseY >= y && mouseY < y + visible * 12 + 2;
+    }
+
     private static class EditorState {
         String customNameInput = "";
         String recoveryInput = "5";
@@ -797,6 +921,9 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         boolean destroyEntityCollide = false;
         boolean destroyExplosion = false;
         boolean destroyProjectile = false;
+        boolean autoRotate = false;
+        String destroySoundInput = "dig.stone";
+        final String[] collisionInputs = {"0", "0", "0", "1", "1", "1"};
         final List<LootContainerData.ModelVariation> modelVariations = new ArrayList<LootContainerData.ModelVariation>();
         final List<LootContainerAction> actions = new ArrayList<LootContainerAction>();
 
@@ -810,6 +937,14 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             state.destroyEntityCollide = data.destroyOnEntityCollide;
             state.destroyExplosion = data.destroyOnExplosion;
             state.destroyProjectile = data.destroyOnProjectileHit;
+            state.autoRotate = data.autoRotate;
+            state.destroySoundInput = data.destroySound == null ? "" : data.destroySound;
+            state.collisionInputs[0] = String.valueOf(data.collisionMinX);
+            state.collisionInputs[1] = String.valueOf(data.collisionMinY);
+            state.collisionInputs[2] = String.valueOf(data.collisionMinZ);
+            state.collisionInputs[3] = String.valueOf(data.collisionMaxX);
+            state.collisionInputs[4] = String.valueOf(data.collisionMaxY);
+            state.collisionInputs[5] = String.valueOf(data.collisionMaxZ);
 
                         if (data.modelVariations != null) {
                             for (LootContainerData.ModelVariation variation : data.modelVariations) {
@@ -836,6 +971,15 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             data.destroyOnEntityCollide = destroyEntityCollide;
             data.destroyOnExplosion = destroyExplosion;
             data.destroyOnProjectileHit = destroyProjectile;
+            data.autoRotate = autoRotate;
+            data.destroySound = destroySoundInput == null ? "" : destroySoundInput.trim();
+            float[] bounds = parseBounds(collisionInputs);
+            data.collisionMinX = bounds[0];
+            data.collisionMinY = bounds[1];
+            data.collisionMinZ = bounds[2];
+            data.collisionMaxX = bounds[3];
+            data.collisionMaxY = bounds[4];
+            data.collisionMaxZ = bounds[5];
 
             data.modelVariations.clear();
             for (LootContainerData.ModelVariation variation : modelVariations) {
@@ -855,6 +999,17 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             }
             data.setActions(outActions);
             return data;
+        }
+
+        private static float[] parseBounds(String[] values) {
+            float[] result = {0, 0, 0, 1, 1, 1};
+            for (int i = 0; i < result.length; i++) {
+                try {
+                    result[i] = Math.max(0.0F, Math.min(1.0F, Float.parseFloat(values[i])));
+                } catch (Exception ignored) {
+                }
+            }
+            return result;
         }
 
         static LootContainerData.ModelVariation copyVariation(LootContainerData.ModelVariation src) {
@@ -989,8 +1144,8 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         }
 
         void draw(int mouseX, int mouseY) {
-            drawString(fontRendererObj, "Model Variation #" + (index + 1), x + 2, y + 4, 0xBFBFBF);
-            drawString(fontRendererObj, "Destroyed Model", x + 206, y + 4, 0xBFBFBF);
+            drawString(fontRendererObj, tr("mbo.loot.gui.modelVariation") + " #" + (index + 1), x + 2, y + 4, 0xBFBFBF);
+            drawString(fontRendererObj, tr("mbo.loot.gui.destroyedModel"), x + 206, y + 4, 0xBFBFBF);
             normalField.drawTextBox();
             destroyedField.drawTextBox();
 
@@ -1021,7 +1176,7 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
             if (mouseX >= x && mouseX <= x + 18 && mouseY >= y && mouseY <= y + 18) {
                 List lines = new ArrayList();
                 lines.add(modelName);
-                lines.add("texture: " + model.getTextureName());
+                lines.add(tr("mbo.loot.gui.texture") + ": " + model.getTextureName());
                 drawHoveringText(lines, mouseX, mouseY, fontRendererObj);
             }
         }
