@@ -17,11 +17,14 @@ public class RecipeHelper {
             i++;
         }
 
+        if (pattern.isEmpty()) throw new IllegalArgumentException("Recipe pattern is empty");
         int width = pattern.get(0).length();
         int height = pattern.size();
+        if (width < 1 || width > 3 || height > 3)
+            throw new IllegalArgumentException("Arcanum recipe must fit inside 3x3");
 
         // Массив для хранения результата
-        ItemStack[] result = new ItemStack[width * height];
+        ItemStack[] result = new ItemStack[9];
 
         // Теперь пары char + Object (Item, Block, ItemStack)
         java.util.Map<Character, ItemStack> itemMap = new java.util.HashMap<>();
@@ -53,7 +56,7 @@ public class RecipeHelper {
                 throw new IllegalArgumentException("Pattern row " + row + " length mismatch");
             for (int col = 0; col < width; col++) {
                 char c = line.charAt(col);
-                result[row * width + col] = itemMap.get(c);
+                result[row * 3 + col] = itemMap.get(c);
             }
         }
 

@@ -21,7 +21,7 @@ public class ArcanumRecipes {
     }
 
     public ItemStack getOutput() {
-        return output;
+        return output.copy();
     }
 
     public int getCookTime() {

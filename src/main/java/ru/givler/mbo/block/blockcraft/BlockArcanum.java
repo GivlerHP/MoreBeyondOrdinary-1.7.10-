@@ -38,7 +38,7 @@ import ru.givler.mbo.tileentity.TileEntityArcanum;
             this.setHardness(1.0F);
             this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
             this.setResistance(10.0F);
-            this.setHarvestLevel("pick_axe", 0);
+            this.setHarvestLevel("pickaxe", 0);
             this.setStepSound(soundTypeStone);
 
             GameRegistry.registerBlock(this, name);
@@ -100,32 +100,23 @@ import ru.givler.mbo.tileentity.TileEntityArcanum;
                 isActive = ((TileEntityArcanum) te).isActive();
             }
 
-            if (side == meta) {
-                return isActive ? iconFrontActive : iconFrontIdle;
-            }
-            switch (side) {
-                case 2: return iconBack;
-                case 3: return iconBack;
-                case 4: return iconLeft;
-                case 5: return iconRight;
-                default: return iconTopBottom;
-            }
+            return getOrientedIcon(side, meta, isActive);
         }
 
         @SideOnly(Side.CLIENT)
         @Override
         public IIcon getIcon(int side, int meta) {
             if (side == 0 || side == 1) return iconTopBottom;
-            if (side == meta) return iconFrontIdle;
-            switch (side) {
-                case 2: return iconBack;
-                case 3: return iconBack;
-                case 4: return iconLeft;
-                case 5: return iconRight;
-                default: return iconTopBottom;
-            }
+            return getOrientedIcon(side, meta, false);
         }
 
+        private IIcon getOrientedIcon(int side, int front, boolean active) {
+            if (side == front) return active ? iconFrontActive : iconFrontIdle;
+            int back = front == 2 ? 3 : front == 3 ? 2 : front == 4 ? 5 : 4;
+            if (side == back) return iconBack;
+            int left = front == 2 ? 4 : front == 3 ? 5 : front == 4 ? 3 : 2;
+            return side == left ? iconLeft : iconRight;
+        }
 
         @Override
         public int getLightValue(IBlockAccess world, int x, int y, int z) {
@@ -142,10 +133,10 @@ import ru.givler.mbo.tileentity.TileEntityArcanum;
         @Override
         public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
             TileEntity tile = world.getTileEntity(x, y, z);
-            if (tile instanceof TileEntityArcanum) {
+            if (!world.isRemote && tile instanceof TileEntityArcanum) {
                 IInventory inv = (IInventory) tile;
                 for (int i = 0; i < inv.getSizeInventory(); ++i) {
-                    ItemStack stack = inv.getStackInSlot(i);
+                    ItemStack stack = inv.getStackInSlotOnClosing(i);
                     if (stack != null) {
                         float dx = world.rand.nextFloat() * 0.8F + 0.1F;
                         float dy = world.rand.nextFloat() * 0.8F + 0.1F;

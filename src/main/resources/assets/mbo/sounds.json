@@ -127,5 +127,7 @@
 		{"name": "mob/stonegolem_walk2","stream": false}
 		]},
     "stonegolem_death": {"category": "hostile", "sounds": [{"name": "mob/stonegolem_death", "stream": false}]},
-    "stonegolem_hit": {"category": "hostile", "sounds": [{"name": "mob/stonegolem_hit", "stream": false}]}
+    "stonegolem_hit": {"category": "hostile", "sounds": [{"name": "mob/stonegolem_hit", "stream": false}]},
+    "stonecutter_use1": {"category": "block", "sounds": [{"name": "stonecutter_use1", "stream": false}]},
+    "stonecutter_use2": {"category": "block", "sounds": [{"name": "stonecutter_use2", "stream": false}]}
 }

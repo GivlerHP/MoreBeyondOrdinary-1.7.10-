@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.tileentity.TileEntityArcanum;
-import ru.givler.mbo.сontainer.ContainerArcanum;
+import ru.givler.mbo.container.ContainerArcanum;
 
 public class GuiArcanum extends GuiContainer {
     private TileEntityArcanum tile;
@@ -29,7 +29,8 @@ public class GuiArcanum extends GuiContainer {
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
 
         // Прогресс
-        int progress = (int)((float)tile.getProgress() / tile.getMaxProgress() * 80); // ширина до 80
+        int progress = Math.min(80, (int)((float)tile.getProgress()
+                / Math.max(1, tile.getMaxProgress()) * 80));
         drawTexturedModalRect(guiLeft + 25, guiTop + 73, 0, 220, progress, 16);
     }
 }

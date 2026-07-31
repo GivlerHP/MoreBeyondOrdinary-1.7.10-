@@ -111,6 +111,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BouncyBrownMushroomBlock));
             list.add(new ItemStack(BouncyRedMushroomBlock));
             list.add(new ItemStack(BannerRegistry.loom));
+            list.add(new ItemStack(StonecutterRegistry.stonecutter));
             for (int color = 0; color < 16; color++) {
                 list.add(new ItemStack(BannerRegistry.banner, 1, color));
             }

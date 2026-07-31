@@ -61,6 +61,7 @@ public class CommonProxy {
         WoodRedstoneRegistry.init();
         BoatRegistry.init();
         BannerRegistry.init();
+        StonecutterRegistry.init();
         MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
         MinecraftForge.EVENT_BUS.register(new BeltEventHandler());
         if (Loader.isModLoaded("Thaumcraft")) {
@@ -86,6 +87,7 @@ public class CommonProxy {
         RoofRecipeRegistry.init();
         ArcanumRecipeRegistry.init();
         BlockRegistry.initRecipe();
+        StonecutterRegistry.registerRecipes();
         GameRegistry.addSmelting(net.minecraft.init.Blocks.stone,
                 new net.minecraft.item.ItemStack(BlockRegistry.SmoothStone), 0.1F);
 

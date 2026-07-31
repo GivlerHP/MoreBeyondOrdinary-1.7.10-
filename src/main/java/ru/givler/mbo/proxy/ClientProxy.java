@@ -20,6 +20,7 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Keyboard;
 import ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry;
+import ru.givler.mbo.integration.nei.ArcanumNEIConfig;
 import ru.givler.mbo.integration.thaumcraft.client.render.ItemStaffRenderer;
 import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEldritchOrbWhite;
 import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEntityDarkMoonOrb;
@@ -32,13 +33,13 @@ import ru.givler.mbo.handler.ClientKeyHandler;
 import ru.givler.mbo.handler.BarrierVisibilityHandler;
 import ru.givler.mbo.handler.PotionClientHandler;
 import ru.givler.mbo.handler.TooltipEvents;
-import ru.givler.mbo.integration.nei.ArcanumRecipeHandler;
 import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
 import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.registry.ModelRegistry;
 import ru.givler.mbo.registry.BannerRegistry;
+import ru.givler.mbo.registry.StonecutterRegistry;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
 import ru.givler.mbo.entity.boat.EntityMBOChestBoat;
 import ru.givler.mbo.entity.boat.EntityMBOBoatSeat;
@@ -88,6 +89,9 @@ public class ClientProxy extends CommonProxy {
         int slimeRenderId = RenderingRegistry.getNextAvailableRenderId();
         BlockRegistry.SlimeBlock.setSlimeRenderType(slimeRenderId);
         RenderingRegistry.registerBlockHandler(new RenderSlimeBlock(slimeRenderId));
+        int stonecutterRenderId = RenderingRegistry.getNextAvailableRenderId();
+        StonecutterRegistry.stonecutter.setStonecutterRenderType(stonecutterRenderId);
+        RenderingRegistry.registerBlockHandler(new RenderStonecutter(stonecutterRenderId));
         int cauldronRenderId = RenderingRegistry.getNextAvailableRenderId();
         CauldronHooks.setRenderType(cauldronRenderId);
         RenderingRegistry.registerBlockHandler(new RenderConnectedCauldron(cauldronRenderId));
@@ -102,14 +106,9 @@ public class ClientProxy extends CommonProxy {
         FMLCommonHandler.instance().bus().register(new ClientKeyHandler());
         FMLCommonHandler.instance().bus().register(new BarrierVisibilityHandler());
 
-
-
-
         if (Loader.isModLoaded("NotEnoughItems")) {
-            codechicken.nei.api.API.registerRecipeHandler(new ArcanumRecipeHandler());
-            codechicken.nei.api.API.registerUsageHandler(new ArcanumRecipeHandler());
+            ArcanumNEIConfig.registerHandlers();
         }
-
         bindDefaultRender(ModelRegistry.ModelThreads);
         bindDefaultRender(ModelRegistry.ModelCloth);
         bindDefaultRender(ModelRegistry.ModelTailorShelf);
