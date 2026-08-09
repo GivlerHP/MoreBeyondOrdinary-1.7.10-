@@ -508,7 +508,9 @@ tile.ModelFur.name=Шкура
 tile.ModelHorn.name=Рог  
 tile.ModelLeatherDryer.name=Сушилка для кожи  
 tile.ModelRabbits.name=Трупы кроликов  
-tile.ModelMooseHead.name=Голова лося  
+tile.ModelMooseHead.name=Голова лося
+tile.ModelDeerHead.name=Голова оленя
+tile.ModelDeerLegendHead.name=Голова легендарного оленя
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Модели обменщика/
@@ -677,6 +679,9 @@ item.wandWizard.desc=Наделяет владельца силой выпуск
 item.Uchigatana.name=Утигата
 item.DragonSlayer.name=Убийца драконов
 
+item.TorchWeapon.name=Факел
+item.TorchWeapon.desc=Поджигает врагов и вводит в состояние уязвимости бессмертных скелетов
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Напитки/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -720,6 +725,10 @@ item.SilverCross.name=Серебряный крест
 item.Metal.0.name=Необработанная нержавеющая сталь
 item.SapphireEye.name=Сапфировый глаз голема
 item.SapphireHeart.name=Сапфировое сердце голема
+
+item.Drop.0.name=Споры грибов
+item.Drop.1.name=Гоблинское ухо
+item.Drop.2.name=Скелет большого гоблина
 
 item.Crystall.0.name=Осколок Рубриусского кристалла
 item.Crystall.1.name=Осколок Виридитского кристалла
@@ -778,6 +787,7 @@ description.ring.1.LifeRing=+3 к здоровью
 description.ring.1.StaminaRing=+25 к выносливости
 description.ring.1.DamageRing=+7.5 к урону
 description.ring.1.SpeedRing=+7.5% к скорости
+description.ring.1.MushroomRing=+2 к здоровью и регенерация при поедание грибов
 
 item.LifeSmallRing.name=Малое кольцо жизни
 item.DamageSmallRing.name=Малое кольцо силы
@@ -788,6 +798,7 @@ item.LifeRing.name=Кольцо жизни
 item.DamageRing.name=Кольцо силы
 item.StaminaRing.name=Кольцо выносливости
 item.SpeedRing.name=Кольцо скорости
+item.MushroomRing.name=Грибное кольцо
 
 item.SmallBasicRing.name=Малое пустое кольцо
 item.BasicRing.name=Пустое кольцо

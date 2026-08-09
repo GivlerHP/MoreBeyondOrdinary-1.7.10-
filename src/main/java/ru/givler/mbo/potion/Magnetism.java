@@ -2,16 +2,11 @@ package ru.givler.mbo.potion;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ResourceLocation;
-import ru.givler.mbo.MoreBeyondOrdinary;
 
 import java.util.List;
 
 public class Magnetism extends PotionBasic {
-
-    private static final ResourceLocation potionIcon = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/gui/magnetism_icon.png");
 
     public Magnetism(int id, boolean isBadEffect, int liquidColour) {
         super(id, isBadEffect, liquidColour);
@@ -48,12 +43,6 @@ public class Magnetism extends PotionBasic {
     @Override
     public boolean isReady(int duration, int amplifier) {
         return duration % 10 == 0;
-    }
-
-    @Override
-    public void renderInventoryEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc) {
-        mc.renderEngine.bindTexture(potionIcon);
-        this.drawTexturedRect(x + 6, y + 7, 0, 0, 18, 18, 18, 18);
     }
 
 }

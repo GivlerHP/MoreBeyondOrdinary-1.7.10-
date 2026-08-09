@@ -1,26 +1,35 @@
 package ru.givler.mbo.potion;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import ru.givler.mbo.MoreBeyondOrdinary;
 
 public class PotionBasic extends Potion {
+	private ResourceLocation inventoryIcon;
 
     public PotionBasic(int id, boolean isBadEffect, int liquidColour) {
         super(id, isBadEffect, liquidColour);
     }
 
     @Override
-    public void performEffect(EntityLivingBase entitylivingbase, int strength) {
-    }
-
-    @Override
+    @SideOnly(Side.CLIENT)
     public void renderInventoryEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc) {
+		if (inventoryIcon == null) {
+			String icon = getName();
+			if (icon.startsWith("potion.")) icon = icon.substring("potion.".length());
+			if ("melee_damage".equals(icon)) icon = "damage_boost";
+			if ("miner_luck".equals(icon)) icon = "luck";
+			inventoryIcon = new ResourceLocation(MoreBeyondOrdinary.MODID,
+					"textures/gui/" + icon + "_icon.png");
+		}
+		mc.renderEngine.bindTexture(inventoryIcon);
+		drawTexturedRect(x + 6, y + 7, 0, 0, 18, 18, 18, 18);
     }
 
+    @SideOnly(Side.CLIENT)
     public static void drawTexturedRect(int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight)
     {
         float f = 1F / (float)textureWidth;

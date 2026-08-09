@@ -2,7 +2,6 @@ package ru.givler.mbo.registry;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.item.Item;
-import net.minecraft.potion.Potion;
 import ru.givler.mbo.item.ItemFood;
 
 public class FoodRegistry {

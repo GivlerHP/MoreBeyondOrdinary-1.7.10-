@@ -36,6 +36,7 @@ public class PotionCommonHandler {
     @SubscribeEvent
     public void onLivingHurt(LivingHurtEvent event) {
         EntityLivingBase target = event.entityLiving;
+        if (target.worldObj.isRemote) return;
         float amount = event.ammount;
 
         if (target.isPotionActive(PotionEnum.VULNERABILITY)) {
@@ -67,6 +68,7 @@ public class PotionCommonHandler {
     */
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event) {
+        if (event.entityLiving.worldObj.isRemote) return;
         if (!(event.entityLiving instanceof EntityPlayer)) return;
         EntityPlayer player = (EntityPlayer) event.entityLiving;
 
@@ -91,6 +93,7 @@ public class PotionCommonHandler {
     private static final Random rand = new Random();
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void onEntityAttacked(LivingHurtEvent event) {
+        if (event.entityLiving.worldObj.isRemote) return;
         if (!(event.source.getEntity() instanceof EntityPlayer)) return;
 
         EntityPlayer player = (EntityPlayer) event.source.getEntity();
@@ -100,7 +103,7 @@ public class PotionCommonHandler {
             PotionEffect effect = player.getActivePotionEffect(PotionEnum.APPLYSTUN);
             if (effect != null) {
                 int level = effect.getAmplifier() + 1;
-                double chance = 0.1 * level;
+                double chance = Math.min(1.0D, 0.1D * level);
 
                 if (rand.nextDouble() <= chance) {
                     target.addPotionEffect(new PotionEffect(PotionRegistry.BashStun.id, 10, 0));
@@ -111,7 +114,7 @@ public class PotionCommonHandler {
             PotionEffect effect = player.getActivePotionEffect(PotionEnum.HEX);
             int level = effect.getAmplifier() + 1;
 
-            double chance = 0.15 * level;
+            double chance = Math.min(1.0D, 0.15D * level);
             if (rand.nextDouble() <= chance) {
                 int randomEffect = rand.nextInt(6); // Выбираем случайный эффект
 
@@ -146,6 +149,7 @@ public class PotionCommonHandler {
      */
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event) {
+        if (event.entityLiving.worldObj.isRemote) return;
         if (!(event.entityLiving instanceof EntityPlayer)) return;
 
         EntityPlayer player = (EntityPlayer) event.entityLiving;
@@ -174,7 +178,7 @@ public class PotionCommonHandler {
 
         PotionEffect effect = player.getActivePotionEffect(PotionEnum.DODGE);
         int level = effect.getAmplifier() + 1;
-        double chance = 0.1 * level;
+        double chance = Math.min(1.0D, 0.1D * level);
 
         if (player.worldObj.rand.nextDouble() < chance) {
             event.setCanceled(true);
@@ -191,17 +195,11 @@ public class PotionCommonHandler {
             return;
         }
         EntityPlayer player = (EntityPlayer) event.entityLiving;
-        World world = player.getEntityWorld();
-
         if (!player.isPotionActive(PotionEnum.BASH_STUN)) {
             return;
         }
         // --- Начало «жёсткого» сброса передвижения ---
         // 3) Запомним, где игрок находился до перерасчёта движения:
-        double prevX = player.posX;
-        double prevY = player.posY;
-        double prevZ = player.posZ;
-
         player.moveForward = 0.0F;
         player.moveStrafing = 0.0F;
 
@@ -219,9 +217,6 @@ public class PotionCommonHandler {
         //    применения движения, нам нужно «телепортировать» обратно.
         //    Однако если мы вызывать setPositionAndUpdate здесь,
         //    это пересинхронизирует позицию на клиенте/сервере
-        if (player instanceof EntityPlayerMP) {
-            ((EntityPlayerMP) player).playerNetServerHandler.setPlayerLocation(prevX, prevY, prevZ, player.rotationYaw, player.rotationPitch);
-        }
         // --- Конец жёсткого сброса ---
     }
 
@@ -259,6 +254,7 @@ public class PotionCommonHandler {
      */
     @SubscribeEvent
     public void onEntityHurt(LivingHurtEvent event) {
+        if (event.entityLiving.worldObj.isRemote || "thorns".equals(event.source.getDamageType())) return;
         if (!(event.entityLiving instanceof EntityLivingBase)) return;
 
         EntityLivingBase target = (EntityLivingBase) event.entityLiving;
@@ -281,14 +277,15 @@ public class PotionCommonHandler {
     @SubscribeEvent
     public void additionalDropWithLuck(BlockEvent.HarvestDropsEvent event) {
         World world = event.world;
+        if (world.isRemote) return;
         Block block = event.block;
         EntityPlayer player = event.harvester;
         if (player != null) {
 
             if (player.isPotionActive(PotionEnum.LUCK)) {
-                int scale = player.getActivePotionEffect(PotionEnum.LUCK).getAmplifier() == 0 ? 1 : 2;
+                int scale = player.getActivePotionEffect(PotionEnum.LUCK).getAmplifier() + 1;
 
-                if (world.rand.nextInt(100) < 20 * scale) {
+                if (world.rand.nextInt(100) < Math.min(100, 20 * scale)) {
                     ItemStack bonus = null;
 
                     if (block == Blocks.coal_ore) {

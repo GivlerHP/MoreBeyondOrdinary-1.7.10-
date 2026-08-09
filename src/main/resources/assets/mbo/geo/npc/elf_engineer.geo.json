@@ -1,0 +1,124 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 5,
+				"visible_bounds_height": 4.5,
+				"visible_bounds_offset": [0, 1.75, 0]
+			},
+			"bones": [
+				{
+					"name": "Waist",
+					"pivot": [0, 12, 0]
+				},
+				{
+					"name": "Head",
+					"parent": "Waist",
+					"pivot": [0, 24, 0],
+					"cubes": [
+						{"origin": [-10, 25, -2], "size": [6, 3, 0], "pivot": [-4, 26.5, -2], "rotation": [0, 45, 0], "uv": [58, 53], "mirror": true},
+						{"origin": [4, 25, -2], "size": [6, 3, 0], "pivot": [4, 26.5, -2], "rotation": [0, -45, 0], "uv": [58, 53]},
+						{"origin": [-4, 24, -4], "size": [8, 8, 8], "uv": [0, 0]},
+						{"origin": [-4, 24, -4], "size": [8, 8, 8], "inflate": 0.5, "uv": [0, 16]}
+					]
+				},
+				{
+					"name": "glasses",
+					"parent": "Head",
+					"pivot": [0, 30.9375, -1.75],
+					"rotation": [-7, 0, 0],
+					"cubes": [
+						{"origin": [-1.5, 30, -4.875], "size": [3, 2, 0], "uv": [56, 14]},
+						{"origin": [-4.5, 28.5, -4.875], "size": [4, 4, 1], "inflate": 0.05, "uv": [58, 48]},
+						{"origin": [0.5, 28.5, -4.875], "size": [4, 4, 1], "inflate": 0.05, "uv": [58, 48], "mirror": true},
+						{"origin": [-4.5, 30, -3.875], "size": [1, 2, 2], "inflate": 0.05, "uv": [58, 59]},
+						{"origin": [3.5, 30, -3.875], "size": [1, 2, 2], "inflate": 0.05, "uv": [58, 59], "mirror": true},
+						{"origin": [3.5, 30.5, -1.875], "size": [1, 1, 5], "uv": [56, 2]},
+						{"origin": [-4.5, 30.5, 3.125], "size": [9, 1, 1], "uv": [56, 0]},
+						{"origin": [-4.5, 30.5, -1.875], "size": [1, 1, 5], "uv": [56, 8]}
+					]
+				},
+				{
+					"name": "Body",
+					"parent": "Waist",
+					"pivot": [0, 24, 0],
+					"cubes": [
+						{"origin": [-4, 12, -2], "size": [8, 12, 4], "uv": [0, 32]},
+						{"origin": [-4, 12, -2], "size": [8, 12, 4], "inflate": 0.25, "uv": [32, 0]}
+					]
+				},
+				{
+					"name": "Right Arm",
+					"parent": "Waist",
+					"pivot": [-5, 22, 0],
+					"cubes": [
+						{"origin": [-7, 12, -2], "size": [3, 12, 4], "uv": [16, 48]},
+						{"origin": [-7, 12, -2], "size": [3, 12, 4], "inflate": 0.25, "uv": [48, 16]}
+					]
+				},
+				{
+					"name": "wrench",
+					"parent": "Right Arm",
+					"pivot": [-5.5, 14.125, -5],
+					"rotation": [90, 0, 0],
+					"cubes": [
+						{"origin": [-6.5, 13, -6.5], "size": [2, 3, 3], "uv": [56, 42]},
+						{
+							"origin": [-6, 7, -6],
+							"size": [1, 6, 2],
+							"uv": {
+								"north": {"uv": [58, 36], "uv_size": [1, 6]},
+								"east": {"uv": [56, 36], "uv_size": [2, 6]},
+								"south": {"uv": [61, 36], "uv_size": [1, 6]},
+								"west": {"uv": [59, 36], "uv_size": [2, 6]},
+								"up": {"uv": [58, 32], "uv_size": [1, 2]},
+								"down": {"uv": [59, 34], "uv_size": [1, -2]}
+							}
+						},
+						{"origin": [-6, 14.5, -7], "size": [1, 3, 1], "uv": [62, 18]},
+						{"origin": [-6, 14.5, -4], "size": [1, 3, 1], "uv": [62, 18]}
+					]
+				},
+				{
+					"name": "Left Arm",
+					"parent": "Waist",
+					"pivot": [5, 22, 0],
+					"cubes": [
+						{"origin": [4, 12, -2], "size": [3, 12, 4], "uv": [30, 48]},
+						{"origin": [4, 12, -2], "size": [3, 12, 4], "inflate": 0.25, "uv": [44, 48]}
+					]
+				},
+				{
+					"name": "screw",
+					"parent": "Left Arm",
+					"pivot": [5, 13.5, -3],
+					"rotation": [67.5, 0, 0],
+					"cubes": [
+						{"origin": [4, 14, -4], "size": [2, 1, 2], "uv": [58, 56]},
+						{"origin": [4.5, 11, -3.5], "size": [1, 3, 1], "uv": [62, 14]}
+					]
+				},
+				{
+					"name": "Right Leg",
+					"pivot": [-1.9, 12, 0],
+					"cubes": [
+						{"origin": [-3.9, 0, -2], "size": [4, 12, 4], "uv": [32, 16]},
+						{"origin": [-3.9, 0, -2], "size": [4, 12, 4], "inflate": 0.25, "uv": [24, 32]}
+					]
+				},
+				{
+					"name": "Left Leg",
+					"pivot": [1.9, 12, 0],
+					"cubes": [
+						{"origin": [-0.1, 0, -2], "size": [4, 12, 4], "uv": [40, 32]},
+						{"origin": [-0.1, 0, -2], "size": [4, 12, 4], "inflate": 0.25, "uv": [0, 48]}
+					]
+				}
+			]
+		}
+	]
+}

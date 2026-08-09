@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import ru.givler.mbo.block.*;
 import ru.givler.mbo.block.blockcraft.BlockArcanum;
 import ru.givler.mbo.block.specialblocks.*;
+import ru.givler.mbo.block.model.BlockModelCollision;
 
 public class BlockRegistry {
     //переменные для блоков
@@ -20,6 +21,7 @@ public class BlockRegistry {
     public static BlockBarrier Barrier;
     public static BlockSlimeMBO SlimeBlock;
     public static BlockBouncyMushroom BouncyBrownMushroomBlock, BouncyRedMushroomBlock;
+    public static BlockModelCollision ModelCollisionPart;
     //переменные для ступенек
     public static Block  StairsStone, StairsSandstone, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
             StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay, StairsAshgarBrick;
@@ -61,6 +63,8 @@ public class BlockRegistry {
         BlockAshgarBrick = new BlockBase(Material.rock, "BlockAshgarBrick", "stone/ashgar_brick");
 
         BlockWoodenBox = new BlockBase(Material.wood, "BlockWoodenBox", "wood/wooden_box").setStepSound(Block.soundTypeWood);
+        ModelCollisionPart = new BlockModelCollision();
+        GameRegistry.registerBlock(ModelCollisionPart, "ModelCollisionPart");
         Barrier = new BlockBarrier();
         SlimeBlock = new BlockSlimeMBO();
         GameRegistry.registerBlock(SlimeBlock, "SlimeBlock");
@@ -236,10 +240,6 @@ public class BlockRegistry {
         GameRegistry.addRecipe(new ItemStack(SlimeBlock),
                 new Object[]{"SSS", "SSS", "SSS", 'S', net.minecraft.init.Items.slime_ball});
         GameRegistry.addShapelessRecipe(new ItemStack(net.minecraft.init.Items.slime_ball, 9), SlimeBlock);
-        GameRegistry.addRecipe(new ItemStack(BouncyBrownMushroomBlock),
-                new Object[]{"MMM", "MMM", "MMM", 'M', Blocks.brown_mushroom});
-        GameRegistry.addRecipe(new ItemStack(BouncyRedMushroomBlock),
-                new Object[]{"MMM", "MMM", "MMM", 'M', Blocks.red_mushroom});
 
         FenceVanilla.addStandardRecipes();
 

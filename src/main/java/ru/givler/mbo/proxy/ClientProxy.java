@@ -47,11 +47,11 @@ import ru.givler.mbo.render.boat.RenderMBOBoat;
 import ru.givler.mbo.render.boat.RenderMBOBoatSeat;
 import ru.givler.mbo.render.*;
 import ru.givler.mbo.core.CauldronHooks;
-import ru.givler.mbo.render.decormodels.AnimatedTemplateModelRenderer;
 import ru.givler.mbo.render.decormodels.RenderLootContainerItem;
 import ru.givler.mbo.render.decormodels.RenderLootContainerTile;
 import ru.givler.mbo.render.decormodels.TemplateModelRenderer;
-import ru.givler.mbo.tileentity.AnimatedModelTileBase;
+import ru.givler.mbo.render.decormodels.TemplateItemModelRenderer;
+import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
 import ru.givler.mbo.banner.TileEntityBanner;
 import ru.givler.mbo.banner.client.RenderBanner;
@@ -135,6 +135,8 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelLeatherDryer);
         bindDefaultRender(ModelRegistry.ModelRabbits);
         bindDefaultRender(ModelRegistry.ModelMooseHead);
+        bindDefaultRender(ModelRegistry.ModelDeerHead);
+        bindDefaultRender(ModelRegistry.ModelDeerLegendHead);
 
         bindDefaultRender(ModelRegistry.ModelMagnifyinGlass);
         bindDefaultRender(ModelRegistry.ModelBagGold);
@@ -195,6 +197,7 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelBook6);
         bindDefaultRender(ModelRegistry.ModelBook7);
         bindDefaultRender(ModelRegistry.ModelBook8);
+        bindDefaultRender(ModelRegistry.ModelBook9);
 
         bindDefaultRender(ModelRegistry.ModelVishroom);
 
@@ -213,8 +216,8 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelBricks1);
         bindDefaultRender(ModelRegistry.ModelBricks2);
         bindDefaultRender(ModelRegistry.ModelBricks3);
-      //  bindDefaultRender(ModelRegistry.ModelBricks4);
-      //  bindDefaultRender(ModelRegistry.ModelBricks5);
+        bindDefaultRender(ModelRegistry.ModelBricks4);
+        bindDefaultRender(ModelRegistry.ModelBricks5);
         bindDefaultRender(ModelRegistry.ModelBricks6);
         bindDefaultRender(ModelRegistry.ModelBricks7);
 
@@ -229,16 +232,26 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(ModelRegistry.ModelPileBones8);
         bindDefaultRender(ModelRegistry.ModelPileBones9);
 
+        bindDefaultRender(ModelRegistry.ModelUrn0);
+        bindDefaultRender(ModelRegistry.ModelUrn1);
+        bindDefaultRender(ModelRegistry.ModelUrn2);
+        bindDefaultRender(ModelRegistry.ModelUrn3);
+        bindDefaultRender(ModelRegistry.ModelUrn4);
+        bindDefaultRender(ModelRegistry.ModelFuneraryUrn0);
+        bindDefaultRender(ModelRegistry.ModelFuneraryUrn1);
+        bindDefaultRender(ModelRegistry.ModelFuneraryUrn2);
+        bindDefaultRender(ModelRegistry.ModelFuneraryUrn3);
+
         bindDefaultRender(ModelRegistry.ModelBottle);
         bindDefaultRender(ModelRegistry.ModelCup);
         bindLootContainerRender(ModelRegistry.LootContainer);
 
 
-        bindAnimatedRender(ModelRegistry.ModelWisp);
+        bindDefaultRender(ModelRegistry.ModelWisp);
 
-        AnimationController.addModelFetcher((AnimationController.ModelFetcher<AnimatedModelTileBase>) animatable -> {
-            if (animatable instanceof AnimatedModelTileBase) {
-                return new ru.givler.mbo.models.AnimatedBlockTemplateModel();
+        AnimationController.addModelFetcher((AnimationController.ModelFetcher<ModelTileBase>) animatable -> {
+            if (animatable instanceof ModelTileBase) {
+                return new ru.givler.mbo.models.BlockTemplateModel();
             }
             return null;
         });
@@ -271,7 +284,12 @@ public class ClientProxy extends CommonProxy {
 
 
     public static void bindDefaultRender(BlockModels block) {
-        bindRender(block, block.createNewTileEntity(null, 0), new TemplateModelRenderer());
+        TileEntity tile = block.createNewTileEntity(null, 0);
+        ClientRegistry.bindTileEntitySpecialRenderer(tile.getClass(), new TemplateModelRenderer());
+        Item blockItem = ItemBlock.getItemFromBlock(block);
+        MinecraftForgeClient.registerItemRenderer(blockItem,
+                new RenderBlockItem(new TemplateItemModelRenderer(), tile));
+        MODEL_REGISTRY.put(block.getModelName(), block);
     }
 
 
@@ -280,17 +298,6 @@ public class ClientProxy extends CommonProxy {
         Item blockItem = ItemBlock.getItemFromBlock(block);
         MinecraftForgeClient.registerItemRenderer(blockItem, new RenderBlockItem(tesr, tile));
         MODEL_REGISTRY.put(block.getModelName(), block);
-    }
-
-    public static void bindAnimatedRender(BlockModels block) {
-        AnimatedTemplateModelRenderer animatedTesr = new AnimatedTemplateModelRenderer();
-        TileEntity animatedTile = block.createNewTileEntity(null, 0);
-        ClientRegistry.bindTileEntitySpecialRenderer(animatedTile.getClass(), animatedTesr);
-
-        // используем тот же animatedTile вместо создания нового ModelTileBase
-        TemplateModelRenderer staticTesr = new TemplateModelRenderer();
-        Item blockItem = ItemBlock.getItemFromBlock(block);
-        MinecraftForgeClient.registerItemRenderer(blockItem, new RenderBlockItem(staticTesr, animatedTile));
     }
 
     public static void bindLootContainerRender(BlockModels block) {
@@ -368,4 +375,3 @@ public class ClientProxy extends CommonProxy {
     }
 
 }
-

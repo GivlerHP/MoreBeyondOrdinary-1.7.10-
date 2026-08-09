@@ -9,8 +9,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import org.lwjgl.opengl.GL11;
-import java.util.ArrayDeque;
-import java.util.HashSet;
 import ru.givler.mbo.core.CauldronHooks;
 
 public class RenderConnectedCauldron implements ISimpleBlockRenderingHandler {

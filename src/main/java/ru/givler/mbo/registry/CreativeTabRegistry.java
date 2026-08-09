@@ -230,6 +230,7 @@ public class CreativeTabRegistry {
             for(int i=0; i<=0; i++) { list.add(new ItemStack(Metal, 0, i)); }
             list.add(new ItemStack(SapphireEye));
             list.add(new ItemStack(SapphireHeart));
+            for(int i=0; i<=3; i++) { list.add(new ItemStack(Drop, 0, i)); }
             for(int i=0; i<=14; i++) { list.add(new ItemStack(Crystall, 0, i)); }
 
 
@@ -396,6 +397,8 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(ModelLeatherDryer));
             list.add(new ItemStack(ModelRabbits));
             list.add(new ItemStack(ModelMooseHead));
+            list.add(new ItemStack(ModelDeerHead));
+            list.add(new ItemStack(ModelDeerLegendHead));
 
             list.add(new ItemStack(ModelMagnifyinGlass));
             list.add(new ItemStack(ModelBagGold));
@@ -456,6 +459,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(ModelBook6));
             list.add(new ItemStack(ModelBook7));
             list.add(new ItemStack(ModelBook8));
+            list.add(new ItemStack(ModelBook9));
 
             list.add(new ItemStack(ModelVishroom));
 
@@ -477,6 +481,8 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(ModelBricks1));
             list.add(new ItemStack(ModelBricks2));
             list.add(new ItemStack(ModelBricks3));
+            list.add(new ItemStack(ModelBricks4));
+            list.add(new ItemStack(ModelBricks5));
             list.add(new ItemStack(ModelBricks6));
             list.add(new ItemStack(ModelBricks7));
 
@@ -490,6 +496,16 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(ModelPileBones7));
             list.add(new ItemStack(ModelPileBones8));
             list.add(new ItemStack(ModelPileBones9));
+
+            list.add(new ItemStack(ModelUrn0));
+            list.add(new ItemStack(ModelUrn1));
+            list.add(new ItemStack(ModelUrn2));
+            list.add(new ItemStack(ModelUrn3));
+            list.add(new ItemStack(ModelUrn4));
+            list.add(new ItemStack(ModelFuneraryUrn0));
+            list.add(new ItemStack(ModelFuneraryUrn1));
+            list.add(new ItemStack(ModelFuneraryUrn2));
+            list.add(new ItemStack(ModelFuneraryUrn3));
 
             list.add(new ItemStack(LootContainer));
 

@@ -1,14 +1,11 @@
 package ru.givler.mbo.render;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.MoreBeyondOrdinary;
-
-import java.io.InputStream;
 
 public class CircleRenderer extends TileEntitySpecialRenderer {
     private final ResourceLocation texture = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/blocks/exorcism_circle.png");

@@ -6,12 +6,9 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.block.material.Material;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.block.specialblocks.BlockDestructibleLootContainer;
 import ru.givler.mbo.block.blockmodels.BlockModelFood;
-import ru.givler.mbo.tileentity.AnimatedModelTileBase;
 
 import static net.minecraft.block.Block.*;
 
@@ -23,7 +20,7 @@ public class ModelRegistry {
     public static BlockModels ModelIngredients, ModelCauldron, ModelBottles, ModelBooks, ModelAlchemistShelf, ModelAlchemicalFlag;
     //Интерьер охотника
     public static BlockModels ModelArrow, ModelBowWall, ModelBow, ModelDucks, ModelFurKnife, ModelFur, ModelHorn, ModelLeatherDryer,
-            ModelRabbits, ModelMooseHead;
+            ModelRabbits, ModelMooseHead, ModelDeerHead,ModelDeerLegendHead;
     //Интерьер обменщика
     public static BlockModels ModelMagnifyinGlass, ModelBagGold, ModelCoins, ModelSmallChest, ModelScales;
     //Интерьер фермера
@@ -39,7 +36,8 @@ public class ModelRegistry {
     //Интерьер инженера
     public static BlockModels ModelGas, ModelOiler, ModelGears, ModelDrawing1, ModelDrawing2, ModelClock, ModelBrokenMechanism;
     //Книжки
-    public static BlockModels ModelBook0, ModelBook1, ModelBook2, ModelBook3, ModelBook4, ModelBook5, ModelBook6, ModelBook7, ModelBook8;
+    public static BlockModels ModelBook0, ModelBook1, ModelBook2, ModelBook3, ModelBook4, ModelBook5, ModelBook6,
+            ModelBook7, ModelBook8, ModelBook9;
     //гриюы
     public static BlockModels ModelVishroom;
     //еда
@@ -50,6 +48,9 @@ public class ModelRegistry {
     //скелеты
     public static BlockModels ModelPileBones0, ModelPileBones1, ModelPileBones2, ModelPileBones3, ModelPileBones4, ModelPileBones5,
             ModelPileBones6, ModelPileBones7, ModelPileBones8, ModelPileBones9;
+    //Урны
+    public static BlockModels ModelUrn0, ModelUrn1, ModelUrn2, ModelUrn3, ModelUrn4, ModelFuneraryUrn0,
+            ModelFuneraryUrn1, ModelFuneraryUrn2, ModelFuneraryUrn3;
     public static BlockModels LootContainer;
 
     //анимированные модели
@@ -57,44 +58,44 @@ public class ModelRegistry {
 
     public static void preInit(FMLPreInitializationEvent event){
         ModelThreads = new BlockModels(Material.cloth, "ModelThreads", "threads", "threads");
-        ModelTailorShelf = new BlockModels(Material.cloth,"ModelTailorShelf", "tailor's_shelf", "tailor's_shelf");
+        ModelTailorShelf = new BlockModels(Material.wood,"ModelTailorShelf", "tailor's_shelf", "tailor's_shelf");
         ModelCloth = new BlockModels(Material.cloth,"ModelCloth", "cloth", "cloth");
         ModelCloth.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelCloth.setCollisionEnabled(false);
-        ModelDummy = new BlockModels(Material.cloth, "ModelDummy", "dummy", "dummy");
+        ModelDummy = new BlockModels(Material.wood, "ModelDummy", "dummy", "dummy");
         ModelDummy.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 1.6F, 0.8F);
-        ModelHangers = new BlockModels(Material.cloth,"ModelHangers", "hangers", "hangers");
+        ModelHangers = new BlockModels(Material.wood,"ModelHangers", "hangers", "hangers");
         ModelHangers.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelHangers.setCollisionEnabled(false);
         ModelPillow = new BlockModels(Material.cloth,"ModelPillow", "pillow_for_needles", "pillow_for_needles");
-        ModelRulers = new BlockModels(Material.cloth,"ModelRulers", "rulers", "rulers");
+        ModelRulers = new BlockModels(Material.wood,"ModelRulers", "rulers", "rulers");
         ModelRulers.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelRulers.setCollisionEnabled(false);
-        ModelScissors = new BlockModels(Material.cloth,"ModelScissors", "scissors", "scissors");
+        ModelScissors = new BlockModels(Material.iron,"ModelScissors", "scissors", "scissors");
 
         //алхимик
-        ModelIngredients = new BlockModels(Material.cloth,"ModelIngredients", "ingredients", "ingredients");
+        ModelIngredients = new BlockModels(Material.wood,"ModelIngredients", "ingredients", "ingredients");
         ModelIngredients.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelIngredients.setCollisionEnabled(false);
-        ModelCauldron = new BlockModels(Material.cloth,"ModelCauldron", "cauldron", "cauldron");
-        ModelBottles = new BlockModels(Material.cloth,"ModelBottles", "bottles", "bottles");
-        ModelBooks = new BlockModels(Material.cloth,"ModelBooks", "books", "books");
+        ModelCauldron = new BlockModels(Material.iron,"ModelCauldron", "cauldron", "cauldron");
+        ModelBottles = new BlockModels(Material.glass,"ModelBottles", "bottles", "bottles");
+        ModelBooks = new BlockModels(Material.wood,"ModelBooks", "books", "books");
 
-        ModelAlchemistShelf = new BlockModels(Material.cloth,"ModelAlchemistShelf", "alchemist's_shelf", "alchemist's_shelf");
+        ModelAlchemistShelf = new BlockModels(Material.wood,"ModelAlchemistShelf", "alchemist's_shelf", "alchemist's_shelf");
 
         ModelAlchemicalFlag = new BlockModels(Material.cloth,"ModelAlchemicalFlag", "alchemical_flag", "alchemical_flag");
         ModelAlchemicalFlag.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelAlchemicalFlag.setCollisionEnabled(false);
 
         //ниже модели охотника
-        ModelArrow = new BlockModels(Material.cloth,"ModelArrow", "arrows", "arrows");
+        ModelArrow = new BlockModels(Material.wood,"ModelArrow", "arrows", "arrows");
         ModelArrow.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.2F, 1.0F);
 
-        ModelBowWall = new BlockModels(Material.cloth,"ModelBowWall", "bow", "bow_on_the_wall");
+        ModelBowWall = new BlockModels(Material.wood,"ModelBowWall", "bow", "bow_on_the_wall");
         ModelBowWall.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelBowWall.setCollisionEnabled(false);
 
-        ModelBow = new BlockModels(Material.cloth,"ModelBow", "bow", "bow");
+        ModelBow = new BlockModels(Material.wood,"ModelBow", "bow", "bow");
         ModelBow.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.2F, 1.0F);
 
         ModelDucks = new BlockModels(Material.cloth,"ModelDucks", "ducks", "ducks");
@@ -111,7 +112,7 @@ public class ModelRegistry {
         ModelHorn.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelHorn.setCollisionEnabled(false);
 
-        ModelLeatherDryer = new BlockModels(Material.cloth,"ModelLeatherDryer", "leather_dryer", "leather_dryer");
+        ModelLeatherDryer = new BlockModels(Material.wood,"ModelLeatherDryer", "leather_dryer", "leather_dryer");
         ModelLeatherDryer.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.7F, 1.0F);
 
         ModelRabbits = new BlockModels(Material.cloth,"ModelRabbits", "rabbits", "rabbits");
@@ -121,19 +122,24 @@ public class ModelRegistry {
         ModelMooseHead = new BlockModels(Material.cloth,"ModelMooseHead", "moose_head", "moose_head");
         ModelMooseHead.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 
+        ModelDeerHead = new BlockModels(Material.cloth,"ModelDeerHead", "deer_head", "deer_head");
+        ModelDeerHead.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+
+        ModelDeerLegendHead = new BlockModels(Material.cloth,"ModelDeerLegendHead", "deer_legend_head", "deer_head");
+        ModelDeerLegendHead.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         //ниже модели обменщика
-        ModelMagnifyinGlass = new BlockModels(Material.cloth,"ModelMagnifyinGlass", "magnifying_glass", "magnifying_glass");
+        ModelMagnifyinGlass = new BlockModels(Material.glass,"ModelMagnifyinGlass", "magnifying_glass", "magnifying_glass");
         ModelMagnifyinGlass.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.1F, 1.0F);
 
         ModelBagGold = new BlockModels(Material.cloth,"ModelBagGold", "bag_of_gold", "bag_of_gold");
 
-        ModelCoins = new BlockModels(Material.cloth,"ModelCoins", "coins", "coins");
+        ModelCoins = new BlockModels(Material.iron,"ModelCoins", "coins", "coins");
         ModelCoins.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.2F, 1.0F);
 
-        ModelSmallChest = new BlockModels(Material.cloth,"ModelSmallChest", "small_chest", "small_chest");
+        ModelSmallChest = new BlockModels(Material.wood,"ModelSmallChest", "small_chest", "small_chest");
         ModelSmallChest.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.5F, 0.8F);
 
-        ModelScales = new BlockModels(Material.cloth,"ModelScales", "scales", "scales");
+        ModelScales = new BlockModels(Material.iron,"ModelScales", "scales", "scales");
         ModelScales.setBlockBounds(0.1F, 0.0F, 0.1F, 0.9F, 0.5F, 0.9F);
 
         //ниже модели фермера
@@ -145,61 +151,61 @@ public class ModelRegistry {
         ModelBasketBerries = new BlockModels(Material.cloth,"ModelBasketBerries", "basket_of_berries", "basket_of_berries");
         ModelBasketBerries.setBlockBounds(0.1F, 0.0F, 0.1F, 0.9F, 0.4F, 0.9F);
 
-        ModelBucket = new BlockModels(Material.cloth,"ModelBucket", "bucket", "bucket");
+        ModelBucket = new BlockModels(Material.iron,"ModelBucket", "bucket", "bucket");
         ModelBucket.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.4F, 0.7F);
 
-        ModelCarrot = new BlockModels(Material.cloth,"ModelCarrot", "carrot", "carrot");
+        ModelCarrot = new BlockModels(Material.plants,"ModelCarrot", "carrot", "carrot");
         ModelCarrot.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.2F, 1.0F);
 
-        ModelGarlic = new BlockModels(Material.cloth,"ModelGarlic", "garlic", "garlic");
+        ModelGarlic = new BlockModels(Material.plants,"ModelGarlic", "garlic", "garlic");
         ModelGarlic.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelGarlic.setCollisionEnabled(false);
 
-        ModelHay = new BlockModels(Material.cloth,"ModelHay", "hay", "hay");
+        ModelHay = new BlockModels(Material.grass,"ModelHay", "hay", "hay");
         ModelHay.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.1F, 1.0F);
 
-        ModelHayfork = new BlockModels(Material.cloth,"ModelHayfork", "hayfork", "hayfork");
+        ModelHayfork = new BlockModels(Material.iron,"ModelHayfork", "hayfork", "hayfork");
         ModelHayfork.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 2.0F, 1.0F);
         ModelHayfork.setCollisionEnabled(false);
 
-        ModelJugs = new BlockModels(Material.cloth,"ModelJugs", "jugs", "jugs");
+        ModelJugs = new BlockModels(Material.clay,"ModelJugs", "jugs", "jugs");
 
-        ModelShelfFlower = new BlockModels(Material.cloth,"ModelShelfFlower", "shelf_with_flower", "shelf_with_flower");
+        ModelShelfFlower = new BlockModels(Material.wood,"ModelShelfFlower", "shelf_with_flower", "shelf_with_flower");
 
-        ModelWateringCan = new BlockModels(Material.cloth,"ModelWateringСan", "watering_can", "watering_can");
+        ModelWateringCan = new BlockModels(Material.iron,"ModelWateringСan", "watering_can", "watering_can");
         ModelWateringCan.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelWateringCan.setCollisionEnabled(false);
 
 
-        ModelWheelBarrow = new BlockModels(Material.cloth,"ModelWheelBarrow", "wheelbarrow", "wheelbarrow");
+        ModelWheelBarrow = new BlockModels(Material.wood,"ModelWheelBarrow", "wheelbarrow", "wheelbarrow");
         ModelWheelBarrow.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 
 
         //ниже модели ювелира
-        ModelFilledChest = new BlockModels(Material.cloth,"ModelFilledChest", "small_filled_chest", "small_filled_chest");
+        ModelFilledChest = new BlockModels(Material.wood,"ModelFilledChest", "small_filled_chest", "small_filled_chest");
         ModelFilledChest.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.6F, 1.0F);
 
 
-        ModelPliers = new BlockModels(Material.cloth,"ModelPliers", "pliers", "pliers");
+        ModelPliers = new BlockModels(Material.iron,"ModelPliers", "pliers", "pliers");
         ModelPliers.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.3F, 1.0F);
 
-        ModelJewelryHammer = new BlockModels(Material.cloth,"ModelJewelryHammer", "jewelry_hammer", "jewelry_hammer");
+        ModelJewelryHammer = new BlockModels(Material.iron,"ModelJewelryHammer", "jewelry_hammer", "jewelry_hammer");
         ModelJewelryHammer.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.3F, 1.0F);
 
-        ModelAmulet = new BlockModels(Material.cloth,"ModelAmulet", "amulet", "amulet");
+        ModelAmulet = new BlockModels(Material.iron,"ModelAmulet", "amulet", "amulet");
         ModelAmulet.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelAmulet.setCollisionEnabled(false);
 
-        ModelInstruments = new BlockModels(Material.cloth,"ModelInstruments", "instruments", "instruments");
+        ModelInstruments = new BlockModels(Material.wood,"ModelInstruments", "instruments", "instruments");
         ModelInstruments.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelInstruments.setCollisionEnabled(false);
 
         //ниже модели регистраторши
-        ModelLute = new BlockModels(Material.cloth,"ModelLute", "lute", "lute");
+        ModelLute = new BlockModels(Material.wood,"ModelLute", "lute", "lute");
         ModelLute.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelLute.setCollisionEnabled(false);
 
-        ModelBroom = new BlockModels(Material.cloth,"ModelBroom", "broom", "broom");
+        ModelBroom = new BlockModels(Material.wood,"ModelBroom", "broom", "broom");
         ModelBroom.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.5F, 1.0F);
         ModelBroom.setCollisionEnabled(false);
 
@@ -210,40 +216,40 @@ public class ModelRegistry {
         ModelPapers = new BlockModels(Material.cloth,"ModelPapers", "papers", "papers");
         ModelPapers.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.2F, 1.0F);
 
-        ModelKeys = new BlockModels(Material.cloth,"ModelKeys", "keys", "keys");
+        ModelKeys = new BlockModels(Material.iron,"ModelKeys", "keys", "keys");
         ModelKeys.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelKeys.setCollisionEnabled(false);
 
-        ModelDeskBell = new BlockModels(Material.cloth,"ModelDeskBell", "desk_bell", "desk_bell");
+        ModelDeskBell = new BlockModels(Material.iron,"ModelDeskBell", "desk_bell", "desk_bell");
         ModelDeskBell.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.3F, 0.7F);
         ModelDeskBell.setCollisionEnabled(false);
 
         //ниже модели оружейника
-        ModelSword = new BlockModels(Material.cloth,"ModelSword", "sword", "sword");
+        ModelSword = new BlockModels(Material.iron,"ModelSword", "sword", "sword");
         ModelSword.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.2F, 1.0F);
 
-        ModelSwords = new BlockModels(Material.cloth,"ModelSwords", "swords", "swords");
+        ModelSwords = new BlockModels(Material.iron,"ModelSwords", "swords", "swords");
         ModelSwords.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.2F, 1.0F);
 
 
-        ModelShield1 = new BlockModels(Material.cloth,"ModelShield1", "shield1", "shield");
+        ModelShield1 = new BlockModels(Material.wood,"ModelShield1", "shield1", "shield");
         ModelShield1.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelShield1.setCollisionEnabled(false);
 
-        ModelShield2 = new BlockModels(Material.cloth,"ModelShield2", "shield2", "shield");
+        ModelShield2 = new BlockModels(Material.wood,"ModelShield2", "shield2", "shield");
         ModelShield2.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelShield2.setCollisionEnabled(false);
 
-        ModelShield3 = new BlockModels(Material.cloth,"ModelShield3", "shield3", "shield");
+        ModelShield3 = new BlockModels(Material.wood,"ModelShield3", "shield3", "shield");
         ModelShield3.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelShield3.setCollisionEnabled(false);
 
-        ModelHelmet = new BlockModels(Material.cloth,"ModelHelmet", "helmet", "helmet");
+        ModelHelmet = new BlockModels(Material.iron,"ModelHelmet", "helmet", "helmet");
         ModelHelmet.setBlockBounds(0.1F, 0.0F, 0.1F, 0.9F, 0.7F, 0.9F);
 
-        ModelHammer = new BlockModels(Material.cloth,"ModelHammer", "hammer", "hammer");
+        ModelHammer = new BlockModels(Material.iron,"ModelHammer", "hammer", "hammer");
 
-        ModelDragonSlayer = new BlockModels(Material.cloth, "ModelDragonSlayer", "dragon_slayer", "dragon_slayer")
+        ModelDragonSlayer = new BlockModels(Material.iron, "ModelDragonSlayer", "dragon_slayer", "dragon_slayer")
                 .setModelHeight(2)
                 .setRotationBounds(new float[][] {
                         {0.0F, 0.0F, 0.4F, 0.7F, 2.0F, 0.6F},
@@ -254,18 +260,18 @@ public class ModelRegistry {
 
         ModelDragonSlayer.setStepSound(soundTypeAnvil);
 
-        ModelAxe = new BlockModels(Material.cloth,"ModelAxe", "axe", "axe");
+        ModelAxe = new BlockModels(Material.iron,"ModelAxe", "axe", "axe");
         ModelAxe.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelAxe.setCollisionEnabled(false);
 
         //Ниже модели инженера
-        ModelGas = new BlockModels(Material.cloth,"ModelGas", "gas_cylinders", "gas_cylinders");
+        ModelGas = new BlockModels(Material.iron,"ModelGas", "gas_cylinders", "gas_cylinders");
         ModelGas.setBlockBounds(0.1F, 0.0F, 0.1F, 0.9F, 0.7F, 0.9F);
 
-        ModelOiler = new BlockModels(Material.cloth,"ModelOiler", "oiler", "oiler");
+        ModelOiler = new BlockModels(Material.iron,"ModelOiler", "oiler", "oiler");
         ModelOiler.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.6F, 0.7F);
 
-        ModelGears = new BlockModels(Material.cloth,"ModelGears", "gears", "gears");
+        ModelGears = new BlockModels(Material.iron,"ModelGears", "gears", "gears");
         ModelGears.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.2F, 1.0F);
 
         ModelDrawing1 = new BlockModels(Material.cloth,"ModelDrawing1", "drawing1", "drawing");
@@ -276,11 +282,11 @@ public class ModelRegistry {
         ModelDrawing2.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelDrawing2.setCollisionEnabled(false);
 
-        ModelClock = new BlockModels(Material.cloth,"ModelClock", "clock", "clock");
+        ModelClock = new BlockModels(Material.wood,"ModelClock", "clock", "clock");
         ModelClock.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelClock.setCollisionEnabled(false);
 
-        ModelBrokenMechanism = new BlockModels(Material.cloth,"ModelBrokenMechanism", "broken_mechanism", "broken_mechanism");
+        ModelBrokenMechanism = new BlockModels(Material.iron,"ModelBrokenMechanism", "broken_mechanism", "broken_mechanism");
 
         ModelBrokenMechanism.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.3F, 0.7F);
 
@@ -303,11 +309,13 @@ public class ModelRegistry {
         ModelBook7.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.65F, 1.0F);
         ModelBook8 = new BlockModels(Material.cloth, "ModelBook8", "book_8", "book_8");
         ModelBook8.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.3F, 0.8F);
+        ModelBook9 = new BlockModels(Material.cloth, "ModelBook9", "book_9", "book_9");
 
-        ModelVishroom = new BlockModels(Material.cloth, "ModelVishroom", "vishroom", "vishroom");
+
+        ModelVishroom = new BlockModels(Material.plants, "ModelVishroom", "vishroom", "vishroom");
         ModelVishroom.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.5F, 0.8F);
 
-        ModelPlateVoid = new BlockModels(Material.cloth, "ModelPlateVoid", "plate_empty", "plate");
+        ModelPlateVoid = new BlockModels(Material.iron, "ModelPlateVoid", "plate_empty", "plate");
         ModelPlateVoid.setStepSound(soundTypeGlass);
         ModelPlateVoid.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
 
@@ -387,17 +395,15 @@ public class ModelRegistry {
         ModelPlate10.setStepSound(soundTypeGlass);
         ModelPlate10.setBlockBounds(0.2F, 0.0F, 0.2F, 0.8F, 0.1F, 0.8F);
 
-        ModelWisp = new BlockModels(Material.cloth,"ModelWisp", "wisp", "wisp"){
-            @Override
-            public TileEntity createNewTileEntity(World world, int meta) {
-                return AnimatedModelTileBase.createAnimated("wisp", "wisp", "idle", 6, 100);
-            }
-        };
+        ModelWisp = new BlockModels(Material.cloth,"ModelWisp", "wisp", "wisp")
+                .withAnimation("idle", true)
+                .withAnimatedTexture(6, 100)
+                .withParticleTexture("wisp_0");
 
-        ModelCup = new BlockModels(Material.cloth, "ModelCup", "cup", "cup");
+        ModelCup = new BlockModels(Material.glass, "ModelCup", "cup", "cup");
         ModelCup.setBlockBounds(0.4F, 0.0F, 0.4F, 0.6F, 0.3F, 0.6F);
 
-        ModelBottle  = new BlockModels(Material.cloth, "ModelBottle", "bottle", "bottle");
+        ModelBottle  = new BlockModels(Material.glass, "ModelBottle", "bottle", "bottle");
         ModelBottle.setBlockBounds(0.4F, 0.0F, 0.4F, 0.6F, 0.5F, 0.6F);
 
         LootContainer = new BlockDestructibleLootContainer(Material.cloth, "LootContainer");
@@ -411,8 +417,8 @@ public class ModelRegistry {
         ModelBricks3 = new BlockModels(Material.rock, "ModelBricks3", "bricks_3", "bricks_3");
         ModelBricks3.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         ModelBricks3.setStepSound(soundTypeStone);
-       // ModelBricks4 = new BlockModels(Material.rock, "ModelBricks4", "bricks_4", "bricks_4");
-       // ModelBricks5 = new BlockModels(Material.rock, "ModelBricks5", "bricks_5", "bricks_5");
+        ModelBricks4 = new BlockModels(Material.rock, "ModelBricks4", "bricks_4", "bricks_4");
+        ModelBricks5 = new BlockModels(Material.rock, "ModelBricks5", "bricks_5", "bricks_5");
         ModelBricks6 = new BlockModels(Material.rock, "ModelBricks6", "bricks_6", "bricks_6");
         ModelBricks6.setStepSound(soundTypeStone);
         ModelBricks7 = new BlockModels(Material.rock, "ModelBricks7", "bricks_7", "bricks_7");
@@ -506,7 +512,18 @@ public class ModelRegistry {
                 {0.0F,  0.0F, 0.2F,  0.35F,0.8F, 0.8F}
         });
 
-        ModelWisp.setBlockBounds(0.3F, 0.0F, 0.3F, 0.7F, 0.3F, 0.7F);
+        ModelUrn0 = new BlockModels(Material.rock, "ModelUrn0", "urn_0", "urn_0");
+        ModelUrn1 = new BlockModels(Material.rock, "ModelUrn1", "urn_1", "urn_1");
+        ModelUrn2 = new BlockModels(Material.rock, "ModelUrn2", "urn_2", "urn_1");
+        ModelUrn3 = new BlockModels(Material.rock, "ModelUrn3", "urn_3", "urn_1");
+        ModelUrn4 = new BlockModels(Material.rock, "ModelUrn4", "urn_4", "urn_4");
+
+        ModelFuneraryUrn0 = new BlockModels(Material.rock, "ModelFuneraryUrn0", "funerary_urn_0", "funerary_urn_0");
+        ModelFuneraryUrn1 = new BlockModels(Material.rock, "ModelFuneraryUrn1", "funerary_urn_1", "funerary_urn_1");
+        ModelFuneraryUrn2 = new BlockModels(Material.rock, "ModelFuneraryUrn2", "funerary_urn_2", "funerary_urn_2");
+        ModelFuneraryUrn3 = new BlockModels(Material.rock, "ModelFuneraryUrn3", "funerary_urn_3", "funerary_urn_3");
+        ModelFuneraryUrn3.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+        ModelFuneraryUrn3.setModelHeight(2);
     }
 
     @Mod.EventHandler
@@ -540,7 +557,8 @@ public class ModelRegistry {
         ModelLeatherDryer.register();
         ModelRabbits.register();
         ModelMooseHead.register();
-
+        ModelDeerHead.register();
+        ModelDeerLegendHead.register();
 
         ModelMagnifyinGlass.register();
         ModelBagGold.register();
@@ -606,6 +624,7 @@ public class ModelRegistry {
         ModelBook6.register();
         ModelBook7.register();
         ModelBook8.register();
+        ModelBook9.register();
 
         ModelVishroom.register();
 
@@ -626,8 +645,8 @@ public class ModelRegistry {
         ModelBricks1.register();
         ModelBricks2.register();
         ModelBricks3.register();
-      //  ModelBricks4.register();
-      // ModelBricks5.register();
+        ModelBricks4.register();
+        ModelBricks5.register();
         ModelBricks6.register();
         ModelBricks7.register();
 
@@ -641,6 +660,17 @@ public class ModelRegistry {
         ModelPileBones7.register();
         ModelPileBones8.register();
         ModelPileBones9.register();
+
+        ModelUrn0.register();
+        ModelUrn1.register();
+        ModelUrn2.register();
+        ModelUrn3.register();
+        ModelUrn4.register();
+
+        ModelFuneraryUrn0.register();
+        ModelFuneraryUrn1.register();
+        ModelFuneraryUrn2.register();
+        ModelFuneraryUrn3.register();
 
         ModelBottle.register();
         LootContainer.register();

@@ -15,8 +15,6 @@ import net.minecraft.item.crafting.IRecipe;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 import java.util.Iterator;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 public final class VanillaBlockReplacer {
     public static BlockBasicWoodButton woodenButtonReplacement;

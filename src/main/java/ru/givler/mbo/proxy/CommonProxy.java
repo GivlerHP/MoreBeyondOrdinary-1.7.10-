@@ -13,7 +13,6 @@ import ru.givler.mbo.integration.thaumcraft.MBOThaumDamageConverter;
 import ru.givler.mbo.integration.thaumcraft.util.DarkMoonCastQueue;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;
-import ru.givler.mbo.tileentity.AnimatedModelTileBase;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.handler.*;
 import ru.givler.mbo.integration.biomesoplenty.DoorRegistry;
@@ -64,11 +63,13 @@ public class CommonProxy {
         StonecutterRegistry.init();
         MinecraftForge.EVENT_BUS.register(new PotionCommonHandler());
         MinecraftForge.EVENT_BUS.register(new BeltEventHandler());
+        FMLCommonHandler.instance().bus().register(new BeltEventHandler());
+        MinecraftForge.EVENT_BUS.register(new RingEventHandler());
+        FMLCommonHandler.instance().bus().register(new RingEventHandler());
         if (Loader.isModLoaded("Thaumcraft")) {
             FMLCommonHandler.instance().bus().register(new DarkMoonCastQueue());
             MinecraftForge.EVENT_BUS.register(new MBOThaumDamageConverter());
         }
-        FMLCommonHandler.instance().bus().register(new BeltEventHandler());
     }
 
     public void init(FMLInitializationEvent event){
@@ -78,7 +79,8 @@ public class CommonProxy {
         ModelRegistry.init(event);
         ThaumcraftRegistry.init();
         GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
-        GameRegistry.registerTileEntity(AnimatedModelTileBase.class, "AnimatedModelTileBase");
+        GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileEntityModelCollision.class,
+                "ModelCollisionPartTile");
         GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
         GameRegistry.registerTileEntity(TileEntityLootContainer.class, "loot_container_tile");
         GameRegistry.registerTileEntity(ru.givler.mbo.banner.TileEntityBanner.class, "mbo_banner");

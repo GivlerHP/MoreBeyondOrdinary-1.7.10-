@@ -1,17 +1,14 @@
 package ru.givler.mbo.registry;
 
-import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.item.Item;
 import net.minecraft.util.EnumChatFormatting;
-import noppes.npcs.constants.EnumNpcToolMaterial;
 import ru.givler.mbo.item.*;
 import ru.givler.mbo.item.amulets.*;
 import ru.givler.mbo.item.belt.ItemFallBelt;
 import ru.givler.mbo.item.belt.ItemFertilityBelt;
 import ru.givler.mbo.item.belt.ItemMinerBelt;
-import ru.givler.mbo.integration.thaumcraft.item.focus.ItemFocusMHealing;
 import ru.givler.mbo.item.ring.*;
 import ru.givler.mbo.item.glyph.*;
 
@@ -25,23 +22,26 @@ public class ItemRegistry {
     //переменные  предметов тотемов
     public static Item GlyphAmphibian, GlyphDragon, GlyphHawk, GlyphMiner, GlyphOwl, GlyphWeapon, GlyphCleansing, GlyphHealing, BrokenStaffHealing;
     // переменные оружия ближнего боя
-    public static ItemWeaponBase BrokenLongsword, BrokenSword, BrokenRapier, BrokenMace, BrokenAxe, BrokenDagger, BrokenCudgel, Uchigatana, DragonSlayer;
+    public static ItemWeaponBase BrokenLongsword, BrokenSword, BrokenRapier, BrokenMace, BrokenAxe, BrokenDagger, BrokenCudgel, Uchigatana,
+            DragonSlayer, TorchMat;
     // переменные призрачного оружия
     public static ItemGhostWeapon WeaponRapier;
     // переменные луков
     public static net.minecraft.item.ItemBow BrokenBowHunting ;
     // переменные материалов
-    public static Item Metal, SapphireHeart, SapphireEye, Crystall, GlyphVoid;
+    public static Item Metal, SapphireHeart, SapphireEye, Crystall, GlyphVoid, Drop;
     // переменные амулетов
     public static Item HealingAmulet, VampirismAmulet, CleansingAmulet, PhoenixAmulet, CowardAmulet, DragonAmulet, StaminaAmulet, VeilAmulet,
         ThornsAmulet, StrengthAmulet, MercenaryAmulet, GoldBasicAmulet, SilverBasicAmulet;
     // переменные колец
     public static Item LifeRing, StaminaRing, DamageRing, SpeedRing, LifeSmallRing, StaminaSmallRing, DamageSmallRing, SpeedSmallRing,
-        SmallBasicRing, BasicRing;
+        SmallBasicRing, BasicRing, MushroomRing;
     // переменные пояса
     public static Item FertilityBelt, FallBelt, MinerBelt, WaterminerBelt, KnightBelt;
     //магические посохи
     public static ItemWandBase BrokenWandWizard, BrokenWandPyromancer;
+    // Призрачного оружия
+    public static ItemTorchWeaponMBO TorchWeapon;
 
 
     static {
@@ -53,6 +53,7 @@ public class ItemRegistry {
         Item.ToolMaterial BrokenAxeMat = ItemWeaponBase.createMaterial("BrokenAxeMat", 0, 800, 0.0F, 0.5F, 30);
         Item.ToolMaterial Divine = ItemWeaponBase.createMaterial("Divine", 3, 10000, 0.0F, 10000.0f, 30);
         Item.ToolMaterial DragonSlayerMat  = ItemWeaponBase.createMaterial("DragonSlayerMat", 3, 800, 0.0F, 12.0f, 30);
+        Item.ToolMaterial TorchMat = ItemWeaponBase.createMaterial("TorchMat", 0, 800, 0.0F, -2.0F, 30);
 
         BrokenLongsword = new ItemGreatswordMBO("BrokenLongsword", "broadsword", BrokenLongswordMat, 80, 1, 1.3F);
         BrokenSword = new ItemSwordMBO("BrokenSword", "brokenstraightsword", BrokenSwordMat, 110, 1, 1F);
@@ -66,6 +67,9 @@ public class ItemRegistry {
         WeaponRapier = new ItemGhostWeapon("WeaponRapier", "mithrilsword", BrokenSwordMat, 40, 1, 1.0F);
         Uchigatana = new ItemSwordMBO("Uchigatana", "uchigatana", Divine, 10000, 1, 1.6F);
         DragonSlayer = new ItemDragonSlayerMBO("DragonSlayer", "dragon_slayer", DragonSlayerMat, 1750, 1, 1.8F);
+
+        TorchWeapon = new ItemTorchWeaponMBO("TorchWeapon", "torch", TorchMat, 800, 1, 1.0F)
+                .setDescription("item.TorchWeapon.desc", EnumChatFormatting.RED);
 
     }
 
@@ -85,6 +89,7 @@ public class ItemRegistry {
 
         //материлаы
         Metal = new ItemMeta("Metal", "material/metal", 64, 1);
+        Drop = new ItemMeta("Drop", "material/drop", 64, 3);
         SapphireHeart = new ItemBase("SapphireHeart", "material/sapphire_heart", 64);
         SapphireEye = new ItemBase("SapphireEye", "material/sapphire_eye", 64);
         Crystall = new ItemMeta("Crystall", "material/crystall", 64, 16);
@@ -119,6 +124,7 @@ public class ItemRegistry {
         StaminaRing  = new ItemStaminaRing("StaminaRing", "bijouterie/ring_stamina", 25F, "1");
         DamageRing = new ItemDamageRing("DamageRing", "bijouterie/ring_damage", 0.075D, "1" );
         SpeedRing = new ItemSpeedRing("SpeedRing", "bijouterie/ring_speed", 0.075D, "1");
+        MushroomRing = new ItemMushroomRing("MushroomRing", "bijouterie/ring_mushroom", 4.0D, "1");
 
         FertilityBelt = new ItemFertilityBelt("FertilityBelt", "bijouterie/belt_fertility");
         FallBelt = new ItemFallBelt("FallBelt", "bijouterie/belt_fall");
@@ -141,6 +147,7 @@ public class ItemRegistry {
         DragonSlayer.register();
         BrokenWandWizard.register();
         BrokenWandPyromancer.register();
+        TorchWeapon.register();
         ((ItemBowMBO) BrokenBowHunting).register();
 
     }

@@ -120,7 +120,7 @@
 
   "omnomnom": {"category": "player", "sounds": [{"name": "omnomnom", "stream": false}]},
 
-  "theend": {"category": "music", "sounds": [{"name": "theend", "stream": true}]},
+  "lute": {"category": "music", "sounds": [{"name": "luteTheme", "stream": true}]},
 
   	"stonegolem_walk": {"category": "hostile","sounds": [
 		{"name": "mob/stonegolem_walk1","stream": false},
@@ -129,5 +129,11 @@
     "stonegolem_death": {"category": "hostile", "sounds": [{"name": "mob/stonegolem_death", "stream": false}]},
     "stonegolem_hit": {"category": "hostile", "sounds": [{"name": "mob/stonegolem_hit", "stream": false}]},
     "stonecutter_use1": {"category": "block", "sounds": [{"name": "stonecutter_use1", "stream": false}]},
-    "stonecutter_use2": {"category": "block", "sounds": [{"name": "stonecutter_use2", "stream": false}]}
+    "stonecutter_use2": {"category": "block", "sounds": [{"name": "stonecutter_use2", "stream": false}]},
+
+  "venik": {"category": "player","sounds": [
+    {"name": "venik1","stream": false},
+    {"name": "venik2","stream": false},
+    {"name": "venik3","stream": false}
+  ]}
 }

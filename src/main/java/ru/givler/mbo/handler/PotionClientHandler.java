@@ -32,6 +32,9 @@ public class PotionClientHandler {
 
         if (event.entity.getDistanceToEntity(player) >= range) return;
 
+        float previousLightX = OpenGlHelper.lastBrightnessX;
+        float previousLightY = OpenGlHelper.lastBrightnessY;
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         GL11.glPushMatrix();
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL11.GL_BLEND);
@@ -56,11 +59,10 @@ public class PotionClientHandler {
         tessellator.addVertexWithUV(-0.6, -0.6, 0, 0, 1);
         tessellator.draw();
 
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glPopMatrix();
+        GL11.glPopAttrib();
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit,
+                previousLightX, previousLightY);
     }
 
     @SubscribeEvent
@@ -69,9 +71,11 @@ public class PotionClientHandler {
         if (event.type != RenderGameOverlayEvent.ElementType.HELMET) return;
         if (mc.thePlayer == null || !mc.thePlayer.isPotionActive(PotionEnum.SIXTH)) return;
 
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         GL11.glPushMatrix();
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(false);
+        GL11.glEnable(GL11.GL_BLEND);
         OpenGlHelper.glBlendFunc(770, 771, 1, 0);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
@@ -87,10 +91,7 @@ public class PotionClientHandler {
         tessellator.addVertexWithUV(0, 0, -90, 0, 0);
         tessellator.draw();
 
-        GL11.glDepthMask(true);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glColor4f(1F, 1F, 1F, 1F);
         GL11.glPopMatrix();
+        GL11.glPopAttrib();
     }
 }
