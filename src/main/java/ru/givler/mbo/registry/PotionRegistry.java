@@ -42,6 +42,7 @@ public class PotionRegistry {
     public static Potion Curse;
     public static Potion Luck;
     public static Potion Stamina;
+    public static Potion Looting;
 
 
     public static void preLoad(FMLPreInitializationEvent event) {
@@ -80,6 +81,8 @@ public class PotionRegistry {
         Potion.potionTypes[PotionConfig.luckID] = Luck;
         Stamina = new Stamina(PotionConfig.staminaID, false, 0x44FF88);
         Potion.potionTypes[PotionConfig.staminaID] = Stamina;
+        Looting = new Looting(PotionConfig.lootingID, false, 0x6B4F2A);
+        Potion.potionTypes[PotionConfig.lootingID] = Looting;
     }
 }
 

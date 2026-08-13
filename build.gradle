@@ -15,7 +15,7 @@ apply plugin: 'idea'
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.16.4"
+version = "1.16.5"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 
@@ -28,6 +28,7 @@ minecraft {
 repositories {
     mavenCentral()
     maven { name = "chickenbones"; url = "https://chickenbones.net/maven/" }
+    maven { name = "gtnh"; url = "https://nexus.gtnewhorizons.com/repository/public/" }
     flatDir { dirs 'libs' }
 }
 
@@ -54,6 +55,7 @@ dependencies {
     implementation name: "CodeChickenLib-1.7.10-1.1.3.141-universal"
     implementation name: "CodeChickenCore-1.7.10-1.0.7.48-universal"
     implementation name: "NotEnoughItems-1.7.10-1.0.5.120-universal"
+    implementation ("com.github.GTNewHorizons:waila:1.19.30:dev") { transitive = false }
 }
 
 jar {

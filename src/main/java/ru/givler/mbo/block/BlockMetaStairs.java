@@ -4,6 +4,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.ItemBlockMetadata;
 import ru.givler.mbo.registry.CreativeTabRegistry;
@@ -31,6 +32,8 @@ public class BlockMetaStairs extends BlockStairs {
         this.useNeighborBrightness = true; // Улучшенная обработка освещения
 
         GameRegistry.registerBlock(this, ItemBlockMetadata.class, baseBlock.getUnlocalizedName() + "_stairs_" + meta);
+        GameRegistry.addRecipe(new ItemStack(this, 4),
+                new Object[]{"X  ", "XX ", "XXX", 'X', new ItemStack(baseBlock, 1, meta)});
     }
 
     @Override

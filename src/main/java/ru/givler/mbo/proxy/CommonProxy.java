@@ -24,6 +24,7 @@ import ru.givler.mbo.recipes.registry.RoofRecipeRegistry;
 import ru.givler.mbo.registry.*;
 import ru.givler.mbo.tileentity.TileEntityArcanum;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
+import ru.givler.mbo.tileentity.TileEntityBarrel;
 import ru.givler.mbo.util.PotionArrayExpander;
 
 public class CommonProxy {
@@ -83,6 +84,7 @@ public class CommonProxy {
                 "ModelCollisionPartTile");
         GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
         GameRegistry.registerTileEntity(TileEntityLootContainer.class, "loot_container_tile");
+        GameRegistry.registerTileEntity(TileEntityBarrel.class, "mbo_barrel");
         GameRegistry.registerTileEntity(ru.givler.mbo.banner.TileEntityBanner.class, "mbo_banner");
 
         BlockRecipeRegistry.init();

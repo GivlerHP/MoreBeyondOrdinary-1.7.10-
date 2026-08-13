@@ -130,6 +130,8 @@ tile.SlabAshgarBrick_slab.name=Плита из ашгарского кирпич
 
 tile.WallStonebrick_wall.name=Ограда из серого кирпича
 tile.WallSandstone_wall.name=Ограда из крепкого песчаника
+tile.WallVanillaSandstone_wall.name=Ограда из песчаника
+tile.WallAshgarBrick_wall.name=Ограда из ашгарского кирпича
 tile.WallFiredClay_wall.name=Ограда из обоженных кирпичей
 tile.WallVanillaStonebrick_wall.name=Ограда из каменного кирпича
 tile.WallVanillaBrick_wall.name=Кирпичная ограда
@@ -592,6 +594,7 @@ tile.ModelBook5.name=Книги
 tile.ModelBook6.name=Книги
 tile.ModelBook7.name=Книги
 tile.ModelBook8.name=Волшебная книга
+tile.ModelBook9.name=Открытая книга
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Модели кирпичей/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -639,6 +642,24 @@ tile.ModelPlate10.name=Миска висоморового супа
 
 tile.ModelBottle.name=Бутылка
 tile.ModelCup.name=Кружка
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Модели урн/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tile.ModelUrn0.name=Урны
+tile.ModelUrn1.name=Урны
+tile.ModelUrn2.name=Урны
+tile.ModelUrn3.name=Урны
+tile.ModelUrn4.name=Урны
+
+tile.ModelFuneraryUrn0.name=Погребальная урна
+tile.ModelFuneraryUrn1.name=Погребальные урны
+tile.ModelFuneraryUrn2.name=Погребальные урны
+tile.ModelFuneraryUrn3.name=Погребальная урна
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Анимированные модели/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Анимированные модели/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -775,6 +796,7 @@ potion.thorns=Шипы
 potion.curse=Проклятье
 potion.miner_luck=Удача
 potion.stamina=Приток выносливости
+potion.looting=Добыча
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Бижютерия/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -815,6 +837,7 @@ item.DragonAmulet.name=Амулет дракона
 item.VeilAmulet.name=Амулет завесы
 item.ThronsAmulet.name=Амулет шипов
 item.MercenaryAmulet.name=Амулет наёмника
+item.GoblinAmulet.name=Гоблинский амулет
 item.MercenaryAmulet.desc=Древний амулет наёмников. При активации он дарует владельцу силу, скорость и способность видеть в темноте,\nно после этого разрушается. Приберегите его для самых опасных сражений
 
 item.GoldBasicAmulet.name=Пустой амулет из золота
@@ -1034,3 +1057,6 @@ mbo.loot.tooltip.autoRotate=Автоповорот
 mbo.loot.tooltip.variations=Варианты
 mbo.loot.tooltip.actions=Действия
 mbo.loot.tooltip.none=<нет>
+tile.Barrel.name=Бочка
+container.mbo.barrel=Бочка
+container.mbo.barrel=Бочка

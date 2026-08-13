@@ -1,7 +1,6 @@
 package ru.givler.mbo.recipes;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 
 import java.util.ArrayList;
 

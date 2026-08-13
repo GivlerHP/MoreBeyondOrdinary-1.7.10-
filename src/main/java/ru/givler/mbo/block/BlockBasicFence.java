@@ -102,7 +102,10 @@ public class BlockBasicFence extends BlockFence {
 
     @Override
     public boolean canConnectFenceTo(IBlockAccess world, int x, int y, int z) {
-        if (world.getBlock(x, y, z) instanceof BlockBasicFence) {
+        Block neighbor = world.getBlock(x, y, z);
+        if (neighbor instanceof BlockBasicFence
+                || neighbor instanceof BlockBasicFenceGate
+                || neighbor instanceof BlockBasicWall) {
             return true;
         }
         return super.canConnectFenceTo(world, x, y, z);

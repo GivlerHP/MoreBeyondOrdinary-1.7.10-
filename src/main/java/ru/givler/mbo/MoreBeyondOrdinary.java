@@ -6,6 +6,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import ru.givler.mbo.handler.GuiHandler;
 import ru.givler.mbo.proxy.CommonProxy;
 import ru.givler.mbo.registry.EntityMobRegistry;
@@ -30,9 +31,11 @@ public class MoreBeyondOrdinary {
     public static final int GUI_LOOT_CONTAINER_CONFIG = 1;
     public static final int GUI_LOOM = 2;
     public static final int GUI_STONECUTTER = 3;
+    public static final int GUI_BARREL = 4;
 
     @Mod.EventHandler
     public void preLoad(FMLPreInitializationEvent event) {
+        FMLInterModComms.sendMessage("Waila", "register", "ru.givler.mbo.integration.waila.ModelCollisionWailaProvider.register");
         VanillaBlockReplacer.replaceTrapdoor();
         proxy.preInit(event);
         proxy.initPackets();

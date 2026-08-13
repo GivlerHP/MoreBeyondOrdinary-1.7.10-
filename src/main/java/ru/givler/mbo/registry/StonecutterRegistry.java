@@ -39,6 +39,7 @@ public final class StonecutterRegistry {
         add(new ItemStack(Blocks.brick_block),new ItemStack(BlockRegistry.WallVanillaBrick));
         addFamily(new ItemStack(Blocks.sandstone), new ItemStack(Blocks.sandstone,1,2),
                 new ItemStack(Blocks.stone_slab,2,1), new ItemStack(Blocks.sandstone_stairs));
+        add(new ItemStack(Blocks.sandstone), new ItemStack(BlockRegistry.WallVanillaSandstone));
         addFamily(new ItemStack(Blocks.nether_brick), null,
                 new ItemStack(Blocks.stone_slab,2,6), new ItemStack(Blocks.nether_brick_stairs));
         add(new ItemStack(Blocks.nether_brick),new ItemStack(Blocks.nether_brick_fence));
@@ -80,7 +81,7 @@ public final class StonecutterRegistry {
         addMboFamily(BlockRegistry.BlockFiredClay, BlockRegistry.SlabFiredClay,
                 BlockRegistry.StairsFiredClay, BlockRegistry.WallFiredClay);
         addMboFamily(BlockRegistry.BlockAshgarBrick, BlockRegistry.SlabAshgarBrick,
-                BlockRegistry.StairsAshgarBrick, null);
+                BlockRegistry.StairsAshgarBrick, BlockRegistry.WallAshgarBrick);
 
         registerTuffRecipes();
         registerPrismarineRecipes();

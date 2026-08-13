@@ -3,7 +3,6 @@ package ru.givler.mbo.recipes;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ShapedRecipes;
-import net.minecraft.world.World;
 
 public class ArcanumRecipes {
     private final ItemStack output;

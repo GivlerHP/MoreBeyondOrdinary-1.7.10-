@@ -12,7 +12,9 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
         return new String[]{
                 "ru.givler.mbo.core.BlockButtonTransformer",
                 "ru.givler.mbo.core.CauldronTransformer",
-                "ru.givler.mbo.core.PistonTransformer"
+                "ru.givler.mbo.core.PistonTransformer",
+                "ru.givler.mbo.core.FenceConnectionTransformer",
+                "ru.givler.mbo.core.LootingPotionTransformer"
         };
     }
     public String getModContainerClass() { return null; }

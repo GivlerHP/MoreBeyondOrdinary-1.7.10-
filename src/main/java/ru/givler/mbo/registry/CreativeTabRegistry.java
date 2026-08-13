@@ -1,6 +1,5 @@
 package ru.givler.mbo.registry;
 
-import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -26,7 +25,7 @@ public class CreativeTabRegistry {
             return Item.getItemFromBlock(BlockImperialBrick);
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         @SideOnly(Side.CLIENT)
         //list.add(new ItemStack());
@@ -58,6 +57,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(StairsSandstone));
             list.add(new ItemStack(SlabSandstone));
             list.add(new ItemStack(WallSandstone));
+            list.add(new ItemStack(WallVanillaSandstone));
 
             list.add(new ItemStack(BlockImperialBrick));
             list.add(new ItemStack(StairsImperialBrick));
@@ -74,6 +74,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BlockAshgarBrick));
             list.add(new ItemStack(StairsAshgarBrick));
             list.add(new ItemStack(SlabAshgarBrick));
+            list.add(new ItemStack(WallAshgarBrick));
 
             list.add(new ItemStack(BlockEndbrick));
             list.add(new ItemStack(StairsEndbrick));
@@ -106,6 +107,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BlockFogGrey));
 
             list.add(new ItemStack(BlockWoodenBox));
+            list.add(new ItemStack(Barrel));
             list.add(new ItemStack(Barrier));
             list.add(new ItemStack(SlimeBlock));
             list.add(new ItemStack(BouncyBrownMushroomBlock));
@@ -198,6 +200,7 @@ public class CreativeTabRegistry {
         }
     };
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static void addIfPresent(List list, Object itemOrBlock) {
         if (itemOrBlock instanceof Item) {
             list.add(new ItemStack((Item) itemOrBlock));
@@ -212,7 +215,7 @@ public class CreativeTabRegistry {
             return WeaponRapier;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         @SideOnly(Side.CLIENT)
         public void displayAllReleventItems(List list) {
@@ -262,6 +265,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(VeilAmulet));
             list.add(new ItemStack(ThornsAmulet));
             list.add(new ItemStack(MercenaryAmulet));
+            list.add(new ItemStack(GoblinAmulet));
 
             list.add(new ItemStack(FertilityBelt));
             list.add(new ItemStack(FallBelt));
@@ -330,7 +334,7 @@ public class CreativeTabRegistry {
             return DrinkWine;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         @SideOnly(Side.CLIENT)
         public void displayAllReleventItems(List list) {
@@ -367,9 +371,10 @@ public class CreativeTabRegistry {
             return Item.getItemFromBlock(ModelDummy);
         }
 
-        @SuppressWarnings("unchecked")
+
         @Override
         @SideOnly(Side.CLIENT)
+        @SuppressWarnings({"unchecked", "rawtypes"})
         public void displayAllReleventItems(List list) {
             list.add(new ItemStack(ModelThreads));
             list.add(new ItemStack(ModelTailorShelf));

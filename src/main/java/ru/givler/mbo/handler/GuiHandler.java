@@ -5,8 +5,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
-import ru.givler.mbo.gui.GuiArcanum;
-import ru.givler.mbo.gui.GuiLootContainerConfig;
+import ru.givler.mbo.client.gui.GuiArcanum;
+import ru.givler.mbo.client.gui.GuiLootContainerConfig;
 import ru.givler.mbo.item.ItemBlockLootContainer;
 import ru.givler.mbo.tileentity.TileEntityArcanum;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
@@ -15,10 +15,17 @@ import ru.givler.mbo.banner.GuiLoom;
 import ru.givler.mbo.stonecutter.ContainerStonecutter;
 import ru.givler.mbo.stonecutter.GuiStonecutter;
 import ru.givler.mbo.container.ContainerArcanum;
+import ru.givler.mbo.tileentity.TileEntityBarrel;
+import net.minecraft.inventory.ContainerChest;
+import net.minecraft.client.gui.inventory.GuiChest;
 
 public class GuiHandler implements IGuiHandler {
     @Override
     public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+        if (ID == MoreBeyondOrdinary.GUI_BARREL) {
+            TileEntity tile = world.getTileEntity(x, y, z);
+            return tile instanceof TileEntityBarrel ? new ContainerChest(player.inventory, (TileEntityBarrel) tile) : null;
+        }
         if (ID == MoreBeyondOrdinary.GUI_LOOM) return new ContainerLoom(player.inventory, world, x, y, z);
         if (ID == MoreBeyondOrdinary.GUI_STONECUTTER) return new ContainerStonecutter(player.inventory, world, x, y, z);
         if (ID == MoreBeyondOrdinary.GUI_LOOT_CONTAINER_CONFIG) {
@@ -33,6 +40,10 @@ public class GuiHandler implements IGuiHandler {
 
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+        if (ID == MoreBeyondOrdinary.GUI_BARREL) {
+            TileEntity tile = world.getTileEntity(x, y, z);
+            return tile instanceof TileEntityBarrel ? new GuiChest(player.inventory, (TileEntityBarrel) tile) : null;
+        }
         if (ID == MoreBeyondOrdinary.GUI_LOOM) return new GuiLoom(player.inventory, world, x, y, z);
         if (ID == MoreBeyondOrdinary.GUI_STONECUTTER) return new GuiStonecutter(player.inventory, world, x, y, z);
         if (ID == MoreBeyondOrdinary.GUI_LOOT_CONTAINER_CONFIG) {

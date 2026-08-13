@@ -19,6 +19,7 @@ public class BlockRegistry {
             RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockAshgarBrick, BlockWoodenBox,
             BlockTuff, BlockChiseledTuff, BlockChiseledTuffBricks, BlockPrismarine, BlockSeaLantern, SmoothStone;
     public static BlockBarrier Barrier;
+    public static BlockBarrel Barrel;
     public static BlockSlimeMBO SlimeBlock;
     public static BlockBouncyMushroom BouncyBrownMushroomBlock, BouncyRedMushroomBlock;
     public static BlockModelCollision ModelCollisionPart;
@@ -40,7 +41,7 @@ public class BlockRegistry {
             TotemStone, DebarkedOak, DebarkedSpruce, DebarkedBirch, DebarkedJungle, DebarkedAcacia, DebarkedBigOak,
             WoodTotemOak, WoodTotemSpruce, WoodTotemBirch, WoodTotemJungle, WoodTotemAcacia, WoodTotemBigOak;
     //переменные для ограды
-    public static Block WallStonebrick, WallSandstone, WallFiredClay, WallVanillaStonebrick, WallVanillaBrick, WallSmoothStone;
+    public static Block WallStonebrick, WallSandstone, WallVanillaSandstone, WallAshgarBrick, WallFiredClay, WallVanillaStonebrick, WallVanillaBrick, WallSmoothStone;
     public static Block[] WallTuff;
     public static Block[] WallPrismarine;
     public static BlockBasicFence FenceVanilla;
@@ -63,6 +64,8 @@ public class BlockRegistry {
         BlockAshgarBrick = new BlockBase(Material.rock, "BlockAshgarBrick", "stone/ashgar_brick");
 
         BlockWoodenBox = new BlockBase(Material.wood, "BlockWoodenBox", "wood/wooden_box").setStepSound(Block.soundTypeWood);
+        Barrel = new BlockBarrel();
+        GameRegistry.registerBlock(Barrel, "Barrel");
         ModelCollisionPart = new BlockModelCollision();
         GameRegistry.registerBlock(ModelCollisionPart, "ModelCollisionPart");
         Barrier = new BlockBarrier();
@@ -182,9 +185,13 @@ public class BlockRegistry {
 
 
         //НИЖЕ НАХОИДТСЯ ЗАБОР
-        WallStonebrick = new BlockBasicWall(Blocks.stone, "WallStonebrick", "stone/stonebrick_0");
-        WallSandstone = new BlockBasicWall(Blocks.stone, "WallSandstone", "stone/sandstone_0");
-        WallFiredClay = new BlockBasicWall(Blocks.stone, "WallFiredClay", "stone/brick_firedclay");
+        WallStonebrick = new BlockBasicWall(BlockStonebrick, "WallStonebrick", "stone/stonebrick_0");
+        WallSandstone = new BlockBasicWall(BlockSandstone, "WallSandstone", "stone/sandstone_0");
+        WallVanillaSandstone = new BlockBasicWall(
+                Blocks.sandstone, "WallVanillaSandstone", "minecraft:sandstone_normal");
+        WallAshgarBrick = new BlockBasicWall(
+                BlockAshgarBrick, "WallAshgarBrick", "stone/ashgar_brick");
+        WallFiredClay = new BlockBasicWall(BlockFiredClay, "WallFiredClay", "stone/brick_firedclay");
         WallVanillaStonebrick = new BlockBasicWall(
                 Blocks.stonebrick, "WallVanillaStonebrick", "minecraft:stonebrick");
         WallVanillaBrick = new BlockBasicWall(
@@ -192,14 +199,14 @@ public class BlockRegistry {
         WallSmoothStone = new BlockBasicWall(
                 SmoothStone, "WallSmoothStone", "minecraft:stone_slab_top");
         WallTuff = new Block[] {
-                new BlockBasicWall(BlockTuff, "WallTuff", "stone/tuff_0"),
-                new BlockBasicWall(BlockTuff, "WallSmoothTuff", "stone/tuff_1"),
-                new BlockBasicWall(BlockTuff, "WallTuffBricks", "stone/tuff_2")
+                new BlockBasicWall(BlockTuff, 0, "WallTuff", "stone/tuff_0"),
+                new BlockBasicWall(BlockTuff, 1, "WallSmoothTuff", "stone/tuff_1"),
+                new BlockBasicWall(BlockTuff, 2, "WallTuffBricks", "stone/tuff_2")
         };
         WallPrismarine = new Block[] {
-                new BlockBasicWall(BlockPrismarine, "WallPrismarine", "stone/prismarine"),
-                new BlockBasicWall(BlockPrismarine, "WallPrismarineBricks", "stone/prismarine_bricks"),
-                new BlockBasicWall(BlockPrismarine, "WallDarkPrismarine", "stone/dark_prismarine")
+                new BlockBasicWall(BlockPrismarine, 0, "WallPrismarine", "stone/prismarine"),
+                new BlockBasicWall(BlockPrismarine, 1, "WallPrismarineBricks", "stone/prismarine_bricks"),
+                new BlockBasicWall(BlockPrismarine, 2, "WallDarkPrismarine", "stone/dark_prismarine")
         };
 
         FenceVanilla = new BlockBasicFence("FenceVanilla", Blocks.planks, 1, 2, 3, 4, 5);
@@ -213,9 +220,6 @@ public class BlockRegistry {
     }
 
     public static void initRecipe() {
-        ((BlockBasicStairs) StairsAshgarBrick).addStandardRecipes();
-        StairsSmoothStone.addStandardRecipes();
-
         BlockMetaSlab.addStandardRecipes(SlabRoofStandart,  (BlockMeta) RoofStandart);
         BlockMetaSlab.addStandardRecipes(SlabRoofLaminated, (BlockMeta) RoofLaminated);
         BlockMetaSlab.addStandardRecipes(SlabRoofSheet,     (BlockMeta) RoofSheet);
@@ -234,9 +238,6 @@ public class BlockRegistry {
         BlockBasicSlab.addStandardRecipes(SlabFiredClay,     BlockFiredClay);
         BlockBasicSlab.addStandardRecipes(SlabSmoothStone,   SmoothStone);
 
-        GameRegistry.addRecipe(new ItemStack(WallSmoothStone, 6),
-                new Object[]{"XXX", "XXX", 'X', SmoothStone});
-
         GameRegistry.addRecipe(new ItemStack(SlimeBlock),
                 new Object[]{"SSS", "SSS", "SSS", 'S', net.minecraft.init.Items.slime_ball});
         GameRegistry.addShapelessRecipe(new ItemStack(net.minecraft.init.Items.slime_ball, 9), SlimeBlock);
@@ -250,4 +251,3 @@ public class BlockRegistry {
         FenceGateDarkOak.addStandardRecipe();
     }
 }
-

@@ -32,7 +32,7 @@ public class ItemRegistry {
     public static Item Metal, SapphireHeart, SapphireEye, Crystall, GlyphVoid, Drop;
     // переменные амулетов
     public static Item HealingAmulet, VampirismAmulet, CleansingAmulet, PhoenixAmulet, CowardAmulet, DragonAmulet, StaminaAmulet, VeilAmulet,
-        ThornsAmulet, StrengthAmulet, MercenaryAmulet, GoldBasicAmulet, SilverBasicAmulet;
+        ThornsAmulet, StrengthAmulet, MercenaryAmulet, GoblinAmulet, GoldBasicAmulet, SilverBasicAmulet;
     // переменные колец
     public static Item LifeRing, StaminaRing, DamageRing, SpeedRing, LifeSmallRing, StaminaSmallRing, DamageSmallRing, SpeedSmallRing,
         SmallBasicRing, BasicRing, MushroomRing;
@@ -111,6 +111,7 @@ public class ItemRegistry {
         StrengthAmulet = new ItemStrengthAmulet("StrengthAmulet", "bijouterie/amulet_strength");
         MercenaryAmulet = new ItemMercenaryAmulet("MercenaryAmulet", "bijouterie/amulet_mercenary")
                 .setDescription("item.MercenaryAmulet.desc", EnumChatFormatting.BLUE);;
+        GoblinAmulet = new ItemGoblinAmulet("GoblinAmulet", "bijouterie/amulet_goblin_ear");
 
         SmallBasicRing = new ItemVoidRing("SmallBasicRing", "bijouterie/ring_basic_small");
         BasicRing = new ItemVoidRing("BasicRing", "bijouterie/ring_basic");

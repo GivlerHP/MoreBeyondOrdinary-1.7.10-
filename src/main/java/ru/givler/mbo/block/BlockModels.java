@@ -130,7 +130,20 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 
 	public BlockModels setRotationBounds(float[][] bounds) {
 		if (bounds == null || bounds.length < 4) throw new IllegalArgumentException("Need bounds for all 4 directions");
+		this.simpleBounds = null;
 		this.rotationBounds = bounds;
+		return this;
+	}
+
+	/**
+	 * Sets one bounding box in the model's local NORTH-facing coordinates.
+	 * The other three horizontal orientations are calculated automatically.
+	 */
+	public BlockModels withRotatingBounds(float minX, float minY, float minZ,
+			float maxX, float maxY, float maxZ) {
+		this.simpleBounds = new float[]{minX, minY, minZ, maxX, maxY, maxZ};
+		this.rotationBounds = null;
+		super.setBlockBounds(minX, minY, minZ, maxX, maxY, maxZ);
 		return this;
 	}
 
@@ -143,6 +156,14 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 	public BlockModels addVerticalCollision(int offset, float minX, float minY, float minZ,
 			float maxX, float maxY, float maxZ) {
 		return addCollisionPart(Axis.VERTICAL, offset, minX, minY, minZ, maxX, maxY, maxZ);
+	}
+
+	public BlockModels addVerticalCollisionUsingBaseBounds(int offset) {
+		if (simpleBounds == null) {
+			throw new IllegalStateException("base bounds must be set before reusing them");
+		}
+		return addVerticalCollision(offset, simpleBounds[0], simpleBounds[1], simpleBounds[2],
+				simpleBounds[3], simpleBounds[4], simpleBounds[5]);
 	}
 
 	public BlockModels addSideCollision(int offset) {
@@ -243,9 +264,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 	}
 
 	public BlockModels withBounds(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
-		this.simpleBounds = new float[]{minX, minY, minZ, maxX, maxY, maxZ};
-		setBlockBounds(minX, minY, minZ, maxX, maxY, maxZ);
-		return this;
+		return withRotatingBounds(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 
 	@Override
@@ -508,14 +527,15 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 	@Override
 	public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
 		if (simpleBounds != null) {
-			setBlockBounds(simpleBounds[0], simpleBounds[1], simpleBounds[2], simpleBounds[3], simpleBounds[4], simpleBounds[5]);
+			float[] b = rotateBounds(simpleBounds, world.getBlockMetadata(x, y, z) & 3);
+			super.setBlockBounds(b[0], b[1], b[2], b[3], b[4], b[5]);
 			return;
 		}
 		if (rotationBounds == null) return;
 		int meta = world.getBlockMetadata(x, y, z) & 3;
 		if (meta < rotationBounds.length) {
 			float[] b = rotationBounds[meta];
-			this.setBlockBounds(b[0], b[1], b[2], b[3], b[4], b[5]);
+			super.setBlockBounds(b[0], b[1], b[2], b[3], b[4], b[5]);
 		}
 	}
 

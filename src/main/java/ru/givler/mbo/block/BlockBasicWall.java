@@ -19,6 +19,10 @@ public class BlockBasicWall extends BlockWall {
     private IIcon textureIcon; // Переменная для хранения иконки текстуры
 
     public BlockBasicWall(Block baseBlock, String name, String texture) {
+        this(baseBlock, 0, name, texture);
+    }
+
+    public BlockBasicWall(Block baseBlock, int baseMeta, String name, String texture) {
         super(baseBlock);
 
         this.setBlockName(name + "_wall");
@@ -33,6 +37,8 @@ public class BlockBasicWall extends BlockWall {
                 ? texture
                 : MoreBeyondOrdinary.MODID + ":" + texture);
         GameRegistry.registerBlock(this, name + "_wall");
+        GameRegistry.addRecipe(new ItemStack(this, 6),
+                new Object[]{"XXX", "XXX", 'X', new ItemStack(baseBlock, 1, baseMeta)});
     }
 
     @Override
@@ -59,8 +65,9 @@ public class BlockBasicWall extends BlockWall {
     public boolean canConnectWallTo(IBlockAccess world, int x, int y, int z) {
         Block block = world.getBlock(x, y, z);
 
-        // Проверяем, является ли соседний блок забором или стеной
-        if (block instanceof BlockBasicWall) {
+        if (block instanceof BlockBasicWall
+                || block instanceof BlockBasicFence
+                || block instanceof BlockBasicFenceGate) {
             return true;
         }
 

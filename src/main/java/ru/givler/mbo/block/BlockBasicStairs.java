@@ -26,9 +26,6 @@ public class BlockBasicStairs extends BlockStairs {
         this.useNeighborBrightness = true;
 
         GameRegistry.registerBlock(this, baseBlock.getUnlocalizedName() + "_stairs");
-    }
-
-    public void addStandardRecipes() {
         GameRegistry.addRecipe(new ItemStack(this, 4),
                 new Object[]{"X  ", "XX ", "XXX", 'X', baseBlock});
     }
