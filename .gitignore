@@ -78,3 +78,4 @@ classes/
 
 # Linux
 *~
+/build
