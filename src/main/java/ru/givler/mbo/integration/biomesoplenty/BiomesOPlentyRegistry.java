@@ -10,11 +10,30 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import ru.givler.mbo.block.DoorBase;
 import ru.givler.mbo.block.TrapDoorBase;
+import ru.givler.mbo.block.BlockBasicFence;
+import ru.givler.mbo.block.BlockBasicFenceGate;
+import ru.givler.mbo.block.BlockBasicWoodButton;
+import ru.givler.mbo.block.BlockBasicWoodPressurePlate;
 import ru.givler.mbo.config.*;
 import ru.givler.mbo.item.DoorItemBase;
 import scala.Int;
 
-public class DoorRegistry {
+public final class BiomesOPlentyRegistry {
+
+    private static final String[] VANILLA_WOOD_NAMES =
+            {"Spruce", "Birch", "Jungle", "Acacia", "DarkOak"};
+    private static final String[] BOP_WOOD_NAMES = {
+            "Sacred", "Cherry", "Dark", "Fir", "Ethereal",
+            "Magic", "Mangrove", "Palm", "Redwood", "Willow",
+            "Bamboo", "Pine", "Hellbark", "Jacaranda", "Mahogany"
+    };
+
+    public static BlockBasicFence FenceBoP;
+    public static BlockBasicFenceGate[] FenceGatesBoP;
+    public static BlockBasicWoodButton[] vanillaButtons, bopButtons;
+    public static BlockBasicWoodPressurePlate[] vanillaPressurePlates, bopPressurePlates;
+
+    private BiomesOPlentyRegistry() { }
 
     // Блоки дверей BoP
     public static Block doorSacredBlock, doorCherryBlock, doorDarkBlock, doorFirBlock,
@@ -180,7 +199,51 @@ public class DoorRegistry {
             };
         }
 
+        initWoodRedstone();
+        initFences();
         registerCrafts();
+    }
+
+    private static void initFences() {
+        if (!Loader.isModLoaded("BiomesOPlenty")) return;
+        Block bopPlanks = biomesoplenty.api.content.BOPCBlocks.planks;
+        if (IntegrationConfig.enableBoPFences) {
+            FenceBoP = new BlockBasicFence("FenceBoP", bopPlanks,
+                    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
+            FenceBoP.addStandardRecipes();
+        }
+        if (IntegrationConfig.enableBoPFenceGates) {
+            FenceGatesBoP = new BlockBasicFenceGate[BOP_WOOD_NAMES.length];
+            for (int meta = 0; meta < BOP_WOOD_NAMES.length; ++meta) {
+                FenceGatesBoP[meta] = new BlockBasicFenceGate(
+                        "FenceGateBoP" + BOP_WOOD_NAMES[meta], bopPlanks, meta);
+                FenceGatesBoP[meta].addStandardRecipe();
+            }
+        }
+    }
+
+    private static void initWoodRedstone() {
+        vanillaButtons = new BlockBasicWoodButton[VANILLA_WOOD_NAMES.length];
+        vanillaPressurePlates = new BlockBasicWoodPressurePlate[VANILLA_WOOD_NAMES.length];
+        for (int i = 0; i < VANILLA_WOOD_NAMES.length; ++i) {
+            int meta = i + 1;
+            vanillaButtons[i] = new BlockBasicWoodButton("Button" + VANILLA_WOOD_NAMES[i], Blocks.planks, meta);
+            vanillaPressurePlates[i] = new BlockBasicWoodPressurePlate(
+                    "PressurePlate" + VANILLA_WOOD_NAMES[i], Blocks.planks, meta);
+            vanillaButtons[i].addStandardRecipe();
+            vanillaPressurePlates[i].addStandardRecipe();
+        }
+        if (!Loader.isModLoaded("BiomesOPlenty")) return;
+        Block bopPlanks = biomesoplenty.api.content.BOPCBlocks.planks;
+        bopButtons = new BlockBasicWoodButton[BOP_WOOD_NAMES.length];
+        bopPressurePlates = new BlockBasicWoodPressurePlate[BOP_WOOD_NAMES.length];
+        for (int i = 0; i < BOP_WOOD_NAMES.length; ++i) {
+            bopButtons[i] = new BlockBasicWoodButton("ButtonBoP" + BOP_WOOD_NAMES[i], bopPlanks, i);
+            bopPressurePlates[i] = new BlockBasicWoodPressurePlate(
+                    "PressurePlateBoP" + BOP_WOOD_NAMES[i], bopPlanks, i);
+            bopButtons[i].addStandardRecipe();
+            bopPressurePlates[i].addStandardRecipe();
+        }
     }
 
     private static void registerCrafts() {
@@ -210,7 +273,7 @@ public class DoorRegistry {
 
         int[] plankMetadata = {1, 2, 3, 4, 5};
 
-        for (int i = 0; i < doorItems.length; i++) {
+        for (int i = 0; doorItems != null && i < doorItems.length; i++) {
             GameRegistry.addRecipe(new ItemStack(doorItems[i], 1),
                     "PP",
                     "PP",
@@ -219,7 +282,7 @@ public class DoorRegistry {
             );
         }
 
-        for (int i = 0; i < trapdoorBlocks.length; i++) {
+        for (int i = 0; trapdoorBlocks != null && i < trapdoorBlocks.length; i++) {
             GameRegistry.addRecipe(new ItemStack(trapdoorBlocks[i], 2),
                     "PPP",
                     "PPP",
@@ -228,9 +291,14 @@ public class DoorRegistry {
         }
     }
 
-    public static void setBoPCreativeTab(CreativeTabs tab) {
+    public static void setCreativeTab(CreativeTabs tab) {
+        if (!Loader.isModLoaded("BiomesOPlenty")) return;
         setItemTabs(doorItemsBoP, tab);
         setBlockTabs(trapdoorBlocksBoP, tab);
+        if (FenceBoP != null) FenceBoP.setCreativeTab(tab);
+        setBlockTabs(FenceGatesBoP, tab);
+        setBlockTabs(bopButtons, tab);
+        setBlockTabs(bopPressurePlates, tab);
     }
 
     private static void setItemTabs(Item[] items, CreativeTabs tab) {

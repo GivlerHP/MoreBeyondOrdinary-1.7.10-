@@ -4,6 +4,7 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.item.Item;
+import ru.givler.mbo.integration.wood.WoodFamily;
 import ru.givler.mbo.integration.thaumcraft.item.focus.*;
 import ru.givler.mbo.integration.thaumcraft.item.staff.*;
 import ru.givler.mbo.integration.thaumcraft.registry.TMEntityRegistry;
@@ -12,6 +13,8 @@ import ru.givler.mbo.integration.thaumcraft.handler.ConfigHandler;
 import net.minecraftforge.common.config.Configuration;
 
 public class ThaumcraftRegistry {
+
+    public static WoodFamily greatwoodFamily, silverwoodFamily;
 
     public static Item FocusHealing, FocusCleansing, FocusVisShard, FocusDarkMatter, FocusDarkLightning;
     public static Item StaffFire, StaffNature, StaffFrost, StaffLantern, StaffLight, StaffChillSorrow, StaffNaturalMoon,
@@ -27,6 +30,13 @@ public class ThaumcraftRegistry {
 
     public static void init() {
         if (Loader.isModLoaded("Thaumcraft")) {
+
+            greatwoodFamily = new WoodFamily("ThaumGreatwood",
+                    thaumcraft.common.config.ConfigBlocks.blockWoodenDevice, 6,
+                    thaumcraft.common.Thaumcraft.tabTC);
+            silverwoodFamily = new WoodFamily("ThaumSilverwood",
+                    thaumcraft.common.config.ConfigBlocks.blockWoodenDevice, 7,
+                    thaumcraft.common.Thaumcraft.tabTC);
 
             TMEntityRegistry.initEntities();
 

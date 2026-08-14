@@ -11,10 +11,12 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
     public String[] getASMTransformerClass() {
         return new String[]{
                 "ru.givler.mbo.core.BlockButtonTransformer",
+                "ru.givler.mbo.core.TrapdoorPlacementTransformer",
                 "ru.givler.mbo.core.CauldronTransformer",
                 "ru.givler.mbo.core.PistonTransformer",
                 "ru.givler.mbo.core.FenceConnectionTransformer",
                 "ru.givler.mbo.core.LootingPotionTransformer"
+                ,"ru.givler.mbo.core.SmoothOpeningTransformer"
         };
     }
     public String getModContainerClass() { return null; }

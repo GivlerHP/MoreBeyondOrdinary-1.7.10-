@@ -108,6 +108,10 @@ public class ClientProxy extends CommonProxy {
         ClientRegistry.registerKeyBinding(activateAmuletKey);
         FMLCommonHandler.instance().bus().register(new ClientKeyHandler());
         FMLCommonHandler.instance().bus().register(new BarrierVisibilityHandler());
+        ru.givler.mbo.client.render.SmoothOpeningRenderer.configureIntegrations();
+        ru.givler.mbo.client.render.SmoothOpeningRenderer smoothOpeningRenderer = new ru.givler.mbo.client.render.SmoothOpeningRenderer();
+        FMLCommonHandler.instance().bus().register(smoothOpeningRenderer);
+        MinecraftForge.EVENT_BUS.register(smoothOpeningRenderer);
 
         if (Loader.isModLoaded("NotEnoughItems")) {
             ArcanumNEIConfig.registerHandlers();
@@ -276,7 +280,7 @@ public class ClientProxy extends CommonProxy {
         RenderMetaFence renderer = new RenderMetaFence(renderId);
         BlockRegistry.FenceVanilla.setFenceRenderType(renderId);
         ru.givler.mbo.block.BlockBasicFence bopFence =
-                ru.givler.mbo.integration.biomesoplenty.FenceRegistry.FenceBoP;
+                ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.FenceBoP;
         if (bopFence != null) {
             bopFence.setFenceRenderType(renderId);
         }

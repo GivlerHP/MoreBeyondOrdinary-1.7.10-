@@ -15,9 +15,8 @@ import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.handler.*;
-import ru.givler.mbo.integration.biomesoplenty.DoorRegistry;
-import ru.givler.mbo.integration.biomesoplenty.FenceRegistry;
-import ru.givler.mbo.integration.biomesoplenty.WoodRedstoneRegistry;
+import ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry;
+import ru.givler.mbo.integration.minefantasy2.MineFantasyRegistry;
 import ru.givler.mbo.recipes.registry.ArcanumRecipeRegistry;
 import ru.givler.mbo.recipes.registry.BlockRecipeRegistry;
 import ru.givler.mbo.recipes.registry.RoofRecipeRegistry;
@@ -56,9 +55,7 @@ public class CommonProxy {
         PlantRegistry.preLoad(event);
         ArmorRegistry.preLoad(event);
         ThaumcraftRegistry.preLoad(event);
-        DoorRegistry.init();
-        FenceRegistry.init();
-        WoodRedstoneRegistry.init();
+        BiomesOPlentyRegistry.init();
         BoatRegistry.init();
         BannerRegistry.init();
         StonecutterRegistry.init();
@@ -78,6 +75,7 @@ public class CommonProxy {
         BoatRegistry.registerRecipes();
         moveWoodIntegrationToBoPTab();
         ModelRegistry.init(event);
+        MineFantasyRegistry.init();
         ThaumcraftRegistry.init();
         GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
         GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileEntityModelCollision.class,
@@ -103,9 +101,7 @@ public class CommonProxy {
         }
 
         net.minecraft.creativetab.CreativeTabs bopTab = biomesoplenty.BiomesOPlenty.tabBiomesOPlenty;
-        FenceRegistry.setCreativeTab(bopTab);
-        DoorRegistry.setBoPCreativeTab(bopTab);
-        WoodRedstoneRegistry.setBoPCreativeTab(bopTab);
+        BiomesOPlentyRegistry.setCreativeTab(bopTab);
     }
 
     public void postInit(FMLPostInitializationEvent event){

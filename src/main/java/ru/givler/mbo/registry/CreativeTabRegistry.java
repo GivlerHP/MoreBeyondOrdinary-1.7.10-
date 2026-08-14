@@ -127,29 +127,29 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(FenceGateAcacia));
             list.add(new ItemStack(FenceGateDarkOak));
 
-            if (ru.givler.mbo.integration.biomesoplenty.WoodRedstoneRegistry.vanillaButtons != null) {
+            if (ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.vanillaButtons != null) {
                 for (net.minecraft.block.Block button :
-                        ru.givler.mbo.integration.biomesoplenty.WoodRedstoneRegistry.vanillaButtons) {
+                        ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.vanillaButtons) {
                     list.add(new ItemStack(button));
                 }
             }
-            if (ru.givler.mbo.integration.biomesoplenty.WoodRedstoneRegistry.vanillaPressurePlates != null) {
+            if (ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.vanillaPressurePlates != null) {
                 for (net.minecraft.block.Block plate :
-                        ru.givler.mbo.integration.biomesoplenty.WoodRedstoneRegistry.vanillaPressurePlates) {
+                        ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.vanillaPressurePlates) {
                     list.add(new ItemStack(plate));
                 }
             }
 
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorSpruceItem);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorBirchItem);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorJungleItem);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorAcaciaItem);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.doorDarkoakItem);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.trapdoorSpruce);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.trapdoorBirch);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.trapdoorJungle);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.trapdoorAcacia);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.DoorRegistry.trapdoorDarkoak);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.doorSpruceItem);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.doorBirchItem);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.doorJungleItem);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.doorAcaciaItem);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.doorDarkoakItem);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.trapdoorSpruce);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.trapdoorBirch);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.trapdoorJungle);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.trapdoorAcacia);
+            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.trapdoorDarkoak);
 
             list.add(new ItemStack(BooksheelSkull));
             list.add(new ItemStack(BooksheelVoid));
