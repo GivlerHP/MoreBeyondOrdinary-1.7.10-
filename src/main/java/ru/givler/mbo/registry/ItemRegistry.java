@@ -35,7 +35,8 @@ public class ItemRegistry {
         ThornsAmulet, StrengthAmulet, MercenaryAmulet, GoblinAmulet, GoldBasicAmulet, SilverBasicAmulet;
     // переменные колец
     public static Item LifeRing, StaminaRing, DamageRing, SpeedRing, LifeSmallRing, StaminaSmallRing, DamageSmallRing, SpeedSmallRing,
-        SmallBasicRing, BasicRing, MushroomRing;
+        SmallBasicRing, BasicRing, MushroomRing, StrengthAttributeRing, DexterityAttributeRing,
+        EnduranceAttributeRing, SpiritAttributeRing;
     // переменные пояса
     public static Item FertilityBelt, FallBelt, MinerBelt, WaterminerBelt, KnightBelt;
     //магические посохи
@@ -116,16 +117,25 @@ public class ItemRegistry {
         SmallBasicRing = new ItemVoidRing("SmallBasicRing", "bijouterie/ring_basic_small");
         BasicRing = new ItemVoidRing("BasicRing", "bijouterie/ring_basic");
 
-        LifeSmallRing = new ItemLifeRing("LifeSmallRing", "bijouterie/ring_small_life", 4.0D, "0");
-        StaminaSmallRing  = new ItemStaminaRing("StaminaSmallRing", "bijouterie/ring_small_stamina", 15F, "0");
-        DamageSmallRing = new ItemDamageRing("DamageSmallRing", "bijouterie/ring_small_damage", 0.05D, "0" );
-        SpeedSmallRing = new ItemSpeedRing("SpeedSmallRing", "bijouterie/ring_small_speed", 0.05D, "0");
+        LifeSmallRing = new ItemStatRing("LifeSmallRing", "bijouterie/ring_small_life", ItemStatRing.Stat.HEALTH, 4.0D, "0");
+        StaminaSmallRing = new ItemStatRing("StaminaSmallRing", "bijouterie/ring_small_stamina", ItemStatRing.Stat.STAMINA, 15.0D, "0");
+        DamageSmallRing = new ItemStatRing("DamageSmallRing", "bijouterie/ring_small_damage", ItemStatRing.Stat.DAMAGE, 0.05D, "0");
+        SpeedSmallRing = new ItemStatRing("SpeedSmallRing", "bijouterie/ring_small_speed", ItemStatRing.Stat.SPEED, 0.05D, "0");
 
-        LifeRing = new ItemLifeRing("LifeRing", "bijouterie/ring_life", 6.0D, "1");
-        StaminaRing  = new ItemStaminaRing("StaminaRing", "bijouterie/ring_stamina", 25F, "1");
-        DamageRing = new ItemDamageRing("DamageRing", "bijouterie/ring_damage", 0.075D, "1" );
-        SpeedRing = new ItemSpeedRing("SpeedRing", "bijouterie/ring_speed", 0.075D, "1");
+        LifeRing = new ItemStatRing("LifeRing", "bijouterie/ring_life", ItemStatRing.Stat.HEALTH, 6.0D, "1");
+        StaminaRing = new ItemStatRing("StaminaRing", "bijouterie/ring_stamina", ItemStatRing.Stat.STAMINA, 25.0D, "1");
+        DamageRing = new ItemStatRing("DamageRing", "bijouterie/ring_damage", ItemStatRing.Stat.DAMAGE, 0.075D, "1");
+        SpeedRing = new ItemStatRing("SpeedRing", "bijouterie/ring_speed", ItemStatRing.Stat.SPEED, 0.075D, "1");
         MushroomRing = new ItemMushroomRing("MushroomRing", "bijouterie/ring_mushroom", 4.0D, "1");
+
+        StrengthAttributeRing = new ItemAttributeRing("StrengthAttributeRing", "bijouterie/ring_strength",
+                ItemAttributeRing.Attribute.STRENGTH);
+        DexterityAttributeRing = new ItemAttributeRing("DexterityAttributeRing", "bijouterie/ring_dexterity",
+                ItemAttributeRing.Attribute.DEXTERITY);
+        EnduranceAttributeRing = new ItemAttributeRing("EnduranceAttributeRing", "bijouterie/ring_endurance",
+                ItemAttributeRing.Attribute.ENDURANCE);
+        SpiritAttributeRing = new ItemAttributeRing("SpiritAttributeRing", "bijouterie/ring_spirit",
+                ItemAttributeRing.Attribute.SPIRIT);
 
         FertilityBelt = new ItemFertilityBelt("FertilityBelt", "bijouterie/belt_fertility");
         FallBelt = new ItemFallBelt("FallBelt", "bijouterie/belt_fall");

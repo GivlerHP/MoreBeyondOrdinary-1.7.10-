@@ -1,8 +1,11 @@
 package ru.givler.mbo.item.ring;
 
-public class ItemMushroomRing extends ItemLifeRing {
-
-    public ItemMushroomRing(String name, String texture, Double value, String level) {
-        super(name, texture, value, level);
+/**
+ * Marker type for the mushroom ring's special gameplay effect.
+ * Its ordinary health bonus is provided by the shared ItemStatRing logic.
+ */
+public class ItemMushroomRing extends ItemStatRing {
+    public ItemMushroomRing(String name, String texture, double healthBonus, String descriptionLevel) {
+        super(name, texture, Stat.HEALTH, healthBonus, descriptionLevel);
     }
 }

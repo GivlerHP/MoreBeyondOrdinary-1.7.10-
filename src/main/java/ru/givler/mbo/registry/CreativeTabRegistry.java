@@ -249,6 +249,10 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(StaminaRing));
             list.add(new ItemStack(DamageRing));
             list.add(new ItemStack(SpeedRing));
+            list.add(new ItemStack(StrengthAttributeRing));
+            list.add(new ItemStack(DexterityAttributeRing));
+            list.add(new ItemStack(EnduranceAttributeRing));
+            list.add(new ItemStack(SpiritAttributeRing));
 
             list.add(new ItemStack(GoldBasicAmulet));
             list.add(new ItemStack(SilverBasicAmulet));

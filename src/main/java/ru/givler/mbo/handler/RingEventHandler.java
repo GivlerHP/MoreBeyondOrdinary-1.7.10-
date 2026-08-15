@@ -14,10 +14,9 @@ import ru.givler.mbo.registry.ItemRegistry;
 
 public class RingEventHandler {
 
-    private static final int MUSHROOM_REGEN_DURATION_TICKS = 6 * 20; // 6 секунд
-    private static final int MUSHROOM_REGEN_AMPLIFIER = 0;            // Regeneration I
+    private static final int MUSHROOM_REGEN_DURATION_TICKS = 6 * 20;
+    private static final int MUSHROOM_REGEN_AMPLIFIER = 0;
 
-    // Ленивый поиск предмета BiomesOPlenty, чтобы не требовать его как обязательную зависимость сборки
     private static Item mushroomSaladItem;
     private static boolean lookedUp = false;
 
