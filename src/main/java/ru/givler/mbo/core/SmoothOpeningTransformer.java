@@ -94,6 +94,12 @@ public final class SmoothOpeningTransformer implements IClassTransformer, Opcode
                 code.add(new VarInsnNode(ALOAD,local));code.add(new InsnNode(ICONST_1));code.add(new InsnNode(FALOAD));code.add(new VarInsnNode(FSTORE,2));
                 code.add(new VarInsnNode(ALOAD,local));code.add(new InsnNode(ICONST_2));code.add(new InsnNode(FALOAD));code.add(new VarInsnNode(FSTORE,3));
                 m.instructions.insert(code);
+            } else if(matches(node.name,m,"(I)V","setBrightness","func_78380_c")) {
+                InsnList code=new InsnList();
+                code.add(new VarInsnNode(ILOAD,1));
+                code.add(new MethodInsnNode(INVOKESTATIC,HOOK,"correctBrightness","(I)I",false));
+                code.add(new VarInsnNode(ISTORE,1));
+                m.instructions.insert(code);
             }
         }
         if(vertexPatched){System.out.println("[MBO ASM] Patched Tessellator vertex animation and color");return write(node);}

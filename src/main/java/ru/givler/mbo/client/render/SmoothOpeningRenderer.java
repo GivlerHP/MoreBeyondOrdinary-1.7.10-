@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.integration.carpentersblocks.client.render.CarpenterOpeningBridge;
 import ru.givler.mbo.integration.thaumcraft.client.render.ThaumcraftOpeningBridge;
@@ -51,7 +52,7 @@ public final class SmoothOpeningRenderer {
         if(state==null||state.block!=block){STATES.put(key,new State(block,x,baseY,z,meta,open,now,snapshot.kind));return false;}
         state.seen=now;
         if(state.open!=open) state.begin(open,meta,now); else state.meta=meta;
-        if(state.active(now)) ACTIVE.set(new Context(state,renderer,now,
+        if(state.active(now)) ACTIVE.set(new Context(state,renderer,now,y,
                 isCarpenterBlock(block)&&!(access instanceof World)));
         // Chunk display lists must omit a moving block. The World-backed
         // renderer below draws it every frame instead.
@@ -82,10 +83,28 @@ public final class SmoothOpeningRenderer {
     public static float[] correctColor(float red,float green,float blue){
         float[] out=COLOR_RESULT.get();out[0]=red;out[1]=green;out[2]=blue;
         Context context=ACTIVE.get();
-        if(context==null||context.state.kind!=TRAPDOOR)return out;
+        if(context==null)return out;
         float max=Math.max(red,Math.max(green,blue));
+        // RenderBlocks calculates ambient occlusion before our vertices are
+        // rotated. A face touching a neighbour therefore carries its old dark
+        // AO patch into open space. Remove that multiplier during animation;
+        // Tessellator brightness/lightmap still supplies the actual world light.
         if(max>0F&&max<0.8F){float scale=0.8F/max;out[0]=Math.min(1F,red*scale);out[1]=Math.min(1F,green*scale);out[2]=Math.min(1F,blue*scale);}
         return out;
+    }
+
+    public static int correctBrightness(int brightness){
+        Context context=ACTIVE.get();
+        if(context==null)return brightness;
+        State state=context.state;
+        IBlockAccess access=context.renderer.blockAccess;
+        int corrected=state.block.getMixedBrightnessForBlock(access,state.x,context.renderY,state.z);
+        int oldBlock=brightness&0xFFFF,oldSky=(brightness>>>16)&0xFFFF;
+        int ownBlock=corrected&0xFFFF,ownSky=(corrected>>>16)&0xFFFF;
+        // Only repair a strong occlusion leak. Small differences are normal
+        // vanilla face lighting and must remain untouched.
+        if(ownBlock-oldBlock<64&&ownSky-oldSky<64)return brightness;
+        return Math.max(oldSky,ownSky)<<16|Math.max(oldBlock,ownBlock);
     }
 
     private static void rotateDoor(double[] p,State s,float delta){
@@ -206,6 +225,21 @@ public final class SmoothOpeningRenderer {
         Iterator<State> it=STATES.values().iterator();while(it.hasNext()){State s=it.next();if(w.getBlock(s.x,s.y,s.z)!=s.block||now-s.seen>30000){it.remove();continue;}if(!s.active(now)&&s.wasActive){s.wasActive=false;w.markBlockRangeForRenderUpdate(s.x,s.y,s.z,s.x,s.y+(s.kind==DOOR?1:0),s.z);}}
     }
 
+    /** Captures the old state even when the player interacts before a new chunk's first render. */
+    @SubscribeEvent public void interact(PlayerInteractEvent event){
+        if(event.action!=PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK||event.world==null||!event.world.isRemote)return;
+        Block block=event.world.getBlock(event.x,event.y,event.z);
+        Snapshot snapshot=snapshot(event.world,block,event.x,event.y,event.z);
+        if(snapshot==null||event.world.getBlock(event.x,snapshot.baseY,event.z)!=block)return;
+        long now=System.currentTimeMillis();
+        Key key=new Key(event.x,snapshot.baseY,event.z);
+        State state=STATES.get(key);
+        boolean open=(snapshot.meta&4)!=0;
+        if(state==null||state.block!=block)STATES.put(key,new State(block,event.x,snapshot.baseY,event.z,
+                snapshot.meta,open,now,snapshot.kind));
+        else{state.meta=snapshot.meta;state.open=open;state.seen=now;}
+    }
+
     @SubscribeEvent public void render(RenderWorldLastEvent event){
         Minecraft mc=Minecraft.getMinecraft(); World world=mc.theWorld;
         if(world==null||mc.renderViewEntity==null)return;
@@ -217,7 +251,7 @@ public final class SmoothOpeningRenderer {
         RenderBlocks renderer=new RenderBlocks(world); renderer.renderAllFaces=true;
         mc.entityRenderer.enableLightmap(event.partialTicks);
         int previousPass=MinecraftForgeClient.getRenderPass();
-        GL11.glPushMatrix(); GL11.glTranslated(-cx,-cy,-cz);
+        GL11.glPushMatrix(); GL11.glColor4f(1F,1F,1F,1F); GL11.glTranslated(-cx,-cy,-cz);
         try{
             for(State state:STATES.values()){
                 if(!state.visibleDuringRestore(now))continue;
@@ -238,7 +272,7 @@ public final class SmoothOpeningRenderer {
         Tessellator.instance.draw();
     }
 
-    private static final class Context{final State state;final RenderBlocks renderer;final long now;final boolean hideChunkCopy;Context(State s,RenderBlocks r,long n,boolean h){state=s;renderer=r;now=n;hideChunkCopy=h;}}
+    private static final class Context{final State state;final RenderBlocks renderer;final long now;final int renderY;final boolean hideChunkCopy;Context(State s,RenderBlocks r,long n,int y,boolean h){state=s;renderer=r;now=n;renderY=y;hideChunkCopy=h;}}
     private static final class Key{final int x,y,z;Key(int x,int y,int z){this.x=x;this.y=y;this.z=z;}public int hashCode(){return x*7340033^y^z*19349663;}public boolean equals(Object o){return o instanceof Key&&((Key)o).x==x&&((Key)o).y==y&&((Key)o).z==z;}}
     private static Snapshot snapshot(IBlockAccess access,Block block,int x,int y,int z){
         int raw=access.getBlockMetadata(x,y,z);

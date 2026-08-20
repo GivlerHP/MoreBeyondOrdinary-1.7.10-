@@ -24,7 +24,7 @@ public final class WoodFamily {
     public final BlockBasicWoodPressurePlate pressurePlate;
 
     public WoodFamily(String id, Block planks, int meta, CreativeTabs tab) {
-        String texture = "integration/" + id;
+        String texture = "door_" + id;
         door = new DoorBase(Material.wood, "door_" + id + "_block", texture, null);
         doorItem = new DoorItemBase(door, id + "_door_item", texture);
         door.setDropItem(doorItem);

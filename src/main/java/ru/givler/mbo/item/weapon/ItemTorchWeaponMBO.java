@@ -4,12 +4,15 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import electroblob.wizardry.item.ItemSpectralSword;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
@@ -20,6 +23,7 @@ public class ItemTorchWeaponMBO extends ItemSpectralSword {
 
     private static final float FIRE_CHANCE = 0.75f;
     private static final int FIRE_DURATION = 4;
+    private static final String LIFE_TAG = "MBO_TorchLife";
 
     private final Random random = new Random();
     private final float scale;
@@ -56,6 +60,40 @@ public class ItemTorchWeaponMBO extends ItemSpectralSword {
         }
 
         return result;
+    }
+
+    @Override
+    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean held) {
+        if (!(entity instanceof EntityPlayer)) {
+            return;
+        }
+
+        // Vanilla only renders the durability bar for a damaged stack. The real
+        // displayed value is supplied by getDisplayDamage() below.
+        if (stack.getItemDamage() == 0) {
+            stack.setItemDamage(1);
+        }
+
+        if (!stack.hasTagCompound()) {
+            stack.setTagCompound(new NBTTagCompound());
+        }
+
+        int lifetime = stack.getTagCompound().getInteger(LIFE_TAG) + 1;
+        stack.getTagCompound().setInteger(LIFE_TAG, lifetime);
+
+        if (!world.isRemote && lifetime > getMaxDamage()) {
+            ((EntityPlayer) entity).inventory.setInventorySlotContents(slot, null);
+        }
+    }
+
+    @Override
+    public int getMaxDamage(ItemStack stack) {
+        return getMaxDamage();
+    }
+
+    @Override
+    public int getDisplayDamage(ItemStack stack) {
+        return stack.hasTagCompound() ? stack.getTagCompound().getInteger(LIFE_TAG) : 0;
     }
 
     @Override

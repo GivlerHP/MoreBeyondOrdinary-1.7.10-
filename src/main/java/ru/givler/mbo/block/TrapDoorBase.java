@@ -67,7 +67,7 @@ public class TrapDoorBase extends BlockTrapDoor {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister register) {
-        this.blockIcon = register.registerIcon(MoreBeyondOrdinary.MODID + ":trapdoor/" + textureName);
+        this.blockIcon = register.registerIcon(MoreBeyondOrdinary.MODID + ":trapdoor/" + trapdoorName);
     }
 
     @Override

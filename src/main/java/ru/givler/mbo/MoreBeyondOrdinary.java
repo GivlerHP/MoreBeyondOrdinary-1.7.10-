@@ -7,6 +7,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.event.FMLInterModComms;
+import ru.givler.mbo.client.render.F3AOcclusionFix;
 import ru.givler.mbo.handler.GuiHandler;
 import ru.givler.mbo.proxy.CommonProxy;
 import ru.givler.mbo.registry.EntityMobRegistry;
@@ -48,6 +49,7 @@ public class MoreBeyondOrdinary {
     public void init(FMLInitializationEvent event){
         proxy.init(event);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
+        F3AOcclusionFix.register();
     }
 
     @Mod.EventHandler
