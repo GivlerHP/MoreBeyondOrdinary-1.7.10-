@@ -6,12 +6,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import ru.givler.mbo.core.TooltipFrameHooks;
+import ru.givler.mbo.client.font.TooltipElements;
 
 public class TooltipEvents {
     String localized = StatCollector.translateToLocal("tooltip.durability");
 
     @SubscribeEvent
     public void onItemTooltip(ItemTooltipEvent event) {
+        TooltipFrameHooks.markItemTooltip(event.toolTip);
+        TooltipElements.expandBlocks(event.toolTip);
         if (!event.showAdvancedItemTooltips && event.itemStack != null) {
             ItemStack is = event.itemStack;
             if (is.isItemDamaged()) {

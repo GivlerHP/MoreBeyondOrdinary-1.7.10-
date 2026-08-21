@@ -29,7 +29,7 @@ public class ItemRegistry {
     // переменные луков
     public static net.minecraft.item.ItemBow BrokenBowHunting ;
     // переменные материалов
-    public static Item Metal, SapphireHeart, SapphireEye, Crystall, GlyphVoid, Drop;
+    public static Item Metal, SapphireHeart, SapphireEye, Crystall, GlyphVoid, Drop, TooltipDemo;
     // переменные амулетов
     public static Item HealingAmulet, VampirismAmulet, CleansingAmulet, PhoenixAmulet, CowardAmulet, DragonAmulet, StaminaAmulet, VeilAmulet,
         ThornsAmulet, StrengthAmulet, MercenaryAmulet, GoblinAmulet, GoldBasicAmulet, SilverBasicAmulet;
@@ -95,6 +95,7 @@ public class ItemRegistry {
         SapphireEye = new ItemBase("SapphireEye", "material/sapphire_eye", 64);
         Crystall = new ItemMeta("Crystall", "material/crystall", 64, 16);
         GlyphVoid = new ItemBase("GlyphVoid", "glyph/glyph_void", 1);
+        TooltipDemo = new ItemTooltipDemo();
 
         //бижютерия
         GoldBasicAmulet = new ItemVoidAmulet("GoldBasicAmulet", "bijouterie/amulet_basic_gold");

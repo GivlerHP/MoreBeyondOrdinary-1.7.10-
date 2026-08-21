@@ -18,7 +18,12 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
                 "ru.givler.mbo.core.PistonTransformer",
                 "ru.givler.mbo.core.FenceConnectionTransformer",
                 "ru.givler.mbo.core.LootingPotionTransformer"
-                ,"ru.givler.mbo.core.SmoothOpeningTransformer"
+                ,"ru.givler.mbo.core.SmoothOpeningTransformer",
+                "ru.givler.mbo.core.ThaumcraftFontTransformer",
+                "ru.givler.mbo.core.TooltipFrameTransformer",
+                "ru.givler.mbo.core.ItemTooltipContextTransformer",
+                "ru.givler.mbo.core.NeiTooltipFrameTransformer"
+                ,"ru.givler.mbo.core.PotionDurationFontTransformer"
         };
     }
     public String getModContainerClass() { return null; }

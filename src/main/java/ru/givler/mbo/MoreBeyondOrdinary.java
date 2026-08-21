@@ -13,6 +13,7 @@ import ru.givler.mbo.proxy.CommonProxy;
 import ru.givler.mbo.registry.EntityMobRegistry;
 import ru.givler.mbo.util.VanillaBlockReplacer;
 import ru.givler.mbo.config.IntegrationConfig;
+import ru.givler.mbo.config.TooltipFrameConfig;
 
 @Mod(modid = MoreBeyondOrdinary.MODID, name = MoreBeyondOrdinary.MODNAME, version = MoreBeyondOrdinary.VERSION, dependencies = "before:Growthcraft;before:Growthcraft|Apples")
 public class MoreBeyondOrdinary {
@@ -42,6 +43,7 @@ public class MoreBeyondOrdinary {
         proxy.initPackets();
         EntityMobRegistry.registerEntities();
         IntegrationConfig.load(event.getModConfigurationDirectory());
+        TooltipFrameConfig.load(event.getModConfigurationDirectory());
 
     }
 

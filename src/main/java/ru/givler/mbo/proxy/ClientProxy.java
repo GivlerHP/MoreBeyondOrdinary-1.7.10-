@@ -46,6 +46,7 @@ import ru.givler.mbo.entity.boat.EntityMBOBoatSeat;
 import ru.givler.mbo.client.render.boat.RenderMBOBoat;
 import ru.givler.mbo.client.render.boat.RenderMBOBoatSeat;
 import ru.givler.mbo.client.render.*;
+import ru.givler.mbo.client.font.ModernFontSupport;
 import ru.givler.mbo.core.CauldronHooks;
 import ru.givler.mbo.client.render.decormodels.RenderLootContainerItem;
 import ru.givler.mbo.client.render.decormodels.RenderLootContainerTile;
@@ -396,6 +397,7 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);
+        ModernFontSupport.install();
     }
 
 }
