@@ -12,6 +12,8 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
         return new String[]{
                 "ru.givler.mbo.core.BlockButtonTransformer",
                 "ru.givler.mbo.core.TrapdoorPlacementTransformer",
+                "ru.givler.mbo.core.LadderTransformer",
+                "ru.givler.mbo.core.RailTransformer",
                 "ru.givler.mbo.core.CauldronTransformer",
                 "ru.givler.mbo.core.PistonTransformer",
                 "ru.givler.mbo.core.FenceConnectionTransformer",
