@@ -51,7 +51,6 @@ public class MoreBeyondOrdinary {
     public void init(FMLInitializationEvent event){
         proxy.init(event);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
-        F3AOcclusionFix.register();
     }
 
     @Mod.EventHandler

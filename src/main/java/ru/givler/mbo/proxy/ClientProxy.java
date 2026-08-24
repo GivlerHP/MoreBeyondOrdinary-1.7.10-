@@ -126,6 +126,7 @@ public class ClientProxy extends CommonProxy {
         ru.givler.mbo.client.render.SmoothOpeningRenderer smoothOpeningRenderer = new ru.givler.mbo.client.render.SmoothOpeningRenderer();
         FMLCommonHandler.instance().bus().register(smoothOpeningRenderer);
         MinecraftForge.EVENT_BUS.register(smoothOpeningRenderer);
+        F3AOcclusionFix.register();
 
         if (Loader.isModLoaded("NotEnoughItems")) {
             ArcanumNEIConfig.registerHandlers();
