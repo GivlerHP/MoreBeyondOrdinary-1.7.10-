@@ -33,7 +33,7 @@ import java.util.zip.ZipInputStream;
 public final class ModernFontRenderer extends FontRenderer implements IResourceManagerReloadListener {
     private static final ResourceLocation DEFAULT = new ResourceLocation("minecraft", "font/default.json");
     private static final Charset UTF8 = Charset.forName("UTF-8");
-    private static final ResourceLocation LEGACY_ASCII = new ResourceLocation("minecraft", "textures/font/ascii_old.png");
+    private static final ResourceLocation LEGACY_ASCII = new ResourceLocation("minecraft", "textures/font/ascii.png");
     private static final int ATLAS_SIZE = 2048;
     private static final int CELL = 18;
     // Slightly wider than the exact legacy average: the exact 0.678 ratio is
@@ -63,6 +63,13 @@ public final class ModernFontRenderer extends FontRenderer implements IResourceM
 
     @Override
     public void onResourceManagerReload(IResourceManager manager) {
+        // These renderers must always refresh their vanilla textures and width
+        // tables. A modern font definition is optional and may be absent.
+        super.onResourceManagerReload(manager);
+        legacyRenderer.onResourceManagerReload(manager);
+        legacyRenderer.setUnicodeFlag(false);
+        legacyRenderer.setBidiFlag(false);
+
         glyphs.clear();
         spaces.clear();
         loading.clear();
@@ -75,11 +82,10 @@ public final class ModernFontRenderer extends FontRenderer implements IResourceM
         newHexPage();
         try {
             loadFont(manager, DEFAULT);
-            legacyRenderer.onResourceManagerReload(manager);
-            legacyRenderer.setUnicodeFlag(false);
-            legacyRenderer.setBidiFlag(false);
             uploadHexAtlases();
         } catch (Exception ignored) {
+            // No modern font (or an invalid optional provider): keep the
+            // freshly reloaded vanilla renderer as a fully working fallback.
             glyphs.clear();
             spaces.clear();
         }
