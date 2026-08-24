@@ -13,7 +13,7 @@ public final class MineFantasyRegistry {
     private MineFantasyRegistry() { }
 
     public static void init() {
-        if (!Loader.isModLoaded("minefantasy2") && !Loader.isModLoaded("MineFantasy2")) return;
+        if (!Loader.isModLoaded("minefantasy2")) return;
 
         Block[] planks = {
                 BlockListMF.nailed_planks, BlockListMF.refined_planks, BlockListMF.yew_planks,

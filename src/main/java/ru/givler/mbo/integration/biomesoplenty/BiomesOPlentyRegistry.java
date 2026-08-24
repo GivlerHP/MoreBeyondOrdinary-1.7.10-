@@ -17,6 +17,7 @@ import ru.givler.mbo.block.BlockBasicWoodPressurePlate;
 import ru.givler.mbo.config.*;
 import ru.givler.mbo.item.DoorItemBase;
 import scala.Int;
+import java.util.List;
 
 public final class BiomesOPlentyRegistry {
 
@@ -34,6 +35,37 @@ public final class BiomesOPlentyRegistry {
     public static BlockBasicWoodPressurePlate[] vanillaPressurePlates, bopPressurePlates;
 
     private BiomesOPlentyRegistry() { }
+
+    public static void moveToModTab() {
+        if (biomesoplenty.BiomesOPlenty.tabBiomesOPlenty != null) {
+            setCreativeTab(biomesoplenty.BiomesOPlenty.tabBiomesOPlenty);
+        }
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static void addCreativeItems(List list) {
+        addBlocks(list, vanillaButtons);
+        addBlocks(list, vanillaPressurePlates);
+        addItem(list, doorSpruceItem); addItem(list, doorBirchItem);
+        addItem(list, doorJungleItem); addItem(list, doorAcaciaItem); addItem(list, doorDarkoakItem);
+        addItem(list, trapdoorSpruce); addItem(list, trapdoorBirch);
+        addItem(list, trapdoorJungle); addItem(list, trapdoorAcacia); addItem(list, trapdoorDarkoak);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static void addBlocks(List list, Block[] blocks) {
+        if (blocks != null) for (Block block : blocks) if (block != null) list.add(new ItemStack(block));
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static void addItem(List list, Object value) {
+        if (value instanceof Item) list.add(new ItemStack((Item) value));
+        else if (value instanceof Block) list.add(new ItemStack((Block) value));
+    }
+
+    public static void setFenceRenderType(int renderId) {
+        if (FenceBoP != null) FenceBoP.setFenceRenderType(renderId);
+    }
 
     // Блоки дверей BoP
     public static Block doorSacredBlock, doorCherryBlock, doorDarkBlock, doorFirBlock,

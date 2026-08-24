@@ -95,22 +95,18 @@ public class ItemFocusCleansing extends ItemFocusPartyBasic {
 
     @Override
     public ItemStack onFocusRightClick(ItemStack wandstack, World world, EntityPlayer player, MovingObjectPosition mop) {
-        if (!hasThaumcraftArmor(player)) {
-            if (!world.isRemote) {
-                player.addChatMessage(new ChatComponentText(
-                        StatCollector.translateToLocal("focus.mhealing.no_armor")
-                ));
-            }
+        ItemWandCasting wand = (ItemWandCasting) wandstack.getItem();
+        ItemStack focusstack = wand.getFocusItem(wandstack);
+        if (!canActivateFocus(focusstack, world, player, true)) {
             return wandstack;
         }
-
-        ItemWandCasting wand = (ItemWandCasting) wandstack.getItem();
         if (!wand.consumeAllVis(wandstack, player, this.getVisCost(wandstack), !world.isRemote, false)) {
             return wandstack;
         }
 
         if (!world.isRemote) {
             List<EntityPlayer> targets = getPartyTargets(world, player, wandstack);
+            float armorEfficiency = getArmorEfficiency(player, focusstack);
 
             for (EntityPlayer target : targets) {
                 List<PotionEffect> toRemove = new ArrayList<>();
@@ -123,11 +119,14 @@ public class ItemFocusCleansing extends ItemFocusPartyBasic {
                 }
 
                 for (PotionEffect effect : toRemove) {
-                    target.removePotionEffect(effect.getPotionID());
+                    if (world.rand.nextFloat() < armorEfficiency) {
+                        target.removePotionEffect(effect.getPotionID());
+                    }
                 }
 
                 if (isUpgradedWith(wand.getFocusItem(wandstack), TMFocusUpgrades.divineProtection)) {
-                    target.addPotionEffect(new PotionEffect(Potion.resistance.id, 100, 0));
+                    target.addPotionEffect(new PotionEffect(Potion.resistance.id,
+                            Math.max(1, Math.round(100 * armorEfficiency)), 0));
                 }
 
                 PacketSpawnParticle.send(EnumParticleType.SACRED, world, target, 30, 2.0, 2.0, 2.0, 1.0, 0.0, 0.0, 0.0);
@@ -138,6 +137,11 @@ public class ItemFocusCleansing extends ItemFocusPartyBasic {
         }
 
         return wandstack;
+    }
+
+    @Override
+    public String getRequiredResearch(ItemStack focusstack) {
+        return "FOCUSWARDING";
     }
 
     @SideOnly(Side.CLIENT)

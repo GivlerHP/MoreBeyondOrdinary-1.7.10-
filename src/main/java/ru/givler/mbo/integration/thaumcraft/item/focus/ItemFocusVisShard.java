@@ -60,6 +60,10 @@ public class ItemFocusVisShard extends ItemFocusPartyBasic {
     public ItemStack onFocusRightClick (final ItemStack stack, final World world, final EntityPlayer player,
                                         final MovingObjectPosition mop) {
         final ItemWandCasting wand = (ItemWandCasting) stack.getItem();
+        final ItemStack focusstack = wand.getFocusItem(stack);
+        if (!canActivateFocus(focusstack, world, player, false)) {
+            return stack;
+        }
         final Entity look = EntityUtils.getPointedEntity(player.worldObj, player, 0.0D, 32.0D, 1.1F);
 
         if (look != null && look instanceof EntityLivingBase) {
@@ -79,6 +83,22 @@ public class ItemFocusVisShard extends ItemFocusPartyBasic {
             player.swingItem();
         }
         return stack;
+    }
+
+    @Override
+    public String getRequiredResearch(final ItemStack focusstack) {
+        return "FOCUSPRIMAL";
+    }
+
+    @Override
+    public void applyFocusBacklash(final ItemStack focusstack, final World world, final EntityPlayer player) {
+        if (world.isRemote) return;
+
+        for (int i = 0; i < 3; i++) {
+            final EntityHomingShard shard = new EntityHomingShard(world, player, player, 2, false, true);
+            world.spawnEntityInWorld(shard);
+        }
+        world.playSoundAtEntity(player, "mbo:shard", 0.6F, 0.7F);
     }
 
     @SideOnly (Side.CLIENT)

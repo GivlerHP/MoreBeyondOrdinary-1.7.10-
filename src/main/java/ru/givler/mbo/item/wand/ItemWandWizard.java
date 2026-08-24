@@ -20,10 +20,7 @@ public class ItemWandWizard extends ItemWandBase {
     private static final float DAMAGE_MULTIPLIER = 1.0F;
 
     public ItemWandWizard(int maxDurability) {
-        super(maxDurability);
-        this.setUnlocalizedName("wandWizard");
-        this.setTextureName(MoreBeyondOrdinary.MODID + ":wand/wandWizard");
-        this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
+        super("wandWizard", "wandWizard", maxDurability);
     }
 
     @Override

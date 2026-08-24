@@ -30,6 +30,7 @@ public class EntityHomingShard extends EntityThrowable implements IEntityAdditio
 
     private Class targetClass;
     private boolean persistent;
+    private boolean canHitThrower;
     private EntityLivingBase target;
 
     private static final Material[] MATS =
@@ -41,10 +42,16 @@ public class EntityHomingShard extends EntityThrowable implements IEntityAdditio
 
     public EntityHomingShard (final World world, final EntityLivingBase thrower, final EntityLivingBase target,
                               final int strength, final boolean persistent) {
+        this(world, thrower, target, strength, persistent, false);
+    }
+
+    public EntityHomingShard (final World world, final EntityLivingBase thrower, final EntityLivingBase target,
+                              final int strength, final boolean persistent, final boolean canHitThrower) {
         super(world, thrower);
         this.target = target;
         targetClass = target.getClass();
         this.persistent = persistent;
+        this.canHitThrower = canHitThrower;
         setStrength(strength);
         final Vec3 vec = thrower.getLookVec();
         setLocationAndAngles(thrower.posX + vec.xCoord / 2.0D, thrower.posY + thrower.getEyeHeight() + vec.yCoord / 2.0D,
@@ -88,6 +95,7 @@ public class EntityHomingShard extends EntityThrowable implements IEntityAdditio
             id = target.getEntityId();
         }
         buf.writeInt(id);
+        buf.writeBoolean(canHitThrower);
     }
 
     @Override
@@ -96,13 +104,15 @@ public class EntityHomingShard extends EntityThrowable implements IEntityAdditio
         if (id >= 0) {
             target = (EntityLivingBase) worldObj.getEntityByID(id);
         }
+        canHitThrower = buf.readBoolean();
     }
 
     @Override
     protected void onImpact (final MovingObjectPosition mop) {
         if (!worldObj.isRemote && mop.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY
-                && (getThrower() == null || getThrower() != null && mop.entityHit != getThrower())) {
-            if (ProtectionUtils.canEntityDamage(this.getThrower(), mop.entityHit)) {
+                && (canHitThrower || getThrower() == null || mop.entityHit != getThrower())) {
+            final boolean backlashHit = canHitThrower && mop.entityHit == getThrower();
+            if (backlashHit || ProtectionUtils.canEntityDamage(this.getThrower(), mop.entityHit)) {
                 mop.entityHit.attackEntityFrom(DamageSource.causeIndirectMagicDamage(this, getThrower()),
                         2.0F + getStrength() * 0.5F);
             }

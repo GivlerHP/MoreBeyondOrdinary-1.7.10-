@@ -5,8 +5,8 @@ import net.minecraft.item.ItemStack;
 
 public class ItemDragonSlayerMBO extends ItemWeaponBase {
 
-    public ItemDragonSlayerMBO(String name, String texture, ToolMaterial material, int maxDamage, int maxStackSize, float scale) {
-        super(name, texture, material, maxDamage, maxStackSize, scale);
+    public ItemDragonSlayerMBO(String name, String texture, ToolMaterial material, int maxDamage, int maxStackSize) {
+        super(name, texture, material, maxDamage, maxStackSize);
     }
 
     @Override

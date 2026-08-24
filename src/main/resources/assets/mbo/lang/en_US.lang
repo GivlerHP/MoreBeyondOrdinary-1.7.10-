@@ -12,6 +12,7 @@ itemGroup.MBOdecors=[MBO] Decor
 message.fog.warning=Something terrible lurks within the fog... If you dare to step inside, prepare for a battle!  
 message.fog.closed=You touch the fog, but it's like a living wall — it won't let you through...
 tooltip.durability=Durability
+tooltip.mbo.durability=Durability
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Blocks, Stairs, Slabs, Walls/

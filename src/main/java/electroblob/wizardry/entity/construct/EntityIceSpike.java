@@ -37,7 +37,7 @@ public class EntityIceSpike extends EntityMagicConstruct {
 			for(Object entity : this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox)){
 				if(entity instanceof EntityLivingBase && this.isValidTarget((EntityLivingBase)entity)){
 					// Potion effect only gets added if the damage succeeded.
-					if(((EntityLivingBase)entity).attackEntityFrom(MagicDamage.causeDirectMagicDamage(this.getCaster(), DamageType.FROST), 5*this.damageMultiplier))
+                    if(!worldObj.isRemote && ((EntityLivingBase)entity).attackEntityFrom(MagicDamage.causeDirectMagicDamage(this.getCaster(), DamageType.FROST), 5*this.damageMultiplier))
 						((EntityLivingBase)entity).addPotionEffect(new PotionEffect(Wizardry.frost.id, 100, 0));
 				}
 			}

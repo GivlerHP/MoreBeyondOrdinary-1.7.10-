@@ -10,6 +10,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
 import ru.givler.mbo.entity.boat.EntityMBOChestBoat;
+import ru.givler.mbo.item.ItemMBOBoat;
 
 public class RenderMBOBoat extends Render {
     /**
@@ -17,10 +18,6 @@ public class RenderMBOBoat extends Render {
      * для которых сделана новая модель. Небольшая поправка не даёт воде
      * накладывать подводное затемнение на борта.
      */
-    private static final String[] VANILLA_TEXTURES =
-            {"oak", "spruce", "birch", "jungle", "acacia", "dark_oak"};
-    private static final ResourceLocation BOP_PLACEHOLDER =
-            new ResourceLocation("mbo:textures/entity/boat/oak.png");
     private final ModelMBOBoat model = new ModelMBOBoat();
     private final TileEntityChest chest = new TileEntityChest();
 
@@ -87,8 +84,7 @@ public class RenderMBOBoat extends Render {
     @Override
     protected ResourceLocation getEntityTexture(Entity entity) {
         int type = ((EntityMBOBoat)entity).getBoatType();
-        return type < VANILLA_TEXTURES.length
-                ? new ResourceLocation("mbo:textures/entity/boat/" + VANILLA_TEXTURES[type] + ".png")
-                : BOP_PLACEHOLDER;
+        if (type < 0 || type >= ItemMBOBoat.NAMES.length) type = 0;
+        return new ResourceLocation("mbo:textures/entity/boat/" + ItemMBOBoat.NAMES[type] + ".png");
     }
 }

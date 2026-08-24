@@ -62,8 +62,7 @@ public class ItemMBOBoat extends Item {
         String suffix = chest ? "_chest_boat" : "_boat";
         for (int i = 0; i < typeCount; i++) {
             int type = firstType + i;
-            String texture = type < 6 ? NAMES[type] + suffix : (chest ? "chest_boat" : "boat");
-            icons[i] = register.registerIcon("mbo:boat/" + texture);
+            icons[i] = register.registerIcon("mbo:boat/" + NAMES[type] + suffix);
         }
     }
 

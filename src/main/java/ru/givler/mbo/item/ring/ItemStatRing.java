@@ -2,7 +2,6 @@ package ru.givler.mbo.item.ring;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
-import minefantasy.mf2.api.stamina.StaminaBar;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -72,9 +71,9 @@ public class ItemStatRing extends ItemRingBase {
     }
 
     private void applyStamina(ItemStack stack, EntityLivingBase entity) {
-        if (!Loader.isModLoaded("minefantasy2") && !Loader.isModLoaded("MineFantasy2")) return;
+        if (!Loader.isModLoaded("minefantasy2")) return;
         migrateLegacyStamina(stack, entity);
-        IAttributeInstance instance = StaminaBar.getMaxStaminaBonusAttribute(entity);
+        IAttributeInstance instance = staminaAttribute(entity);
         UUID id = getOrCreateId(stack);
         AttributeModifier current = instance.getModifier(id);
         if (current != null && Double.compare(current.getAmount(), value) == 0) return;
@@ -89,11 +88,11 @@ public class ItemStatRing extends ItemRingBase {
         if (id == null) return;
 
         if (stat == Stat.STAMINA) {
-            if (!Loader.isModLoaded("minefantasy2") && !Loader.isModLoaded("MineFantasy2")) return;
-            IAttributeInstance instance = StaminaBar.getMaxStaminaBonusAttribute(entity);
+            if (!Loader.isModLoaded("minefantasy2")) return;
+            IAttributeInstance instance = staminaAttribute(entity);
             remove(instance, id);
-            float maximum = StaminaBar.getTotalMaxStamina(entity);
-            if (StaminaBar.getStaminaValue(entity) > maximum) StaminaBar.setStaminaValue(entity, maximum);
+            float maximum = staminaFloat("getMaximum", entity);
+            if (staminaFloat("getValue", entity) > maximum) staminaVoid("setValue", entity, maximum);
         } else {
             remove(entity.getEntityAttribute(stat.attribute), id);
             if (stat == Stat.HEALTH && entity.getHealth() > entity.getMaxHealth()) {
@@ -109,7 +108,7 @@ public class ItemStatRing extends ItemRingBase {
 
     private void migrateLegacyStamina(ItemStack stack, EntityLivingBase entity) {
         if (!stack.hasTagCompound() || !stack.getTagCompound().getBoolean("StaminaAdded")) return;
-        StaminaBar.removeBuffStaminaInfinite(entity, (float) value);
+        staminaVoid("removeInfinite", entity, (float) value);
         stack.getTagCompound().removeTag("StaminaAdded");
     }
 
@@ -125,6 +124,29 @@ public class ItemStatRing extends ItemRingBase {
         tag.setLong(UUID_MOST, id.getMostSignificantBits());
         tag.setLong(UUID_LEAST, id.getLeastSignificantBits());
         return id;
+    }
+
+    private static IAttributeInstance staminaAttribute(EntityLivingBase entity) {
+        return (IAttributeInstance) staminaInvoke("getMaxBonus",
+                new Class<?>[]{EntityLivingBase.class}, entity);
+    }
+
+    private static float staminaFloat(String method, EntityLivingBase entity) {
+        return ((Float) staminaInvoke(method, new Class<?>[]{EntityLivingBase.class}, entity)).floatValue();
+    }
+
+    private static void staminaVoid(String method, EntityLivingBase entity, float value) {
+        staminaInvoke(method, new Class<?>[]{EntityLivingBase.class, float.class}, entity, value);
+    }
+
+    private static Object staminaInvoke(String method, Class<?>[] types, Object... arguments) {
+        try {
+            Class<?> bridge = Class.forName(
+                    "ru.givler.mbo.integration.minefantasy2.MineFantasyStaminaAccess");
+            return bridge.getMethod(method, types).invoke(null, arguments);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to access optional MineFantasy stamina API", e);
+        }
     }
 
     private static UUID getId(ItemStack stack) {

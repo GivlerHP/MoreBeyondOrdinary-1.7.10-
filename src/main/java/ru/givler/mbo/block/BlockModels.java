@@ -1,6 +1,7 @@
 package ru.givler.mbo.block;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
@@ -37,6 +38,7 @@ import ru.givler.mbo.tileentity.TileEntityModelCollision;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class BlockModels extends BlockDirectional implements ITileEntityProvider {
+	private static final List<BlockModels> ALL_MODELS = new ArrayList<BlockModels>();
 
 	private String name;
 	private String textureName;
@@ -68,6 +70,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 
 	public BlockModels(Material material, String name, String texture, String model) {
 		super(material);
+		ALL_MODELS.add(this);
 		setBlockName(name);
 		setCreativeTab(CreativeTabRegistry.tabMBOdecors);
 		this.setHardness(1.0F);
@@ -78,6 +81,10 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 		this.particleTextureName = texture;
 		this.modelName = model;
 		this.name = name;
+	}
+
+	public static List<BlockModels> getAllModels() {
+		return Collections.unmodifiableList(ALL_MODELS);
 	}
 
 	/** Sets the default sound and breaking-particle texture for the material. */

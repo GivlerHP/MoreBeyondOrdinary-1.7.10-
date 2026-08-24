@@ -1,9 +1,13 @@
 package ru.givler.mbo.registry;
 
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.registry.GameRegistry;
+import electroblob.wizardry.item.ItemSpectralSword;
 import net.minecraft.item.Item;
 import net.minecraft.util.EnumChatFormatting;
+import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.item.*;
 import ru.givler.mbo.item.amulets.*;
 import ru.givler.mbo.item.belt.ItemFallBelt;
@@ -13,7 +17,6 @@ import ru.givler.mbo.item.ring.*;
 import ru.givler.mbo.item.glyph.*;
 
 import ru.givler.mbo.item.glyph.ItemGlyphWeapon;
-import ru.givler.mbo.item.wand.ItemWandPyromancer;
 import ru.givler.mbo.item.wand.ItemWandWizard;
 import ru.givler.mbo.item.weapon.*;
 
@@ -25,7 +28,7 @@ public class ItemRegistry {
     public static ItemWeaponBase BrokenLongsword, BrokenSword, BrokenRapier, BrokenMace, BrokenAxe, BrokenDagger, BrokenCudgel, Uchigatana,
             DragonSlayer, TorchMat;
     // переменные призрачного оружия
-    public static ItemGhostWeapon WeaponRapier;
+    public static ItemSpectralSword WeaponRapier;
     // переменные луков
     public static net.minecraft.item.ItemBow BrokenBowHunting ;
     // переменные материалов
@@ -44,8 +47,9 @@ public class ItemRegistry {
     // Призрачного оружия
     public static ItemTorchWeaponMBO TorchWeapon;
 
-
-    static {
+    @Mod.EventHandler
+    public static void preLoad(FMLPreInitializationEvent event) {
+        // Материалы и оружие
         Item.ToolMaterial BrokenLongswordMat = ItemWeaponBase.createMaterial("BrokenLongswordMat", 0, 800, 0.0F, 1.5F, 30);
         Item.ToolMaterial BrokenSwordMat = ItemWeaponBase.createMaterial("BrokenSwordMat", 0, 800, 0.0F, 0.0F, 30);
         Item.ToolMaterial BrokenRapierMat = ItemWeaponBase.createMaterial("BrokenRapierMat", 0, 800, 0.0F, -1.0F, 30);
@@ -56,26 +60,22 @@ public class ItemRegistry {
         Item.ToolMaterial DragonSlayerMat  = ItemWeaponBase.createMaterial("DragonSlayerMat", 3, 800, 0.0F, 12.0f, 30);
         Item.ToolMaterial TorchMat = ItemWeaponBase.createMaterial("TorchMat", 0, 800, 0.0F, -2.0F, 30);
 
-        BrokenLongsword = new ItemGreatswordMBO("BrokenLongsword", "broadsword", BrokenLongswordMat, 80, 1, 1.3F);
-        BrokenSword = new ItemSwordMBO("BrokenSword", "brokenstraightsword", BrokenSwordMat, 110, 1, 1F);
-        BrokenDagger = new ItemDaggerMBO("BrokenDagger", "ruineddagger", BrokenDaggerMat, 160, 1, 0.9F);
-        BrokenRapier = new ItemRapierMBO("BrokenRapier", "bluntedrapier", BrokenRapierMat, 120, 1, 1F);
-        BrokenMace = new ItemMaceMBO("BrokenMace", "brokenshestoper", BrokenMaceMat, 100, 1, 1F);
-        BrokenAxe = new ItemBattleaxeMBO("BrokenAxe", "therustyaxe", BrokenAxeMat, 100, 1, 1F);
-        BrokenCudgel = new ItemMaceMBO("BrokenCudgel", "cudgel", BrokenSwordMat, 200, 1, 1F);
+        BrokenLongsword = new ItemGreatswordMBO("BrokenLongsword", "broadsword", BrokenLongswordMat, 80, 1);
+        BrokenSword = new ItemSwordMBO("BrokenSword", "brokenstraightsword", BrokenSwordMat, 110, 1);
+        BrokenDagger = new ItemDaggerMBO("BrokenDagger", "ruineddagger", BrokenDaggerMat, 160, 1);
+        BrokenRapier = new ItemRapierMBO("BrokenRapier", "bluntedrapier", BrokenRapierMat, 120, 1);
+        BrokenMace = new ItemMaceMBO("BrokenMace", "brokenshestoper", BrokenMaceMat, 100, 1);
+        BrokenAxe = new ItemBattleaxeMBO("BrokenAxe", "therustyaxe", BrokenAxeMat, 100, 1);
+        BrokenCudgel = new ItemMaceMBO("BrokenCudgel", "cudgel", BrokenSwordMat, 200, 1);
 
         BrokenBowHunting = new ItemBowMBO("BrokenBowHunting", "brokenlittlecrossbow", 30, 0.25F, 0.7F);
-        WeaponRapier = new ItemGhostWeapon("WeaponRapier", "mithrilsword", BrokenSwordMat, 40, 1, 1.0F);
-        Uchigatana = new ItemSwordMBO("Uchigatana", "uchigatana", Divine, 10000, 1, 1.6F);
-        DragonSlayer = new ItemDragonSlayerMBO("DragonSlayer", "dragon_slayer", DragonSlayerMat, 1750, 1, 1.8F);
+        WeaponRapier = createSpectralSword("WeaponRapier", "mithrilsword", BrokenSwordMat, 800);
+        Uchigatana = new ItemSwordMBO("Uchigatana", "uchigatana", Divine, 10000, 1);
+        DragonSlayer = new ItemDragonSlayerMBO("DragonSlayer", "dragon_slayer", DragonSlayerMat, 1750, 1);
 
-        TorchWeapon = new ItemTorchWeaponMBO("TorchWeapon", "torch", TorchMat, 800, 1, 1.0F)
+        TorchWeapon = new ItemTorchWeaponMBO("TorchWeapon", "torch", TorchMat, 800, 1)
                 .setDescription("item.TorchWeapon.desc", EnumChatFormatting.RED);
 
-    }
-
-    @Mod.EventHandler
-    public static void preLoad(FMLPreInitializationEvent event) {
         //глифы
         GlyphAmphibian = new ItemGlyphAmphibian("GlyphAmphibian", "glyph_amphibian", 1);
         GlyphDragon = new ItemGlyphDragon("GlyphDragon", "glyph_dragon", 1);
@@ -129,14 +129,12 @@ public class ItemRegistry {
         SpeedRing = new ItemStatRing("SpeedRing", "bijouterie/ring_speed", ItemStatRing.Stat.SPEED, 0.075D, "1");
         MushroomRing = new ItemMushroomRing("MushroomRing", "bijouterie/ring_mushroom", 4.0D, "1");
 
-        StrengthAttributeRing = new ItemAttributeRing("StrengthAttributeRing", "bijouterie/ring_strength",
-                ItemAttributeRing.Attribute.STRENGTH);
-        DexterityAttributeRing = new ItemAttributeRing("DexterityAttributeRing", "bijouterie/ring_dexterity",
-                ItemAttributeRing.Attribute.DEXTERITY);
-        EnduranceAttributeRing = new ItemAttributeRing("EnduranceAttributeRing", "bijouterie/ring_endurance",
-                ItemAttributeRing.Attribute.ENDURANCE);
-        SpiritAttributeRing = new ItemAttributeRing("SpiritAttributeRing", "bijouterie/ring_spirit",
-                ItemAttributeRing.Attribute.SPIRIT);
+        if (Loader.isModLoaded("minefantasy2")) {
+            StrengthAttributeRing = createOptionalAttributeRing("StrengthAttributeRing", "bijouterie/ring_strength", "STRENGTH");
+            DexterityAttributeRing = createOptionalAttributeRing("DexterityAttributeRing", "bijouterie/ring_dexterity", "DEXTERITY");
+            EnduranceAttributeRing = createOptionalAttributeRing("EnduranceAttributeRing", "bijouterie/ring_endurance", "ENDURANCE");
+            SpiritAttributeRing = createOptionalAttributeRing("SpiritAttributeRing", "bijouterie/ring_spirit", "SPIRIT");
+        }
 
         FertilityBelt = new ItemFertilityBelt("FertilityBelt", "bijouterie/belt_fertility");
         FallBelt = new ItemFallBelt("FallBelt", "bijouterie/belt_fall");
@@ -145,23 +143,46 @@ public class ItemRegistry {
         KnightBelt = new ItemMinerBelt("KnightBelt", "bijouterie/belt_knight").setMaxDamage(1).setDescription("item.KnightBelt.desc", EnumChatFormatting.YELLOW);
 
         BrokenWandWizard = new ItemWandWizard(15);
-        BrokenWandPyromancer = new ItemWandPyromancer(15);
+        if (Loader.isModLoaded("Thaumcraft")) {
+            BrokenWandPyromancer = createOptionalWand(
+                    "ru.givler.mbo.item.wand.ItemWandPyromancer", 15);
+        }
 
-        BrokenLongsword.register();
-        BrokenSword.register();
-        BrokenRapier.register();
-        BrokenMace.register();
-        BrokenAxe.register();
-        BrokenDagger.register();
-        WeaponRapier.register();
-        Uchigatana.register();
-        BrokenCudgel.register();
-        DragonSlayer.register();
-        BrokenWandWizard.register();
-        BrokenWandPyromancer.register();
-        TorchWeapon.register();
-        ((ItemBowMBO) BrokenBowHunting).register();
+    }
 
+    private static ItemSpectralSword createSpectralSword(String name, String texture,
+                                                          Item.ToolMaterial material, int duration) {
+        ItemSpectralSword item = new ItemSpectralSword(material);
+        item.setUnlocalizedName(name);
+        item.setTextureName(MoreBeyondOrdinary.MODID + ":weapon/" + texture);
+        item.setCreativeTab(CreativeTabRegistry.tabMBOitems);
+        item.setMaxDamage(duration);
+        item.setMaxStackSize(1);
+        GameRegistry.registerItem(item, name);
+        return item;
+    }
+
+    private static ItemWandBase createOptionalWand(String className, int durability) {
+        try {
+            return (ItemWandBase) Class.forName(className)
+                    .getConstructor(int.class).newInstance(durability);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to create optional item " + className, e);
+        }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static Item createOptionalAttributeRing(String name, String texture, String attributeName) {
+        try {
+            Class<?> itemClass = Class.forName("ru.givler.mbo.item.ring.ItemAttributeRing");
+            Class<? extends Enum> attributeClass = (Class<? extends Enum>) Class.forName(
+                    "ru.givler.mbo.item.ring.ItemAttributeRing$Attribute");
+            Object attribute = Enum.valueOf(attributeClass, attributeName);
+            return (Item) itemClass.getConstructor(String.class, String.class, attributeClass)
+                    .newInstance(name, texture, attribute);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to create optional MineFantasy ring " + name, e);
+        }
     }
 
 }

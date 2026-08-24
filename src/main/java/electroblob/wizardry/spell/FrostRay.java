@@ -47,8 +47,8 @@ public class FrostRay extends Spell {
 			
 			if(MagicDamage.isEntityImmune(DamageType.FROST, target)){
 				if(!world.isRemote && ticksInUse == 1) caster.addChatComponentMessage(new ChatComponentTranslation("spell.resist", target.getCommandSenderName(), this.getDisplayNameWithFormatting()));
-			}else{
-				// For frost ray the entity can move slightly, unlike freeze.
+            }else if(!world.isRemote){
+                // For frost ray the entity can move slightly, unlike freeze.
 				target.addPotionEffect(new PotionEffect(Wizardry.frost.id, (int)(200*durationMultiplier), 0, true));
 				
 				if(target instanceof EntityBlaze || target instanceof EntityMagmaCube || target instanceof EntityBlazeMinion){

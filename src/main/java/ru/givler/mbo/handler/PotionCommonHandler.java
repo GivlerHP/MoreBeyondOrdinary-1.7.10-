@@ -3,8 +3,6 @@ package ru.givler.mbo.handler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import minefantasy.mf2.block.list.BlockListMF;
-import minefantasy.mf2.item.list.ComponentListMF;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -302,39 +300,24 @@ public class PotionCommonHandler {
                     if (block == Blocks.redstone_ore) {
                         bonus = new ItemStack(Items.redstone, scale);
                     }
-                    if(Loader.isModLoaded("minefantasy2")) {
-                    if (block == BlockListMF.oreBorax) {
-                        bonus = new ItemStack(ComponentListMF.flux_strong, scale);
-                    }
-                    if (block == BlockListMF.oreClay) {
-                        bonus = new ItemStack(Items.clay_ball, scale);
-                    }
-                    if (block == BlockListMF.oreCoalRich) {
-                        bonus = new ItemStack(Items.coal, 1 + scale);
-                    }
-                    if (block == BlockListMF.oreKaolinite) {
-                        bonus = new ItemStack(ComponentListMF.kaolinite, scale);
-                    }
-                    if (block == BlockListMF.oreNitre) {
-                        bonus = new ItemStack(ComponentListMF.nitre, scale);
-                    }
-                    if (block == BlockListMF.oreSulfur) {
-                        bonus = new ItemStack(ComponentListMF.sulfur, scale);
-                    }
-                        if (block == BlockListMF.oreInferno) {
-                            bonus = new ItemStack(ComponentListMF.inferno_crystal, scale);
-                        }
-                        if (block == BlockListMF.oreVoid) {
-                            bonus = new ItemStack(ComponentListMF.void_crystal, scale);
-                        }
-                        if (block == BlockListMF.oreTear) {
-                            bonus = new ItemStack(ComponentListMF.tear_crystal, scale);
-                        }
+                    if (Loader.isModLoaded("minefantasy2")) {
+                        bonus = getMineFantasyBonus(block, scale);
                     }
                     if (bonus != null)
                         event.drops.add(bonus);
                 }
             }
+        }
+    }
+
+    private static ItemStack getMineFantasyBonus(Block block, int amount) {
+        try {
+            Class<?> bridge = Class.forName(
+                    "ru.givler.mbo.integration.minefantasy2.MineFantasyLuckDrops");
+            return (ItemStack) bridge.getMethod("getBonus", Block.class, int.class)
+                    .invoke(null, block, amount);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to query optional MineFantasy drops", e);
         }
     }
 }

@@ -58,7 +58,7 @@ public class EntityFrostSigil extends EntityMagicConstruct {
 					target.motionY = velY;
 					target.motionZ = velZ;
 					
-					if(!MagicDamage.isEntityImmune(DamageType.FROST, target))
+                    if(!worldObj.isRemote && !MagicDamage.isEntityImmune(DamageType.FROST, target))
 						target.addPotionEffect(new PotionEffect(Wizardry.frost.id, 200, 1, true));
 					
 					this.playSound("wizardry:freeze", 1.0f, 1.0f);

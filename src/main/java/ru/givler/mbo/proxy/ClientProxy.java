@@ -19,16 +19,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Keyboard;
-import ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry;
-import ru.givler.mbo.integration.nei.ArcanumNEIConfig;
-import ru.givler.mbo.integration.thaumcraft.client.render.ItemStaffRenderer;
-import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEldritchOrbWhite;
-import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEntityDarkMoonOrb;
-import ru.givler.mbo.integration.thaumcraft.entities.*;
-import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEntityDiffusion;
-import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEntityHomingShard;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.specialblocks.BlockDestructibleLootContainer;
 import ru.givler.mbo.handler.ClientKeyHandler;
 import ru.givler.mbo.handler.BarrierVisibilityHandler;
 import ru.givler.mbo.handler.PotionClientHandler;
@@ -37,7 +30,6 @@ import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
 import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.registry.BlockRegistry;
-import ru.givler.mbo.registry.ModelRegistry;
 import ru.givler.mbo.registry.BannerRegistry;
 import ru.givler.mbo.registry.StonecutterRegistry;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
@@ -59,8 +51,6 @@ import ru.givler.mbo.banner.client.RenderBanner;
 import ru.givler.mbo.banner.client.RenderBannerItem;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
-import thaumcraft.client.renderers.entity.RenderEldritchOrb;
-import thaumcraft.client.renderers.entity.RenderPechBlast;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -129,151 +119,15 @@ public class ClientProxy extends CommonProxy {
         F3AOcclusionFix.register();
 
         if (Loader.isModLoaded("NotEnoughItems")) {
-            ArcanumNEIConfig.registerHandlers();
+            invokeOptional("ru.givler.mbo.integration.nei.ArcanumNEIConfig", "registerHandlers");
         }
-        bindDefaultRender(ModelRegistry.ModelThreads);
-        bindDefaultRender(ModelRegistry.ModelCloth);
-        bindDefaultRender(ModelRegistry.ModelTailorShelf);
-        bindDefaultRender(ModelRegistry.ModelDummy);
-        bindDefaultRender(ModelRegistry.ModelHangers);
-        bindDefaultRender(ModelRegistry.ModelPillow);
-        bindDefaultRender(ModelRegistry.ModelRulers);
-        bindDefaultRender(ModelRegistry.ModelScissors);
-
-        bindDefaultRender(ModelRegistry.ModelIngredients);
-        bindDefaultRender(ModelRegistry.ModelCauldron);
-        bindDefaultRender(ModelRegistry.ModelBottles);
-        bindDefaultRender(ModelRegistry.ModelBooks);
-        bindDefaultRender(ModelRegistry.ModelAlchemistShelf);
-        bindDefaultRender(ModelRegistry.ModelAlchemicalFlag);
-
-        bindDefaultRender(ModelRegistry.ModelArrow);
-        bindDefaultRender(ModelRegistry.ModelBowWall);
-        bindDefaultRender(ModelRegistry.ModelBow);
-        bindDefaultRender(ModelRegistry.ModelDucks);
-        bindDefaultRender(ModelRegistry.ModelFurKnife);
-        bindDefaultRender(ModelRegistry.ModelFur);
-        bindDefaultRender(ModelRegistry.ModelHorn);
-        bindDefaultRender(ModelRegistry.ModelLeatherDryer);
-        bindDefaultRender(ModelRegistry.ModelRabbits);
-        bindDefaultRender(ModelRegistry.ModelMooseHead);
-        bindDefaultRender(ModelRegistry.ModelDeerHead);
-        bindDefaultRender(ModelRegistry.ModelDeerLegendHead);
-
-        bindDefaultRender(ModelRegistry.ModelMagnifyinGlass);
-        bindDefaultRender(ModelRegistry.ModelBagGold);
-        bindDefaultRender(ModelRegistry.ModelCoins);
-        bindDefaultRender(ModelRegistry.ModelSmallChest);
-        bindDefaultRender(ModelRegistry.ModelScales);
-
-        bindDefaultRender(ModelRegistry.ModelBagsPotatoes);
-        bindDefaultRender(ModelRegistry.ModelBasketApples);
-        bindDefaultRender(ModelRegistry.ModelBasketBerries);
-        bindDefaultRender(ModelRegistry.ModelBucket);
-        bindDefaultRender(ModelRegistry.ModelCarrot);
-        bindDefaultRender(ModelRegistry.ModelGarlic);
-        bindDefaultRender(ModelRegistry.ModelHay);
-        bindDefaultRender(ModelRegistry.ModelHayfork);
-        bindDefaultRender(ModelRegistry.ModelJugs);
-        bindDefaultRender(ModelRegistry.ModelShelfFlower);
-        bindDefaultRender(ModelRegistry.ModelWateringCan);
-        bindDefaultRender(ModelRegistry.ModelWheelBarrow);
-
-        bindDefaultRender(ModelRegistry.ModelFilledChest);
-        bindDefaultRender(ModelRegistry.ModelPliers);
-        bindDefaultRender(ModelRegistry.ModelJewelryHammer);
-        bindDefaultRender(ModelRegistry.ModelAmulet);
-        bindDefaultRender(ModelRegistry.ModelInstruments);
-
-        bindDefaultRender(ModelRegistry.ModelLute);
-        bindDefaultRender(ModelRegistry.ModelBroom);
-        bindDefaultRender(ModelRegistry.ModelWanted);
-        bindDefaultRender(ModelRegistry.ModelPapers);
-        bindDefaultRender(ModelRegistry.ModelKeys);
-        bindDefaultRender(ModelRegistry.ModelDeskBell);
-
-        bindDefaultRender(ModelRegistry.ModelSword);
-        bindDefaultRender(ModelRegistry.ModelSwords);
-        bindDefaultRender(ModelRegistry.ModelShield1);
-        bindDefaultRender(ModelRegistry.ModelShield2);
-        bindDefaultRender(ModelRegistry.ModelShield3);
-        bindDefaultRender(ModelRegistry.ModelHelmet);
-        bindDefaultRender(ModelRegistry.ModelHammer);
-        bindDefaultRender(ModelRegistry.ModelDragonSlayer);
-        bindDefaultRender(ModelRegistry.ModelAxe);
-
-        bindDefaultRender(ModelRegistry.ModelGas);
-        bindDefaultRender(ModelRegistry.ModelOiler);
-        bindDefaultRender(ModelRegistry.ModelGears);
-        bindDefaultRender(ModelRegistry.ModelDrawing1);
-        bindDefaultRender(ModelRegistry.ModelDrawing2);
-        bindDefaultRender(ModelRegistry.ModelClock);
-        bindDefaultRender(ModelRegistry.ModelBrokenMechanism);
-
-        bindDefaultRender(ModelRegistry.ModelBook0);
-        bindDefaultRender(ModelRegistry.ModelBook1);
-        bindDefaultRender(ModelRegistry.ModelBook2);
-        bindDefaultRender(ModelRegistry.ModelBook3);
-        bindDefaultRender(ModelRegistry.ModelBook4);
-        bindDefaultRender(ModelRegistry.ModelBook5);
-        bindDefaultRender(ModelRegistry.ModelBook6);
-        bindDefaultRender(ModelRegistry.ModelBook7);
-        bindDefaultRender(ModelRegistry.ModelBook8);
-        bindDefaultRender(ModelRegistry.ModelBook9);
-
-        bindDefaultRender(ModelRegistry.ModelVishroom);
-
-        bindDefaultRender(ModelRegistry.ModelPlateVoid);
-        bindDefaultRender(ModelRegistry.ModelPlate1);
-        bindDefaultRender(ModelRegistry.ModelPlate2);
-        bindDefaultRender(ModelRegistry.ModelPlate3);
-        bindDefaultRender(ModelRegistry.ModelPlate4);
-        bindDefaultRender(ModelRegistry.ModelPlate5);
-        bindDefaultRender(ModelRegistry.ModelPlate6);
-        bindDefaultRender(ModelRegistry.ModelPlate7);
-        bindDefaultRender(ModelRegistry.ModelPlate8);
-        bindDefaultRender(ModelRegistry.ModelPlate9);
-        bindDefaultRender(ModelRegistry.ModelPlate10);
-
-        bindDefaultRender(ModelRegistry.ModelBricks1);
-        bindDefaultRender(ModelRegistry.ModelBricks2);
-        bindDefaultRender(ModelRegistry.ModelBricks3);
-        bindDefaultRender(ModelRegistry.ModelBricks4);
-        bindDefaultRender(ModelRegistry.ModelBricks5);
-        bindDefaultRender(ModelRegistry.ModelBricks6);
-        bindDefaultRender(ModelRegistry.ModelBricks7);
-
-        bindDefaultRender(ModelRegistry.ModelPileBones0);
-        bindDefaultRender(ModelRegistry.ModelPileBones1);
-        bindDefaultRender(ModelRegistry.ModelPileBones2);
-        bindDefaultRender(ModelRegistry.ModelPileBones3);
-        bindDefaultRender(ModelRegistry.ModelPileBones4);
-        bindDefaultRender(ModelRegistry.ModelPileBones5);
-        bindDefaultRender(ModelRegistry.ModelPileBones6);
-        bindDefaultRender(ModelRegistry.ModelPileBones7);
-        bindDefaultRender(ModelRegistry.ModelPileBones8);
-        bindDefaultRender(ModelRegistry.ModelPileBones9);
-
-        bindDefaultRender(ModelRegistry.ModelUrn0);
-        bindDefaultRender(ModelRegistry.ModelUrn1);
-        bindDefaultRender(ModelRegistry.ModelUrn2);
-        bindDefaultRender(ModelRegistry.ModelUrn3);
-        bindDefaultRender(ModelRegistry.ModelUrn4);
-        bindDefaultRender(ModelRegistry.ModelFuneraryUrn0);
-        bindDefaultRender(ModelRegistry.ModelFuneraryUrn1);
-        bindDefaultRender(ModelRegistry.ModelFuneraryUrn2);
-        bindDefaultRender(ModelRegistry.ModelFuneraryUrn3);
-        bindDefaultRender(ModelRegistry.ModelAltar);
-        bindDefaultRender(ModelRegistry.ModelStonePedestal);
-        bindDefaultRender(ModelRegistry.ModelStoneCoffin);
-        bindDefaultRender(ModelRegistry.ModelStatue);
-
-        bindDefaultRender(ModelRegistry.ModelBottle);
-        bindDefaultRender(ModelRegistry.ModelCup);
-        bindLootContainerRender(ModelRegistry.LootContainer);
-
-
-        bindDefaultRender(ModelRegistry.ModelWisp);
+        for (BlockModels model : BlockModels.getAllModels()) {
+            if (model instanceof BlockDestructibleLootContainer) {
+                bindLootContainerRender(model);
+            } else {
+                bindDefaultRender(model);
+            }
+        }
 
         AnimationController.addModelFetcher((AnimationController.ModelFetcher<ModelTileBase>) animatable -> {
             if (animatable instanceof ModelTileBase) {
@@ -294,10 +148,13 @@ public class ClientProxy extends CommonProxy {
         int renderId = RenderingRegistry.getNextAvailableRenderId();
         RenderMetaFence renderer = new RenderMetaFence(renderId);
         BlockRegistry.FenceVanilla.setFenceRenderType(renderId);
-        ru.givler.mbo.block.BlockBasicFence bopFence =
-                ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.FenceBoP;
-        if (bopFence != null) {
-            bopFence.setFenceRenderType(renderId);
+        if (Loader.isModLoaded("BiomesOPlenty")) {
+            try {
+                Class.forName("ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry")
+                        .getMethod("setFenceRenderType", int.class).invoke(null, renderId);
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException("Failed to initialise optional Biomes O' Plenty renderer", e);
+            }
         }
         RenderingRegistry.registerBlockHandler(renderer);
     }
@@ -339,31 +196,22 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void registerRenderers() {
         if (Loader.isModLoaded("Thaumcraft")) {
-            RenderingRegistry.registerEntityRenderingHandler(EntityDarkMatter.class, new RenderEldritchOrb());
-            RenderingRegistry.registerEntityRenderingHandler(EntityHomingShard.class, new RenderEntityHomingShard());
-            RenderingRegistry.registerEntityRenderingHandler(EntityDiffusion.class, new RenderEntityDiffusion());
-            RenderingRegistry.registerEntityRenderingHandler(EntityLightMatter.class, new RenderEldritchOrbWhite());
-            RenderingRegistry.registerEntityRenderingHandler(EntityPechShatter.class, new RenderPechBlast());
-            RenderingRegistry.registerEntityRenderingHandler(EntityPechShard.class, new RenderPechBlast());
-            RenderingRegistry.registerEntityRenderingHandler(EntityDarkMoonOrb.class, new RenderEntityDarkMoonOrb());
-
-            MinecraftForgeClient.registerItemRenderer(ThaumcraftRegistry.StaffFire, new ItemStaffRenderer());
-            MinecraftForgeClient.registerItemRenderer(ThaumcraftRegistry.StaffNature, new ItemStaffRenderer());
-            MinecraftForgeClient.registerItemRenderer(ThaumcraftRegistry.StaffFrost, new ItemStaffRenderer());
-            MinecraftForgeClient.registerItemRenderer(ThaumcraftRegistry.StaffLantern, new ItemStaffRenderer());
-            MinecraftForgeClient.registerItemRenderer(ThaumcraftRegistry.StaffLight, new ItemStaffRenderer());
-            MinecraftForgeClient.registerItemRenderer(ThaumcraftRegistry.StaffChillSorrow, new ItemStaffRenderer());
-            MinecraftForgeClient.registerItemRenderer(ThaumcraftRegistry.StaffNaturalMoon, new ItemStaffRenderer());
-            MinecraftForgeClient.registerItemRenderer(ThaumcraftRegistry.StaffLightningDragon, new ItemStaffRenderer());
-            MinecraftForgeClient.registerItemRenderer(ThaumcraftRegistry.StaffDarkMoon, new ItemStaffRenderer());
-            MinecraftForgeClient.registerItemRenderer(ThaumcraftRegistry.StaffDemonic, new ItemStaffRenderer());
+            invokeOptional("ru.givler.mbo.integration.thaumcraft.client.ThaumcraftClientRegistration", "register");
         }
-        MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenLongsword, new RenderLongsword(ItemRegistry.BrokenLongsword.getScale()));
-        MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenDagger, new RenderDagger(ItemRegistry.BrokenDagger.getScale()));
-        MinecraftForgeClient.registerItemRenderer(ItemRegistry.Uchigatana, new RenderUchigatana(ItemRegistry.Uchigatana.getScale()));
-        MinecraftForgeClient.registerItemRenderer(ItemRegistry.DragonSlayer, new RenderDragonSlayer(ItemRegistry.DragonSlayer.getScale()));
+        MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenLongsword, new RenderWeapon(1.3F, -0.3F, -0.13F, 0.01F));
+        MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenDagger, new RenderWeapon(0.9F, 0.1F, 0.0F, 0.01F));
+        MinecraftForgeClient.registerItemRenderer(ItemRegistry.Uchigatana, new RenderWeapon(1.6F, -0.43F, -0.15F, 0.01F));
+        MinecraftForgeClient.registerItemRenderer(ItemRegistry.DragonSlayer, new RenderWeapon(1.8F, -0.68F, -0.10F, 0.01F));
         MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenBowHunting, new RenderCrossbow());
         RenderStoneGolem.register();
+    }
+
+    private static void invokeOptional(String className, String method) {
+        try {
+            Class.forName(className).getMethod(method).invoke(null);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to initialise optional integration " + className, e);
+        }
     }
 
     @Override

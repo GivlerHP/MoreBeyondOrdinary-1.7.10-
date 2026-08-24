@@ -61,13 +61,14 @@ public class EntitySpiritWolf extends EntityWolf {
         this.experienceValue = 0;
     }
 
-    @Override
+	@Override
     public void onDeath(DamageSource par1DamageSource){
     	
     	// Allows player to summon another spirit wolf once this one has died.
     	// TODO: Or at least, it should...
-		if(this.getOwner() instanceof EntityPlayer && ExtendedPlayer.get((EntityPlayer)this.getOwner()) != null){
-			ExtendedPlayer.get((EntityPlayer)this.getOwner()).hasSpiritWolf = false;
+		EntityPlayer owner = this.worldObj.getPlayerEntityByName(this.func_152113_b());
+		if(owner != null && ExtendedPlayer.get(owner) != null){
+			ExtendedPlayer.get(owner).hasSpiritWolf = false;
 		}
 		
     	super.onDeath(par1DamageSource);
@@ -111,7 +112,8 @@ public class EntitySpiritWolf extends EntityWolf {
             if (itemstack != null){
             	
                 // Allows the owner (but not other players) to dispel the spirit wolf using a wand.
-                if(itemstack != null && itemstack.getItem() instanceof ItemWand && this.getOwner() == player && player.isSneaking()){
+                if(itemstack != null && itemstack.getItem() instanceof ItemWand
+                        && this.func_152114_e(player) && player.isSneaking()){
                 	// Prevents accidental double clicking.
                 	if(this.ticksExisted > 20){
                 		for(int i=0;i<10;i++){

@@ -13,6 +13,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -102,8 +105,25 @@ public class ItemFocusDarkLightning extends ItemFocusPartyBasic {
     @Override
     public ItemStack onFocusRightClick (final ItemStack stack, final World world, final EntityPlayer player,
                                         final MovingObjectPosition mop) {
+        final ItemWandCasting wand = (ItemWandCasting) stack.getItem();
+        final ItemStack focusstack = wand.getFocusItem(stack);
+        if (!canActivateFocus(focusstack, world, player, false)) {
+            return stack;
+        }
         player.setItemInUse(stack, 2147483647);
         return stack;
+    }
+
+    @Override
+    public String getRequiredResearch(final ItemStack focusstack) {
+        return "FOCUSSHOCK";
+    }
+
+    @Override
+    public void applyFocusBacklash(final ItemStack focusstack, final World world, final EntityPlayer player) {
+        if (world.isRemote) return;
+        player.attackEntityFrom(DamageSource.magic, 6.0F);
+        player.addPotionEffect(new PotionEffect(Potion.weakness.id, 160, 1));
     }
 
     @Override

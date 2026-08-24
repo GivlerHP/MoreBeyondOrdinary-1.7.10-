@@ -12,6 +12,7 @@ itemGroup.MBOdecors=[MBO] Декор
 message.fog.warning=За туманом скрывается нечто ужасное... Если ты осмелишься ступить внутрь, готовься к сражению!
 message.fog.closed=Ты касаешься тумана, но он словно живая стена — не пропускает тебя внутрь...
 tooltip.durability=Прочность
+tooltip.mbo.durability=Прочность
 message.amulet_ready_in=Амулет будет готов через %s сек
 message.amulet_not_xp=Не хватает опыта, необходимо минимум: %s уровня
 key.mbo.amulet.desc=Кнопка активации амулета

@@ -20,10 +20,7 @@ public class ItemWandPyromancer extends ItemWandBase {
     private static final boolean ON_FIRE = false;
 
     public ItemWandPyromancer(int maxDurability) {
-        super(maxDurability);
-        this.setUnlocalizedName("wandPyromancer");
-        this.setTextureName(MoreBeyondOrdinary.MODID + ":wand/wandPyromancer");
-        this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
+        super("wandPyromancer", "wandPyromancer", maxDurability);
     }
 
     @Override

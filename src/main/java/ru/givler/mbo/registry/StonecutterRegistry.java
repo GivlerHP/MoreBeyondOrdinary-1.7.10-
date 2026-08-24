@@ -136,7 +136,7 @@ public final class StonecutterRegistry {
     }
 
     private static void registerMineFantasyRecipes() {
-        if(!Loader.isModLoaded("MineFantasy2") && !Loader.isModLoaded("minefantasy2")) return;
+        if(!Loader.isModLoaded("minefantasy2")) return;
         try {
             Class<?> list=Class.forName("minefantasy.mf2.block.list.BlockListMF");
             Block brick=(Block)list.getField("cobble_brick").get(null);
@@ -164,7 +164,7 @@ public final class StonecutterRegistry {
             registerMineFantasyLimestone(list);
             registerMineFantasyReinforcedStone(list);
         } catch(ReflectiveOperationException exception) {
-            System.err.println("[MBO] Could not register MineFantasy2 stonecutter recipes: "+exception);
+            System.err.println("[MBO] Could not register minefantasy2 stonecutter recipes: "+exception);
         }
     }
 

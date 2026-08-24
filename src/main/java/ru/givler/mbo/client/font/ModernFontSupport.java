@@ -11,10 +11,12 @@ public final class ModernFontSupport {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.fontRenderer instanceof ModernFontRenderer) return;
         boolean unicode = mc.fontRenderer.getUnicodeFlag();
+        boolean bidi = mc.fontRenderer.getBidiFlag();
         ModernFontRenderer renderer = new ModernFontRenderer(mc.gameSettings, mc.renderEngine);
         // If no modern font JSON is supplied, all calls fall back to the
         // superclass. Preserve the current vanilla Unicode mode as well.
         renderer.setUnicodeFlag(unicode);
+        renderer.setBidiFlag(bidi);
         mc.fontRenderer = renderer;
         if (mc.getResourceManager() instanceof IReloadableResourceManager) {
             ((IReloadableResourceManager) mc.getResourceManager()).registerReloadListener(renderer);

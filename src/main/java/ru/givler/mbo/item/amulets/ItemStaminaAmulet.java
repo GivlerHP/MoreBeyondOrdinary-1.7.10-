@@ -2,7 +2,6 @@ package ru.givler.mbo.item.amulets;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
-import minefantasy.mf2.api.stamina.StaminaBar;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -25,7 +24,7 @@ public class ItemStaminaAmulet extends ItemAmuletBase {
     @Override
     public void activate(EntityPlayer player, ItemStack stack) {
         if (Loader.isModLoaded("minefantasy2")) {
-            StaminaBar.modifyStaminaValue(player, 30.0F);
+            modifyStamina(player, 30.0F);
         }
         player.addPotionEffect(new PotionEffect(Potion.moveSpeed.id, 240, 0));
     }
@@ -42,5 +41,16 @@ public class ItemStaminaAmulet extends ItemAmuletBase {
     @Override
     public int getExperienceCost() {
         return 2;
+    }
+
+    private static void modifyStamina(EntityLivingBase entity, float amount) {
+        try {
+            Class<?> bridge = Class.forName(
+                    "ru.givler.mbo.integration.minefantasy2.MineFantasyStaminaAccess");
+            bridge.getMethod("modify", EntityLivingBase.class, float.class)
+                    .invoke(null, entity, amount);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to access optional MineFantasy stamina API", e);
+        }
     }
 }

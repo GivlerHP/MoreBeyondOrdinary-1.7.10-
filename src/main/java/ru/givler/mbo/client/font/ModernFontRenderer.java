@@ -1,6 +1,9 @@
 package ru.givler.mbo.client.font;
 
 import com.google.gson.*;
+import com.ibm.icu.text.ArabicShaping;
+import com.ibm.icu.text.ArabicShapingException;
+import com.ibm.icu.text.Bidi;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.FontRenderer;
@@ -30,6 +33,7 @@ import java.util.zip.ZipInputStream;
 public final class ModernFontRenderer extends FontRenderer implements IResourceManagerReloadListener {
     private static final ResourceLocation DEFAULT = new ResourceLocation("minecraft", "font/default.json");
     private static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final ResourceLocation LEGACY_ASCII = new ResourceLocation("minecraft", "textures/font/ascii_old.png");
     private static final int ATLAS_SIZE = 2048;
     private static final int CELL = 18;
     // Slightly wider than the exact legacy average: the exact 0.678 ratio is
@@ -37,6 +41,7 @@ public final class ModernFontRenderer extends FontRenderer implements IResourceM
     private static final float LEGACY_UNICODE_SCALE = 0.78F;
 
     private final TextureManager textures;
+    private final FontRenderer legacyRenderer;
     private final Map<Integer, Glyph> glyphs = new HashMap<Integer, Glyph>();
     private final Map<Integer, Float> spaces = new HashMap<Integer, Float>();
     private final Set<String> loading = new HashSet<String>();
@@ -51,6 +56,9 @@ public final class ModernFontRenderer extends FontRenderer implements IResourceM
     public ModernFontRenderer(GameSettings settings, TextureManager textures) {
         super(settings, new ResourceLocation("textures/font/ascii.png"), textures, false);
         this.textures = textures;
+        // Let 1.7.10 itself decode old resource-pack strings. Its internal
+        // allowed-characters table is not identical to Java's IBM437 charset.
+        this.legacyRenderer = new FontRenderer(settings, LEGACY_ASCII, textures, false);
     }
 
     @Override
@@ -67,6 +75,9 @@ public final class ModernFontRenderer extends FontRenderer implements IResourceM
         newHexPage();
         try {
             loadFont(manager, DEFAULT);
+            legacyRenderer.onResourceManagerReload(manager);
+            legacyRenderer.setUnicodeFlag(false);
+            legacyRenderer.setBidiFlag(false);
             uploadHexAtlases();
         } catch (Exception ignored) {
             glyphs.clear();
@@ -247,11 +258,56 @@ public final class ModernFontRenderer extends FontRenderer implements IResourceM
     @Override
     public int drawString(String text, int x, int y, int color, boolean shadow) {
         if (text == null || ((glyphs.isEmpty() && spaces.isEmpty()) && !TooltipElements.containsTag(text))) return super.drawString(text, x, y, color, shadow);
+        if (hasObfuscatedFormat(text) || isLegacyEncoded(text))
+            return legacyRenderer.drawString(text, x, y, color, shadow);
+        if (getBidiFlag()) text = bidiReorder(text);
         float end = 0;
         if (shadow) end = drawModern(text, x + 1, y + 1, shadowColor(color), true) - 1F;
         end = Math.max(end, drawModern(text, x, y, color, false));
         // Vanilla returns the final screen X, not the string width.
         return Math.round(x + end);
+    }
+
+    @Override
+    public int drawStringWithShadow(String text, int x, int y, int color) {
+        // FontRenderer 1.7.10 calls its private legacy renderer directly here,
+        // bypassing an overridden drawString. Route shadowed GUI text (notably
+        // main-menu splashes) through the modern glyph pipeline as well.
+        return drawString(text, x, y, color, true);
+    }
+
+    /** Mirrors FontRenderer's private bidi pass, bypassed by our drawString override. */
+    private static String bidiReorder(String text) {
+        try {
+            // These are the exact modes used by FontRenderer 1.7.10. In
+            // particular, paragraph level 127 keeps inline section-sign
+            // formatting codes attached to the following character.
+            Bidi bidi = new Bidi(new ArabicShaping(8).shape(text), 127);
+            bidi.setReorderingMode(0);
+            return bidi.writeReordered(2);
+        } catch (ArabicShapingException ignored) {
+            return text;
+        }
+    }
+
+    private static boolean hasObfuscatedFormat(String text) {
+        return text.indexOf("\u00a7k") >= 0 || text.indexOf("\u00a7K") >= 0;
+    }
+
+    private static boolean isLegacyEncoded(String text) {
+        int extendedLatin = 0;
+        for (int offset = 0; offset < text.length();) {
+            if (text.charAt(offset) == '\u00a7' && offset + 1 < text.length()) {
+                offset += 2;
+                continue;
+            }
+            int cp = text.codePointAt(offset);
+            offset += Character.charCount(cp);
+            if (cp >= 0x2500 && cp <= 0x259F) return true;
+            if (cp >= 0x0400 && cp <= 0x052F) return false;
+            if (cp >= 0x00A0 && cp <= 0x00FF) extendedLatin++;
+        }
+        return extendedLatin >= 2;
     }
 
     private float drawModern(String text, float x, float y, int initialColor, boolean shadow) {
@@ -311,6 +367,7 @@ public final class ModernFontRenderer extends FontRenderer implements IResourceM
     @Override
     public int getStringWidth(String text) {
         if (text == null || ((glyphs.isEmpty() && spaces.isEmpty()) && !TooltipElements.containsTag(text))) return super.getStringWidth(text);
+        if (hasObfuscatedFormat(text) || isLegacyEncoded(text)) return legacyRenderer.getStringWidth(text);
         float width = 0;
         for (int offset = 0; offset < text.length();) {
             if (text.charAt(offset) == '\u00a7' && offset + 1 < text.length()) { offset += 2; continue; }

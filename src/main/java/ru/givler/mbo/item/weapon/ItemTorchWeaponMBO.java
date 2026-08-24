@@ -26,13 +26,11 @@ public class ItemTorchWeaponMBO extends ItemSpectralSword {
     private static final String LIFE_TAG = "MBO_TorchLife";
 
     private final Random random = new Random();
-    private final float scale;
-
     private String descriptionKey;
     private EnumChatFormatting descriptionColor = EnumChatFormatting.GRAY;
     private EnumRarity rarity = EnumRarity.rare;
 
-    public ItemTorchWeaponMBO(String name, String texture, ToolMaterial material, int maxDamage, int maxStackSize, float scale) {
+    public ItemTorchWeaponMBO(String name, String texture, ToolMaterial material, int maxDamage, int maxStackSize) {
         super(material);
         this.canRepair = false;
         this.setUnlocalizedName(name);
@@ -40,15 +38,7 @@ public class ItemTorchWeaponMBO extends ItemSpectralSword {
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(maxDamage);
         this.maxStackSize = maxStackSize;
-        this.scale = scale;
-    }
-
-    public float getScale() {
-        return scale;
-    }
-
-    public void register() {
-        GameRegistry.registerItem(this, this.getUnlocalizedName().substring(5));
+        GameRegistry.registerItem(this, name);
     }
 
     @Override

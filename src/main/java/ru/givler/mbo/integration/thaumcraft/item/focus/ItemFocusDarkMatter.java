@@ -5,6 +5,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -115,6 +118,10 @@ public class ItemFocusDarkMatter extends ItemFocusPartyBasic {
     public ItemStack onFocusRightClick (final ItemStack stack, final World world, final EntityPlayer player,
                                         final MovingObjectPosition mop) {
         final ItemWandCasting wand = (ItemWandCasting) stack.getItem();
+        final ItemStack focusstack = wand.getFocusItem(stack);
+        if (!canActivateFocus(focusstack, world, player, false)) {
+            return stack;
+        }
 
         if (isUpgradedWith(wand.getFocusItem(stack), TMFocusUpgrades.diffusion)) {
             player.setItemInUse(stack, 2147483647);
@@ -134,6 +141,19 @@ public class ItemFocusDarkMatter extends ItemFocusPartyBasic {
             player.swingItem();
         }
         return stack;
+    }
+
+    @Override
+    public String getRequiredResearch(final ItemStack focusstack) {
+        return "FOCUSPRIMAL";
+    }
+
+    @Override
+    public void applyFocusBacklash(final ItemStack focusstack, final World world, final EntityPlayer player) {
+        if (world.isRemote) return;
+        Thaumcraft.addStickyWarpToPlayer(player, 1);
+        player.attackEntityFrom(DamageSource.magic, 5.0F);
+        player.addPotionEffect(new PotionEffect(Potion.wither.id, 100, 0));
     }
 
     @Override

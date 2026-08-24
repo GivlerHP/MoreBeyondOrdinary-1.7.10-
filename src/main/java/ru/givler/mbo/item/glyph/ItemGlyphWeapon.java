@@ -1,10 +1,12 @@
 package ru.givler.mbo.item.glyph;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import electroblob.wizardry.ExtendedPlayer;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.network.packet.PacketSpawnParticle;
@@ -27,14 +29,15 @@ public class ItemGlyphWeapon extends ItemGlyphBasic {
     public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
         if (!world.isRemote) {
             ItemStack summonedItem = new ItemStack(WeaponRapier, 1);
+            summonedItem.setTagCompound(new NBTTagCompound());
+            summonedItem.getTagCompound().setFloat("durationMultiplier", 1.0F);
             summonedItem.addEnchantment(Enchantment.smite, 3);
 
-            if (!player.inventory.addItemStackToInventory(summonedItem)) {
-                player.dropPlayerItemWithRandomChoice(summonedItem, false);
-            } else {
+            if (player.inventory.addItemStackToInventory(summonedItem)) {
+                ExtendedPlayer.get(player).conjuredSwordDuration = 0;
                 player.inventory.markDirty();
+                itemStack.damageItem(10, player);
             }
-            itemStack.damageItem(10, player);
         }
 
 

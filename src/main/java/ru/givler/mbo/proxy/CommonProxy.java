@@ -8,16 +8,10 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry;
-import ru.givler.mbo.integration.thaumcraft.MBOThaumDamageConverter;
-import ru.givler.mbo.integration.thaumcraft.util.DarkMoonCastQueue;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.handler.*;
-import ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry;
-import ru.givler.mbo.integration.minefantasy2.MineFantasyRegistry;
-import ru.givler.mbo.recipes.registry.ArcanumRecipeRegistry;
 import ru.givler.mbo.recipes.registry.BlockRecipeRegistry;
 import ru.givler.mbo.recipes.registry.RoofRecipeRegistry;
 import ru.givler.mbo.registry.*;
@@ -54,8 +48,13 @@ public class CommonProxy {
         FoodRegistry.preLoad(event);
         PlantRegistry.preLoad(event);
         ArmorRegistry.preLoad(event);
-        ThaumcraftRegistry.preLoad(event);
-        BiomesOPlentyRegistry.init();
+        if (Loader.isModLoaded("Thaumcraft")) {
+            invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry",
+                    "preLoad", FMLPreInitializationEvent.class, event);
+        }
+        if (Loader.isModLoaded("BiomesOPlenty")) {
+            invokeOptional("ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry", "init");
+        }
         BoatRegistry.init();
         BannerRegistry.init();
         StonecutterRegistry.init();
@@ -65,8 +64,8 @@ public class CommonProxy {
         MinecraftForge.EVENT_BUS.register(new RingEventHandler());
         FMLCommonHandler.instance().bus().register(new RingEventHandler());
         if (Loader.isModLoaded("Thaumcraft")) {
-            FMLCommonHandler.instance().bus().register(new DarkMoonCastQueue());
-            MinecraftForge.EVENT_BUS.register(new MBOThaumDamageConverter());
+            invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftCommonRegistration",
+                    "registerHandlers");
         }
     }
 
@@ -75,8 +74,12 @@ public class CommonProxy {
         BoatRegistry.registerRecipes();
         moveWoodIntegrationToBoPTab();
         ModelRegistry.init(event);
-        MineFantasyRegistry.init();
-        ThaumcraftRegistry.init();
+        if (isMineFantasyLoaded()) {
+            invokeOptional("ru.givler.mbo.integration.minefantasy2.MineFantasyRegistry", "init");
+        }
+        if (Loader.isModLoaded("Thaumcraft")) {
+            invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry", "init");
+        }
         GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
         GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileEntityModelCollision.class,
                 "ModelCollisionPartTile");
@@ -87,7 +90,9 @@ public class CommonProxy {
 
         BlockRecipeRegistry.init();
         RoofRecipeRegistry.init();
-        ArcanumRecipeRegistry.init();
+        if (isMineFantasyLoaded()) {
+            invokeOptional("ru.givler.mbo.recipes.registry.ArcanumRecipeRegistry", "init");
+        }
         BlockRegistry.initRecipe();
         StonecutterRegistry.registerRecipes();
         GameRegistry.addSmelting(net.minecraft.init.Blocks.stone,
@@ -96,15 +101,30 @@ public class CommonProxy {
     }
 
     private void moveWoodIntegrationToBoPTab() {
-        if (!Loader.isModLoaded("BiomesOPlenty") || biomesoplenty.BiomesOPlenty.tabBiomesOPlenty == null) {
-            return;
+        if (Loader.isModLoaded("BiomesOPlenty")) {
+            invokeOptional("ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry", "moveToModTab");
         }
-
-        net.minecraft.creativetab.CreativeTabs bopTab = biomesoplenty.BiomesOPlenty.tabBiomesOPlenty;
-        BiomesOPlentyRegistry.setCreativeTab(bopTab);
     }
 
     public void postInit(FMLPostInitializationEvent event){
+    }
+
+    private static void invokeOptional(String className, String method) {
+        invokeOptional(className, method, null, null);
+    }
+
+    private static void invokeOptional(String className, String method, Class<?> parameterType, Object argument) {
+        try {
+            Class<?> integration = Class.forName(className);
+            if (parameterType == null) integration.getMethod(method).invoke(null);
+            else integration.getMethod(method, parameterType).invoke(null, argument);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to initialise optional integration " + className, e);
+        }
+    }
+
+    private static boolean isMineFantasyLoaded() {
+        return Loader.isModLoaded("minefantasy2");
     }
 
     public void spawnParticle(EnumParticleType type, World world, double x, double y, double z, double motionX, double motionY, double motionZ) {

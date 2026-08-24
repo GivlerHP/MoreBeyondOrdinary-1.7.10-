@@ -194,7 +194,7 @@ public class EntityIceGiant extends EntitySummonedCreature implements IEntityAdd
             par1Entity.motionX += this.getLookVec().xCoord*0.2;
             par1Entity.motionZ += this.getLookVec().xCoord*0.2;
             
-            if(par1Entity instanceof EntityLivingBase){
+            if(!worldObj.isRemote && par1Entity instanceof EntityLivingBase){
             	((EntityLivingBase) par1Entity).addPotionEffect(new PotionEffect(Wizardry.frost.id, 300, 0));
             }
         }

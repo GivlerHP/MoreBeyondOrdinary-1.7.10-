@@ -28,6 +28,7 @@ public class ItemBowMBO extends net.minecraft.item.ItemBow {
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.drawSpeed = drawSpeed;
         this.damageMultiplier = damageMultiplier;
+        GameRegistry.registerItem(this, name);
     }
 
     @Override
@@ -38,10 +39,6 @@ public class ItemBowMBO extends net.minecraft.item.ItemBow {
         for (int i = 1; i < 4; i++) {
             icons[i] = iconRegister.registerIcon(MoreBeyondOrdinary.MODID + ":weapon/" + texture + "_pulling_" + (i-1));
         }
-    }
-
-    public void register() {
-        GameRegistry.registerItem(this, this.getUnlocalizedName().substring(5));
     }
 
     @Override

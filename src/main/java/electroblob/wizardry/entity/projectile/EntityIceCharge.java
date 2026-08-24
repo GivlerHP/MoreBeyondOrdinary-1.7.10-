@@ -57,7 +57,7 @@ public class EntityIceCharge extends EntityMagicProjectile implements IEntityAdd
             
             entityHit.attackEntityFrom(MagicDamage.causeIndirectEntityMagicDamage(this, this.getThrower(), DamageType.FROST).setProjectile(), damage);
             
-            if(entityHit instanceof EntityLivingBase && !MagicDamage.isEntityImmune(DamageType.FROST, entityHit))
+            if(!worldObj.isRemote && entityHit instanceof EntityLivingBase && !MagicDamage.isEntityImmune(DamageType.FROST, entityHit))
             	((EntityLivingBase)entityHit).addPotionEffect(new PotionEffect(Wizardry.frost.id, 120, 1));
         }
 
@@ -83,7 +83,7 @@ public class EntityIceCharge extends EntityMagicProjectile implements IEntityAdd
 			// Slows targets
 			for(EntityLivingBase target : targets){
 				if(target != entityHit && target != this.getThrower()){
-		            if(!MagicDamage.isEntityImmune(DamageType.FROST, target)) target.addPotionEffect(new PotionEffect(Wizardry.frost.id, 100, 0, true));
+                    if(!worldObj.isRemote && !MagicDamage.isEntityImmune(DamageType.FROST, target)) target.addPotionEffect(new PotionEffect(Wizardry.frost.id, 100, 0, true));
 				}
 			}
 	    	

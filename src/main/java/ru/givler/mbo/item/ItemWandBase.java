@@ -7,12 +7,18 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class ItemWandBase extends Item {
 
-    public ItemWandBase(int maxDurability) {
+    public ItemWandBase(String name, String texture, int maxDurability) {
         this.setMaxDamage(maxDurability);
         this.setMaxStackSize(1);
+        this.setUnlocalizedName(name);
+        this.setTextureName(MoreBeyondOrdinary.MODID + ":wand/" + texture);
+        this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
+        GameRegistry.registerItem(this, name);
     }
 
     @Override
@@ -24,10 +30,6 @@ public class ItemWandBase extends Item {
     @SideOnly(Side.CLIENT)
     public boolean isFull3D() {
         return true;
-    }
-
-    public void register() {
-        GameRegistry.registerItem(this, this.getUnlocalizedName().substring(5));
     }
 
     @Override

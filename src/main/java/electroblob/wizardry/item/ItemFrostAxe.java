@@ -51,7 +51,7 @@ public class ItemFrostAxe extends ItemAxe {
 	@Override
 	public boolean hitEntity(ItemStack stack, EntityLivingBase target, EntityLivingBase wielder)
     {
-		if(!MagicDamage.isEntityImmune(DamageType.FROST, target)) target.addPotionEffect(new PotionEffect(Wizardry.frost.id, 160, 1));
+		if(!target.worldObj.isRemote && !MagicDamage.isEntityImmune(DamageType.FROST, target)) target.addPotionEffect(new PotionEffect(Wizardry.frost.id, 160, 1));
         return false;
     }
 	

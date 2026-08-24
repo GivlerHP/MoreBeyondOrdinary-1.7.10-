@@ -51,8 +51,8 @@ public class Freeze extends Spell {
 			
 			if(MagicDamage.isEntityImmune(DamageType.FROST, target)){
 				if(!world.isRemote) caster.addChatComponentMessage(new ChatComponentTranslation("spell.resist", target.getCommandSenderName(), this.getDisplayNameWithFormatting()));
-			}else{
-				target.addPotionEffect(new PotionEffect(Wizardry.frost.id, (int)(200*durationMultiplier), 1, true));
+            }else if(!world.isRemote){
+                target.addPotionEffect(new PotionEffect(Wizardry.frost.id, (int)(200*durationMultiplier), 1, true));
 			}
 			
 			if(target.isBurning()){

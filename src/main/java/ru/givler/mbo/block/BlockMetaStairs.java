@@ -6,7 +6,7 @@ import net.minecraft.block.BlockStairs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.IBlockAccess;
-import ru.givler.mbo.ItemBlockMetadata;
+import ru.givler.mbo.util.ItemBlockMetadata;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 // Класс создающий ступеньки из метаблоков (BlockMeta)

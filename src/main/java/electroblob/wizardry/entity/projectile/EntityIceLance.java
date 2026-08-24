@@ -46,7 +46,7 @@ public class EntityIceLance extends EntityMagicArrow {
 	public void onEntityHit(EntityLivingBase entityHit){
 		
         // Adds a freeze effect to the target.
-        if(!MagicDamage.isEntityImmune(DamageType.FROST, entityHit)) entityHit.addPotionEffect(new PotionEffect(Wizardry.frost.id, 300, 0, true));
+        if(!worldObj.isRemote && !MagicDamage.isEntityImmune(DamageType.FROST, entityHit)) entityHit.addPotionEffect(new PotionEffect(Wizardry.frost.id, 300, 0, true));
         
 		this.playSound("game.neutral.hurt", 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 	}

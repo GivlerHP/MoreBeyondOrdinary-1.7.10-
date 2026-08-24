@@ -47,18 +47,20 @@ public class ItemFocusMHealing extends ItemFocusPartyBasic {
 
     @Override
     public ItemStack onFocusRightClick(ItemStack wandstack, World world, EntityPlayer player, MovingObjectPosition mop) {
-        if (!hasThaumcraftArmor(player)) {
-            if (!world.isRemote) {
-                player.addChatMessage(new ChatComponentText(
-                        StatCollector.translateToLocal("focus.mhealing.no_armor")
-                ));
-            }
+        ItemWandCasting wand = (ItemWandCasting) wandstack.getItem();
+        ItemStack focusstack = wand.getFocusItem(wandstack);
+        if (!canActivateFocus(focusstack, world, player, true)) {
             return wandstack;
         }
 
         player.setItemInUse(wandstack, Integer.MAX_VALUE);
         WandManager.setCooldown(player, -1);
         return wandstack;
+    }
+
+    @Override
+    public String getRequiredResearch(ItemStack focusstack) {
+        return "FOCUSFROST";
     }
 
     @Override
@@ -81,6 +83,8 @@ public class ItemFocusMHealing extends ItemFocusPartyBasic {
         World world = player.worldObj;
 
         ItemWandCasting wand = (ItemWandCasting) wandstack.getItem();
+        ItemStack focusstack = wand.getFocusItem(wandstack);
+        float armorEfficiency = getArmorEfficiency(player, focusstack);
         if (!wand.consumeAllVis(wandstack, player, this.getVisCost(wandstack), true, false)) {
             player.stopUsingItem();
             return;
@@ -105,7 +109,8 @@ public class ItemFocusMHealing extends ItemFocusPartyBasic {
             target.addPotionEffect(new PotionEffect(Potion.regeneration.id, 60, regenLevel, true));
 
             if (world.getTotalWorldTime() % 60 == 0 && target.getHealth() < target.getMaxHealth()) {
-                float healAmount = isUpgradedWith(wand.getFocusItem(wandstack), TMFocusUpgrades.vitality) ? 2.0F : 1.0F;
+                float healAmount = (isUpgradedWith(focusstack, TMFocusUpgrades.vitality) ? 2.0F : 1.0F)
+                        * armorEfficiency;
                 target.heal(healAmount);
             }
 

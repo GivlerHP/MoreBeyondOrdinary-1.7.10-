@@ -127,29 +127,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(FenceGateAcacia));
             list.add(new ItemStack(FenceGateDarkOak));
 
-            if (ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.vanillaButtons != null) {
-                for (net.minecraft.block.Block button :
-                        ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.vanillaButtons) {
-                    list.add(new ItemStack(button));
-                }
-            }
-            if (ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.vanillaPressurePlates != null) {
-                for (net.minecraft.block.Block plate :
-                        ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.vanillaPressurePlates) {
-                    list.add(new ItemStack(plate));
-                }
-            }
-
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.doorSpruceItem);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.doorBirchItem);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.doorJungleItem);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.doorAcaciaItem);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.doorDarkoakItem);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.trapdoorSpruce);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.trapdoorBirch);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.trapdoorJungle);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.trapdoorAcacia);
-            addIfPresent(list, ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry.trapdoorDarkoak);
+            addOptionalBoPCreativeItems(list);
 
             list.add(new ItemStack(BooksheelSkull));
             list.add(new ItemStack(BooksheelVoid));
@@ -209,6 +187,17 @@ public class CreativeTabRegistry {
         }
     }
 
+    @SuppressWarnings("rawtypes")
+    private static void addOptionalBoPCreativeItems(List list) {
+        if (!cpw.mods.fml.common.Loader.isModLoaded("BiomesOPlenty")) return;
+        try {
+            Class.forName("ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry")
+                    .getMethod("addCreativeItems", List.class).invoke(null, list);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to populate optional Biomes O' Plenty content", e);
+        }
+    }
+
     public static final CreativeTabs tabMBOitems = new CreativeTabs("MBOitems") {
         @Override
         public Item getTabIconItem() {
@@ -249,10 +238,10 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(StaminaRing));
             list.add(new ItemStack(DamageRing));
             list.add(new ItemStack(SpeedRing));
-            list.add(new ItemStack(StrengthAttributeRing));
-            list.add(new ItemStack(DexterityAttributeRing));
-            list.add(new ItemStack(EnduranceAttributeRing));
-            list.add(new ItemStack(SpiritAttributeRing));
+            addIfPresent(list, StrengthAttributeRing);
+            addIfPresent(list, DexterityAttributeRing);
+            addIfPresent(list, EnduranceAttributeRing);
+            addIfPresent(list, SpiritAttributeRing);
 
             list.add(new ItemStack(GoldBasicAmulet));
             list.add(new ItemStack(SilverBasicAmulet));
@@ -287,8 +276,8 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BrokenBowHunting));
             list.add(new ItemStack(BrokenStaffHealing));
 
-            list.add(new ItemStack(BrokenWandWizard));
-            list.add(new ItemStack(BrokenWandPyromancer));
+            addIfPresent(list, BrokenWandWizard);
+            addIfPresent(list, BrokenWandPyromancer);
 
             list.add(new ItemStack(WeaponRapier));
 

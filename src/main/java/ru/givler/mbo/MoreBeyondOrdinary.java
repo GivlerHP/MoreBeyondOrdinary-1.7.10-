@@ -7,7 +7,6 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.event.FMLInterModComms;
-import ru.givler.mbo.client.render.F3AOcclusionFix;
 import ru.givler.mbo.handler.GuiHandler;
 import ru.givler.mbo.proxy.CommonProxy;
 import ru.givler.mbo.registry.EntityMobRegistry;
@@ -15,7 +14,12 @@ import ru.givler.mbo.util.VanillaBlockReplacer;
 import ru.givler.mbo.config.IntegrationConfig;
 import ru.givler.mbo.config.TooltipFrameConfig;
 
-@Mod(modid = MoreBeyondOrdinary.MODID, name = MoreBeyondOrdinary.MODNAME, version = MoreBeyondOrdinary.VERSION, dependencies = "before:Growthcraft;before:Growthcraft|Apples")
+@Mod(
+        modid = MoreBeyondOrdinary.MODID,
+        name = MoreBeyondOrdinary.MODNAME,
+        version = MoreBeyondOrdinary.VERSION,
+        dependencies = MoreBeyondOrdinary.DEPENDENCIES
+)
 public class MoreBeyondOrdinary {
 
     @SidedProxy(clientSide = "ru.givler.mbo.proxy.ClientProxy", serverSide = "ru.givler.mbo.proxy.CommonProxy")
@@ -25,6 +29,10 @@ public class MoreBeyondOrdinary {
     public static final String MODID = "mbo";
     public static final String MODNAME = "MoreBeyondOrdinary";
     public static final String VERSION = "${version}";
+    public static final String DEPENDENCIES =
+            "required-after:geckolib3;required-after:Baubles;"
+            + "after:Thaumcraft;after:BiomesOPlenty;after:minefantasy2;after:customnpcs;after:NotEnoughItems;"
+            + "before:Growthcraft;before:Growthcraft|Apples";
 
     @Mod.Instance(value = MoreBeyondOrdinary.MODID)
     public static MoreBeyondOrdinary instance;
