@@ -67,8 +67,13 @@ public class DoorBase extends BlockDoor {
         this.iconTop = new IIcon[2];
         this.iconBottom = new IIcon[2];
 
-        this.iconTop[0] = register.registerIcon(MoreBeyondOrdinary.MODID + ":door/" + textureName + "_top");
-        this.iconBottom[0] = register.registerIcon(MoreBeyondOrdinary.MODID + ":door/" + textureName + "_bottom");
+        if (textureName.indexOf(':') >= 0) {
+            this.iconTop[0] = register.registerIcon(textureName + "_upper");
+            this.iconBottom[0] = register.registerIcon(textureName + "_lower");
+        } else {
+            this.iconTop[0] = register.registerIcon(MoreBeyondOrdinary.MODID + ":door/" + textureName + "_top");
+            this.iconBottom[0] = register.registerIcon(MoreBeyondOrdinary.MODID + ":door/" + textureName + "_bottom");
+        }
         this.iconTop[1] = new IconFlipped(this.iconTop[0], true, false);
         this.iconBottom[1] = new IconFlipped(this.iconBottom[0], true, false);
     }

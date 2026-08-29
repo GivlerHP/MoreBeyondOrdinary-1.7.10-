@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.handler.MboGui;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.item.ItemBlockLootContainer;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
@@ -53,7 +54,7 @@ public class BlockDestructibleLootContainer extends BlockModels {
         boolean canEditInPlace = ItemBlockLootContainer.isEditor(player) && player != null && player.capabilities.isCreativeMode;
         if (world.isRemote) {
             if (canEditInPlace) {
-                player.openGui(MoreBeyondOrdinary.instance, MoreBeyondOrdinary.GUI_LOOT_CONTAINER_CONFIG, world, x, y, z);
+                player.openGui(MoreBeyondOrdinary.instance, MboGui.LOOT_CONTAINER_CONFIG.id, world, x, y, z);
             }
             return true;
         }

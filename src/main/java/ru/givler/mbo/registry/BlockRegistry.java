@@ -48,6 +48,8 @@ public class BlockRegistry {
     public static BlockBasicFenceGate FenceGateSpruce, FenceGateBirch, FenceGateJungle, FenceGateAcacia, FenceGateDarkOak;
     //переменные для крафтовых блоков
     public static Block MagicFurnace;
+    public static Block LockableChest, LockableTrapdoor;
+    public static BlockLockableDoor LockableDoor;
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
@@ -69,6 +71,9 @@ public class BlockRegistry {
         ModelCollisionPart = new BlockModelCollision();
         GameRegistry.registerBlock(ModelCollisionPart, "ModelCollisionPart");
         Barrier = new BlockBarrier();
+        LockableChest = new BlockLockableChest();
+        LockableDoor = new BlockLockableDoor();
+        LockableTrapdoor = new BlockLockableTrapdoor();
         SlimeBlock = new BlockSlimeMBO();
         GameRegistry.registerBlock(SlimeBlock, "SlimeBlock");
         BouncyBrownMushroomBlock = BlockBouncyMushroom.brown();

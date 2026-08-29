@@ -109,6 +109,9 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BlockWoodenBox));
             list.add(new ItemStack(Barrel));
             list.add(new ItemStack(Barrier));
+            addIfPresent(list, BlockRegistry.LockableChest);
+            addIfPresent(list, ItemRegistry.LockableDoorItem);
+            addIfPresent(list, BlockRegistry.LockableTrapdoor);
             list.add(new ItemStack(SlimeBlock));
             list.add(new ItemStack(BouncyBrownMushroomBlock));
             list.add(new ItemStack(BouncyRedMushroomBlock));
@@ -218,6 +221,8 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(GlyphCleansing));
             list.add(new ItemStack(GlyphHealing));
             list.add(new ItemStack(GlyphVoid));
+            addIfPresent(list, ItemRegistry.Lockpick);
+            addIfPresent(list, ItemRegistry.AdminKey);
 
             for(int i=0; i<=0; i++) { list.add(new ItemStack(Metal, 0, i)); }
             list.add(new ItemStack(SapphireEye));

@@ -13,6 +13,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.handler.MboGui;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 public class BlockStonecutter extends Block {
@@ -57,7 +58,7 @@ public class BlockStonecutter extends Block {
     @Override public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
                                                int side, float hitX, float hitY, float hitZ) {
         if (!world.isRemote) player.openGui(MoreBeyondOrdinary.instance,
-                MoreBeyondOrdinary.GUI_STONECUTTER, world, x, y, z);
+                MboGui.STONECUTTER.id, world, x, y, z);
         return true;
     }
 }

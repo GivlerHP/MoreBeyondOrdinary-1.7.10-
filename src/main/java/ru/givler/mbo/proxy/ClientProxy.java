@@ -56,13 +56,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClientProxy extends CommonProxy {
-    public static KeyBinding activateAmuletKey;
 
-    public static final Map<String, BlockModels> MODEL_REGISTRY = new HashMap<>();
-
+    @Override
     public void initPackets() {
         super.initPackets();
     }
+    public static KeyBinding activateAmuletKey;
+
+    public static final Map<String, BlockModels> MODEL_REGISTRY = new HashMap<>();
 
     @Override
     public World getClientWorld() {

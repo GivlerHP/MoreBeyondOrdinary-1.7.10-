@@ -18,6 +18,9 @@ import ru.givler.mbo.registry.*;
 import ru.givler.mbo.tileentity.TileEntityArcanum;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
 import ru.givler.mbo.tileentity.TileEntityBarrel;
+import ru.givler.mbo.tileentity.TileEntityLockableChest;
+import ru.givler.mbo.tileentity.TileEntityLockableDoor;
+import ru.givler.mbo.tileentity.TileEntityLockableTrapdoor;
 import ru.givler.mbo.util.PotionArrayExpander;
 
 public class CommonProxy {
@@ -87,6 +90,9 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TileEntityLootContainer.class, "loot_container_tile");
         GameRegistry.registerTileEntity(TileEntityBarrel.class, "mbo_barrel");
         GameRegistry.registerTileEntity(ru.givler.mbo.banner.TileEntityBanner.class, "mbo_banner");
+        GameRegistry.registerTileEntity(TileEntityLockableChest.class, "mbo_lockable_chest");
+        GameRegistry.registerTileEntity(TileEntityLockableDoor.class, "mbo_lockable_door");
+        GameRegistry.registerTileEntity(TileEntityLockableTrapdoor.class, "mbo_lockable_trapdoor");
 
         BlockRecipeRegistry.init();
         RoofRecipeRegistry.init();

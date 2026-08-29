@@ -33,7 +33,7 @@ public class DoorItemBase extends Item {
         this.material = doorBlock.getMaterial();
 
         this.setUnlocalizedName(name);
-        this.setTextureName(MoreBeyondOrdinary.MODID + ":door/" + texture);
+        this.setTextureName(texture.indexOf(':') >= 0 ? texture : MoreBeyondOrdinary.MODID + ":door/" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         this.maxStackSize = 1;
 

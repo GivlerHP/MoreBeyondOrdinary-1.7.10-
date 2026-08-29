@@ -18,6 +18,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.handler.MboGui;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 import ru.givler.mbo.tileentity.TileEntityArcanum;
 
@@ -53,7 +54,7 @@ import ru.givler.mbo.tileentity.TileEntityArcanum;
         public boolean onBlockActivated(World world, int x, int y, int z,
                                         EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
             if (!world.isRemote) {
-                player.openGui(MoreBeyondOrdinary.instance, MoreBeyondOrdinary.GUI_INFUSION_WORKBENCH, world, x, y, z);
+                player.openGui(MoreBeyondOrdinary.instance, MboGui.INFUSION_WORKBENCH.id, world, x, y, z);
             }
             return true;
         }

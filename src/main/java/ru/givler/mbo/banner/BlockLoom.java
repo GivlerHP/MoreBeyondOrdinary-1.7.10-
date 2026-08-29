@@ -12,6 +12,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.handler.MboGui;
 
 public class BlockLoom extends Block {
     private final IIcon[] top = new IIcon[4];
@@ -24,7 +25,7 @@ public class BlockLoom extends Block {
     }
     @Override public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
                                               int side, float hx, float hy, float hz) {
-        if (!world.isRemote) player.openGui(MoreBeyondOrdinary.instance, MoreBeyondOrdinary.GUI_LOOM, world, x, y, z);
+        if (!world.isRemote) player.openGui(MoreBeyondOrdinary.instance, MboGui.LOOM.id, world, x, y, z);
         return true;
     }
     @Override public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {

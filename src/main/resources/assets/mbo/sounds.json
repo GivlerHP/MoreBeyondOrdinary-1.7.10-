@@ -131,6 +131,10 @@
     "stonecutter_use1": {"category": "block", "sounds": [{"name": "stonecutter_use1", "stream": false}]},
     "stonecutter_use2": {"category": "block", "sounds": [{"name": "stonecutter_use2", "stream": false}]},
 
+  "lock_open": {"category": "block", "sounds": [{"name": "lock/open", "stream": false}]},
+  "lock_pin_fail": {"category": "block", "sounds": [{"name": "lock/pin_fail", "stream": false}]},
+  "lock_pin_match": {"category": "block", "sounds": [{"name": "lock/pin_match1", "stream": false}, {"name": "lock/pin_match2", "stream": false}]},
+
   "venik": {"category": "player","sounds": [
     {"name": "venik1","stream": false},
     {"name": "venik2","stream": false},

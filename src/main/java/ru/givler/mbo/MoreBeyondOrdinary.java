@@ -13,6 +13,7 @@ import ru.givler.mbo.registry.EntityMobRegistry;
 import ru.givler.mbo.util.VanillaBlockReplacer;
 import ru.givler.mbo.config.IntegrationConfig;
 import ru.givler.mbo.config.TooltipFrameConfig;
+import ru.givler.mbo.config.LockSecurityConfig;
 
 @Mod(
         modid = MoreBeyondOrdinary.MODID,
@@ -37,12 +38,6 @@ public class MoreBeyondOrdinary {
     @Mod.Instance(value = MoreBeyondOrdinary.MODID)
     public static MoreBeyondOrdinary instance;
 
-    public static final int GUI_INFUSION_WORKBENCH = 0;
-    public static final int GUI_LOOT_CONTAINER_CONFIG = 1;
-    public static final int GUI_LOOM = 2;
-    public static final int GUI_STONECUTTER = 3;
-    public static final int GUI_BARREL = 4;
-
     @Mod.EventHandler
     public void preLoad(FMLPreInitializationEvent event) {
         FMLInterModComms.sendMessage("Waila", "register", "ru.givler.mbo.integration.waila.ModelCollisionWailaProvider.register");
@@ -52,6 +47,7 @@ public class MoreBeyondOrdinary {
         EntityMobRegistry.registerEntities();
         IntegrationConfig.load(event.getModConfigurationDirectory());
         TooltipFrameConfig.load(event.getModConfigurationDirectory());
+        LockSecurityConfig.load(event.getModConfigurationDirectory());
 
     }
 

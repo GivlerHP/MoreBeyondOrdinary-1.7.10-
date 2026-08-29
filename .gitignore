@@ -38,6 +38,7 @@ local.properties
 /.tmp-etfuturum-reference
 /.vscode
 /logs
+/.ref
 
 # Eclipse Core
 .project

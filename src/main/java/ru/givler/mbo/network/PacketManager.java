@@ -11,6 +11,14 @@ import ru.givler.mbo.network.packet.PacketLootContainerRestore;
 import ru.givler.mbo.network.packet.PacketSpawnParticle;
 import ru.givler.mbo.network.packet.PacketSpawnParticleHandler;
 import ru.givler.mbo.network.packet.PacketBoatMove;
+import ru.givler.mbo.network.packet.PacketLockpickPin;
+import ru.givler.mbo.network.packet.PacketLockpickResult;
+import ru.givler.mbo.network.packet.PacketOpenLockConfig;
+import ru.givler.mbo.network.packet.PacketSetLockDifficulty;
+import ru.givler.mbo.network.packet.PacketLockpickSuccess;
+import ru.givler.mbo.network.packet.PacketLockLootSettings;
+import ru.givler.mbo.network.packet.PacketLockBarrierSettings;
+import ru.givler.mbo.network.packet.PacketApplyLockTemplate;
 
 public class PacketManager {
 
@@ -21,40 +29,23 @@ public class PacketManager {
 
     public static void registerCommonPackets() {
         System.out.println("[DEBUG] registerCommonPackets, ID=" + nextID);
-        INSTANCE.registerMessage(
-                PacketActivateAmulet.Handler.class,
-                PacketActivateAmulet.class,
-                nextID++,
-                Side.SERVER
-        );
-        INSTANCE.registerMessage(
-                PacketLootContainerConfig.Handler.class,
-                PacketLootContainerConfig.class,
-                nextID++,
-                Side.SERVER
-        );
-        INSTANCE.registerMessage(
-                PacketLootContainerGiveItem.Handler.class,
-                PacketLootContainerGiveItem.class,
-                nextID++,
-                Side.SERVER
-        );
-        INSTANCE.registerMessage(
-                PacketLootContainerRestore.Handler.class,
-                PacketLootContainerRestore.class,
-                nextID++,
-                Side.SERVER
-        );
+        INSTANCE.registerMessage(PacketActivateAmulet.Handler.class,PacketActivateAmulet.class,nextID++,Side.SERVER);
+        INSTANCE.registerMessage(PacketLootContainerConfig.Handler.class,PacketLootContainerConfig.class,nextID++,Side.SERVER);
+        INSTANCE.registerMessage(PacketLootContainerGiveItem.Handler.class,PacketLootContainerGiveItem.class,nextID++,Side.SERVER);
+        INSTANCE.registerMessage(PacketLootContainerRestore.Handler.class,PacketLootContainerRestore.class,nextID++,Side.SERVER);
         INSTANCE.registerMessage(PacketBoatMove.Handler.class, PacketBoatMove.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketLockpickPin.Handler.class, PacketLockpickPin.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketOpenLockConfig.Handler.class, PacketOpenLockConfig.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketSetLockDifficulty.Handler.class, PacketSetLockDifficulty.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketLockpickSuccess.Handler.class, PacketLockpickSuccess.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketLockLootSettings.Handler.class, PacketLockLootSettings.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketLockBarrierSettings.Handler.class, PacketLockBarrierSettings.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketApplyLockTemplate.Handler.class, PacketApplyLockTemplate.class, nextID++, Side.SERVER);
     }
 
     public static void registerClientPackets() {
         System.out.println("[DEBUG] registerClientPackets, ID=" + nextID);
-        INSTANCE.registerMessage(
-                PacketSpawnParticleHandler.class,
-                PacketSpawnParticle.class,
-                nextID++,
-                Side.CLIENT
-        );
+        INSTANCE.registerMessage(PacketSpawnParticleHandler.class,PacketSpawnParticle.class,nextID++,Side.CLIENT);
+        INSTANCE.registerMessage(PacketLockpickResult.Handler.class, PacketLockpickResult.class, nextID++, Side.CLIENT);
     }
 }
