@@ -23,7 +23,7 @@ public class PotionBasic extends Potion {
 			if ("melee_damage".equals(icon)) icon = "damage_boost";
 			if ("miner_luck".equals(icon)) icon = "luck";
 			inventoryIcon = new ResourceLocation(MoreBeyondOrdinary.MODID,
-					"textures/gui/" + icon + "_icon.png");
+					"textures/gui/effects/" + icon + "_icon.png");
 		}
 		mc.renderEngine.bindTexture(inventoryIcon);
 		drawTexturedRect(x + 6, y + 7, 0, 0, 18, 18, 18, 18);

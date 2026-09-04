@@ -5,6 +5,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import ru.givler.mbo.handler.GuiHandler;
@@ -14,6 +15,8 @@ import ru.givler.mbo.util.VanillaBlockReplacer;
 import ru.givler.mbo.config.IntegrationConfig;
 import ru.givler.mbo.config.TooltipFrameConfig;
 import ru.givler.mbo.config.LockSecurityConfig;
+import ru.givler.mbo.command.CommandEffectExtended;
+import ru.givler.mbo.command.CommandGameModeExtended;
 
 @Mod(
         modid = MoreBeyondOrdinary.MODID,
@@ -60,6 +63,14 @@ public class MoreBeyondOrdinary {
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event){
         proxy.postInit(event);
+    }
+
+    @Mod.EventHandler
+    public void serverStarting(FMLServerStartingEvent event) {
+        // Registering commands with vanilla names replaces their command-map entries.
+        // Both implementations delegate all unchanged syntax to the vanilla commands.
+        event.registerServerCommand(new CommandEffectExtended());
+        event.registerServerCommand(new CommandGameModeExtended());
     }
 
 }

@@ -49,6 +49,10 @@ public final class FallingLeavesHandler {
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getMinecraft();
+        // Client tick events continue while an integrated game is paused, but
+        // particles themselves do not age. Spawning here would accumulate a
+        // large frozen backlog which becomes visible all at once on resume.
+        if (mc.isGamePaused()) return;
         World world = mc.theWorld;
         EntityPlayer player = mc.thePlayer;
         if (world == null || player == null || mc.effectRenderer == null) return;

@@ -19,6 +19,9 @@ import ru.givler.mbo.network.packet.PacketLockpickSuccess;
 import ru.givler.mbo.network.packet.PacketLockLootSettings;
 import ru.givler.mbo.network.packet.PacketLockBarrierSettings;
 import ru.givler.mbo.network.packet.PacketApplyLockTemplate;
+import ru.givler.mbo.network.packet.PacketSpectatorState;
+import ru.givler.mbo.network.packet.PacketGamemodeMenuRequest;
+import ru.givler.mbo.network.packet.PacketGamemodeMenuPermission;
 
 public class PacketManager {
 
@@ -41,11 +44,14 @@ public class PacketManager {
         INSTANCE.registerMessage(PacketLockLootSettings.Handler.class, PacketLockLootSettings.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketLockBarrierSettings.Handler.class, PacketLockBarrierSettings.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketApplyLockTemplate.Handler.class, PacketApplyLockTemplate.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketGamemodeMenuRequest.Handler.class, PacketGamemodeMenuRequest.class, nextID++, Side.SERVER);
     }
 
     public static void registerClientPackets() {
         System.out.println("[DEBUG] registerClientPackets, ID=" + nextID);
         INSTANCE.registerMessage(PacketSpawnParticleHandler.class,PacketSpawnParticle.class,nextID++,Side.CLIENT);
         INSTANCE.registerMessage(PacketLockpickResult.Handler.class, PacketLockpickResult.class, nextID++, Side.CLIENT);
+        INSTANCE.registerMessage(PacketSpectatorState.Handler.class, PacketSpectatorState.class, nextID++, Side.CLIENT);
+        INSTANCE.registerMessage(PacketGamemodeMenuPermission.Handler.class, PacketGamemodeMenuPermission.class, nextID++, Side.CLIENT);
     }
 }

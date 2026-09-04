@@ -22,6 +22,7 @@ import ru.givler.mbo.tileentity.TileEntityLockableChest;
 import ru.givler.mbo.tileentity.TileEntityLockableDoor;
 import ru.givler.mbo.tileentity.TileEntityLockableTrapdoor;
 import ru.givler.mbo.util.PotionArrayExpander;
+import ru.givler.mbo.spectator.SpectatorEventHandler;
 
 public class CommonProxy {
 
@@ -66,6 +67,9 @@ public class CommonProxy {
         FMLCommonHandler.instance().bus().register(new BeltEventHandler());
         MinecraftForge.EVENT_BUS.register(new RingEventHandler());
         FMLCommonHandler.instance().bus().register(new RingEventHandler());
+        SpectatorEventHandler spectatorHandler = new SpectatorEventHandler();
+        MinecraftForge.EVENT_BUS.register(spectatorHandler);
+        FMLCommonHandler.instance().bus().register(spectatorHandler);
         if (Loader.isModLoaded("Thaumcraft")) {
             invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftCommonRegistration",
                     "registerHandlers");

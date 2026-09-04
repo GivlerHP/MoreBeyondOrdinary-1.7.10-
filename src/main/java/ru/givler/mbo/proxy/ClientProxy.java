@@ -40,6 +40,8 @@ import ru.givler.mbo.client.render.boat.RenderMBOBoatSeat;
 import ru.givler.mbo.client.render.*;
 import ru.givler.mbo.client.font.ModernFontSupport;
 import ru.givler.mbo.core.CauldronHooks;
+import ru.givler.mbo.spectator.SpectatorClientHandler;
+import ru.givler.mbo.client.gamemode.GamemodeSwitcherInputHandler;
 import ru.givler.mbo.client.render.decormodels.RenderLootContainerItem;
 import ru.givler.mbo.client.render.decormodels.RenderLootContainerTile;
 import ru.givler.mbo.client.render.decormodels.TemplateModelRenderer;
@@ -112,6 +114,7 @@ public class ClientProxy extends CommonProxy {
         activateAmuletKey = new KeyBinding("key.mbo.amulet.desc", Keyboard.KEY_R, "MoreBeyondOrdinary");
         ClientRegistry.registerKeyBinding(activateAmuletKey);
         FMLCommonHandler.instance().bus().register(new ClientKeyHandler());
+        FMLCommonHandler.instance().bus().register(new GamemodeSwitcherInputHandler());
         FMLCommonHandler.instance().bus().register(new BarrierVisibilityHandler());
         ru.givler.mbo.client.render.SmoothOpeningRenderer.configureIntegrations();
         ru.givler.mbo.client.render.SmoothOpeningRenderer smoothOpeningRenderer = new ru.givler.mbo.client.render.SmoothOpeningRenderer();
@@ -142,6 +145,7 @@ public class ClientProxy extends CommonProxy {
         registerRenderers();
         MinecraftForge.EVENT_BUS.register(new PotionClientHandler());
         MinecraftForge.EVENT_BUS.register(new TooltipEvents());
+        MinecraftForge.EVENT_BUS.register(new SpectatorClientHandler());
 
     }
 

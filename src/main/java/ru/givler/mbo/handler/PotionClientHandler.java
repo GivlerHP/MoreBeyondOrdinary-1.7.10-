@@ -16,7 +16,7 @@ import ru.givler.mbo.potion.PotionEnum;
 
 public class PotionClientHandler {
 
-    private static final ResourceLocation icon = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/gui/sixth_sense_icon.png");
+    private static final ResourceLocation icon = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/gui/effects/sixth_sense_icon.png");
     private static final ResourceLocation overlay = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/gui/sixth_sense_overlay.png");
     private static final ResourceLocation marker = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/entity/sixth_sense.png");
 
