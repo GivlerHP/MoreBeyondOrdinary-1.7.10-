@@ -13,7 +13,7 @@ import ru.givler.mbo.network.packet.PacketSpawnParticleHandler;
 import ru.givler.mbo.network.packet.PacketBoatMove;
 import ru.givler.mbo.network.packet.PacketLockpickPin;
 import ru.givler.mbo.network.packet.PacketLockpickResult;
-import ru.givler.mbo.network.packet.PacketOpenLockConfig;
+import ru.givler.mbo.network.packet.PacketLockOpenConfig;
 import ru.givler.mbo.network.packet.PacketSetLockDifficulty;
 import ru.givler.mbo.network.packet.PacketLockpickSuccess;
 import ru.givler.mbo.network.packet.PacketLockLootSettings;
@@ -22,6 +22,11 @@ import ru.givler.mbo.network.packet.PacketApplyLockTemplate;
 import ru.givler.mbo.network.packet.PacketSpectatorState;
 import ru.givler.mbo.network.packet.PacketGamemodeMenuRequest;
 import ru.givler.mbo.network.packet.PacketGamemodeMenuPermission;
+import ru.givler.mbo.network.packet.PacketPlatformAction;
+import ru.givler.mbo.network.packet.PacketPlatformSync;
+import ru.givler.mbo.network.packet.PacketPlatformOpen;
+import ru.givler.mbo.network.packet.PacketPlatformRemove;
+import ru.givler.mbo.network.packet.PacketPlatformInteract;
 
 public class PacketManager {
 
@@ -38,13 +43,15 @@ public class PacketManager {
         INSTANCE.registerMessage(PacketLootContainerRestore.Handler.class,PacketLootContainerRestore.class,nextID++,Side.SERVER);
         INSTANCE.registerMessage(PacketBoatMove.Handler.class, PacketBoatMove.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketLockpickPin.Handler.class, PacketLockpickPin.class, nextID++, Side.SERVER);
-        INSTANCE.registerMessage(PacketOpenLockConfig.Handler.class, PacketOpenLockConfig.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketLockOpenConfig.Handler.class, PacketLockOpenConfig.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketSetLockDifficulty.Handler.class, PacketSetLockDifficulty.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketLockpickSuccess.Handler.class, PacketLockpickSuccess.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketLockLootSettings.Handler.class, PacketLockLootSettings.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketLockBarrierSettings.Handler.class, PacketLockBarrierSettings.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketApplyLockTemplate.Handler.class, PacketApplyLockTemplate.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketGamemodeMenuRequest.Handler.class, PacketGamemodeMenuRequest.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketPlatformAction.Handler.class, PacketPlatformAction.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketPlatformInteract.Handler.class, PacketPlatformInteract.class, nextID++, Side.SERVER);
     }
 
     public static void registerClientPackets() {
@@ -53,5 +60,8 @@ public class PacketManager {
         INSTANCE.registerMessage(PacketLockpickResult.Handler.class, PacketLockpickResult.class, nextID++, Side.CLIENT);
         INSTANCE.registerMessage(PacketSpectatorState.Handler.class, PacketSpectatorState.class, nextID++, Side.CLIENT);
         INSTANCE.registerMessage(PacketGamemodeMenuPermission.Handler.class, PacketGamemodeMenuPermission.class, nextID++, Side.CLIENT);
+        INSTANCE.registerMessage(PacketPlatformSync.Handler.class, PacketPlatformSync.class, nextID++, Side.CLIENT);
+        INSTANCE.registerMessage(PacketPlatformOpen.Handler.class, PacketPlatformOpen.class, nextID++, Side.CLIENT);
+        INSTANCE.registerMessage(PacketPlatformRemove.Handler.class, PacketPlatformRemove.class, nextID++, Side.CLIENT);
     }
 }

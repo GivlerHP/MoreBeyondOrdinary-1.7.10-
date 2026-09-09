@@ -8,7 +8,8 @@ public enum MboGui {
     BARREL(4),
     LOCKPICKING(5),
     LOCKABLE_CHEST(6),
-    LOCK_CONFIG(7);
+    LOCK_CONFIG(7),
+    MOVING_PLATFORM(8);
 
     public final int id;
 

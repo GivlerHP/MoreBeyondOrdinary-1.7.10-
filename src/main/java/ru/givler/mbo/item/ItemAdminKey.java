@@ -6,7 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.network.PacketManager;
-import ru.givler.mbo.network.packet.PacketOpenLockConfig;
+import ru.givler.mbo.network.packet.PacketLockOpenConfig;
 import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
@@ -34,7 +34,7 @@ public class ItemAdminKey extends Item {
         if (!lockableBlock) return false;
 
         if (world.isRemote) {
-            PacketManager.INSTANCE.sendToServer(new PacketOpenLockConfig(x, y, z));
+            PacketManager.INSTANCE.sendToServer(new PacketLockOpenConfig(x, y, z));
         }
         return true;
     }

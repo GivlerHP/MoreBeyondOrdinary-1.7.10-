@@ -20,6 +20,8 @@ import ru.givler.mbo.integration.thaumcraft.client.render.ThaumcraftOpeningBridg
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /** Rotates vertices produced by Minecraft's own renderer, retaining native models and UVs. */
 public final class SmoothOpeningRenderer {
@@ -27,7 +29,11 @@ public final class SmoothOpeningRenderer {
     private static boolean thaumcraftLoaded, carpenters;
     private static final long DURATION=400L;
     private static final long RESTORE_GRACE=150L;
-    private static final Map<Key,State> STATES=new HashMap<Key,State>();
+    /**
+     * begin() can be called from FalseTweaks chunk worker threads while tick()/render()/interact()
+     * run on the client thread. A plain HashMap is therefore unsafe here.
+     */
+    private static final ConcurrentMap<Key,State> STATES=new ConcurrentHashMap<Key,State>();
     private static final ThreadLocal<Context> ACTIVE=new ThreadLocal<Context>();
     private static final ThreadLocal<Integer> DEPTH=new ThreadLocal<Integer>(){protected Integer initialValue(){return 0;}};
     private static final ThreadLocal<double[]> RESULT=new ThreadLocal<double[]>(){protected double[] initialValue(){return new double[3];}};
@@ -191,8 +197,8 @@ public final class SmoothOpeningRenderer {
 
     /** Splits a closed Carpenter gate cuboid at local Z=0.5 before vertices are built. */
     public static boolean splitCarpenterGateCuboid(Object handler,net.minecraft.item.ItemStack cover,
-            int x,int y,int z,double minX,double minY,double minZ,double maxX,double maxY,double maxZ,
-            net.minecraftforge.common.util.ForgeDirection[] rotations){
+                                                   int x,int y,int z,double minX,double minY,double minZ,double maxX,double maxY,double maxZ,
+                                                   net.minecraftforge.common.util.ForgeDirection[] rotations){
         Context context=ACTIVE.get();
         if(context==null||!isCarpenterGate(context.state.block)||context.state.open
                 ||!context.state.active(context.now)||Boolean.TRUE.equals(SPLITTING_CARPENTER_CUBOID.get())
@@ -221,8 +227,27 @@ public final class SmoothOpeningRenderer {
     private static void rotateZ(double[] p,double px,double py,float degrees){double a=Math.toRadians(degrees),c=Math.cos(a),s=Math.sin(a),x=p[0]-px,y=p[1]-py;p[0]=px+x*c-y*s;p[1]=py+x*s+y*c;}
 
     @SubscribeEvent public void tick(TickEvent.ClientTickEvent e){
-        if(e.phase!=TickEvent.Phase.END)return; Minecraft mc=Minecraft.getMinecraft(); World w=mc.theWorld;if(w==null){STATES.clear();return;} long now=System.currentTimeMillis();
-        Iterator<State> it=STATES.values().iterator();while(it.hasNext()){State s=it.next();if(w.getBlock(s.x,s.y,s.z)!=s.block||now-s.seen>30000){it.remove();continue;}if(!s.active(now)&&s.wasActive){s.wasActive=false;w.markBlockRangeForRenderUpdate(s.x,s.y,s.z,s.x,s.y+(s.kind==DOOR?1:0),s.z);}}
+        if(e.phase!=TickEvent.Phase.END)return;
+        Minecraft mc=Minecraft.getMinecraft();
+        World w=mc.theWorld;
+        if(w==null){STATES.clear();return;}
+        long now=System.currentTimeMillis();
+
+        // Weakly-consistent iteration is safe while chunk worker threads call begin().
+        // Conditional remove avoids deleting a newer State that may have replaced this entry.
+        for(Map.Entry<Key,State> entry:STATES.entrySet()){
+            State s=entry.getValue();
+            if(w.getBlock(s.x,s.y,s.z)!=s.block||now-s.seen>30000){
+                STATES.remove(entry.getKey(),s);
+                continue;
+            }
+            if(!s.active(now)&&s.wasActive){
+                s.wasActive=false;
+                w.markBlockRangeForRenderUpdate(
+                        s.x,s.y,s.z,
+                        s.x,s.y+(s.kind==DOOR?1:0),s.z);
+            }
+        }
     }
 
     /** Captures the old state even when the player interacts before a new chunk's first render. */
@@ -312,5 +337,41 @@ public final class SmoothOpeningRenderer {
     }
 
     private static final class Snapshot{final int kind,baseY,meta;Snapshot(int k,int y,int m){kind=k;baseY=y;meta=m;}}
-    private static final class State{final Block block;final int x,y,z,kind;int meta;boolean open;long start,seen;float from,to;boolean wasActive;State(Block b,int x,int y,int z,int m,boolean o,long n,int k){block=b;this.x=x;this.y=y;this.z=z;meta=m;open=o;start=n-DURATION-RESTORE_GRACE;from=to=o?90:0;seen=n;kind=k;}void begin(boolean o,int m,long n){from=shownAngle(n);to=o?90:0;open=o;meta=m;start=n;wasActive=true;}boolean active(long n){return n-start<DURATION;}boolean visibleDuringRestore(long n){return n-start<DURATION+RESTORE_GRACE;}float shownAngle(long n){float p=Math.max(0,Math.min(1,(n-start)/(float)DURATION));p=p*p*(3-2*p);return from+(to-from)*p;}}
+    private static final class State{
+        final Block block;
+        final int x,y,z,kind;
+
+        // Read/written from the client thread and FalseTweaks chunk worker threads.
+        volatile int meta;
+        volatile boolean open;
+        volatile long start,seen;
+        volatile float from,to;
+        volatile boolean wasActive;
+
+        State(Block b,int x,int y,int z,int m,boolean o,long n,int k){
+            block=b;this.x=x;this.y=y;this.z=z;
+            meta=m;open=o;start=n-DURATION-RESTORE_GRACE;
+            from=to=o?90:0;seen=n;kind=k;
+        }
+
+        synchronized void begin(boolean o,int m,long n){
+            from=shownAngle(n);
+            to=o?90:0;
+            open=o;
+            meta=m;
+            start=n;
+            wasActive=true;
+        }
+
+        boolean active(long n){return n-start<DURATION;}
+        boolean visibleDuringRestore(long n){return n-start<DURATION+RESTORE_GRACE;}
+        float shownAngle(long n){
+            long localStart=start;
+            float localFrom=from,localTo=to;
+            float p=Math.max(0,Math.min(1,(n-localStart)/(float)DURATION));
+            p=p*p*(3-2*p);
+            return localFrom+(localTo-localFrom)*p;
+        }
+    }
 }
+

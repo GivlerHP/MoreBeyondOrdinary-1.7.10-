@@ -5,6 +5,7 @@ import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.world.biome.BiomeGenBase;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.entity.EntityStoneGolem;
+import ru.givler.mbo.movingplatform.EntityMovingPlatform;
 
 public class EntityMobRegistry {
 
@@ -16,6 +17,8 @@ public class EntityMobRegistry {
     private static final int STONE_GOLEM_MAX_GROUP = 1;
 
     public static void registerEntities() {
+        EntityRegistry.registerModEntity(EntityMovingPlatform.class, "MovingPlatform",
+                ModEntityIds.next(), MoreBeyondOrdinary.instance, 256, 1, false);
         registerEntity(EntityStoneGolem.class, "StoneGolem",
                 STONE_GOLEM_EGG_PRIMARY, STONE_GOLEM_EGG_SECONDARY);
 

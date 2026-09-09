@@ -18,6 +18,7 @@ import ru.givler.mbo.lockable.ILockableTile;
 import ru.givler.mbo.stonecutter.ContainerStonecutter;
 import ru.givler.mbo.stonecutter.GuiStonecutter;
 import ru.givler.mbo.tileentity.*;
+import ru.givler.mbo.movingplatform.EntityMovingPlatform;
 
 public class GuiHandler implements IGuiHandler {
     @Override
@@ -43,6 +44,8 @@ public class GuiHandler implements IGuiHandler {
             case LOCK_CONFIG:
                 if (tile instanceof TileEntityLockableChest) return new ContainerLockConfig(player.inventory, (TileEntityLockableChest) tile);
                 return tile instanceof ILockableTile ? new ContainerLockpicking(player.inventory) : null;
+            case MOVING_PLATFORM:
+                return null;
             default:
                 return null;
         }
@@ -78,6 +81,9 @@ public class GuiHandler implements IGuiHandler {
                             lockable.getLockData().getRelockDelaySec(), lockable.getLockData().getPlayerRadius());
                 }
                 return null;
+            case MOVING_PLATFORM:
+                net.minecraft.entity.Entity entity = world.getEntityByID(x);
+                return entity instanceof EntityMovingPlatform ? new GuiMovingPlatform((EntityMovingPlatform) entity) : null;
             default:
                 return null;
         }

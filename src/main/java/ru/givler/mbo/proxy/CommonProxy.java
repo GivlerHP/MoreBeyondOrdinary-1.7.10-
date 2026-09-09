@@ -23,6 +23,9 @@ import ru.givler.mbo.tileentity.TileEntityLockableDoor;
 import ru.givler.mbo.tileentity.TileEntityLockableTrapdoor;
 import ru.givler.mbo.util.PotionArrayExpander;
 import ru.givler.mbo.spectator.SpectatorEventHandler;
+import ru.givler.mbo.movingplatform.MovingPlatformTickHandler;
+import ru.givler.mbo.movingplatform.TileEntityPlatformStation;
+import ru.givler.mbo.movingplatform.PlatformEditorInteractionHandler;
 
 public class CommonProxy {
 
@@ -70,6 +73,8 @@ public class CommonProxy {
         SpectatorEventHandler spectatorHandler = new SpectatorEventHandler();
         MinecraftForge.EVENT_BUS.register(spectatorHandler);
         FMLCommonHandler.instance().bus().register(spectatorHandler);
+        FMLCommonHandler.instance().bus().register(new MovingPlatformTickHandler());
+        MinecraftForge.EVENT_BUS.register(new PlatformEditorInteractionHandler());
         if (Loader.isModLoaded("Thaumcraft")) {
             invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftCommonRegistration",
                     "registerHandlers");
@@ -97,6 +102,7 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TileEntityLockableChest.class, "mbo_lockable_chest");
         GameRegistry.registerTileEntity(TileEntityLockableDoor.class, "mbo_lockable_door");
         GameRegistry.registerTileEntity(TileEntityLockableTrapdoor.class, "mbo_lockable_trapdoor");
+        GameRegistry.registerTileEntity(TileEntityPlatformStation.class, "mbo_platform_station");
 
         BlockRecipeRegistry.init();
         RoofRecipeRegistry.init();

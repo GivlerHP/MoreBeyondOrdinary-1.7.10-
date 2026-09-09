@@ -11,6 +11,7 @@ import ru.givler.mbo.block.*;
 import ru.givler.mbo.block.blockcraft.BlockArcanum;
 import ru.givler.mbo.block.specialblocks.*;
 import ru.givler.mbo.block.model.BlockModelCollision;
+import ru.givler.mbo.movingplatform.BlockPlatformStation;
 
 public class BlockRegistry {
     //переменные для блоков
@@ -50,9 +51,11 @@ public class BlockRegistry {
     public static Block MagicFurnace;
     public static Block LockableChest, LockableTrapdoor;
     public static BlockLockableDoor LockableDoor;
+    public static BlockPlatformStation PlatformStation;
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
+        PlatformStation = new BlockPlatformStation();
         BlockGreyStone = new BlockBase(Material.rock, "BlockGreyStone", "stone/stone");
         BlockGreyCobblestone = new BlockBase(Material.rock, "BlockGreyCobblestone", "stone/cobblestone");
         BlockEndbrick = new BlockBase(Material.rock, "BlockEndbrick", "stone/end_bricks");

@@ -30,6 +30,7 @@ public class CreativeTabRegistry {
         @SideOnly(Side.CLIENT)
         //list.add(new ItemStack());
         public void displayAllReleventItems(List list) {
+            if (BlockRegistry.PlatformStation != null) list.add(new ItemStack(BlockRegistry.PlatformStation));
             list.add(new ItemStack(BlockGreyStone));
             list.add(new ItemStack(StairsStone));
             list.add(new ItemStack(SlabStone));
@@ -223,6 +224,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(GlyphVoid));
             addIfPresent(list, ItemRegistry.Lockpick);
             addIfPresent(list, ItemRegistry.AdminKey);
+            addIfPresent(list, ItemRegistry.PlatformEditor);
 
             for(int i=0; i<=0; i++) { list.add(new ItemStack(Metal, 0, i)); }
             list.add(new ItemStack(SapphireEye));
