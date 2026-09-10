@@ -19,6 +19,7 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
 public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpawnData {
+    private static final int MAX_SPAWN_NBT_BYTES = 2 * 1024 * 1024;
     public static final int STOPPED_A = 0, MOVING_TO_B = 1, STOPPED_B = 2, MOVING_TO_A = 3;
     private final List<PlatformBlock> blocks = new ArrayList<PlatformBlock>();
     private final List<PlatformBlock> outerBlocks=new ArrayList<PlatformBlock>();
@@ -106,7 +107,10 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
             if (feedback != null) feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.blocked"));
             return false;
         }
-        removeMaterializedBlocks();
+        if (!removeMaterializedBlocks()) {
+            if (feedback != null) feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.blocked"));
+            return false;
+        }
         setVirtualized(true);
         state = toB ? MOVING_TO_B : MOVING_TO_A;
         dataWatcher.updateObject(20, Integer.valueOf(state));
@@ -138,26 +142,68 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
         return false;
     }
 
-    private void removeMaterializedBlocks() {
+    private boolean removeMaterializedBlocks() {
         int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
+        for (PlatformBlock saved : blocks) {
+            int x = ox + saved.x;
+            int y = oy + saved.y;
+            int z = oz + saved.z;
+            if (worldObj.getBlock(x, y, z) != saved.block
+                    || worldObj.getBlockMetadata(x, y, z) != saved.meta) return false;
+        }
         for (PlatformBlock saved : blocks) worldObj.setBlock(ox + saved.x, oy + saved.y, oz + saved.z, Blocks.air, 0, 2);
+        return true;
     }
 
-    private void materialize() {
+    private boolean materialize() {
         int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
+        for (PlatformBlock saved : blocks) {
+            if (worldObj.getBlock(ox + saved.x, oy + saved.y, oz + saved.z) != Blocks.air) return false;
+        }
         for (PlatformBlock saved : blocks) worldObj.setBlock(ox + saved.x, oy + saved.y, oz + saved.z, saved.block, saved.meta, 2);
         setVirtualized(false);
+        return true;
     }
 
     public boolean reset(EntityPlayer feedback) {
         if (isMoving()) return false;
         int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
-        for (int x = 0; x < sizeX; x++) for (int y = 0; y < sizeY; y++) for (int z = 0; z < sizeZ; z++)
-            worldObj.setBlock(ox + x, oy + y, oz + z, Blocks.air, 0, 2);
-        for (int x = 0; x < sizeX; x++) for (int y = 0; y < sizeY; y++) for (int z = 0; z < sizeZ; z++)
-            worldObj.setBlock(floor(homeX) + x, floor(homeY) + y, floor(homeZ) + z, Blocks.air, 0, 2);
+        int hx = floor(homeX), hy = floor(homeY), hz = floor(homeZ);
+        if (!canResetToHome(ox, oy, oz, hx, hy, hz)) {
+            if (feedback != null) feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.blocked"));
+            return false;
+        }
+        removeMatchingSnapshotAt(ox, oy, oz);
+        if (ox != hx || oy != hy || oz != hz) removeMatchingSnapshotAt(hx, hy, hz);
         setPosition(homeX, homeY, homeZ);
-        state = STOPPED_A; dataWatcher.updateObject(20, Integer.valueOf(state)); motionTick = 0; materialize(); return true;
+        state = STOPPED_A; dataWatcher.updateObject(20, Integer.valueOf(state)); motionTick = 0;
+        return materialize();
+    }
+
+    private boolean canResetToHome(int ox, int oy, int oz, int hx, int hy, int hz) {
+        for (PlatformBlock saved : blocks) {
+            int x = hx + saved.x, y = hy + saved.y, z = hz + saved.z;
+            Block existing = worldObj.getBlock(x, y, z);
+            if (existing == Blocks.air) continue;
+            PlatformBlock current = findSavedBlock(x - ox, y - oy, z - oz);
+            if (current == null || existing != current.block
+                    || worldObj.getBlockMetadata(x, y, z) != current.meta) return false;
+        }
+        return true;
+    }
+
+    private PlatformBlock findSavedBlock(int x, int y, int z) {
+        for (PlatformBlock saved : blocks) if (saved.x == x && saved.y == y && saved.z == z) return saved;
+        return null;
+    }
+
+    private void removeMatchingSnapshotAt(int ox, int oy, int oz) {
+        for (PlatformBlock saved : blocks) {
+            int x = ox + saved.x, y = oy + saved.y, z = oz + saved.z;
+            if (worldObj.getBlock(x, y, z) == saved.block
+                    && worldObj.getBlockMetadata(x, y, z) == saved.meta)
+                worldObj.setBlock(x, y, z, Blocks.air, 0, 2);
+        }
     }
 
     public boolean stopAndReturn(EntityPlayer feedback){
@@ -167,7 +213,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
             if(feedback!=null)feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.blocked"));return false;
         }
         setPosition(homeX,homeY,homeZ);state=STOPPED_A;motionTick=0;waitTicks=0;pendingConfiguration=false;
-        dataWatcher.updateObject(20,Integer.valueOf(state));materialize();return true;
+        dataWatcher.updateObject(20,Integer.valueOf(state));return materialize();
     }
 
     @Override public void onUpdate() {
@@ -198,9 +244,10 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
         PlatformDirection d = getDirection();
         setPosition(homeX + d.x * offset, homeY + d.y * offset, homeZ + d.z * offset);
         if (t >= 1D && !worldObj.isRemote) {
+            boolean arrivedAtB = state == MOVING_TO_B;
             if(pendingConfiguration){
                 applyPendingConfiguration();
-                if(returnMode==2)materialize();
+                if(returnMode==2&&!materialize())setVirtualized(true);
                 return;
             }
             if(returnMode==0){
@@ -209,11 +256,21 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
                 movementStartTick=worldTick();dataWatcher.updateObject(24,Integer.valueOf(movementStartTick));
                 motionTick=0;waitTicks=0;return;
             }
-            state = state == MOVING_TO_B ? STOPPED_B : STOPPED_A;
+            state = arrivedAtB ? STOPPED_B : STOPPED_A;
             dataWatcher.updateObject(20, Integer.valueOf(state));
             motionTick = 0;
             waitTicks = 0;
-            if(returnMode==2)materialize();
+            if(returnMode==2&&!materialize()){
+                // The destination became occupied while the platform was in
+                // transit. Keep the foreign block and return to the endpoint
+                // which was clear when movement began.
+                state=arrivedAtB?MOVING_TO_A:MOVING_TO_B;
+                dataWatcher.updateObject(20,Integer.valueOf(state));
+                movementStartTick=worldTick();
+                dataWatcher.updateObject(24,Integer.valueOf(movementStartTick));
+                motionTick=0;
+                return;
+            }
             applyPendingConfiguration();
         }
     }
@@ -280,8 +337,9 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     public void readPlatformTag(NBTTagCompound tag) { readEntityFromNBT(tag); }
 
     @Override protected void readEntityFromNBT(NBTTagCompound tag) {
-        platformId = UUID.fromString(tag.getString("PlatformId"));
-        if (tag.hasKey("OwnerId")) ownerId = UUID.fromString(tag.getString("OwnerId"));
+        UUID savedPlatformId = parseUuid(tag.getString("PlatformId"));
+        if (savedPlatformId != null) platformId = savedPlatformId;
+        ownerId = tag.hasKey("OwnerId") ? parseUuid(tag.getString("OwnerId")) : null;
         homeX=tag.getDouble("HomeX"); homeY=tag.getDouble("HomeY"); homeZ=tag.getDouble("HomeZ");
         sizeX=tag.getInteger("SizeX"); sizeY=tag.getInteger("SizeY"); sizeZ=tag.getInteger("SizeZ");
         direction=tag.getInteger("Direction"); distance=tag.getInteger("Distance");
@@ -352,7 +410,22 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
         lerpX=x;lerpY=y;lerpZ=z;lerpSteps=5;
     }
     @Override public void writeSpawnData(ByteBuf buf) { try { byte[] bytes=net.minecraft.nbt.CompressedStreamTools.compress(writePlatformTag());buf.writeInt(bytes.length);buf.writeBytes(bytes); } catch(java.io.IOException e) { buf.writeInt(0); } }
-    @Override public void readSpawnData(ByteBuf buf) { try{int length=buf.readInt();if(length<=0)return;byte[] bytes=new byte[length];buf.readBytes(bytes);readPlatformTag(net.minecraft.nbt.CompressedStreamTools.func_152457_a(bytes,new net.minecraft.nbt.NBTSizeTracker(2097152L)));}catch(Exception ignored){} }
+    @Override public void readSpawnData(ByteBuf buf) {
+        try {
+            if (buf.readableBytes() < 4) return;
+            int length = buf.readInt();
+            if (length <= 0 || length > MAX_SPAWN_NBT_BYTES || length > buf.readableBytes()) return;
+            byte[] bytes = new byte[length];
+            buf.readBytes(bytes);
+            readPlatformTag(net.minecraft.nbt.CompressedStreamTools.func_152457_a(bytes,
+                    new net.minecraft.nbt.NBTSizeTracker(MAX_SPAWN_NBT_BYTES)));
+        } catch (Exception ignored) {}
+    }
+    private static UUID parseUuid(String value) {
+        if (value == null || value.isEmpty()) return null;
+        try { return UUID.fromString(value); }
+        catch (IllegalArgumentException ignored) { return null; }
+    }
     @Override public AxisAlignedBB getCollisionBox(Entity other){return null;}
     @Override public AxisAlignedBB getBoundingBox(){return null;}
     @Override public boolean canBeCollidedWith(){return false;}

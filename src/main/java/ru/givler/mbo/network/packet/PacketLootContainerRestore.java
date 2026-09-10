@@ -46,6 +46,7 @@ public class PacketLootContainerRestore implements IMessage {
                 return null;
             }
             if (player == null || player.worldObj == null) return null;
+            if (player.getDistanceSq(message.x + .5D, message.y + .5D, message.z + .5D) > 64D) return null;
             TileEntity tile = player.worldObj.getTileEntity(message.x, message.y, message.z);
             if (tile instanceof TileEntityLootContainer) {
                 ((TileEntityLootContainer) tile).restoreNow();

@@ -19,8 +19,19 @@ public final class LootContainerConfigValidator {
         if (data == null) return Collections.singletonList("Config is null.");
         List<String> errors = new ArrayList<String>();
 
-        if (data.recoveryTimeSec < 0) {
-            errors.add("Recovery time must be >= 0.");
+        if (data.recoveryTimeSec < 0 || data.recoveryTimeSec > LootContainerData.MAX_RECOVERY_TIME_SEC) {
+            errors.add("Recovery time is outside the allowed range.");
+        }
+        if (tooLong(data.customName, LootContainerData.MAX_CUSTOM_NAME_LENGTH)
+                || tooLong(data.destroySound, LootContainerData.MAX_CONFIG_STRING_LENGTH)) {
+            errors.add("A config string is too long.");
+        }
+        if (tooLong(data.actionsJson, LootContainerData.MAX_ACTIONS_JSON_LENGTH)) {
+            errors.add("Actions json is too large.");
+            return errors;
+        }
+        if (!validCollision(data)) {
+            errors.add("Collision bounds must be finite, inside the block and ordered.");
         }
         if (data.modelVariations == null || data.modelVariations.isEmpty()) {
             errors.add("At least one model variation is required.");
@@ -30,6 +41,13 @@ public final class LootContainerConfigValidator {
                 LootContainerData.ModelVariation variation = data.modelVariations.get(i);
                 if (variation == null || variation.normalModel == null || variation.normalModel.trim().isEmpty()) {
                     errors.add("Model variation #" + (i + 1) + " has empty normal model.");
+                    break;
+                }
+                if (tooLong(variation.normalModel, LootContainerData.MAX_CONFIG_STRING_LENGTH)
+                        || tooLong(variation.normalTexture, LootContainerData.MAX_CONFIG_STRING_LENGTH)
+                        || tooLong(variation.destroyedModel, LootContainerData.MAX_CONFIG_STRING_LENGTH)
+                        || tooLong(variation.destroyedTexture, LootContainerData.MAX_CONFIG_STRING_LENGTH)) {
+                    errors.add("Model variation #" + (i + 1) + " contains an overlong resource name.");
                     break;
                 }
             }
@@ -69,7 +87,7 @@ public final class LootContainerConfigValidator {
                 return;
             }
             Double chance = getRequiredNumber(action, "chance");
-            if (chance == null || chance.doubleValue() < 0.0D) {
+            if (!isFiniteInRange(chance, 0.0D, 100.0D)) {
                 errors.add("Action #" + (i + 1) + " has invalid chance.");
                 return;
             }
@@ -84,7 +102,7 @@ public final class LootContainerConfigValidator {
     private static String validateTypeSpecific(int index, String type, JsonObject action) {
         if (LootContainerActionRegistry.TYPE_ITEM_DROP.equals(type)) {
             String itemId = getRequiredString(action, "itemId");
-            if (itemId == null) return "Action #" + index + " item_drop has empty itemId.";
+            if (itemId == null || tooLong(itemId, LootContainerData.MAX_CONFIG_STRING_LENGTH)) return "Action #" + index + " item_drop has invalid itemId.";
             Double meta = getOptionalNumber(action, "itemMeta");
             if (meta != null && (meta.doubleValue() < 0.0D || meta.doubleValue() != Math.floor(meta.doubleValue()))) {
                 return "Action #" + index + " item_drop has invalid itemMeta.";
@@ -96,7 +114,8 @@ public final class LootContainerConfigValidator {
             return null;
         }
         if (LootContainerActionRegistry.TYPE_SPAWN_ENTITY.equals(type)) {
-            if (getRequiredString(action, "entityId") == null) {
+            String entityId = getRequiredString(action, "entityId");
+            if (entityId == null || tooLong(entityId, LootContainerData.MAX_CONFIG_STRING_LENGTH)) {
                 return "Action #" + index + " spawn_entity has empty entityId.";
             }
             String spawnCountExpr = getRequiredString(action, "countExpr");
@@ -107,24 +126,26 @@ public final class LootContainerConfigValidator {
             Double spawnCount = getOptionalNumber(action, "spawnCount");
             if (spawnCount == null) spawnCount = getOptionalNumber(action, "count");
             if (spawnCount == null) return null;
-            return !isPositiveWhole(spawnCount)
+            return !isWholeInRange(spawnCount, 1, LootContainerData.MAX_ACTION_COUNT)
                     ? "Action #" + index + " spawn_entity has invalid spawnCount." : null;
         }
         if (LootContainerActionRegistry.TYPE_APPLY_EFFECT.equals(type)
                 || LootContainerActionRegistry.TYPE_APPLY_EXPLOSION_EFFECT.equals(type)) {
-            if (getRequiredString(action, "potionId") == null) {
+            String potionId = getRequiredString(action, "potionId");
+            if (potionId == null || tooLong(potionId, LootContainerData.MAX_CONFIG_STRING_LENGTH)) {
                 return "Action #" + index + " has empty potionId.";
             }
             Double duration = getOptionalNumber(action, "duration");
             if (duration == null) duration = getOptionalNumber(action, "durationSec");
             Double amplifier = getOptionalNumber(action, "amplifier");
-            if (!isPositiveWhole(duration) || !isNonNegativeWhole(amplifier)) {
+            if (!isWholeInRange(duration, 1, LootContainerData.MAX_EFFECT_DURATION_SEC)
+                    || !isWholeInRange(amplifier, 0, LootContainerData.MAX_EFFECT_AMPLIFIER)) {
                 return "Action #" + index + " has invalid duration/amplifier.";
             }
             if (LootContainerActionRegistry.TYPE_APPLY_EXPLOSION_EFFECT.equals(type)) {
                 Double radius = getOptionalNumber(action, "radius");
                 if (radius == null) radius = 4.0D;
-                if (radius == null || radius.doubleValue() <= 0.0D) {
+                if (!isFiniteInRange(radius, 0.1D, LootContainerData.MAX_ACTION_RADIUS)) {
                     return "Action #" + index + " explosion effect has invalid radius.";
                 }
             }
@@ -132,26 +153,28 @@ public final class LootContainerConfigValidator {
         }
         if (LootContainerActionRegistry.TYPE_INSTANT_DAMAGE.equals(type)) {
             Double damage = getRequiredNumber(action, "damage");
-            return damage == null || damage.doubleValue() <= 0.0D
+            return !isFiniteInRange(damage, 0.1D, LootContainerData.MAX_ACTION_DAMAGE)
                     ? "Action #" + index + " instant_damage has invalid damage." : null;
         }
         if (LootContainerActionRegistry.TYPE_EXPLOSION_INSTANT_DAMAGE.equals(type)) {
             Double damage = getRequiredNumber(action, "damage");
             Double radius = getRequiredNumber(action, "radius");
-            return damage == null || damage.doubleValue() <= 0.0D || radius == null || radius.doubleValue() <= 0.0D
+            return !isFiniteInRange(damage, 0.1D, LootContainerData.MAX_ACTION_DAMAGE)
+                    || !isFiniteInRange(radius, 0.1D, LootContainerData.MAX_ACTION_RADIUS)
                     ? "Action #" + index + " explosion_instant_damage has invalid damage/radius." : null;
         }
         if (LootContainerActionRegistry.TYPE_BURNING.equals(type)) {
             Double duration = getOptionalNumber(action, "duration");
             if (duration == null) duration = getOptionalNumber(action, "durationSec");
-            return !isPositiveWhole(duration)
+            return !isWholeInRange(duration, 1, LootContainerData.MAX_EFFECT_DURATION_SEC)
                     ? "Action #" + index + " burning has invalid duration." : null;
         }
         if (LootContainerActionRegistry.TYPE_EXPLOSION_BURNING.equals(type)) {
             Double duration = getOptionalNumber(action, "duration");
             if (duration == null) duration = getOptionalNumber(action, "durationSec");
             Double radius = getRequiredNumber(action, "radius");
-            return !isPositiveWhole(duration) || radius == null || radius.doubleValue() <= 0.0D
+            return !isWholeInRange(duration, 1, LootContainerData.MAX_EFFECT_DURATION_SEC)
+                    || !isFiniteInRange(radius, 0.1D, LootContainerData.MAX_ACTION_RADIUS)
                     ? "Action #" + index + " explosion_burning has invalid duration/radius." : null;
         }
         return "Action #" + index + " has unknown type \"" + type + "\".";
@@ -163,12 +186,13 @@ public final class LootContainerConfigValidator {
         if (v.isEmpty()) return false;
         int dash = v.indexOf('-');
         if (dash < 0) {
-            return isNonNegativeWhole(parseNumber(v));
+            return isWholeInRange(parseNumber(v), 0, LootContainerData.MAX_ACTION_COUNT);
         }
         if (dash == 0 || dash == v.length() - 1 || v.indexOf('-', dash + 1) >= 0) return false;
         Double min = parseNumber(v.substring(0, dash).trim());
         Double max = parseNumber(v.substring(dash + 1).trim());
-        if (!isNonNegativeWhole(min) || !isNonNegativeWhole(max)) return false;
+        if (!isWholeInRange(min, 0, LootContainerData.MAX_ACTION_COUNT)
+                || !isWholeInRange(max, 0, LootContainerData.MAX_ACTION_COUNT)) return false;
         return max.doubleValue() >= min.doubleValue();
     }
 
@@ -178,12 +202,13 @@ public final class LootContainerConfigValidator {
         if (v.isEmpty()) return false;
         int dash = v.indexOf('-');
         if (dash < 0) {
-            return isPositiveWhole(parseNumber(v));
+            return isWholeInRange(parseNumber(v), 1, LootContainerData.MAX_ACTION_COUNT);
         }
         if (dash == 0 || dash == v.length() - 1 || v.indexOf('-', dash + 1) >= 0) return false;
         Double min = parseNumber(v.substring(0, dash).trim());
         Double max = parseNumber(v.substring(dash + 1).trim());
-        if (!isPositiveWhole(min) || !isPositiveWhole(max)) return false;
+        if (!isWholeInRange(min, 1, LootContainerData.MAX_ACTION_COUNT)
+                || !isWholeInRange(max, 1, LootContainerData.MAX_ACTION_COUNT)) return false;
         return max.doubleValue() >= min.doubleValue();
     }
 
@@ -229,5 +254,32 @@ public final class LootContainerConfigValidator {
 
     private static boolean isNonNegativeWhole(Double value) {
         return value != null && value.doubleValue() >= 0.0D && value.doubleValue() == Math.floor(value.doubleValue());
+    }
+
+    private static boolean isWholeInRange(Double value, int min, int max) {
+        return value != null && Double.isFinite(value.doubleValue())
+                && value.doubleValue() >= min && value.doubleValue() <= max
+                && value.doubleValue() == Math.floor(value.doubleValue());
+    }
+
+    private static boolean isFiniteInRange(Double value, double min, double max) {
+        return value != null && Double.isFinite(value.doubleValue())
+                && value.doubleValue() >= min && value.doubleValue() <= max;
+    }
+
+    private static boolean tooLong(String value, int maxLength) {
+        return value != null && value.length() > maxLength;
+    }
+
+    private static boolean validCollision(LootContainerData data) {
+        return finiteUnit(data.collisionMinX) && finiteUnit(data.collisionMinY) && finiteUnit(data.collisionMinZ)
+                && finiteUnit(data.collisionMaxX) && finiteUnit(data.collisionMaxY) && finiteUnit(data.collisionMaxZ)
+                && data.collisionMinX <= data.collisionMaxX
+                && data.collisionMinY <= data.collisionMaxY
+                && data.collisionMinZ <= data.collisionMaxZ;
+    }
+
+    private static boolean finiteUnit(float value) {
+        return !Float.isNaN(value) && !Float.isInfinite(value) && value >= 0.0F && value <= 1.0F;
     }
 }

@@ -15,6 +15,8 @@ import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 
 import javax.imageio.ImageIO;
@@ -31,6 +33,7 @@ import java.util.zip.ZipInputStream;
  */
 @SideOnly(Side.CLIENT)
 public final class ModernFontRenderer extends FontRenderer implements IResourceManagerReloadListener {
+    private static final Logger LOGGER = LogManager.getLogger("MBO.ModernFontRenderer");
     private static final ResourceLocation DEFAULT = new ResourceLocation("minecraft", "font/default.json");
     private static final Charset UTF8 = Charset.forName("UTF-8");
     private static final ResourceLocation LEGACY_ASCII = new ResourceLocation("minecraft", "textures/font/ascii.png");
@@ -83,11 +86,12 @@ public final class ModernFontRenderer extends FontRenderer implements IResourceM
         try {
             loadFont(manager, DEFAULT);
             uploadHexAtlases();
-        } catch (Exception ignored) {
+        } catch (Exception error) {
             // No modern font (or an invalid optional provider): keep the
             // freshly reloaded vanilla renderer as a fully working fallback.
             glyphs.clear();
             spaces.clear();
+            LOGGER.warn("Could not load the optional modern font; using the vanilla font fallback", error);
         }
     }
 

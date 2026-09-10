@@ -6,7 +6,8 @@ import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityPlatformStation extends TileEntity {
     private UUID platformId; private boolean targetB, powered;private int dimension,aX,aY,aZ,bX,bY,bZ;private boolean hasEndpoints;
-    public void readLink(NBTTagCompound tag){if(tag.hasKey("PlatformId"))platformId=UUID.fromString(tag.getString("PlatformId"));targetB=tag.getBoolean("TargetB");dimension=tag.getInteger("Dimension");hasEndpoints=tag.hasKey("AX")&&tag.hasKey("BX");aX=tag.getInteger("AX");aY=tag.getInteger("AY");aZ=tag.getInteger("AZ");bX=tag.getInteger("BX");bY=tag.getInteger("BY");bZ=tag.getInteger("BZ");markDirty();}
+    public void readLink(NBTTagCompound tag){platformId=parseUuid(tag.getString("PlatformId"));targetB=tag.getBoolean("TargetB");dimension=tag.getInteger("Dimension");hasEndpoints=tag.hasKey("AX")&&tag.hasKey("BX");aX=tag.getInteger("AX");aY=tag.getInteger("AY");aZ=tag.getInteger("AZ");bX=tag.getInteger("BX");bY=tag.getInteger("BY");bZ=tag.getInteger("BZ");markDirty();}
+    private static UUID parseUuid(String value){if(value==null||value.isEmpty())return null;try{return UUID.fromString(value);}catch(IllegalArgumentException ignored){return null;}}
     public void updatePower(){
         if(worldObj==null||worldObj.isRemote)return;boolean now=worldObj.isBlockIndirectlyGettingPowered(xCoord,yCoord,zCoord);
         if(now!=powered&&platformId!=null){EntityMovingPlatform platform=findPlatform();

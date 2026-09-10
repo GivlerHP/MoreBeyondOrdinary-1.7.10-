@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.play.server.S18PacketEntityTeleport;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import ru.givler.mbo.entity.boat.EntityMBOBoat;
 
 public class PacketBoatMove implements IMessage {
     private int dimension, entityId;
@@ -32,17 +33,25 @@ public class PacketBoatMove implements IMessage {
 
     public static class Handler implements IMessageHandler<PacketBoatMove, IMessage> {
         public IMessage onMessage(PacketBoatMove message, MessageContext context) {
+            net.minecraft.entity.player.EntityPlayerMP player=context.getServerHandler().playerEntity;
+            if(message.dimension!=player.dimension||!finite(message.x)||!finite(message.y)||!finite(message.z)
+                    ||Float.isNaN(message.yaw)||Float.isInfinite(message.yaw)
+                    ||Float.isNaN(message.pitch)||Float.isInfinite(message.pitch))return null;
             WorldServer world= DimensionManager.getWorld(message.dimension);
             if (world==null) return null;
             Entity boat=world.getEntityByID(message.entityId);
-            if (boat==null || boat.riddenByEntity!=context.getServerHandler().playerEntity) return null;
+            if (!(boat instanceof EntityMBOBoat) || boat.riddenByEntity!=player) return null;
             double dx=message.x-boat.posX,dy=message.y-boat.posY,dz=message.z-boat.posZ;
-            if (dx*dx+dy*dy+dz*dz>100D) {
+            double allowed=Math.max(1.25D,Math.sqrt(boat.motionX*boat.motionX+boat.motionY*boat.motionY+boat.motionZ*boat.motionZ)*2D+.5D);
+            if (dx*dx+dy*dy+dz*dz>allowed*allowed
+                    ||!world.getCollidingBoundingBoxes(boat,boat.boundingBox.getOffsetBoundingBox(dx,dy,dz)).isEmpty()) {
                 context.getServerHandler().sendPacket(new S18PacketEntityTeleport(boat));
                 return null;
             }
             boat.setPositionAndRotation(message.x,message.y,message.z,message.yaw,message.pitch);
             return null;
         }
+
+        private static boolean finite(double value){return !Double.isNaN(value)&&!Double.isInfinite(value);}
     }
 }

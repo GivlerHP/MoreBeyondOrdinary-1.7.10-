@@ -16,6 +16,14 @@ public class LootContainerData {
     public static final int MAX_ACTIONS = 8;
     public static final int MAX_VARIATIONS = 5;
     public static final int MAX_CUSTOM_NAME_LENGTH = 30;
+    public static final int MAX_CONFIG_STRING_LENGTH = 256;
+    public static final int MAX_ACTIONS_JSON_LENGTH = 65536;
+    public static final int MAX_RECOVERY_TIME_SEC = 604800;
+    public static final int MAX_ACTION_COUNT = 256;
+    public static final int MAX_EFFECT_DURATION_SEC = 86400;
+    public static final int MAX_EFFECT_AMPLIFIER = 255;
+    public static final float MAX_ACTION_RADIUS = 64.0F;
+    public static final float MAX_ACTION_DAMAGE = 2048.0F;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     private static final Logger LOGGER = LogManager.getLogger("MBO.LootContainerData");

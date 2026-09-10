@@ -34,7 +34,6 @@ public class ItemGlyphHawk extends ItemGlyphBasic {
         player.swingItem();
         itemStack.damageItem(50, player);
 
-        System.out.println("[DEBUG] onItemRightClick isRemote=" + world.isRemote);
         if (!world.isRemote) {
             PacketSpawnParticle.send(EnumParticleType.VANILLA_MAGICCRIT, world, player, 30, 2.0, 2.0, 2.0, 0.0, 0.0, 0.0, 0.0);
         }

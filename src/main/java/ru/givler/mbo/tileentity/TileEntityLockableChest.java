@@ -79,6 +79,15 @@ public class TileEntityLockableChest extends TileEntityChest implements ILockabl
     private static long now(){return System.currentTimeMillis()/1000L;}
     @Override public void writeToNBT(NBTTagCompound tag) { super.writeToNBT(tag); lock.writeToNBT(tag);tag.setLong("MboNextRefill",nextRefillEpoch);tag.setTag("MboLootSettings",createLootSettings());NBTTagList list=new NBTTagList();for(int i=0;i<14;i++)if(lootTemplates[i]!=null){NBTTagCompound item=new NBTTagCompound();item.setByte("Slot",(byte)i);lootTemplates[i].writeToNBT(item);list.appendTag(item);}tag.setTag("MboLootTemplates",list); }
     @Override public void readFromNBT(NBTTagCompound tag) { super.readFromNBT(tag); lock.readFromNBT(tag);if(tag.hasKey("MboLootSettings"))applyLootSettings(tag.getCompoundTag("MboLootSettings"));nextRefillEpoch=tag.getLong("MboNextRefill");for(int i=0;i<14;i++)lootTemplates[i]=null;NBTTagList list=tag.getTagList("MboLootTemplates",10);for(int i=0;i<list.tagCount();i++){NBTTagCompound item=list.getCompoundTagAt(i);int slot=item.getByte("Slot")&255;if(slot<14)lootTemplates[slot]=ItemStack.loadItemStackFromNBT(item);} }
-    @Override public Packet getDescriptionPacket() { NBTTagCompound tag = new NBTTagCompound(); writeToNBT(tag); return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, tag); }
+    @Override public Packet getDescriptionPacket() {
+        NBTTagCompound tag = new NBTTagCompound();
+        writeToNBT(tag);
+        // Public chunk synchronization must not reveal the lock solution,
+        // actual inventory, or administrator-only loot templates.
+        tag.removeTag("mboLockPins");
+        tag.removeTag("Items");
+        tag.removeTag("MboLootTemplates");
+        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, tag);
+    }
     @Override public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet) { readFromNBT(packet.func_148857_g()); }
 }

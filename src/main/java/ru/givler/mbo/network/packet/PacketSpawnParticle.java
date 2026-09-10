@@ -52,7 +52,6 @@ public class PacketSpawnParticle implements IMessage {
                             int count,
                             double spreadX, double spreadY, double spreadZ, double offsetY,
                             double motX, double motY, double motZ) {
-        System.out.println("[DEBUG] send() вызван на isRemote=" + world.isRemote + " игрок=" + player.getCommandSenderName());
         NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint(
                 player.dimension,
                 player.posX, player.posY, player.posZ, 64.0

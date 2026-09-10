@@ -82,6 +82,7 @@ public class PacketLootContainerConfig implements IMessage {
 
         private void applyBlockConfig(EntityPlayerMP player, PacketLootContainerConfig message) {
             if (player == null || player.worldObj == null) return;
+            if (player.getDistanceSq(message.x + .5D, message.y + .5D, message.z + .5D) > 64D) return;
             TileEntity te = player.worldObj.getTileEntity(message.x, message.y, message.z);
             if (!(te instanceof TileEntityLootContainer)) return;
             LootContainerData data = LootContainerData.fromItemStackNbt(message.configTag);
@@ -106,7 +107,7 @@ public class PacketLootContainerConfig implements IMessage {
             LOGGER.error("Rejected invalid loot container config from {} for {}: {}",
                     player == null ? "unknown" : player.getCommandSenderName(), target, message);
             if (player != null) {
-                player.addChatMessage(new ChatComponentText("§cLootContainer config rejected: " + message));
+                player.addChatMessage(new ChatComponentText("\u00a7cLootContainer config rejected: " + message));
             }
             return false;
         }

@@ -36,6 +36,10 @@ public abstract class TileEntityLockableBarrier extends TileEntity implements IL
 
     @Override public void writeToNBT(NBTTagCompound tag) { super.writeToNBT(tag); lock.writeToNBT(tag); }
     @Override public void readFromNBT(NBTTagCompound tag) { super.readFromNBT(tag); lock.readFromNBT(tag); }
-    @Override public Packet getDescriptionPacket() { NBTTagCompound tag = new NBTTagCompound(); writeToNBT(tag); return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, tag); }
+    @Override public Packet getDescriptionPacket() {
+        NBTTagCompound tag = new NBTTagCompound(); writeToNBT(tag);
+        tag.removeTag("mboLockPins");
+        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, tag);
+    }
     @Override public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet) { readFromNBT(packet.func_148857_g()); }
 }

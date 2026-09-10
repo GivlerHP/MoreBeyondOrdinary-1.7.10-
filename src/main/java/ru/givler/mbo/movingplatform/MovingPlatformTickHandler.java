@@ -31,7 +31,26 @@ public final class MovingPlatformTickHandler {
         if(platform.worldObj==null)return;Set<EntityMovingPlatform> set=ACTIVE.get(platform.worldObj);
         if(set==null){set=Collections.newSetFromMap(new IdentityHashMap<EntityMovingPlatform,Boolean>());ACTIVE.put(platform.worldObj,set);}set.add(platform);
     }
-    public static void untrack(EntityMovingPlatform platform){Set<EntityMovingPlatform> set=platform.worldObj==null?null:ACTIVE.get(platform.worldObj);if(set!=null)set.remove(platform);}
+    public static void untrack(EntityMovingPlatform platform){
+        World world=platform.worldObj;if(world==null)return;
+        Set<EntityMovingPlatform> set=ACTIVE.get(world);if(set!=null)set.remove(platform);
+        int entityId=platform.getEntityId();
+        Map<UUID,Integer> players=CARRIERS.get(world);if(players!=null)removeCarrierId(players,entityId);
+        Map<Entity,Integer> entities=ENTITY_CARRIERS.get(world);if(entities!=null)removeCarrierId(entities,entityId);
+        Map<Entity,RideOffset> offsets=CLIENT_OFFSETS.get(world);if(offsets!=null){
+            for(Iterator<Map.Entry<Entity,RideOffset>> it=offsets.entrySet().iterator();it.hasNext();)if(it.next().getValue().platformId==entityId)it.remove();
+        }
+    }
+
+    private static <K> void removeCarrierId(Map<K,Integer> map,int entityId){
+        for(Iterator<Map.Entry<K,Integer>> it=map.entrySet().iterator();it.hasNext();)if(it.next().getValue().intValue()==entityId)it.remove();
+    }
+
+    @SubscribeEvent public void onPlayerLogout(cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent event){
+        if(event.player==null||event.player.worldObj==null)return;
+        Map<UUID,Integer> carriers=CARRIERS.get(event.player.worldObj);
+        if(carriers!=null)carriers.remove(event.player.getUniqueID());
+    }
 
     @SubscribeEvent public void onServerTick(TickEvent.ServerTickEvent event){
         if(event.phase!=TickEvent.Phase.END)return;MinecraftServer server=MinecraftServer.getServer();
@@ -45,7 +64,7 @@ public final class MovingPlatformTickHandler {
         Map<Entity,Integer> entityCarriers=entityCarriers(world);
         for(Iterator<EntityMovingPlatform> it=platforms.iterator();it.hasNext();){EntityMovingPlatform platform=it.next();if(platform==null||platform.isDead||platform.worldObj!=world){it.remove();continue;}if(!platform.isCollisionActive())continue;
             AxisAlignedBB broad=bounds(platform).expand(1.5D,2.5D,1.5D);
-            for(Object object:world.loadedEntityList){if(!(object instanceof Entity))continue;Entity entity=(Entity)object;
+            for(Object object:world.getEntitiesWithinAABBExcludingEntity(platform,broad)){if(!(object instanceof Entity))continue;Entity entity=(Entity)object;
                 if(entity instanceof EntityMovingPlatform||entity.isDead||entity.boundingBox==null||!entity.boundingBox.intersectsWith(broad))continue;
                 if(entity instanceof IProjectile){stopProjectile(entity,platform);continue;}
                 if(entity instanceof EntityPlayer)processPlayer((EntityPlayer)entity,platform,carriers);else processEntity(entity,platform,entityCarriers,null,false);
@@ -61,7 +80,7 @@ public final class MovingPlatformTickHandler {
         Map<Entity,RideOffset> offsets=clientOffsets(world);
         for(EntityMovingPlatform platform:platforms)if(platform!=null&&!platform.isDead&&platform.isCollisionActive()){
             AxisAlignedBB broad=bounds(platform).expand(1.5D,2.5D,1.5D);
-            for(Object object:world.loadedEntityList)if(object instanceof Entity&&!(object instanceof EntityPlayer)&&!(object instanceof EntityMovingPlatform)&&!(object instanceof IProjectile)){
+            for(Object object:world.getEntitiesWithinAABBExcludingEntity(platform,broad))if(object instanceof Entity&&!(object instanceof EntityPlayer)&&!(object instanceof EntityMovingPlatform)&&!(object instanceof IProjectile)){
                 Entity entity=(Entity)object;if(!entity.isDead&&entity.boundingBox!=null&&entity.boundingBox.intersectsWith(broad))processEntity(entity,platform,entityCarriers,offsets,true);
             }
         }

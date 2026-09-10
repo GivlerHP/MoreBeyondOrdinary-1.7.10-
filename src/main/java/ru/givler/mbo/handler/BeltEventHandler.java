@@ -94,7 +94,6 @@ public class BeltEventHandler {
             return;
         } else {
             float original = event.ammount;
-            System.out.println("Fall damage reduced: " + original + " -> " + event.ammount);
             event.ammount = original * 0.5F;
 
         }

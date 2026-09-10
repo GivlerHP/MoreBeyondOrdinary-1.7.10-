@@ -57,7 +57,7 @@ public class PacketLootContainerGiveItem implements IMessage {
                 LOGGER.error("Rejected get-item request from {}: {}",
                         player == null ? "unknown" : player.getCommandSenderName(), error);
                 if (player != null) {
-                    player.addChatMessage(new ChatComponentText("§cLootContainer config rejected: " + error));
+                    player.addChatMessage(new ChatComponentText("\u00a7cLootContainer config rejected: " + error));
                 }
                 return null;
             }
