@@ -9,6 +9,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.network.EditorNetworkTickHandler;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.handler.*;
@@ -25,7 +26,11 @@ import ru.givler.mbo.util.PotionArrayExpander;
 import ru.givler.mbo.spectator.SpectatorEventHandler;
 import ru.givler.mbo.movingplatform.MovingPlatformTickHandler;
 import ru.givler.mbo.movingplatform.TileEntityPlatformStation;
-import ru.givler.mbo.movingplatform.PlatformEditorInteractionHandler;
+import ru.givler.mbo.editor.AreaEditorInteractionHandler;
+import ru.givler.mbo.dungeon.DungeonAreaProtectionHandler;
+import ru.givler.mbo.dungeon.IllusoryWallHitHandler;
+import ru.givler.mbo.dungeon.DungeonAreaLifecycleHandler;
+import ru.givler.mbo.dungeon.DungeonTriggerEventHandler;
 
 public class CommonProxy {
 
@@ -74,7 +79,12 @@ public class CommonProxy {
         MinecraftForge.EVENT_BUS.register(spectatorHandler);
         FMLCommonHandler.instance().bus().register(spectatorHandler);
         FMLCommonHandler.instance().bus().register(new MovingPlatformTickHandler());
-        MinecraftForge.EVENT_BUS.register(new PlatformEditorInteractionHandler());
+        FMLCommonHandler.instance().bus().register(new EditorNetworkTickHandler());
+        MinecraftForge.EVENT_BUS.register(new AreaEditorInteractionHandler());
+        MinecraftForge.EVENT_BUS.register(new DungeonAreaProtectionHandler());
+        MinecraftForge.EVENT_BUS.register(new IllusoryWallHitHandler());
+        MinecraftForge.EVENT_BUS.register(new DungeonTriggerEventHandler());
+        FMLCommonHandler.instance().bus().register(new DungeonAreaLifecycleHandler());
         if (Loader.isModLoaded("Thaumcraft")) {
             invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftCommonRegistration",
                     "registerHandlers");

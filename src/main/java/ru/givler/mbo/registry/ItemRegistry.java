@@ -46,16 +46,18 @@ public class ItemRegistry {
     public static ItemWandBase BrokenWandWizard, BrokenWandPyromancer;
     // Призрачного оружия
     public static ItemTorchWeaponMBO TorchWeapon;
-    public static Item Lockpick, AdminKey, PlatformEditor, LockableDoorItem;
+    public static Item Lockpick, AdminKey, PlatformEditor, DungeonEditor, LockableDoorItem;
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
         Lockpick = new ItemLockpick();
         AdminKey = new ItemAdminKey();
         PlatformEditor = new ItemPlatformEditor();
+        DungeonEditor = new ItemDungeonEditor();
         GameRegistry.registerItem(Lockpick, "Lockpick");
         GameRegistry.registerItem(AdminKey, "AdminKey");
         GameRegistry.registerItem(PlatformEditor, "PlatformEditor");
+        GameRegistry.registerItem(DungeonEditor, "DungeonEditor");
         LockableDoorItem = new DoorItemBase(BlockRegistry.LockableDoor, "LockableDoorItem", "minecraft:door_wood");
         BlockRegistry.LockableDoor.setDropItem(LockableDoorItem);
 

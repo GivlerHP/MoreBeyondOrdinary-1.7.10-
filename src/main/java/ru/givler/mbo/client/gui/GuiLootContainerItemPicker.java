@@ -14,13 +14,20 @@ import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class GuiLootContainerItemPicker extends GuiScreen {
-    private final GuiLootContainerConfig parent;
+    private final GuiScreen parent;
+    private final ru.givler.mbo.client.gui.lootcontainer.ActionEditorHost host;
     private final int actionIndex;
     private final EntityPlayer player;
     private final RenderItem itemRenderer = new RenderItem();
 
     public GuiLootContainerItemPicker(GuiLootContainerConfig parent, int actionIndex, EntityPlayer player) {
-        this.parent = parent;
+        this.parent = parent;this.host=parent;
+        this.actionIndex = actionIndex;
+        this.player = player;
+    }
+
+    public GuiLootContainerItemPicker(GuiScreen parent, ru.givler.mbo.client.gui.lootcontainer.ActionEditorHost host, int actionIndex, EntityPlayer player) {
+        this.parent=parent;this.host=host;
         this.actionIndex = actionIndex;
         this.player = player;
     }
@@ -53,7 +60,8 @@ public class GuiLootContainerItemPicker extends GuiScreen {
                 if (mouseX >= sx && mouseX <= sx + 16 && mouseY >= sy && mouseY <= sy + 16) {
                     ItemStack stack = player.inventory.getStackInSlot(slot);
                     if (stack != null) {
-                        parent.onItemPicked(actionIndex, stack.copy());
+                        if(host instanceof GuiLootContainerConfig)((GuiLootContainerConfig)host).onItemPicked(actionIndex,stack.copy());
+                        else if(host instanceof GuiDungeonTriggerEditor)((GuiDungeonTriggerEditor)host).onItemPicked(actionIndex,stack.copy());
                         mc.displayGuiScreen(parent);
                         return;
                     }

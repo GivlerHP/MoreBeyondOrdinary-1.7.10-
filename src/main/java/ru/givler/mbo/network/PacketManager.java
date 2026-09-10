@@ -26,7 +26,14 @@ import ru.givler.mbo.network.packet.PacketPlatformAction;
 import ru.givler.mbo.network.packet.PacketPlatformSync;
 import ru.givler.mbo.network.packet.PacketPlatformOpen;
 import ru.givler.mbo.network.packet.PacketPlatformRemove;
-import ru.givler.mbo.network.packet.PacketPlatformInteract;
+import ru.givler.mbo.network.packet.PacketAreaEditorInteract;
+import ru.givler.mbo.network.packet.PacketDungeonEditorOpen;
+import ru.givler.mbo.network.packet.PacketDungeonEditorSettings;
+import ru.givler.mbo.network.packet.PacketDungeonAreaDelete;
+import ru.givler.mbo.network.packet.PacketDungeonAreaSync;
+import ru.givler.mbo.network.packet.PacketDungeonAreaOpenRequest;
+import ru.givler.mbo.network.packet.PacketDungeonTriggerOpen;
+import ru.givler.mbo.network.packet.PacketDungeonTriggerSettings;
 
 public class PacketManager {
 
@@ -50,7 +57,11 @@ public class PacketManager {
         INSTANCE.registerMessage(PacketApplyLockTemplate.Handler.class, PacketApplyLockTemplate.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketGamemodeMenuRequest.Handler.class, PacketGamemodeMenuRequest.class, nextID++, Side.SERVER);
         INSTANCE.registerMessage(PacketPlatformAction.Handler.class, PacketPlatformAction.class, nextID++, Side.SERVER);
-        INSTANCE.registerMessage(PacketPlatformInteract.Handler.class, PacketPlatformInteract.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketAreaEditorInteract.Handler.class, PacketAreaEditorInteract.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketDungeonEditorSettings.Handler.class, PacketDungeonEditorSettings.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketDungeonAreaDelete.Handler.class, PacketDungeonAreaDelete.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketDungeonAreaOpenRequest.Handler.class, PacketDungeonAreaOpenRequest.class, nextID++, Side.SERVER);
+        INSTANCE.registerMessage(PacketDungeonTriggerSettings.Handler.class, PacketDungeonTriggerSettings.class, nextID++, Side.SERVER);
     }
 
     public static void registerClientPackets() {
@@ -61,5 +72,8 @@ public class PacketManager {
         INSTANCE.registerMessage(PacketPlatformSync.Handler.class, PacketPlatformSync.class, nextID++, Side.CLIENT);
         INSTANCE.registerMessage(PacketPlatformOpen.Handler.class, PacketPlatformOpen.class, nextID++, Side.CLIENT);
         INSTANCE.registerMessage(PacketPlatformRemove.Handler.class, PacketPlatformRemove.class, nextID++, Side.CLIENT);
+        INSTANCE.registerMessage(PacketDungeonEditorOpen.Handler.class, PacketDungeonEditorOpen.class, nextID++, Side.CLIENT);
+        INSTANCE.registerMessage(PacketDungeonAreaSync.Handler.class, PacketDungeonAreaSync.class, nextID++, Side.CLIENT);
+        INSTANCE.registerMessage(PacketDungeonTriggerOpen.Handler.class, PacketDungeonTriggerOpen.class, nextID++, Side.CLIENT);
     }
 }

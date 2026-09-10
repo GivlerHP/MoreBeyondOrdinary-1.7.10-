@@ -2,30 +2,24 @@ package ru.givler.mbo.item;
 
 import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
-import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.editor.AreaSelection;
 import ru.givler.mbo.movingplatform.EntityMovingPlatform;
 import ru.givler.mbo.movingplatform.PlatformAccess;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.network.packet.PacketPlatformOpen;
-import ru.givler.mbo.registry.CreativeTabRegistry;
 
-public class ItemPlatformEditor extends Item {
+public class ItemPlatformEditor extends ItemAreaEditor {
     public ItemPlatformEditor() {
-        setUnlocalizedName("PlatformEditor");
-        setTextureName(MoreBeyondOrdinary.MODID + ":admin_key");
-        setCreativeTab(CreativeTabRegistry.tabMBOitems);
-        setMaxStackSize(1);
+        super("PlatformEditor");
     }
 
     public void selectFirst(ItemStack stack, int x, int y, int z, EntityPlayer player) {
         if (!PlatformAccess.canEdit(player)) return;
-        setPoint(stack, "Pos1", player.worldObj.provider.dimensionId, x, y, z);
-        if (!player.worldObj.isRemote) player.addChatMessage(new ChatComponentTranslation("mbo.platform.pos1", x, y, z));
+        selectPoint(stack,player,AreaSelection.FIRST,x,y,z,4096L,"mbo.platform.pos1");
     }
 
     public void selectSecondOrOpen(ItemStack stack, EntityPlayer player, World world, int x, int y, int z) {
@@ -38,8 +32,7 @@ public class ItemPlatformEditor extends Item {
             if (!world.isRemote) openOrCreate(stack, player, world, x, y, z);
             return;
         }
-        setPoint(stack, "Pos2", world.provider.dimensionId, x, y, z);
-        if (!world.isRemote) player.addChatMessage(new ChatComponentTranslation("mbo.platform.pos2", x, y, z));
+        selectPoint(stack,player,AreaSelection.SECOND,x,y,z,4096L,"mbo.platform.pos2");
     }
 
     @SuppressWarnings("unchecked")
@@ -72,17 +65,13 @@ public class ItemPlatformEditor extends Item {
     }
 
     public static int[] getPoint(ItemStack stack,String key,int dimension){
-        if(stack==null||!stack.hasTagCompound()||!stack.getTagCompound().hasKey(key))return null;
-        NBTTagCompound p=stack.getTagCompound().getCompoundTag(key);if(p.getInteger("D")!=dimension)return null;
-        return new int[]{p.getInteger("X"),p.getInteger("Y"),p.getInteger("Z")};
+        return AreaSelection.getPoint(stack,key,dimension);
     }
     public static java.util.UUID getLinkedPlatform(ItemStack stack){
         if(stack==null||!stack.hasTagCompound()||!stack.getTagCompound().hasKey("PlatformId"))return null;
         try{return java.util.UUID.fromString(stack.getTagCompound().getString("PlatformId"));}catch(Exception ignored){return null;}
     }
-    private static void setPoint(ItemStack stack,String key,int dimension,int x,int y,int z){
-        if(!stack.hasTagCompound())stack.setTagCompound(new NBTTagCompound());NBTTagCompound p=new NBTTagCompound();
-        if("Pos1".equals(key))stack.getTagCompound().removeTag("PlatformId");
-        p.setInteger("D",dimension);p.setInteger("X",x);p.setInteger("Y",y);p.setInteger("Z",z);stack.getTagCompound().setTag(key,p);
-    }
+    @Override protected void beforePointStored(ItemStack stack,String key){if(AreaSelection.FIRST.equals(key)&&stack.hasTagCompound())stack.getTagCompound().removeTag("PlatformId");}
+    @Override protected String tooLargeMessageKey(){return "mbo.platform.error.tooLarge";}
+    @Override public int selectionColor(){return 0x33CCFFFF;}
 }

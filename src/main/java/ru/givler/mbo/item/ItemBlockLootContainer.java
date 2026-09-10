@@ -25,7 +25,7 @@ import ru.givler.mbo.lootcontainer.action.InstantDamageAction;
 import ru.givler.mbo.lootcontainer.action.ItemDropAction;
 import ru.givler.mbo.lootcontainer.action.LootContainerAction;
 import ru.givler.mbo.lootcontainer.action.SpawnEntityAction;
-import ru.givler.mbo.config.LockSecurityConfig;
+import ru.givler.mbo.editor.BuilderAccess;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class ItemBlockLootContainer extends ItemBlock {
     }
 
     public static boolean isEditor(EntityPlayer player) {
-        return player != null && player.capabilities.isCreativeMode && LockSecurityConfig.isAuthorized(player);
+        return BuilderAccess.canEdit(player);
     }
 
     @Override

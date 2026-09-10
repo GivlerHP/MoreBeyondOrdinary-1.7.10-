@@ -8,15 +8,14 @@ import net.minecraft.world.World;
 import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.handler.MboGui;
-import ru.givler.mbo.config.LockSecurityConfig;
+import ru.givler.mbo.editor.BuilderAccess;
 
 public final class LockableAccess {
     private LockableAccess() {}
 
     public static boolean isAdminKey(EntityPlayer player) {
         ItemStack held = player == null ? null : player.getCurrentEquippedItem();
-        return player != null && player.capabilities.isCreativeMode && held != null
-                && held.getItem() == ItemRegistry.AdminKey && LockSecurityConfig.isAuthorized(player);
+        return BuilderAccess.canEdit(player) && held != null && held.getItem() == ItemRegistry.AdminKey;
     }
 
     public static boolean hasLockpick(EntityPlayer player) {
