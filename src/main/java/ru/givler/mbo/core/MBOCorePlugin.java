@@ -22,7 +22,8 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
                 "ru.givler.mbo.core.ThaumcraftFontTransformer",
                 "ru.givler.mbo.core.TooltipFrameTransformer",
                 "ru.givler.mbo.core.ItemTooltipContextTransformer",
-                "ru.givler.mbo.core.NeiTooltipFrameTransformer"
+                "ru.givler.mbo.core.NeiTooltipFrameTransformer",
+                "ru.givler.mbo.core.NeiRecipeTextColorTransformer"
                 ,"ru.givler.mbo.core.PotionDurationFontTransformer"
                 ,"ru.givler.mbo.core.SpectatorCollisionTransformer"
         };

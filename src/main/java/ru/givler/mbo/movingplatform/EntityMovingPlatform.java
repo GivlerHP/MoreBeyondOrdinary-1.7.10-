@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.UUID;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLever;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -35,6 +36,9 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     private int returnMode = 2, delayTicks = 20, waitTicks;
     private boolean configured;
     private boolean virtualized;
+    private boolean onboardLeverPowered;
+    private boolean onboardLeverInitialized;
+    private int renderTransitionTicks;
     private boolean pendingConfiguration;
     private int pendingDirection, pendingDistance, pendingDurationTicks, pendingReturnMode, pendingDelayTicks;
     private double homeX, homeY, homeZ;
@@ -175,11 +179,14 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
             distance = dataWatcher.getWatchableObjectInt(22);
             durationTicks = dataWatcher.getWatchableObjectInt(23);
             movementStartTick = dataWatcher.getWatchableObjectInt(24);
-            virtualized = dataWatcher.getWatchableObjectByte(25) != 0;
+            boolean newVirtualized=dataWatcher.getWatchableObjectByte(25)!=0;
+            if(newVirtualized!=virtualized)renderTransitionTicks=3;
+            virtualized=newVirtualized;if(renderTransitionTicks>0)--renderTransitionTicks;
             tickLerp();
             return;
         }
         if (!isMoving()) {
+            if(checkOnboardLever())return;
             if (!worldObj.isRemote && returnMode != 2 && ++waitTicks >= (returnMode == 0 ? 1 : delayTicks))
                 start(state == STOPPED_A, null);
             return;
@@ -226,6 +233,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     }
     public boolean isMoving() { return state == MOVING_TO_A || state == MOVING_TO_B; }
     public boolean isCollisionActive(){return virtualized||isMoving()||(worldObj!=null&&worldObj.isRemote&&lerpSteps>0);}
+    public boolean shouldRenderMovingBlocks(){return isCollisionActive()||(worldObj!=null&&worldObj.isRemote&&renderTransitionTicks>0);}
     public PlatformDirection getDirection() { return PlatformDirection.byOrdinal(direction); }
     public List<PlatformBlock> getBlocks() { return blocks; }
     public List<PlatformBlock> getOuterBlocks(){return outerBlocks;}
@@ -236,6 +244,8 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     public int getDurationTicks(){return pendingConfiguration?pendingDurationTicks:durationTicks;} public int getState(){return state;}
     public int getReturnMode(){return pendingConfiguration?pendingReturnMode:returnMode;} public int getDelayTicks(){return pendingConfiguration?pendingDelayTicks:delayTicks;}
     public UUID getPlatformId(){return platformId;}
+    public int getEndpointAX(){return floor(homeX);} public int getEndpointAY(){return floor(homeY);} public int getEndpointAZ(){return floor(homeZ);}
+    public int getEndpointBX(){return floor(homeX)+getDirection().x*distance;} public int getEndpointBY(){return floor(homeY)+getDirection().y*distance;} public int getEndpointBZ(){return floor(homeZ)+getDirection().z*distance;}
     public boolean isConfigured(){return configured;}
     public void confirmConfiguration(){configured=true;}
     public void configure(int direction, int distance, int seconds, int returnMode, int delaySeconds) {
@@ -317,12 +327,22 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
         posX+=(lerpX-posX)/lerpSteps;posY+=(lerpY-posY)/lerpSteps;posZ+=(lerpZ-posZ)/lerpSteps;
         --lerpSteps;setPosition(posX,posY,posZ);
     }
-    private void setVirtualized(boolean value){virtualized=value;dataWatcher.updateObject(25,Byte.valueOf((byte)(value?1:0)));}
+    private void setVirtualized(boolean value){virtualized=value;if(!value)onboardLeverInitialized=false;dataWatcher.updateObject(25,Byte.valueOf((byte)(value?1:0)));}
+    private boolean checkOnboardLever(){
+        if(worldObj.isRemote||virtualized||!configured)return false;
+        int ox=floor(posX),oy=floor(posY),oz=floor(posZ);boolean powered=false;
+        for(PlatformBlock saved:blocks){int x=ox+saved.x,y=oy+saved.y,z=oz+saved.z;Block block=worldObj.getBlock(x,y,z);
+            if(block instanceof BlockLever&&(worldObj.getBlockMetadata(x,y,z)&8)!=0){powered=true;break;}}
+        if(!onboardLeverInitialized){onboardLeverPowered=powered;onboardLeverInitialized=true;return false;}
+        boolean changed=powered!=onboardLeverPowered;onboardLeverPowered=powered;
+        return changed&&start(state==STOPPED_A,null);
+    }
     private void rebuildCollisionCache(){
-        outerBlocks.clear();topBlocks.clear();bottomBlocks.clear();HashSet<Long> occupied=new HashSet<Long>();
-        for(PlatformBlock b:blocks)occupied.add(blockKey(b.x,b.y,b.z));
+        outerBlocks.clear();topBlocks.clear();bottomBlocks.clear();HashSet<Long> occupied=new HashSet<Long>();java.util.HashMap<Long,PlatformBlock> indexed=new java.util.HashMap<Long,PlatformBlock>();
+        for(PlatformBlock b:blocks){occupied.add(blockKey(b.x,b.y,b.z));indexed.put(blockKey(b.x,b.y,b.z),b);}
         for(PlatformBlock b:blocks){
-            boolean top=!occupied.contains(blockKey(b.x,b.y+1,b.z)),bottom=!occupied.contains(blockKey(b.x,b.y-1,b.z));
+            PlatformBlock above=indexed.get(blockKey(b.x,b.y+1,b.z)),below=indexed.get(blockKey(b.x,b.y-1,b.z));
+            boolean top=above==null||!above.block.isNormalCube(),bottom=below==null||!below.block.isNormalCube();
             if(top)topBlocks.add(b);if(bottom)bottomBlocks.add(b);
             if(top||bottom||!occupied.contains(blockKey(b.x+1,b.y,b.z))||!occupied.contains(blockKey(b.x-1,b.y,b.z))||!occupied.contains(blockKey(b.x,b.y,b.z+1))||!occupied.contains(blockKey(b.x,b.y,b.z-1)))outerBlocks.add(b);
         }

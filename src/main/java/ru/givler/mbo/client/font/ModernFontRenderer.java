@@ -158,9 +158,13 @@ public final class ModernFontRenderer extends FontRenderer implements IResourceM
                 glyph.texture = loadedTexture;
                 glyph.u0 = (col * cellW) / (float) image.getWidth();
                 glyph.v0 = (row * cellH) / (float) image.getHeight();
-                glyph.u1 = ((col + 1) * cellW) / (float) image.getWidth();
+                glyph.u1 = (col * cellW + right + 1) / (float) image.getWidth();
                 glyph.v1 = ((row + 1) * cellH) / (float) image.getHeight();
-                glyph.width = cellW * scale;
+                // The advance below is based on the visible right edge. Draw
+                // the same cropped width as well; drawing the whole bitmap
+                // cell makes adjacent glyph quads overlap (very visibly on
+                // the main-menu splash after its large rotation/scale).
+                glyph.width = (right + 1) * scale;
                 glyph.height = logicalHeight;
                 glyph.y = 7F - ascent;
                 glyph.advance = Math.round((right + 1) * scale) + 1F;

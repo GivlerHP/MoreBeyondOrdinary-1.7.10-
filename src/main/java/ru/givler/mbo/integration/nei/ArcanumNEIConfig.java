@@ -18,12 +18,14 @@ public class ArcanumNEIConfig implements IConfigureNEI {
         if (registered) return;
         API.registerRecipeHandler(new ArcanumRecipeHandler());
         API.registerUsageHandler(new ArcanumRecipeHandler());
+        API.registerRecipeHandler(new StonecutterRecipeHandler());
+        API.registerUsageHandler(new StonecutterRecipeHandler());
         registered = true;
     }
 
     @Override
     public String getName() {
-        return "Magic Furnace NEI Integration";
+        return "MBO Recipe NEI Integration";
     }
 
     @Override

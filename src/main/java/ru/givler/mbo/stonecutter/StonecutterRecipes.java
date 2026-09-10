@@ -21,4 +21,8 @@ public final class StonecutterRecipes {
         for (StonecutterRecipe recipe : RECIPES) if (recipe.matches(input)) result.add(recipe);
         return result;
     }
+
+    public static List<StonecutterRecipe> getAllRecipes() {
+        return Collections.unmodifiableList(RECIPES);
+    }
 }

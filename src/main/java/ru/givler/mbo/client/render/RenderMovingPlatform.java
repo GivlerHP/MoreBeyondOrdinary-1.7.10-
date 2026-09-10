@@ -15,7 +15,7 @@ import java.util.Map;
 public class RenderMovingPlatform extends Render {
     private final Map<java.util.UUID,Cache> cache=new HashMap<java.util.UUID,Cache>();
     @Override public void doRender(Entity entity,double x,double y,double z,float yaw,float partial){
-        EntityMovingPlatform p=(EntityMovingPlatform)entity;if(!p.isCollisionActive())return;
+        EntityMovingPlatform p=(EntityMovingPlatform)entity;if(!p.shouldRenderMovingBlocks())return;
         bindTexture(TextureMap.locationBlocksTexture);Cache compiled=getCache(p);
         GL11.glPushMatrix();GL11.glTranslated(x,y,z);GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_LIGHTING);GL11.glCallList(compiled.list);GL11.glEnable(GL11.GL_LIGHTING);GL11.glPopMatrix();
