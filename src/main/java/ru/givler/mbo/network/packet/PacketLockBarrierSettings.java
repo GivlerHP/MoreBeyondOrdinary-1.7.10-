@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import ru.givler.mbo.lockable.*;
 import ru.givler.mbo.tileentity.TileEntityLockableChest;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketLockBarrierSettings implements IMessage {
   private int x, y, z, difficulty, delay, radius;
@@ -42,22 +43,23 @@ public class PacketLockBarrierSettings implements IMessage {
 
   public static class Handler implements IMessageHandler<PacketLockBarrierSettings, IMessage> {
     @Override
-    public IMessage onMessage(PacketLockBarrierSettings m, MessageContext ctx) {
-      EntityPlayerMP p = ctx.getServerHandler().playerEntity;
+    public IMessage onMessage(final PacketLockBarrierSettings m, MessageContext ctx) {
+      final EntityPlayerMP p = ctx.getServerHandler().playerEntity;EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){apply(m,p);}});return null;
+    }
+    private void apply(PacketLockBarrierSettings m,EntityPlayerMP p){
       ILockableTile tile = LockableAccess.get(p.worldObj, m.x, m.y, m.z);
       if (tile != null
           && LockableAccess.isAdminKey(p)
           && p.getDistanceSq(m.x + .5, m.y + .5, m.z + .5) <= 64) {
         LockDifficulty value = LockDifficulty.byOrdinal(m.difficulty);
         if (tile instanceof TileEntityLockableChest
-            && !((TileEntityLockableChest) tile).canChangeDifficulty(value)) return null;
+            && !((TileEntityLockableChest) tile).canChangeDifficulty(value)) return;
         tile.getLockData().setDifficulty(value, p.worldObj.rand);
         tile.getLockData().setRelockDelaySec(Math.max(0, Math.min(86400, m.delay)));
         tile.getLockData().setPlayerRadius(m.radius);
         tile.asTileEntity().markDirty();
         p.worldObj.markBlockForUpdate(m.x, m.y, m.z);
       }
-      return null;
     }
   }
 }

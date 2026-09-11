@@ -6,6 +6,7 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import ru.givler.mbo.client.gui.GuiLockpicking;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketLockpickResult implements IMessage {
   private boolean correct, reset, complete, close;
@@ -42,11 +43,13 @@ public class PacketLockpickResult implements IMessage {
 
   public static class Handler implements IMessageHandler<PacketLockpickResult, IMessage> {
     @Override
-    public IMessage onMessage(PacketLockpickResult m, MessageContext ctx) {
+    public IMessage onMessage(final PacketLockpickResult m, MessageContext ctx) {
+      EditorPacketAccess.scheduleClient(new Runnable(){@Override public void run(){apply(m);}});return null;
+    }
+    private void apply(PacketLockpickResult m){
       if (Minecraft.getMinecraft().currentScreen instanceof GuiLockpicking)
         ((GuiLockpicking) Minecraft.getMinecraft().currentScreen)
             .handleResult(m.correct, m.pin, m.reset, m.complete, m.close);
-      return null;
     }
   }
 }

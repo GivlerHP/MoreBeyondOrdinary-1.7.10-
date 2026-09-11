@@ -8,6 +8,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import ru.givler.mbo.movingplatform.EntityMovingPlatform;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketPlatformSync implements IMessage {
   private int entityId;
@@ -34,13 +35,15 @@ public class PacketPlatformSync implements IMessage {
 
   public static class Handler implements IMessageHandler<PacketPlatformSync, IMessage> {
     @Override
-    public IMessage onMessage(PacketPlatformSync message, MessageContext context) {
+    public IMessage onMessage(final PacketPlatformSync message, MessageContext context) {
+      EditorPacketAccess.scheduleClient(new Runnable(){@Override public void run(){apply(message);}});return null;
+    }
+    private void apply(PacketPlatformSync message){
       net.minecraft.world.World world = ru.givler.mbo.MoreBeyondOrdinary.proxy.getClientWorld();
-      if (world == null) return null;
+      if (world == null) return;
       Entity entity = world.getEntityByID(message.entityId);
       if (entity instanceof EntityMovingPlatform && message.tag != null)
         ((EntityMovingPlatform) entity).readPlatformTag(message.tag);
-      return null;
     }
   }
 }

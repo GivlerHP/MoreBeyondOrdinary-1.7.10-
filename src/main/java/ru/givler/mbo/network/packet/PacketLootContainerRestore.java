@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import ru.givler.mbo.item.ItemBlockLootContainer;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketLootContainerRestore implements IMessage {
     private int x;
@@ -40,18 +41,20 @@ public class PacketLootContainerRestore implements IMessage {
 
     public static class Handler implements IMessageHandler<PacketLootContainerRestore, IMessage> {
         @Override
-        public IMessage onMessage(PacketLootContainerRestore message, MessageContext ctx) {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+        public IMessage onMessage(final PacketLootContainerRestore message, MessageContext ctx) {
+            final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){apply(message,player);}});return null;
+        }
+        private void apply(PacketLootContainerRestore message,EntityPlayerMP player){
             if (!ItemBlockLootContainer.isEditor(player)) {
-                return null;
+                return;
             }
-            if (player == null || player.worldObj == null) return null;
-            if (player.getDistanceSq(message.x + .5D, message.y + .5D, message.z + .5D) > 64D) return null;
+            if (player == null || player.worldObj == null) return;
+            if (player.getDistanceSq(message.x + .5D, message.y + .5D, message.z + .5D) > 64D) return;
             TileEntity tile = player.worldObj.getTileEntity(message.x, message.y, message.z);
             if (tile instanceof TileEntityLootContainer) {
                 ((TileEntityLootContainer) tile).restoreNow();
             }
-            return null;
         }
     }
 }

@@ -8,6 +8,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import ru.givler.mbo.lockable.ILockableTile;
 import ru.givler.mbo.lockable.LockableAccess;
+import ru.givler.mbo.network.EditorPacketAccess;
+import ru.givler.mbo.network.PacketManager;
 
 public class PacketLockpickPin implements IMessage {
   private int x, y, z, pin, order;
@@ -42,8 +44,10 @@ public class PacketLockpickPin implements IMessage {
 
   public static class Handler implements IMessageHandler<PacketLockpickPin, PacketLockpickResult> {
     @Override
-    public PacketLockpickResult onMessage(PacketLockpickPin m, MessageContext ctx) {
-      EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+    public PacketLockpickResult onMessage(final PacketLockpickPin m, MessageContext ctx) {
+      final EntityPlayerMP player = ctx.getServerHandler().playerEntity;EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){PacketManager.INSTANCE.sendTo(process(m,player),player);}});return null;
+    }
+    private PacketLockpickResult process(PacketLockpickPin m,EntityPlayerMP player){
       ILockableTile tile = LockableAccess.get(player.worldObj, m.x, m.y, m.z);
       if (tile == null
           || !tile.getLockData().isLocked()

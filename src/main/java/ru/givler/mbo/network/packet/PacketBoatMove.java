@@ -9,6 +9,7 @@ import net.minecraft.network.play.server.S18PacketEntityTeleport;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketBoatMove implements IMessage {
   private int dimension, entityId;
@@ -48,8 +49,12 @@ public class PacketBoatMove implements IMessage {
   }
 
   public static class Handler implements IMessageHandler<PacketBoatMove, IMessage> {
-    public IMessage onMessage(PacketBoatMove message, MessageContext context) {
-      net.minecraft.entity.player.EntityPlayerMP player = context.getServerHandler().playerEntity;
+    public IMessage onMessage(final PacketBoatMove message, MessageContext context) {
+      final net.minecraft.entity.player.EntityPlayerMP player = context.getServerHandler().playerEntity;
+      final net.minecraft.network.NetHandlerPlayServer handler=context.getServerHandler();
+      EditorPacketAccess.schedule(context,new Runnable(){@Override public void run(){apply(message,player,handler);}});return null;
+    }
+    private void apply(PacketBoatMove message,net.minecraft.entity.player.EntityPlayerMP player,net.minecraft.network.NetHandlerPlayServer handler){
       if (message.dimension != player.dimension
           || !finite(message.x)
           || !finite(message.y)
@@ -57,11 +62,11 @@ public class PacketBoatMove implements IMessage {
           || Float.isNaN(message.yaw)
           || Float.isInfinite(message.yaw)
           || Float.isNaN(message.pitch)
-          || Float.isInfinite(message.pitch)) return null;
+          || Float.isInfinite(message.pitch)) return;
       WorldServer world = DimensionManager.getWorld(message.dimension);
-      if (world == null) return null;
+      if (world == null) return;
       Entity boat = world.getEntityByID(message.entityId);
-      if (!(boat instanceof EntityMBOBoat) || boat.riddenByEntity != player) return null;
+      if (!(boat instanceof EntityMBOBoat) || boat.riddenByEntity != player) return;
       double dx = message.x - boat.posX, dy = message.y - boat.posY, dz = message.z - boat.posZ;
       double allowed =
           Math.max(
@@ -76,11 +81,10 @@ public class PacketBoatMove implements IMessage {
           || !world
               .getCollidingBoundingBoxes(boat, boat.boundingBox.getOffsetBoundingBox(dx, dy, dz))
               .isEmpty()) {
-        context.getServerHandler().sendPacket(new S18PacketEntityTeleport(boat));
-        return null;
+        handler.sendPacket(new S18PacketEntityTeleport(boat));
+        return;
       }
       boat.setPositionAndRotation(message.x, message.y, message.z, message.yaw, message.pitch);
-      return null;
     }
 
     private static boolean finite(double value) {

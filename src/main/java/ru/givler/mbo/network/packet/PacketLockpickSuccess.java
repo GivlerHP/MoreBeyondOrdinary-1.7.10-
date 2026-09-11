@@ -4,6 +4,7 @@ import cpw.mods.fml.common.network.simpleimpl.*;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import ru.givler.mbo.lockable.*;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketLockpickSuccess implements IMessage {
   private int x, y, z;
@@ -32,19 +33,20 @@ public class PacketLockpickSuccess implements IMessage {
 
   public static class Handler implements IMessageHandler<PacketLockpickSuccess, IMessage> {
     @Override
-    public IMessage onMessage(PacketLockpickSuccess m, MessageContext ctx) {
-      EntityPlayerMP p = ctx.getServerHandler().playerEntity;
+    public IMessage onMessage(final PacketLockpickSuccess m, MessageContext ctx) {
+      final EntityPlayerMP p = ctx.getServerHandler().playerEntity;EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){apply(m,p);}});return null;
+    }
+    private void apply(PacketLockpickSuccess m,EntityPlayerMP p){
       ILockableTile tile = LockableAccess.get(p.worldObj, m.x, m.y, m.z);
       if (tile == null
           || !LockableAccess.hasLockpick(p)
           || !tile.getLockData().hasCompleted(p.getUniqueID())
-          || p.getDistanceSq(m.x + .5, m.y + .5, m.z + .5) > 64) return null;
+          || p.getDistanceSq(m.x + .5, m.y + .5, m.z + .5) > 64) return;
       tile.getLockData().clearAttempt(p.getUniqueID());
       tile.getLockData().unlock();
       tile.onUnlocked(p);
       tile.asTileEntity().markDirty();
       p.worldObj.playSoundEffect(m.x + .5, m.y + .5, m.z + .5, "mbo:lock_open", 1F, 1F);
-      return null;
     }
   }
 }

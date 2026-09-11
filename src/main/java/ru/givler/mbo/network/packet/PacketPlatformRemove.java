@@ -6,6 +6,7 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.entity.Entity;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketPlatformRemove implements IMessage {
   private String platformId = "";
@@ -28,14 +29,17 @@ public class PacketPlatformRemove implements IMessage {
 
   public static class Handler implements IMessageHandler<PacketPlatformRemove, IMessage> {
     @Override
-    public IMessage onMessage(PacketPlatformRemove message, MessageContext context) {
+    public IMessage onMessage(final PacketPlatformRemove message, MessageContext context) {
+      EditorPacketAccess.scheduleClient(new Runnable(){@Override public void run(){apply(message);}});return null;
+    }
+    private void apply(PacketPlatformRemove message){
       net.minecraft.world.World world = ru.givler.mbo.MoreBeyondOrdinary.proxy.getClientWorld();
-      if (world == null) return null;
+      if (world == null) return;
       UUID id;
       try {
         id = UUID.fromString(message.platformId);
       } catch (Exception ignored) {
-        return null;
+        return;
       }
       for (Object object : new java.util.ArrayList(world.loadedEntityList))
         if (object instanceof ru.givler.mbo.movingplatform.EntityMovingPlatform
@@ -45,7 +49,6 @@ public class PacketPlatformRemove implements IMessage {
           entity.setDead();
           world.removeEntity(entity);
         }
-      return null;
     }
   }
 }

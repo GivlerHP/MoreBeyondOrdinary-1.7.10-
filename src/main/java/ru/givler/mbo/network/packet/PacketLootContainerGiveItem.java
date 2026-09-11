@@ -15,6 +15,7 @@ import ru.givler.mbo.item.ItemBlockLootContainer;
 import ru.givler.mbo.lootcontainer.LootContainerConfigValidator;
 import ru.givler.mbo.lootcontainer.LootContainerData;
 import ru.givler.mbo.registry.ModelRegistry;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 import java.util.List;
 
@@ -44,10 +45,14 @@ public class PacketLootContainerGiveItem implements IMessage {
 
     public static class Handler implements IMessageHandler<PacketLootContainerGiveItem, IMessage> {
         @Override
-        public IMessage onMessage(PacketLootContainerGiveItem message, MessageContext ctx) {
+        public IMessage onMessage(final PacketLootContainerGiveItem message, MessageContext ctx) {
             final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){apply(message,player);}});
+            return null;
+        }
+        private void apply(PacketLootContainerGiveItem message,EntityPlayerMP player){
             if (!ItemBlockLootContainer.isEditor(player)) {
-                return null;
+                return;
             }
 
             LootContainerData data = LootContainerData.fromItemStackNbt(message.configTag);
@@ -59,7 +64,7 @@ public class PacketLootContainerGiveItem implements IMessage {
                 if (player != null) {
                     player.addChatMessage(new ChatComponentText("\u00a7cLootContainer config rejected: " + error));
                 }
-                return null;
+                return;
             }
 
             ItemStack stack = new ItemStack(ModelRegistry.LootContainer, 1, 0);
@@ -68,7 +73,6 @@ public class PacketLootContainerGiveItem implements IMessage {
                 player.dropPlayerItemWithRandomChoice(stack, false);
             }
             player.inventory.markDirty();
-            return null;
         }
     }
 }

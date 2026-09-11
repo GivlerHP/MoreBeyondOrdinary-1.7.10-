@@ -6,6 +6,7 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import ru.givler.mbo.spectator.SpectatorManager;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public final class PacketSpectatorState implements IMessage {
   private long most;
@@ -36,9 +37,8 @@ public final class PacketSpectatorState implements IMessage {
 
   public static final class Handler implements IMessageHandler<PacketSpectatorState, IMessage> {
     @Override
-    public IMessage onMessage(PacketSpectatorState message, MessageContext context) {
-      SpectatorManager.setClientState(new UUID(message.most, message.least), message.active);
-      return null;
+    public IMessage onMessage(final PacketSpectatorState message, MessageContext context) {
+      EditorPacketAccess.scheduleClient(new Runnable(){@Override public void run(){SpectatorManager.setClientState(new UUID(message.most, message.least), message.active);}});return null;
     }
   }
 }

@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.client.gui.GuiMovingPlatform;
 import ru.givler.mbo.movingplatform.EntityMovingPlatform;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketPlatformOpen implements IMessage {
   private int entityId;
@@ -36,9 +37,12 @@ public class PacketPlatformOpen implements IMessage {
 
   public static class Handler implements IMessageHandler<PacketPlatformOpen, IMessage> {
     @Override
-    public IMessage onMessage(PacketPlatformOpen message, MessageContext context) {
+    public IMessage onMessage(final PacketPlatformOpen message, MessageContext context) {
+      EditorPacketAccess.scheduleClient(new Runnable(){@Override public void run(){apply(message);}});return null;
+    }
+    private void apply(PacketPlatformOpen message){
       net.minecraft.world.World world = MoreBeyondOrdinary.proxy.getClientWorld();
-      if (world == null) return null;
+      if (world == null) return;
       Entity found = world.getEntityByID(message.entityId);
       EntityMovingPlatform platform;
       if (found instanceof EntityMovingPlatform) platform = (EntityMovingPlatform) found;
@@ -49,7 +53,6 @@ public class PacketPlatformOpen implements IMessage {
       if (message.data != null) platform.readPlatformTag(message.data);
       net.minecraft.client.Minecraft.getMinecraft()
           .displayGuiScreen(new GuiMovingPlatform(platform));
-      return null;
     }
   }
 }

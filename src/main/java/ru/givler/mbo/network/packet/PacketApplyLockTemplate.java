@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTTagList;
 import ru.givler.mbo.lockable.LockDifficulty;
 import ru.givler.mbo.lockable.LockableAccess;
 import ru.givler.mbo.tileentity.TileEntityLockableChest;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketApplyLockTemplate implements IMessage {
   private int x, y, z;
@@ -44,13 +45,15 @@ public class PacketApplyLockTemplate implements IMessage {
 
   public static class Handler implements IMessageHandler<PacketApplyLockTemplate, IMessage> {
     @Override
-    public IMessage onMessage(PacketApplyLockTemplate m, MessageContext ctx) {
-      EntityPlayerMP p = ctx.getServerHandler().playerEntity;
+    public IMessage onMessage(final PacketApplyLockTemplate m, MessageContext ctx) {
+      final EntityPlayerMP p = ctx.getServerHandler().playerEntity;EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){apply(m,p);}});return null;
+    }
+    private void apply(PacketApplyLockTemplate m,EntityPlayerMP p){
       Object value = p.worldObj.getTileEntity(m.x, m.y, m.z);
       if (!(value instanceof TileEntityLockableChest)
           || m.template == null
           || !LockableAccess.isAdminKey(p)
-          || p.getDistanceSq(m.x + .5, m.y + .5, m.z + .5) > 64) return null;
+          || p.getDistanceSq(m.x + .5, m.y + .5, m.z + .5) > 64) return;
       TileEntityLockableChest chest = (TileEntityLockableChest) value;
       chest
           .getLockData()
@@ -67,7 +70,6 @@ public class PacketApplyLockTemplate implements IMessage {
       }
       chest.markDirty();
       p.worldObj.markBlockForUpdate(m.x, m.y, m.z);
-      return null;
     }
   }
 }

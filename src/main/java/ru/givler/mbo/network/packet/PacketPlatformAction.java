@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import ru.givler.mbo.movingplatform.EntityMovingPlatform;
 import ru.givler.mbo.movingplatform.PlatformAccess;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketPlatformAction implements IMessage {
   public static final int SAVE = 0,
@@ -64,14 +65,17 @@ public class PacketPlatformAction implements IMessage {
 
   public static class Handler implements IMessageHandler<PacketPlatformAction, IMessage> {
     @Override
-    public IMessage onMessage(PacketPlatformAction m, MessageContext ctx) {
-      EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-      if (!PlatformAccess.canEdit(player)) return null;
+    public IMessage onMessage(final PacketPlatformAction m, MessageContext ctx) {
+      final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+      EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){apply(m,player);}});return null;
+    }
+    private void apply(PacketPlatformAction m,EntityPlayerMP player){
+      if (!PlatformAccess.canEdit(player)) return;
       Entity e = player.worldObj.getEntityByID(m.entityId);
-      if (!(e instanceof EntityMovingPlatform)) return null;
+      if (!(e instanceof EntityMovingPlatform)) return;
       EntityMovingPlatform p = (EntityMovingPlatform) e;
       if (m.action == SAVE) {
-        if (p.isMoving() && !p.stopAndReturn(player)) return null;
+        if (p.isMoving() && !p.stopAndReturn(player)) return;
         p.configure(m.direction, m.distance, m.seconds, m.returnMode, m.delaySeconds);
         p.confirmConfiguration();
         ru.givler.mbo.network.PacketManager.INSTANCE.sendToDimension(
@@ -108,7 +112,6 @@ public class PacketPlatformAction implements IMessage {
           ru.givler.mbo.network.PacketManager.INSTANCE.sendToDimension(
               new PacketPlatformRemove(id), player.dimension);
       }
-      return null;
     }
   }
 }

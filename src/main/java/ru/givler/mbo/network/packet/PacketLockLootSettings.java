@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import ru.givler.mbo.lockable.LockableAccess;
 import ru.givler.mbo.tileentity.TileEntityLockableChest;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketLockLootSettings implements IMessage {
   private int x, y, z;
@@ -39,8 +40,10 @@ public class PacketLockLootSettings implements IMessage {
 
   public static class Handler implements IMessageHandler<PacketLockLootSettings, IMessage> {
     @Override
-    public IMessage onMessage(PacketLockLootSettings m, MessageContext ctx) {
-      EntityPlayerMP p = ctx.getServerHandler().playerEntity;
+    public IMessage onMessage(final PacketLockLootSettings m, MessageContext ctx) {
+      final EntityPlayerMP p = ctx.getServerHandler().playerEntity;EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){apply(m,p);}});return null;
+    }
+    private void apply(PacketLockLootSettings m,EntityPlayerMP p){
       Object tile = p.worldObj.getTileEntity(m.x, m.y, m.z);
       if (tile instanceof TileEntityLockableChest
           && LockableAccess.isAdminKey(p)
@@ -49,7 +52,6 @@ public class PacketLockLootSettings implements IMessage {
             .applyLootSettings(m.tag == null ? new NBTTagCompound() : m.tag);
         p.worldObj.markBlockForUpdate(m.x, m.y, m.z);
       }
-      return null;
     }
   }
 }

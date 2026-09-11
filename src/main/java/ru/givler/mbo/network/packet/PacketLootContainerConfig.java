@@ -16,6 +16,7 @@ import ru.givler.mbo.item.ItemBlockLootContainer;
 import ru.givler.mbo.lootcontainer.LootContainerConfigValidator;
 import ru.givler.mbo.lootcontainer.LootContainerData;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 import java.util.List;
 
@@ -67,17 +68,21 @@ public class PacketLootContainerConfig implements IMessage {
 
     public static class Handler implements IMessageHandler<PacketLootContainerConfig, IMessage> {
         @Override
-        public IMessage onMessage(PacketLootContainerConfig message, MessageContext ctx) {
+        public IMessage onMessage(final PacketLootContainerConfig message, MessageContext ctx) {
             final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            EditorPacketAccess.schedule(ctx, new Runnable(){@Override public void run(){apply(message,player);}});
+            return null;
+        }
+
+        private void apply(PacketLootContainerConfig message, EntityPlayerMP player) {
             if (!ItemBlockLootContainer.isEditor(player)) {
-                return null;
+                return;
             }
             if (message.applyToBlock) {
                 applyBlockConfig(player, message);
             } else {
                 applyHeldItemConfig(player, message);
             }
-            return null;
         }
 
         private void applyBlockConfig(EntityPlayerMP player, PacketLootContainerConfig message) {

@@ -11,6 +11,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StatCollector;
 import ru.givler.mbo.item.amulets.AmuletCooldownTracker;
 import ru.givler.mbo.item.IActivatableAmulet;
+import ru.givler.mbo.network.EditorPacketAccess;
 
 public class PacketActivateAmulet implements IMessage {
 
@@ -26,7 +27,9 @@ public class PacketActivateAmulet implements IMessage {
     public static class Handler implements IMessageHandler<PacketActivateAmulet, IMessage> {
         @Override
         public IMessage onMessage(PacketActivateAmulet message, MessageContext ctx) {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            final EntityPlayerMP player = ctx.getServerHandler().playerEntity;EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){activate(player);}});return null;
+        }
+        private void activate(EntityPlayerMP player){
          //   System.out.println("[DEBUG] Пакет получен от: " + player.getCommandSenderName());
 
             if (AmuletCooldownTracker.isOnCooldown(player)) {
@@ -35,7 +38,7 @@ public class PacketActivateAmulet implements IMessage {
             //    System.out.println("[DEBUG] Амулеты на кулдауне. Осталось: " + millis + " мс");
                 player.addChatMessage(new ChatComponentText(StatCollector.translateToLocalFormatted("message.amulet_ready_in", seconds)));
 
-                return null;
+                return;
             }
 
             for (int i = 0; i < 4; i++) {
@@ -73,7 +76,6 @@ public class PacketActivateAmulet implements IMessage {
                 }
             }
 
-            return null;
         }
     }
 }
