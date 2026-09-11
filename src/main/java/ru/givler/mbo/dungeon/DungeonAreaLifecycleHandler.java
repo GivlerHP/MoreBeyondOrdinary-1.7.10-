@@ -1,3 +1,25 @@
 package ru.givler.mbo.dungeon;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;import cpw.mods.fml.common.gameevent.PlayerEvent;import cpw.mods.fml.common.gameevent.TickEvent;import net.minecraft.entity.player.EntityPlayerMP;import ru.givler.mbo.network.packet.PacketDungeonAreaSync;
-public final class DungeonAreaLifecycleHandler{@SubscribeEvent public void tick(TickEvent.WorldTickEvent e){if(e.side.isServer()&&e.phase==TickEvent.Phase.END)DungeonAreaSavedData.get(e.world).tick(e.world);}@SubscribeEvent public void login(PlayerEvent.PlayerLoggedInEvent e){if(e.player instanceof EntityPlayerMP)PacketDungeonAreaSync.send((EntityPlayerMP)e.player);}@SubscribeEvent public void dimension(PlayerEvent.PlayerChangedDimensionEvent e){if(e.player instanceof EntityPlayerMP)PacketDungeonAreaSync.send((EntityPlayerMP)e.player);}}
+
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraft.entity.player.EntityPlayerMP;
+import ru.givler.mbo.network.packet.PacketDungeonAreaSync;
+
+public final class DungeonAreaLifecycleHandler {
+  @SubscribeEvent
+  public void tick(TickEvent.WorldTickEvent e) {
+    if (e.side.isServer() && e.phase == TickEvent.Phase.END)
+      DungeonAreaSavedData.get(e.world).tick(e.world);
+  }
+
+  @SubscribeEvent
+  public void login(PlayerEvent.PlayerLoggedInEvent e) {
+    if (e.player instanceof EntityPlayerMP) PacketDungeonAreaSync.send((EntityPlayerMP) e.player);
+  }
+
+  @SubscribeEvent
+  public void dimension(PlayerEvent.PlayerChangedDimensionEvent e) {
+    if (e.player instanceof EntityPlayerMP) PacketDungeonAreaSync.send((EntityPlayerMP) e.player);
+  }
+}

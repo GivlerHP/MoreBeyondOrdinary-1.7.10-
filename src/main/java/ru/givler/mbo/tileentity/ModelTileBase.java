@@ -2,7 +2,7 @@ package ru.givler.mbo.tileentity;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import ru.givler.mbo.block.blockmodels.BlockModelFood;
+import ru.givler.mbo.block.model.BlockModelFood;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;

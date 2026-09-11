@@ -14,7 +14,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.tileentity.TileEntity;
 import ru.givler.mbo.MoreBeyondOrdinary;
-import ru.givler.mbo.handler.MboGui;
+import ru.givler.mbo.gui.MboGuiType;
 import ru.givler.mbo.lootcontainer.LootContainerData;
 import ru.givler.mbo.lootcontainer.action.ApplyEffectAction;
 import ru.givler.mbo.lootcontainer.action.ApplyExplosionEffectAction;
@@ -43,7 +43,7 @@ public class ItemBlockLootContainer extends ItemBlock {
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
         MovingObjectPosition hit = this.getMovingObjectPositionFromPlayer(world, player, true);
         if (hit == null && world.isRemote && isEditor(player)) {
-            player.openGui(MoreBeyondOrdinary.instance, MboGui.LOOT_CONTAINER_CONFIG.id, world,
+            player.openGui(MoreBeyondOrdinary.instance, MboGuiType.LOOT_CONTAINER_CONFIG.id, world,
                     (int) player.posX, (int) player.posY, (int) player.posZ);
         }
         return stack;

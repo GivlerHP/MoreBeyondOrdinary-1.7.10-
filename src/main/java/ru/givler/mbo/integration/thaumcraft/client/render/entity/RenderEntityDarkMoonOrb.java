@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityDarkMoonOrb;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityDarkMoonOrb;
 import thaumcraft.client.fx.ParticleEngine;
 import thaumcraft.client.lib.UtilsFX;
 

@@ -1,0 +1,22 @@
+package ru.givler.mbo.gui;
+
+public enum MboGuiType {
+    INFUSION_WORKBENCH(0),
+    LOOT_CONTAINER_CONFIG(1),
+    LOOM(2),
+    STONECUTTER(3),
+    BARREL(4),
+    LOCKPICKING(5),
+    LOCKABLE_CHEST(6),
+    LOCK_CONFIG(7),
+    MOVING_PLATFORM(8);
+
+    public final int id;
+
+    MboGuiType(int id) { this.id = id; }
+
+    public static MboGuiType byId(int id) {
+        for (MboGuiType gui : values()) if (gui.id == id) return gui;
+        return null;
+    }
+}

@@ -12,8 +12,8 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
-import ru.givler.mbo.integration.thaumcraft.entities.EntityDarkMatter;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityDiffusion;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityDarkMatter;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityDiffusion;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.aspects.Aspect;

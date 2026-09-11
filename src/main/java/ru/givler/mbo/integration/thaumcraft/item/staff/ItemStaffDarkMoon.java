@@ -16,7 +16,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import ru.givler.mbo.integration.thaumcraft.client.DarkMoonStaffClientFX;
-import ru.givler.mbo.integration.thaumcraft.util.DarkMoonCastQueue;
+import ru.givler.mbo.integration.thaumcraft.handler.DarkMoonCastQueue;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.wands.IWandable;

@@ -2,7 +2,8 @@ package ru.givler.mbo.integration.thaumcraft;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraftforge.common.MinecraftForge;
-import ru.givler.mbo.integration.thaumcraft.util.DarkMoonCastQueue;
+import ru.givler.mbo.integration.thaumcraft.handler.DarkMoonCastQueue;
+import ru.givler.mbo.integration.thaumcraft.handler.MBOThaumDamageConverter;
 
 /** Loaded reflectively only when Thaumcraft is installed. */
 public final class ThaumcraftCommonRegistration {

@@ -8,13 +8,13 @@ import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEldritchO
 import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEntityDarkMoonOrb;
 import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEntityDiffusion;
 import ru.givler.mbo.integration.thaumcraft.client.render.entity.RenderEntityHomingShard;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityDarkMatter;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityDarkMoonOrb;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityDiffusion;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityHomingShard;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityLightMatter;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityPechShard;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityPechShatter;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityDarkMatter;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityDarkMoonOrb;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityDiffusion;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityHomingShard;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityLightMatter;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityPechShard;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityPechShatter;
 import thaumcraft.client.renderers.entity.RenderEldritchOrb;
 import thaumcraft.client.renderers.entity.RenderPechBlast;
 

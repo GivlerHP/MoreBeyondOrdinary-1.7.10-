@@ -8,7 +8,7 @@ import ru.givler.mbo.integration.wood.WoodFamily;
 import ru.givler.mbo.integration.thaumcraft.item.focus.*;
 import ru.givler.mbo.integration.thaumcraft.item.staff.*;
 import ru.givler.mbo.integration.thaumcraft.registry.TMEntityRegistry;
-import ru.givler.mbo.integration.thaumcraft.handler.ConfigHandler;
+import ru.givler.mbo.integration.thaumcraft.config.ThaumcraftConfig;
 
 import net.minecraftforge.common.config.Configuration;
 
@@ -22,8 +22,8 @@ public class ThaumcraftRegistry {
 
     public static void preLoad(FMLPreInitializationEvent event){
         if (Loader.isModLoaded("Thaumcraft")) {
-            ConfigHandler.config = new Configuration(event.getSuggestedConfigurationFile());
-            ConfigHandler.initConfig();
+            ThaumcraftConfig.config = new Configuration(event.getSuggestedConfigurationFile());
+            ThaumcraftConfig.initConfig();
             TMFocusUpgrades.initFocusUpgrades();
         }
     }

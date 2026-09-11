@@ -1,3 +1,56 @@
 package ru.givler.mbo.network.packet;
-import cpw.mods.fml.common.network.simpleimpl.*;import io.netty.buffer.ByteBuf;import net.minecraft.entity.player.EntityPlayerMP;import net.minecraft.item.ItemStack;import ru.givler.mbo.dungeon.*;import ru.givler.mbo.network.*;import ru.givler.mbo.registry.ItemRegistry;
-public final class PacketDungeonAreaOpenRequest implements IMessage{private String id="";public PacketDungeonAreaOpenRequest(){}public PacketDungeonAreaOpenRequest(String id){this.id=id;}public void fromBytes(ByteBuf b){int n=b.readUnsignedShort();id=n<=b.readableBytes()?b.readBytes(n).toString(io.netty.util.CharsetUtil.UTF_8):"";}public void toBytes(ByteBuf b){byte[] v=id.getBytes(io.netty.util.CharsetUtil.UTF_8);b.writeShort(v.length);b.writeBytes(v);}public static final class Handler implements IMessageHandler<PacketDungeonAreaOpenRequest,IMessage>{public IMessage onMessage(final PacketDungeonAreaOpenRequest m,MessageContext c){final EntityPlayerMP p=c.getServerHandler().playerEntity;EditorPacketAccess.schedule(c,new Runnable(){public void run(){ItemStack held=EditorPacketAccess.heldEditor(p);if(held==null||held.getItem()!=ItemRegistry.DungeonEditor)return;DungeonAreaRecord r=DungeonAreaSavedData.get(p.worldObj).byId(m.id);if(r!=null&&r.isNear(p,64D)){if(r.getType()==DungeonAreaRecord.TRIGGER)PacketManager.INSTANCE.sendTo(new PacketDungeonTriggerOpen(r.write()),p);else PacketManager.INSTANCE.sendTo(new PacketDungeonEditorOpen(r.idString(),r.getType(),r.getRestoreMode(),r.getRestoreSeconds()),p);}}});return null;}}}
+
+import cpw.mods.fml.common.network.simpleimpl.*;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import ru.givler.mbo.dungeon.*;
+import ru.givler.mbo.network.*;
+import ru.givler.mbo.registry.ItemRegistry;
+
+public final class PacketDungeonAreaOpenRequest implements IMessage {
+  private String id = "";
+
+  public PacketDungeonAreaOpenRequest() {}
+
+  public PacketDungeonAreaOpenRequest(String id) {
+    this.id = id;
+  }
+
+  public void fromBytes(ByteBuf b) {
+    int n = b.readUnsignedShort();
+    id = n <= b.readableBytes() ? b.readBytes(n).toString(io.netty.util.CharsetUtil.UTF_8) : "";
+  }
+
+  public void toBytes(ByteBuf b) {
+    byte[] v = id.getBytes(io.netty.util.CharsetUtil.UTF_8);
+    b.writeShort(v.length);
+    b.writeBytes(v);
+  }
+
+  public static final class Handler
+      implements IMessageHandler<PacketDungeonAreaOpenRequest, IMessage> {
+    public IMessage onMessage(final PacketDungeonAreaOpenRequest m, MessageContext c) {
+      final EntityPlayerMP p = c.getServerHandler().playerEntity;
+      EditorPacketAccess.schedule(
+          c,
+          new Runnable() {
+            public void run() {
+              ItemStack held = EditorPacketAccess.heldEditor(p);
+              if (held == null || held.getItem() != ItemRegistry.DungeonEditor) return;
+              DungeonAreaRecord r = DungeonAreaSavedData.get(p.worldObj).byId(m.id);
+              if (r != null && r.isNear(p, 64D)) {
+                if (r.getType() == DungeonAreaRecord.TRIGGER)
+                  PacketManager.INSTANCE.sendTo(new PacketDungeonTriggerOpen(r.write()), p);
+                else
+                  PacketManager.INSTANCE.sendTo(
+                      new PacketDungeonEditorOpen(
+                          r.idString(), r.getType(), r.getRestoreMode(), r.getRestoreSeconds()),
+                      p);
+              }
+            }
+          });
+      return null;
+    }
+  }
+}

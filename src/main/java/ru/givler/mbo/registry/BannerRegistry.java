@@ -3,9 +3,9 @@ package ru.givler.mbo.registry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import ru.givler.mbo.banner.BlockBanner;
-import ru.givler.mbo.banner.BlockLoom;
-import ru.givler.mbo.banner.ItemBlockBanner;
+import ru.givler.mbo.block.banner.BlockBanner;
+import ru.givler.mbo.block.banner.BlockLoom;
+import ru.givler.mbo.item.ItemBlockBanner;
 
 public final class BannerRegistry {
     public static BlockBanner banner;

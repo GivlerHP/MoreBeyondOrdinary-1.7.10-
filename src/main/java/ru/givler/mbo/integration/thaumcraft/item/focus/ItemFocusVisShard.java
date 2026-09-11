@@ -9,7 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityHomingShard;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityHomingShard;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;

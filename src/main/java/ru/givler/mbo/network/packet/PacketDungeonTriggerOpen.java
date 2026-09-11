@@ -1,3 +1,40 @@
 package ru.givler.mbo.network.packet;
-import cpw.mods.fml.common.network.simpleimpl.*;import io.netty.buffer.ByteBuf;import net.minecraft.client.Minecraft;import net.minecraft.nbt.NBTTagCompound;import cpw.mods.fml.common.network.ByteBufUtils;import ru.givler.mbo.client.gui.GuiDungeonTriggerEditor;import ru.givler.mbo.network.EditorPacketAccess;
-public final class PacketDungeonTriggerOpen implements IMessage{private NBTTagCompound tag=new NBTTagCompound();public PacketDungeonTriggerOpen(){}public PacketDungeonTriggerOpen(NBTTagCompound tag){this.tag=tag;}public void fromBytes(ByteBuf b){NBTTagCompound t=ByteBufUtils.readTag(b);tag=t==null?new NBTTagCompound():t;}public void toBytes(ByteBuf b){ByteBufUtils.writeTag(b,tag);}public static final class Handler implements IMessageHandler<PacketDungeonTriggerOpen,IMessage>{public IMessage onMessage(final PacketDungeonTriggerOpen m,MessageContext c){EditorPacketAccess.scheduleClient(new Runnable(){public void run(){Minecraft.getMinecraft().displayGuiScreen(new GuiDungeonTriggerEditor(m.tag));}});return null;}}}
+
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.*;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.NBTTagCompound;
+import ru.givler.mbo.client.gui.GuiDungeonTriggerEditor;
+import ru.givler.mbo.network.EditorPacketAccess;
+
+public final class PacketDungeonTriggerOpen implements IMessage {
+  private NBTTagCompound tag = new NBTTagCompound();
+
+  public PacketDungeonTriggerOpen() {}
+
+  public PacketDungeonTriggerOpen(NBTTagCompound tag) {
+    this.tag = tag;
+  }
+
+  public void fromBytes(ByteBuf b) {
+    NBTTagCompound t = ByteBufUtils.readTag(b);
+    tag = t == null ? new NBTTagCompound() : t;
+  }
+
+  public void toBytes(ByteBuf b) {
+    ByteBufUtils.writeTag(b, tag);
+  }
+
+  public static final class Handler implements IMessageHandler<PacketDungeonTriggerOpen, IMessage> {
+    public IMessage onMessage(final PacketDungeonTriggerOpen m, MessageContext c) {
+      EditorPacketAccess.scheduleClient(
+          new Runnable() {
+            public void run() {
+              Minecraft.getMinecraft().displayGuiScreen(new GuiDungeonTriggerEditor(m.tag));
+            }
+          });
+      return null;
+    }
+  }
+}

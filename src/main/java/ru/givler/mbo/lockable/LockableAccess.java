@@ -7,7 +7,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import ru.givler.mbo.registry.ItemRegistry;
 import ru.givler.mbo.MoreBeyondOrdinary;
-import ru.givler.mbo.handler.MboGui;
+import ru.givler.mbo.gui.MboGuiType;
 import ru.givler.mbo.editor.BuilderAccess;
 
 public final class LockableAccess {
@@ -37,7 +37,7 @@ public final class LockableAccess {
     public static boolean openLockpicking(EntityPlayer player, ILockableTile lockable) {
         if (!hasLockpick(player) || lockable == null || !lockable.getLockData().isLocked()) return false;
         TileEntity tile = lockable.asTileEntity();
-        player.openGui(MoreBeyondOrdinary.instance, MboGui.LOCKPICKING.id,
+        player.openGui(MoreBeyondOrdinary.instance, MboGuiType.LOCKPICKING.id,
                 tile.getWorldObj(), tile.xCoord, tile.yCoord, tile.zCoord);
         return true;
     }
@@ -45,7 +45,7 @@ public final class LockableAccess {
     public static boolean configureWithAdminKey(EntityPlayer player, ILockableTile lockable) {
         if (!isAdminKey(player) || !player.isSneaking()) return false;
         TileEntity changed = lockable.asTileEntity();
-        player.openGui(MoreBeyondOrdinary.instance, MboGui.LOCK_CONFIG.id,
+        player.openGui(MoreBeyondOrdinary.instance, MboGuiType.LOCK_CONFIG.id,
                 changed.getWorldObj(), changed.xCoord, changed.yCoord, changed.zCoord);
         return true;
     }

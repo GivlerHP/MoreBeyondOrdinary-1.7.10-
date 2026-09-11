@@ -8,8 +8,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import ru.givler.mbo.block.*;
-import ru.givler.mbo.block.blockcraft.BlockArcanum;
-import ru.givler.mbo.block.specialblocks.*;
+import ru.givler.mbo.block.craft.BlockArcanum;
+import ru.givler.mbo.block.special.*;
 import ru.givler.mbo.block.model.BlockModelCollision;
 import ru.givler.mbo.movingplatform.BlockPlatformStation;
 

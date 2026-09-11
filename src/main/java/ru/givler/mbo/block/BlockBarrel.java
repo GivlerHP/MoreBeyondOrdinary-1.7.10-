@@ -18,7 +18,7 @@ import net.minecraft.util.Facing;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
-import ru.givler.mbo.handler.MboGui;
+import ru.givler.mbo.gui.MboGuiType;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 import ru.givler.mbo.tileentity.TileEntityBarrel;
 
@@ -73,7 +73,7 @@ public class BlockBarrel extends BlockContainer {
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
                                     int side, float hitX, float hitY, float hitZ) {
         if (!world.isRemote && world.getTileEntity(x, y, z) instanceof TileEntityBarrel) {
-            player.openGui(MoreBeyondOrdinary.instance, MboGui.BARREL.id, world, x, y, z);
+            player.openGui(MoreBeyondOrdinary.instance, MboGuiType.BARREL.id, world, x, y, z);
         }
         return true;
     }

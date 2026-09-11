@@ -1,7 +1,7 @@
 package ru.givler.mbo.integration.thaumcraft.item.focus;
 
 import net.minecraft.util.ResourceLocation;
-import ru.givler.mbo.integration.thaumcraft.handler.ConfigHandler;
+import ru.givler.mbo.integration.thaumcraft.config.ThaumcraftConfig;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.wands.FocusUpgradeType;
@@ -23,7 +23,7 @@ public class TMFocusUpgrades {
     public static void initFocusUpgrades() {
 
         cooldown = new FocusUpgradeType(
-                ConfigHandler.COOLDOWN_UPGRADE_ID,
+                ThaumcraftConfig.COOLDOWN_UPGRADE_ID,
                 new ResourceLocation("thaumcraft", "textures/foci/extend.png"),
                 "focus.upgrade.cleansing.cooldown.name",
                 "focus.upgrade.cleansing.cooldown.text",
@@ -31,7 +31,7 @@ public class TMFocusUpgrades {
         );
 
         divineProtection = new FocusUpgradeType(
-                ConfigHandler.DIVINE_PROTECTION_UPGRADE_ID,
+                ThaumcraftConfig.DIVINE_PROTECTION_UPGRADE_ID,
                 new ResourceLocation("mbo", "textures/foci/divine_protection.png"),
                 "focus.upgrade.cleansing.divine.name",
                 "focus.upgrade.cleansing.divine.text",
@@ -39,7 +39,7 @@ public class TMFocusUpgrades {
         );
 
         spirit = new FocusUpgradeType(
-                ConfigHandler.SPIRIT_UPGRADE_ID,
+                ThaumcraftConfig.SPIRIT_UPGRADE_ID,
                 new ResourceLocation("mbo", "textures/foci/spirit.png"),
                 "focus.upgrade.mhealing.spirit.name",
                 "focus.upgrade.mhealing.spirit.text",
@@ -47,7 +47,7 @@ public class TMFocusUpgrades {
         );
 
         vitality = new FocusUpgradeType(
-                ConfigHandler.VITALITY_UPGRADE_ID,
+                ThaumcraftConfig.VITALITY_UPGRADE_ID,
                 new ResourceLocation("mbo", "textures/foci/vitality.png"),
                 "focus.upgrade.mhealing.vitality.name",
                 "focus.upgrade.mhealing.vitality.text",
@@ -55,7 +55,7 @@ public class TMFocusUpgrades {
         );
 
         inspiration = new FocusUpgradeType(
-                ConfigHandler.INSPIRATION_UPGRADE_ID,
+                ThaumcraftConfig.INSPIRATION_UPGRADE_ID,
                 new ResourceLocation("mbo", "textures/foci/inspiration.png"),
                 "focus.upgrade.mhealing.inspiration.name",
                 "focus.upgrade.mhealing.inspiration.text",
@@ -63,7 +63,7 @@ public class TMFocusUpgrades {
         );
 
         sanity = new FocusUpgradeType(
-                ConfigHandler.SANITY_UPGRADE_ID,
+                ThaumcraftConfig.SANITY_UPGRADE_ID,
                 new ResourceLocation("mbo", "textures/foci/IconSanity.png"),
                 "focus.upgrade.sanity.name",
                 "focus.upgrade.sanity.text",
@@ -71,7 +71,7 @@ public class TMFocusUpgrades {
         );
 
         corrosive = new FocusUpgradeType(
-                ConfigHandler.CORROSIVE_UPGRADE_ID,
+                ThaumcraftConfig.CORROSIVE_UPGRADE_ID,
                 new ResourceLocation("mbo", "textures/foci/IconCorrosive.png"),
                 "focus.upgrade.corrosive.name",
                 "focus.upgrade.corrosive.text",
@@ -79,7 +79,7 @@ public class TMFocusUpgrades {
         );
 
         persistent = new FocusUpgradeType(
-                ConfigHandler.PERSISTENT_UPGRADE_ID,
+                ThaumcraftConfig.PERSISTENT_UPGRADE_ID,
                 new ResourceLocation("mbo", "textures/foci/IconPersistent.png"),
                 "focus.upgrade.persistent.name",
                 "focus.upgrade.persistent.text",
@@ -87,7 +87,7 @@ public class TMFocusUpgrades {
         );
 
         diffusion = new FocusUpgradeType(
-                ConfigHandler.DIFFUSION_UPGRADE_ID,
+                ThaumcraftConfig.DIFFUSION_UPGRADE_ID,
                 new ResourceLocation("mbo", "textures/foci/IconDiffusion.png"),
                 "focus.upgrade.diffusion.name",
                 "focus.upgrade.diffusion.text",
@@ -95,14 +95,14 @@ public class TMFocusUpgrades {
         );
 
         tripleEye = new FocusUpgradeType(
-                ConfigHandler.TRIPLE_EYE_UPGRADE_ID,
+                ThaumcraftConfig.TRIPLE_EYE_UPGRADE_ID,
                 new ResourceLocation("mbo", "textures/foci/IconTripleEye.png"),
                 "focus.upgrade.tripleeye.name",
                 "focus.upgrade.tripleeye.text",
                 new AspectList().add(Aspect.DARKNESS, 2).add(Aspect.SENSES, 3).add(Aspect.AURA, 2)
         );
         corrosive_darklight  = new FocusUpgradeType(
-                ConfigHandler.CORROSIVEDARKLIGHT_UPGRADE_ID,
+                ThaumcraftConfig.CORROSIVEDARKLIGHT_UPGRADE_ID,
                 new ResourceLocation("mbo", "textures/foci/IconCorrosive.png"),
                 "focus.upgrade.corrosive_darklight.name",
                 "focus.upgrade.corrosive_darklight.text",

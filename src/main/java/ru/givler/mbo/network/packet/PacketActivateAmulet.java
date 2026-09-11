@@ -9,7 +9,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StatCollector;
-import ru.givler.mbo.handler.AmuletCooldownTracker;
+import ru.givler.mbo.item.amulets.AmuletCooldownTracker;
 import ru.givler.mbo.item.IActivatableAmulet;
 
 public class PacketActivateAmulet implements IMessage {

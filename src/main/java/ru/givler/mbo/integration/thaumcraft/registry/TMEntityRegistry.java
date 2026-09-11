@@ -2,7 +2,7 @@ package ru.givler.mbo.integration.thaumcraft.registry;
 
 import cpw.mods.fml.common.registry.EntityRegistry;
 import ru.givler.mbo.MoreBeyondOrdinary;
-import ru.givler.mbo.integration.thaumcraft.entities.*;
+import ru.givler.mbo.integration.thaumcraft.entity.*;
 import ru.givler.mbo.registry.ModEntityIds;
 
 public class TMEntityRegistry {

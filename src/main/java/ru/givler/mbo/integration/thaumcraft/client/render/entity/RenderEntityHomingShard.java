@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityHomingShard;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityHomingShard;
 import thaumcraft.client.fx.ParticleEngine;
 import thaumcraft.client.lib.UtilsFX;
 

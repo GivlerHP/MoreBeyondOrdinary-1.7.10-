@@ -7,8 +7,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import ru.givler.mbo.block.BlockModels;
-import ru.givler.mbo.block.specialblocks.BlockDestructibleLootContainer;
-import ru.givler.mbo.block.blockmodels.BlockModelFood;
+import ru.givler.mbo.block.special.BlockDestructibleLootContainer;
+import ru.givler.mbo.block.model.BlockModelFood;
 
 import static net.minecraft.block.Block.*;
 

@@ -11,7 +11,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import ru.givler.mbo.integration.thaumcraft.entities.EntityDarkMatter;
+import ru.givler.mbo.integration.thaumcraft.entity.EntityDarkMatter;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.wands.IWandable;
