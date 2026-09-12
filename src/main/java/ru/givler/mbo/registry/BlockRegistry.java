@@ -18,7 +18,8 @@ public class BlockRegistry {
     public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofUnfired, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
             BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
             RoofWood, BlockFiredClay, BlockClayWall, BlockGlass, BlockAshgarBrick, BlockWoodenBox,
-            BlockTuff, BlockChiseledTuff, BlockChiseledTuffBricks, BlockPrismarine, BlockSeaLantern, SmoothStone;
+            BlockTuff, BlockChiseledTuff, BlockChiseledTuffBricks, BlockPrismarine, BlockSeaLantern,
+            CoralBlock, DeadCoralBlock, SmoothStone;
     public static BlockBarrier Barrier;
     public static BlockBarrel Barrel;
     public static BlockSlimeMBO SlimeBlock;
@@ -104,6 +105,17 @@ public class BlockRegistry {
         BlockSeaLantern = new BlockBase(Material.glass, "BlockSeaLantern", "stone/sea_lantern")
                 .setHardness(0.3F).setResistance(1.5F).setLightLevel(1.0F)
                 .setStepSound(Block.soundTypeGlass);
+        DeadCoralBlock = new BlockMeta(Material.rock, "DeadCoralBlock", new String[] {
+                "coral/dead_tube_coral_block", "coral/dead_brain_coral_block",
+                "coral/dead_bubble_coral_block", "coral/dead_fire_coral_block",
+                "coral/dead_horn_coral_block"
+        }).setHardness(1.5F).setResistance(6.0F);
+        DeadCoralBlock.setHarvestLevel("pickaxe", 0);
+        CoralBlock = new BlockCoral("CoralBlock", new String[] {
+                "coral/tube_coral_block", "coral/brain_coral_block",
+                "coral/bubble_coral_block", "coral/fire_coral_block",
+                "coral/horn_coral_block"
+        }, DeadCoralBlock);
         SmoothStone = new BlockSmoothStone();
 
         BooksheelSkull = new BlockMultiTexture(Material.wood, "BooksheelSkull", "wood/planks_oak", "wood/bookshelf_skull")

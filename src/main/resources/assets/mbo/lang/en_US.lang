@@ -1,3 +1,14 @@
+tile.CoralBlock.0.name=Tube Coral Block
+tile.CoralBlock.1.name=Brain Coral Block
+tile.CoralBlock.2.name=Bubble Coral Block
+tile.CoralBlock.3.name=Fire Coral Block
+tile.CoralBlock.4.name=Horn Coral Block
+tile.DeadCoralBlock.0.name=Dead Tube Coral Block
+tile.DeadCoralBlock.1.name=Dead Brain Coral Block
+tile.DeadCoralBlock.2.name=Dead Bubble Coral Block
+tile.DeadCoralBlock.3.name=Dead Fire Coral Block
+tile.DeadCoralBlock.4.name=Dead Horn Coral Block
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Creative Tabs/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
