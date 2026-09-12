@@ -8,152 +8,164 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import ru.givler.mbo.network.PacketManager;
-import ru.givler.mbo.network.EditorNetworkTickHandler;
-import ru.givler.mbo.particles.EnumParticleType;
-import ru.givler.mbo.tileentity.ModelTileBase;
+import ru.givler.mbo.dungeon.DungeonAreaLifecycleHandler;
+import ru.givler.mbo.dungeon.DungeonAreaProtectionHandler;
+import ru.givler.mbo.dungeon.DungeonTriggerEventHandler;
+import ru.givler.mbo.dungeon.IllusoryWallHitHandler;
+import ru.givler.mbo.editor.AreaEditorInteractionHandler;
 import ru.givler.mbo.handler.*;
+import ru.givler.mbo.movingplatform.MovingPlatformTickHandler;
+import ru.givler.mbo.movingplatform.TileEntityPlatformStation;
+import ru.givler.mbo.network.EditorNetworkTickHandler;
+import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.recipes.registry.BlockRecipeRegistry;
 import ru.givler.mbo.recipes.registry.RoofRecipeRegistry;
 import ru.givler.mbo.registry.*;
+import ru.givler.mbo.registry.PotionArrayExpander;
+import ru.givler.mbo.spectator.SpectatorEventHandler;
+import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.tileentity.TileEntityArcanum;
-import ru.givler.mbo.tileentity.TileEntityLootContainer;
 import ru.givler.mbo.tileentity.TileEntityBarrel;
 import ru.givler.mbo.tileentity.TileEntityLockableChest;
 import ru.givler.mbo.tileentity.TileEntityLockableDoor;
 import ru.givler.mbo.tileentity.TileEntityLockableTrapdoor;
-import ru.givler.mbo.registry.PotionArrayExpander;
-import ru.givler.mbo.spectator.SpectatorEventHandler;
-import ru.givler.mbo.movingplatform.MovingPlatformTickHandler;
-import ru.givler.mbo.movingplatform.TileEntityPlatformStation;
-import ru.givler.mbo.editor.AreaEditorInteractionHandler;
-import ru.givler.mbo.dungeon.DungeonAreaProtectionHandler;
-import ru.givler.mbo.dungeon.IllusoryWallHitHandler;
-import ru.givler.mbo.dungeon.DungeonAreaLifecycleHandler;
-import ru.givler.mbo.dungeon.DungeonTriggerEventHandler;
+import ru.givler.mbo.tileentity.TileEntityLootContainer;
+import ru.givler.mbo.waterlogging.WaterloggingEventHandler;
 
 public class CommonProxy {
 
-    public void initPackets() {
-        PacketManager.registerCommonPackets();
-        PacketManager.registerClientPackets();
+  public void initPackets() {
+    PacketManager.registerCommonPackets();
+    PacketManager.registerClientPackets();
+  }
+
+  public void registerRenderers() {}
+
+  public void registerPackets() {}
+
+  public World getClientWorld() {
+    return null;
+  }
+
+  public void preInit(FMLPreInitializationEvent event) {
+    PotionArrayExpander.expand(128);
+    BlockRegistry.preLoad(event);
+    ItemRegistry.preLoad(event);
+    PotionRegistry.preLoad(event);
+    ModelRegistry.preInit(event);
+    DrinkRegistry.preLoad(event);
+    FoodRegistry.preLoad(event);
+    PlantRegistry.preLoad(event);
+    ArmorRegistry.preLoad(event);
+    if (Loader.isModLoaded("Thaumcraft")) {
+      invokeOptional(
+          "ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry",
+          "preLoad",
+          FMLPreInitializationEvent.class,
+          event);
     }
-
-    public void registerRenderers() {
+    if (Loader.isModLoaded("BiomesOPlenty")) {
+      invokeOptional("ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry", "init");
     }
-
-    public void registerPackets() {
-
+    BoatRegistry.init();
+    BannerRegistry.init();
+    StonecutterRegistry.init();
+    MinecraftForge.EVENT_BUS.register(new PotionEvents());
+    MinecraftForge.EVENT_BUS.register(new BeltEvents());
+    FMLCommonHandler.instance().bus().register(new BeltEvents());
+    MinecraftForge.EVENT_BUS.register(new RingEvents());
+    FMLCommonHandler.instance().bus().register(new RingEvents());
+    SpectatorEventHandler spectatorHandler = new SpectatorEventHandler();
+    MinecraftForge.EVENT_BUS.register(spectatorHandler);
+    FMLCommonHandler.instance().bus().register(spectatorHandler);
+    FMLCommonHandler.instance().bus().register(new MovingPlatformTickHandler());
+    FMLCommonHandler.instance().bus().register(new EditorNetworkTickHandler());
+    MinecraftForge.EVENT_BUS.register(new AreaEditorInteractionHandler());
+    MinecraftForge.EVENT_BUS.register(new DungeonAreaProtectionHandler());
+    MinecraftForge.EVENT_BUS.register(new IllusoryWallHitHandler());
+    MinecraftForge.EVENT_BUS.register(new DungeonTriggerEventHandler());
+    FMLCommonHandler.instance().bus().register(new DungeonAreaLifecycleHandler());
+    WaterloggingEventHandler waterloggingHandler = new WaterloggingEventHandler();
+    MinecraftForge.EVENT_BUS.register(waterloggingHandler);
+    FMLCommonHandler.instance().bus().register(waterloggingHandler);
+    if (Loader.isModLoaded("Thaumcraft")) {
+      invokeOptional(
+          "ru.givler.mbo.integration.thaumcraft.ThaumcraftCommonRegistration", "registerHandlers");
     }
+  }
 
-    public World getClientWorld() {
-        return null;
+  public void init(FMLInitializationEvent event) {
+    CreativeTabRegistry.init(event);
+    BoatRegistry.registerRecipes();
+    moveWoodIntegrationToBoPTab();
+    ModelRegistry.init(event);
+    if (isMineFantasyLoaded()) {
+      invokeOptional("ru.givler.mbo.integration.minefantasy2.MineFantasyRegistry", "init");
     }
-
-    public void preInit(FMLPreInitializationEvent event){
-        PotionArrayExpander.expand(128);
-        BlockRegistry.preLoad(event);
-        ItemRegistry.preLoad(event);
-        PotionRegistry.preLoad(event);
-        ModelRegistry.preInit(event);
-        DrinkRegistry.preLoad(event);
-        FoodRegistry.preLoad(event);
-        PlantRegistry.preLoad(event);
-        ArmorRegistry.preLoad(event);
-        if (Loader.isModLoaded("Thaumcraft")) {
-            invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry",
-                    "preLoad", FMLPreInitializationEvent.class, event);
-        }
-        if (Loader.isModLoaded("BiomesOPlenty")) {
-            invokeOptional("ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry", "init");
-        }
-        BoatRegistry.init();
-        BannerRegistry.init();
-        StonecutterRegistry.init();
-        MinecraftForge.EVENT_BUS.register(new PotionEvents());
-        MinecraftForge.EVENT_BUS.register(new BeltEvents());
-        FMLCommonHandler.instance().bus().register(new BeltEvents());
-        MinecraftForge.EVENT_BUS.register(new RingEvents());
-        FMLCommonHandler.instance().bus().register(new RingEvents());
-        SpectatorEventHandler spectatorHandler = new SpectatorEventHandler();
-        MinecraftForge.EVENT_BUS.register(spectatorHandler);
-        FMLCommonHandler.instance().bus().register(spectatorHandler);
-        FMLCommonHandler.instance().bus().register(new MovingPlatformTickHandler());
-        FMLCommonHandler.instance().bus().register(new EditorNetworkTickHandler());
-        MinecraftForge.EVENT_BUS.register(new AreaEditorInteractionHandler());
-        MinecraftForge.EVENT_BUS.register(new DungeonAreaProtectionHandler());
-        MinecraftForge.EVENT_BUS.register(new IllusoryWallHitHandler());
-        MinecraftForge.EVENT_BUS.register(new DungeonTriggerEventHandler());
-        FMLCommonHandler.instance().bus().register(new DungeonAreaLifecycleHandler());
-        if (Loader.isModLoaded("Thaumcraft")) {
-            invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftCommonRegistration",
-                    "registerHandlers");
-        }
+    if (Loader.isModLoaded("Thaumcraft")) {
+      invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry", "init");
     }
+    GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
+    GameRegistry.registerTileEntity(
+        ru.givler.mbo.tileentity.TileEntityModelCollision.class, "ModelCollisionPartTile");
+    GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
+    GameRegistry.registerTileEntity(TileEntityLootContainer.class, "loot_container_tile");
+    GameRegistry.registerTileEntity(TileEntityBarrel.class, "mbo_barrel");
+    GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileEntityBanner.class, "mbo_banner");
+    GameRegistry.registerTileEntity(TileEntityLockableChest.class, "mbo_lockable_chest");
+    GameRegistry.registerTileEntity(TileEntityLockableDoor.class, "mbo_lockable_door");
+    GameRegistry.registerTileEntity(TileEntityLockableTrapdoor.class, "mbo_lockable_trapdoor");
+    GameRegistry.registerTileEntity(TileEntityPlatformStation.class, "mbo_platform_station");
 
-    public void init(FMLInitializationEvent event){
-        CreativeTabRegistry.init(event);
-        BoatRegistry.registerRecipes();
-        moveWoodIntegrationToBoPTab();
-        ModelRegistry.init(event);
-        if (isMineFantasyLoaded()) {
-            invokeOptional("ru.givler.mbo.integration.minefantasy2.MineFantasyRegistry", "init");
-        }
-        if (Loader.isModLoaded("Thaumcraft")) {
-            invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry", "init");
-        }
-        GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
-        GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileEntityModelCollision.class,
-                "ModelCollisionPartTile");
-        GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
-        GameRegistry.registerTileEntity(TileEntityLootContainer.class, "loot_container_tile");
-        GameRegistry.registerTileEntity(TileEntityBarrel.class, "mbo_barrel");
-        GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileEntityBanner.class, "mbo_banner");
-        GameRegistry.registerTileEntity(TileEntityLockableChest.class, "mbo_lockable_chest");
-        GameRegistry.registerTileEntity(TileEntityLockableDoor.class, "mbo_lockable_door");
-        GameRegistry.registerTileEntity(TileEntityLockableTrapdoor.class, "mbo_lockable_trapdoor");
-        GameRegistry.registerTileEntity(TileEntityPlatformStation.class, "mbo_platform_station");
-
-        BlockRecipeRegistry.init();
-        RoofRecipeRegistry.init();
-        if (isMineFantasyLoaded()) {
-            invokeOptional("ru.givler.mbo.recipes.registry.ArcanumRecipeRegistry", "init");
-        }
-        BlockRegistry.initRecipe();
-        StonecutterRegistry.registerRecipes();
-        GameRegistry.addSmelting(net.minecraft.init.Blocks.stone,
-                new net.minecraft.item.ItemStack(BlockRegistry.SmoothStone), 0.1F);
-
+    BlockRecipeRegistry.init();
+    RoofRecipeRegistry.init();
+    if (isMineFantasyLoaded()) {
+      invokeOptional("ru.givler.mbo.recipes.registry.ArcanumRecipeRegistry", "init");
     }
+    BlockRegistry.initRecipe();
+    StonecutterRegistry.registerRecipes();
+    GameRegistry.addSmelting(
+        net.minecraft.init.Blocks.stone,
+        new net.minecraft.item.ItemStack(BlockRegistry.SmoothStone),
+        0.1F);
+  }
 
-    private void moveWoodIntegrationToBoPTab() {
-        if (Loader.isModLoaded("BiomesOPlenty")) {
-            invokeOptional("ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry", "moveToModTab");
-        }
+  private void moveWoodIntegrationToBoPTab() {
+    if (Loader.isModLoaded("BiomesOPlenty")) {
+      invokeOptional(
+          "ru.givler.mbo.integration.biomesoplenty.BiomesOPlentyRegistry", "moveToModTab");
     }
+  }
 
-    public void postInit(FMLPostInitializationEvent event){
+  public void postInit(FMLPostInitializationEvent event) {}
+
+  private static void invokeOptional(String className, String method) {
+    invokeOptional(className, method, null, null);
+  }
+
+  private static void invokeOptional(
+      String className, String method, Class<?> parameterType, Object argument) {
+    try {
+      Class<?> integration = Class.forName(className);
+      if (parameterType == null) integration.getMethod(method).invoke(null);
+      else integration.getMethod(method, parameterType).invoke(null, argument);
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException("Failed to initialise optional integration " + className, e);
     }
+  }
 
-    private static void invokeOptional(String className, String method) {
-        invokeOptional(className, method, null, null);
-    }
+  private static boolean isMineFantasyLoaded() {
+    return Loader.isModLoaded("minefantasy2");
+  }
 
-    private static void invokeOptional(String className, String method, Class<?> parameterType, Object argument) {
-        try {
-            Class<?> integration = Class.forName(className);
-            if (parameterType == null) integration.getMethod(method).invoke(null);
-            else integration.getMethod(method, parameterType).invoke(null, argument);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Failed to initialise optional integration " + className, e);
-        }
-    }
-
-    private static boolean isMineFantasyLoaded() {
-        return Loader.isModLoaded("minefantasy2");
-    }
-
-    public void spawnParticle(EnumParticleType type, World world, double x, double y, double z, double motionX, double motionY, double motionZ) {
-
-    }
+  public void spawnParticle(
+      EnumParticleType type,
+      World world,
+      double x,
+      double y,
+      double z,
+      double motionX,
+      double motionY,
+      double motionZ) {}
 }

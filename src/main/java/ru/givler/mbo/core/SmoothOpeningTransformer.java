@@ -7,6 +7,7 @@ import org.objectweb.asm.tree.*;
 
 public final class SmoothOpeningTransformer implements IClassTransformer, Opcodes {
   private static final String RENDER_BLOCKS = "net.minecraft.client.renderer.RenderBlocks";
+  private static final String RENDER_GLOBAL = "net.minecraft.client.renderer.RenderGlobal";
   private static final String TESSELLATOR = "net.minecraft.client.renderer.Tessellator";
   private static final String CARPENTER_BASE = "com.carpentersblocks.renderer.BlockHandlerBase";
   private static final String HOOK = "ru/givler/mbo/client/render/SmoothOpeningRenderer";
@@ -16,6 +17,7 @@ public final class SmoothOpeningTransformer implements IClassTransformer, Opcode
     if (bytes == null) return null;
     try {
       if (RENDER_BLOCKS.equals(transformedName)) return patchRenderBlocks(bytes);
+      if (RENDER_GLOBAL.equals(transformedName)) return patchRenderGlobal(bytes);
       if (TESSELLATOR.equals(transformedName)) return patchTessellator(bytes);
       if (CARPENTER_BASE.equals(transformedName)) return patchCarpenterRenderer(bytes);
       return bytes;
@@ -28,6 +30,30 @@ public final class SmoothOpeningTransformer implements IClassTransformer, Opcode
       error.printStackTrace();
       return bytes;
     }
+  }
+
+  private byte[] patchRenderGlobal(byte[] bytes) {
+    ClassNode node = read(bytes);
+    String desc = "(Lnet/minecraft/entity/EntityLivingBase;ID)I";
+    for (MethodNode method : node.methods) {
+      if (!matches(node.name, method, desc, "sortAndRender", "func_72719_a")) continue;
+      InsnList hook = new InsnList();
+      hook.add(new VarInsnNode(ALOAD, 1));
+      hook.add(new VarInsnNode(ILOAD, 2));
+      hook.add(new VarInsnNode(DLOAD, 3));
+      hook.add(
+          new MethodInsnNode(
+              INVOKESTATIC,
+              HOOK,
+              "renderBeforeTranslucent",
+              "(Lnet/minecraft/entity/EntityLivingBase;ID)V",
+              false));
+      method.instructions.insert(hook);
+      System.out.println("[MBO ASM] Patched animations before translucent world pass");
+      return write(node);
+    }
+    System.err.println("[MBO ASM] RenderGlobal.sortAndRender was not found");
+    return bytes;
   }
 
   private byte[] patchCarpenterRenderer(byte[] bytes) {

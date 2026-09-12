@@ -119,6 +119,7 @@ public class ClientProxy extends CommonProxy {
     RenderingRegistry.registerEntityRenderingHandler(
         EntityMovingPlatform.class, new RenderMovingPlatform());
     MinecraftForge.EVENT_BUS.register(new DungeonAreaWorldRenderer());
+    MinecraftForge.EVENT_BUS.register(new WaterloggedBlockRenderer());
     MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.client.render.PlatformTechnicalRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaSelectionRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaEditorMouseHandler());

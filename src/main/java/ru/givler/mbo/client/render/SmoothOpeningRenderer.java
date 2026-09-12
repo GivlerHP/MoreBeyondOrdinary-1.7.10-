@@ -14,9 +14,9 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.integration.carpentersblocks.client.render.CarpenterOpeningBridge;
@@ -400,25 +400,23 @@ public final class SmoothOpeningRenderer {
     }
   }
 
-  @SubscribeEvent
-  public void render(RenderWorldLastEvent event) {
+  public static void renderBeforeTranslucent(
+      EntityLivingBase viewEntity, int renderPass, double partialTicks) {
+    if (renderPass != 1) return;
     Minecraft mc = Minecraft.getMinecraft();
     World world = mc.theWorld;
-    if (world == null || mc.renderViewEntity == null) return;
+    if (world == null || viewEntity == null) return;
     long now = System.currentTimeMillis();
     double cx =
-        mc.renderViewEntity.lastTickPosX
-            + (mc.renderViewEntity.posX - mc.renderViewEntity.lastTickPosX) * event.partialTicks;
+        viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * partialTicks;
     double cy =
-        mc.renderViewEntity.lastTickPosY
-            + (mc.renderViewEntity.posY - mc.renderViewEntity.lastTickPosY) * event.partialTicks;
+        viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * partialTicks;
     double cz =
-        mc.renderViewEntity.lastTickPosZ
-            + (mc.renderViewEntity.posZ - mc.renderViewEntity.lastTickPosZ) * event.partialTicks;
+        viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * partialTicks;
     mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+    mc.entityRenderer.enableLightmap(partialTicks);
     RenderBlocks renderer = new RenderBlocks(world);
     renderer.renderAllFaces = true;
-    mc.entityRenderer.enableLightmap(event.partialTicks);
     int previousPass = MinecraftForgeClient.getRenderPass();
     GL11.glPushMatrix();
     GL11.glColor4f(1F, 1F, 1F, 1F);
@@ -439,7 +437,6 @@ public final class SmoothOpeningRenderer {
       DEPTH.remove();
       GL11.glPopMatrix();
       GL11.glColor4f(1, 1, 1, 1);
-      mc.entityRenderer.disableLightmap(event.partialTicks);
     }
   }
 
