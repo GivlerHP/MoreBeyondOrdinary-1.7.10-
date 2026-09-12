@@ -59,7 +59,7 @@ public final class TrapdoorPlacementTransformer implements IClassTransformer, Op
   }
 
   private static byte[] write(ClassNode node) {
-    ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+    ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);
     return writer.toByteArray();
   }

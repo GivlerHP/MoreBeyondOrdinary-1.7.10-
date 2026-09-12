@@ -67,7 +67,7 @@ public final class WaterloggingMovementTransformer implements IClassTransformer,
       }
     }
     if (patched) {
-      ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+      ClassWriter writer = SafeClassWriter.create();
       node.accept(writer);
       System.out.println("[MBO ASM] Patched waterlogged entity movement and falling");
       return writer.toByteArray();

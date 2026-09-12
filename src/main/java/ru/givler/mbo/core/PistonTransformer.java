@@ -39,7 +39,7 @@ public class PistonTransformer implements IClassTransformer, Opcodes {
       System.err.println("[MBO ASM] BlockPistonBase event method was not found");
       return bytes;
     }
-    ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+    ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);
     System.out.println("[MBO ASM] Patched BlockPistonBase slime behavior");
     return writer.toByteArray();

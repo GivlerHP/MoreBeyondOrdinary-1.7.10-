@@ -42,13 +42,7 @@ public final class ItemTooltipContextTransformer implements IClassTransformer, O
       System.err.println("[MBO ASM] Item tooltip drawHoveringText call was not found");
       return bytes;
     }
-    ClassWriter writer =
-        new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES) {
-          @Override
-          protected String getCommonSuperClass(String a, String b) {
-            return "java/lang/Object";
-          }
-        };
+    ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);
     System.out.println("[MBO ASM] Limited ornamental frame to ItemStack tooltips");
     return writer.toByteArray();

@@ -33,7 +33,7 @@ public final class NeiTooltipFrameTransformer implements IClassTransformer, Opco
             System.err.println("[MBO ASM] CodeChickenLib tooltip box was not found");
             return bytes;
         }
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter writer = SafeClassWriter.create();
         node.accept(writer);
         System.out.println("[MBO ASM] Installed ornamental frame in CodeChickenLib tooltips");
         return writer.toByteArray();

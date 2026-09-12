@@ -26,9 +26,7 @@ public final class RailTransformer implements IClassTransformer, Opcodes {
                 method.instructions.add(new InsnNode(IRETURN));
             }
         }
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES) {
-            @Override protected String getCommonSuperClass(String a, String b) { return "java/lang/Object"; }
-        };
+        ClassWriter writer = SafeClassWriter.create();
         node.accept(writer);
         return writer.toByteArray();
     }

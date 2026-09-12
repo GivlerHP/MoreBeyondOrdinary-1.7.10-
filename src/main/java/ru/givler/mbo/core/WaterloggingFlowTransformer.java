@@ -144,7 +144,7 @@ public final class WaterloggingFlowTransformer implements IClassTransformer, Opc
               + patchedCanFlow);
       return bytes;
     }
-    ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+    ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);
     System.out.println("[MBO ASM] Patched flowing water and waterlogged source decay");
     return writer.toByteArray();

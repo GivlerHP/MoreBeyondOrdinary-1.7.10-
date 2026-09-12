@@ -48,8 +48,7 @@ public final class WaterloggingEntityTransformer implements IClassTransformer, O
       hook.add(new InsnNode(IRETURN));
       hook.add(vanilla);
       method.instructions.insert(hook);
-      ClassWriter writer =
-          new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+      ClassWriter writer = SafeClassWriter.create();
       node.accept(writer);
       System.out.println("[MBO ASM] Patched entity waterlogged material checks");
       return writer.toByteArray();

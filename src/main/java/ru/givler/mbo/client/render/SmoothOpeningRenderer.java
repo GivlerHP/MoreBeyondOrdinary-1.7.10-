@@ -17,6 +17,7 @@ import net.minecraft.world.World;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.integration.carpentersblocks.client.render.CarpenterOpeningBridge;
@@ -26,6 +27,8 @@ import ru.givler.mbo.integration.thaumcraft.client.render.ThaumcraftOpeningBridg
 public final class SmoothOpeningRenderer {
   private static final int DOOR = 0, TRAPDOOR = 1, GATE = 2;
   private static boolean thaumcraftLoaded, carpenters;
+  private static boolean neodymiumLoaded;
+  private static volatile boolean renderedBeforeTranslucent;
   private static final long DURATION = 400L;
   private static final long RESTORE_GRACE = 150L;
 
@@ -60,6 +63,24 @@ public final class SmoothOpeningRenderer {
   public static void configureIntegrations() {
     thaumcraftLoaded = Loader.isModLoaded("Thaumcraft");
     carpenters = Loader.isModLoaded("CarpentersBlocks");
+    neodymiumLoaded = Loader.isModLoaded("neodymium");
+    makePanesMainThreadOnly();
+  }
+
+  private static void makePanesMainThreadOnly() {
+    if (!Loader.isModLoaded("falsetweaks")) return;
+    try {
+      Method setter = Block.class.getMethod("ft$isThreadSafe", boolean.class);
+      int changed = 0;
+      for (Object value : Block.blockRegistry)
+        if (value instanceof BlockPane) {
+          setter.invoke(value, false);
+          changed++;
+        }
+      System.out.println("[MBO] FalseTweaks pane compatibility enabled for " + changed + " blocks");
+    } catch (Throwable error) {
+      System.err.println("[MBO] Could not configure FalseTweaks panes: " + error);
+    }
   }
 
   public static boolean begin(RenderBlocks renderer, Block block, int x, int y, int z) {
@@ -106,6 +127,10 @@ public final class SmoothOpeningRenderer {
     out[2] = z;
     Context c = ACTIVE.get();
     if (c == null) return out;
+    // Some block renderers emit connected or decorative geometry for neighbouring blocks.
+    // The animation context belongs only to the block currently passed to RenderBlocks;
+    // transforming every nested vertex makes plants and other cutout blocks disappear or rotate.
+    if (!belongsToRenderedBlock(c, x, y, z)) return out;
     // Keep vertices in the chunk buffer (Carpenter's renderer requires
     // that), but move its static copy out of view during the transition.
     if (c.hideChunkCopy) {
@@ -121,6 +146,17 @@ public final class SmoothOpeningRenderer {
     else if (s.kind == TRAPDOOR) rotateTrapdoor(out, s, delta);
     else rotateGate(out, c, delta);
     return out;
+  }
+
+  private static boolean belongsToRenderedBlock(Context context, double x, double y, double z) {
+    State state = context.state;
+    final double epsilon = 0.001D;
+    if (x < state.x - epsilon
+        || x > state.x + 1D + epsilon
+        || z < state.z - epsilon
+        || z > state.z + 1D + epsilon) return false;
+    // Gates and tall modded models can extend above their block; two blocks also covers a door half.
+    return y >= context.renderY - epsilon && y <= context.renderY + 2D + epsilon;
   }
 
   public static float[] correctColor(float red, float green, float blue) {
@@ -352,6 +388,7 @@ public final class SmoothOpeningRenderer {
   @SubscribeEvent
   public void tick(TickEvent.ClientTickEvent e) {
     if (e.phase != TickEvent.Phase.END) return;
+    renderedBeforeTranslucent = false;
     Minecraft mc = Minecraft.getMinecraft();
     World w = mc.theWorld;
     if (w == null) {
@@ -403,25 +440,52 @@ public final class SmoothOpeningRenderer {
   public static void renderBeforeTranslucent(
       EntityLivingBase viewEntity, int renderPass, double partialTicks) {
     if (renderPass != 1) return;
+    renderedBeforeTranslucent = true;
+    renderDynamicBlocks(viewEntity, partialTicks);
+  }
+
+  public static void renderBeforeNeodymiumTranslucent(int renderPass, double partialTicks) {
+    if (renderPass != 1) return;
+    renderedBeforeTranslucent = true;
+    renderDynamicBlocks(Minecraft.getMinecraft().renderViewEntity, partialTicks);
+  }
+
+  @SubscribeEvent
+  public void renderNeodymiumFallback(RenderWorldLastEvent event) {
+    if (!neodymiumLoaded || renderedBeforeTranslucent) return;
+    renderDynamicBlocks(Minecraft.getMinecraft().renderViewEntity, event.partialTicks);
+  }
+
+  private static void renderDynamicBlocks(EntityLivingBase viewEntity, double partialTicks) {
     Minecraft mc = Minecraft.getMinecraft();
     World world = mc.theWorld;
     if (world == null || viewEntity == null) return;
     long now = System.currentTimeMillis();
+    boolean hasDynamicState = false;
+    for (State state : STATES.values())
+      if (state.visibleDuringRestore(now)) {
+        hasDynamicState = true;
+        break;
+      }
+    if (!hasDynamicState) return;
     double cx =
         viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * partialTicks;
     double cy =
         viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * partialTicks;
     double cz =
         viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * partialTicks;
-    mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
-    mc.entityRenderer.enableLightmap(partialTicks);
     RenderBlocks renderer = new RenderBlocks(world);
     renderer.renderAllFaces = true;
     int previousPass = MinecraftForgeClient.getRenderPass();
+    int previousMatrixMode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
+    GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+    GL11.glMatrixMode(GL11.GL_MODELVIEW);
     GL11.glPushMatrix();
-    GL11.glColor4f(1F, 1F, 1F, 1F);
-    GL11.glTranslated(-cx, -cy, -cz);
     try {
+      mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+      mc.entityRenderer.enableLightmap(partialTicks);
+      GL11.glColor4f(1F, 1F, 1F, 1F);
+      GL11.glTranslated(-cx, -cy, -cz);
       for (State state : STATES.values()) {
         if (!state.visibleDuringRestore(now)) continue;
         if (isCarpenterBlock(state.block)) {
@@ -435,8 +499,10 @@ public final class SmoothOpeningRenderer {
       ForgeHooksClient.setRenderPass(previousPass);
       ACTIVE.remove();
       DEPTH.remove();
+      GL11.glMatrixMode(GL11.GL_MODELVIEW);
       GL11.glPopMatrix();
-      GL11.glColor4f(1, 1, 1, 1);
+      GL11.glPopAttrib();
+      GL11.glMatrixMode(previousMatrixMode);
     }
   }
 

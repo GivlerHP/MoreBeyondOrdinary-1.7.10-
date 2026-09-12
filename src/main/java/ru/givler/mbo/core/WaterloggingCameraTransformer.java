@@ -1,5 +1,6 @@
 package ru.givler.mbo.core;
 
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -27,9 +28,13 @@ public final class WaterloggingCameraTransformer implements IClassTransformer, O
           instruction = instruction.getNext()) {
         if (!(instruction instanceof MethodInsnNode)) continue;
         MethodInsnNode call = (MethodInsnNode) instruction;
+        FMLDeobfuscatingRemapper remapper = FMLDeobfuscatingRemapper.INSTANCE;
+        String mappedOwner = remapper.mapType(call.owner);
+        String mappedDescription = remapper.mapMethodDesc(call.desc);
         if (call.getOpcode() != INVOKESTATIC
-            || !ACTIVE_RENDER_INFO.equals(call.owner)
-            || !DESCRIPTION.equals(call.desc)) continue;
+            || !(ACTIVE_RENDER_INFO.equals(call.owner)
+                || ACTIVE_RENDER_INFO.equals(mappedOwner))
+            || !(DESCRIPTION.equals(call.desc) || DESCRIPTION.equals(mappedDescription))) continue;
         call.owner = "ru/givler/mbo/core/WaterloggingCameraHooks";
         call.name = "getViewBlock";
         call.itf = false;
@@ -39,7 +44,7 @@ public final class WaterloggingCameraTransformer implements IClassTransformer, O
       System.err.println("[MBO ASM] EntityRenderer camera material calls were not found");
       return bytes;
     }
-    ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+    ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);
     System.out.println("[MBO ASM] Patched " + patched + " waterlogged camera material calls");
     return writer.toByteArray();

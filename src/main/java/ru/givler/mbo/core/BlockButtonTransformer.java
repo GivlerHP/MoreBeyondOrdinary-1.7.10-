@@ -90,7 +90,7 @@ public class BlockButtonTransformer implements IClassTransformer, Opcodes {
       System.err.println("[MBO ASM] BlockButton methods were not found");
       return bytes;
     }
-    ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+    ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);
     System.out.println("[MBO ASM] Patched BlockButton floor/ceiling placement");
     return writer.toByteArray();

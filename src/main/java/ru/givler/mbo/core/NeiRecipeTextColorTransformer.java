@@ -43,7 +43,7 @@ public final class NeiRecipeTextColorTransformer implements IClassTransformer, O
             return bytes;
         }
 
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter writer = SafeClassWriter.create();
         node.accept(writer);
         System.out.println("[MBO ASM] Changed NEI recipe title and page text to white");
         return writer.toByteArray();

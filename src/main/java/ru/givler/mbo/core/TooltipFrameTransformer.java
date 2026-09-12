@@ -43,13 +43,7 @@ public final class TooltipFrameTransformer implements IClassTransformer, Opcodes
       System.err.println("[MBO ASM] GuiScreen tooltip method was not found");
       return bytes;
     }
-    ClassWriter writer =
-        new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES) {
-          @Override
-          protected String getCommonSuperClass(String a, String b) {
-            return "java/lang/Object";
-          }
-        };
+    ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);
     System.out.println("[MBO ASM] Installed tiled ornamental tooltip frame");
     return writer.toByteArray();

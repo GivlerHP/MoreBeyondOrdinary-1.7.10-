@@ -155,7 +155,7 @@ public class CauldronTransformer implements IClassTransformer, Opcodes {
               + renderPatched
               + ", collision="
               + collisionPatched);
-    ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+    ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);
     return writer.toByteArray();
   }

@@ -41,7 +41,7 @@ public final class LootingPotionTransformer implements IClassTransformer, Opcode
             System.err.println("[MBO ASM] EnchantmentHelper.getLootingModifier was not found");
             return bytes;
         }
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter writer = SafeClassWriter.create();
         node.accept(writer);
         System.out.println("[MBO ASM] Patched potion looting modifier");
         return writer.toByteArray();

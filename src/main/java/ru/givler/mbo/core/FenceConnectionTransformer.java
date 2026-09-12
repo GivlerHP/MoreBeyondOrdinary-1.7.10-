@@ -58,7 +58,7 @@ public final class FenceConnectionTransformer implements IClassTransformer, Opco
             System.err.println("[MBO ASM] Connection method not found in " + transformedName);
             return bytes;
         }
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter writer = SafeClassWriter.create();
         node.accept(writer);
         System.out.println("[MBO ASM] Patched connections in " + transformedName);
         return writer.toByteArray();

@@ -36,6 +36,10 @@ public final class WaterloggedBlockRenderer {
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void render(RenderWorldLastEvent event) {
+    renderNow(event.partialTicks);
+  }
+
+  public static void renderNow(float partialTicks) {
     Minecraft minecraft = Minecraft.getMinecraft();
     World world = minecraft.theWorld;
     if (world == null || minecraft.renderViewEntity == null) return;
@@ -43,19 +47,19 @@ public final class WaterloggedBlockRenderer {
     double cameraX =
         minecraft.renderViewEntity.lastTickPosX
             + (minecraft.renderViewEntity.posX - minecraft.renderViewEntity.lastTickPosX)
-                * event.partialTicks;
+                * partialTicks;
     double cameraY =
         minecraft.renderViewEntity.lastTickPosY
             + (minecraft.renderViewEntity.posY - minecraft.renderViewEntity.lastTickPosY)
-                * event.partialTicks;
+                * partialTicks;
     double cameraZ =
         minecraft.renderViewEntity.lastTickPosZ
             + (minecraft.renderViewEntity.posZ - minecraft.renderViewEntity.lastTickPosZ)
-                * event.partialTicks;
+                * partialTicks;
 
     minecraft.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
     EntityRenderer entityRenderer = minecraft.entityRenderer;
-    entityRenderer.enableLightmap(event.partialTicks);
+    entityRenderer.enableLightmap(partialTicks);
     GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
     GL11.glEnable(GL11.GL_BLEND);
     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -78,7 +82,7 @@ public final class WaterloggedBlockRenderer {
     tessellator.draw();
     GL11.glDepthMask(true);
     GL11.glPopAttrib();
-    entityRenderer.disableLightmap(event.partialTicks);
+    entityRenderer.disableLightmap(partialTicks);
   }
 
   private static void renderWater(World world, ClientWaterloggedBlocks.Position position) {

@@ -10,6 +10,7 @@ public final class SmoothOpeningTransformer implements IClassTransformer, Opcode
   private static final String RENDER_GLOBAL = "net.minecraft.client.renderer.RenderGlobal";
   private static final String TESSELLATOR = "net.minecraft.client.renderer.Tessellator";
   private static final String CARPENTER_BASE = "com.carpentersblocks.renderer.BlockHandlerBase";
+  private static final String NEODYMIUM_RENDERER = "makamys.neodymium.renderer.NeoRenderer";
   private static final String HOOK = "ru/givler/mbo/client/render/SmoothOpeningRenderer";
 
   @Override
@@ -20,6 +21,7 @@ public final class SmoothOpeningTransformer implements IClassTransformer, Opcode
       if (RENDER_GLOBAL.equals(transformedName)) return patchRenderGlobal(bytes);
       if (TESSELLATOR.equals(transformedName)) return patchTessellator(bytes);
       if (CARPENTER_BASE.equals(transformedName)) return patchCarpenterRenderer(bytes);
+      if (NEODYMIUM_RENDERER.equals(transformedName)) return patchNeodymiumRenderer(bytes);
       return bytes;
     } catch (Throwable error) {
       System.err.println(
@@ -32,6 +34,24 @@ public final class SmoothOpeningTransformer implements IClassTransformer, Opcode
     }
   }
 
+  private byte[] patchNeodymiumRenderer(byte[] bytes) {
+    ClassNode node = read(bytes);
+    String desc = "(ID[Lnet/minecraft/client/renderer/WorldRenderer;)I";
+    for (MethodNode method : node.methods) {
+      if (!"preRenderSortedRenderers".equals(method.name) || !desc.equals(method.desc)) continue;
+      InsnList hook = new InsnList();
+      hook.add(new VarInsnNode(ILOAD, 1));
+      hook.add(new VarInsnNode(DLOAD, 2));
+      hook.add(new MethodInsnNode(INVOKESTATIC, HOOK, "renderBeforeNeodymiumTranslucent",
+          "(ID)V", false));
+      method.instructions.insert(hook);
+      System.out.println("[MBO ASM] Patched animations into Neodymium translucent world pass");
+      return write(node);
+    }
+    System.err.println("[MBO ASM] Neodymium render-pass method was not found");
+    return bytes;
+  }
+
   private byte[] patchRenderGlobal(byte[] bytes) {
     ClassNode node = read(bytes);
     String desc = "(Lnet/minecraft/entity/EntityLivingBase;ID)I";
@@ -41,13 +61,8 @@ public final class SmoothOpeningTransformer implements IClassTransformer, Opcode
       hook.add(new VarInsnNode(ALOAD, 1));
       hook.add(new VarInsnNode(ILOAD, 2));
       hook.add(new VarInsnNode(DLOAD, 3));
-      hook.add(
-          new MethodInsnNode(
-              INVOKESTATIC,
-              HOOK,
-              "renderBeforeTranslucent",
-              "(Lnet/minecraft/entity/EntityLivingBase;ID)V",
-              false));
+      hook.add(new MethodInsnNode(INVOKESTATIC, HOOK, "renderBeforeTranslucent",
+          "(Lnet/minecraft/entity/EntityLivingBase;ID)V", false));
       method.instructions.insert(hook);
       System.out.println("[MBO ASM] Patched animations before translucent world pass");
       return write(node);
@@ -213,19 +228,7 @@ public final class SmoothOpeningTransformer implements IClassTransformer, Opcode
   }
 
   private static byte[] write(ClassNode n) {
-    /*
-     * Do not use ClassWriter's default getCommonSuperClass here. It loads
-     * classes through the system class loader while LaunchWrapper may still
-     * be defining RenderBlocks itself. In an obfuscated client that recursive
-     * lookup makes LaunchClassLoader report RenderBlocks as missing.
-     */
-    ClassWriter w =
-        new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES) {
-          @Override
-          protected String getCommonSuperClass(String type1, String type2) {
-            return "java/lang/Object";
-          }
-        };
+    ClassWriter w = SafeClassWriter.create();
     n.accept(w);
     return w.toByteArray();
   }

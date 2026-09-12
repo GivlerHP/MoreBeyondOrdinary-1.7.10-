@@ -41,7 +41,7 @@ public final class ThaumcraftFontTransformer implements IClassTransformer, Opcod
             System.err.println("[MBO ASM] Incomplete Thaumcraft font patch: " + patched + "/3 methods");
             return bytes;
         }
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter writer = SafeClassWriter.create();
         node.accept(writer);
         System.out.println("[MBO ASM] Routed Thaumonomicon font through Minecraft.fontRenderer");
         return writer.toByteArray();

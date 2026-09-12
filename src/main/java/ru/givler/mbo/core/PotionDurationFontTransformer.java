@@ -58,7 +58,7 @@ public final class PotionDurationFontTransformer implements IClassTransformer, O
             System.err.println("[MBO ASM] Potion duration shadow removed, but position was not found in "
                     + transformedName);
         }
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter writer = SafeClassWriter.create();
         node.accept(writer);
         System.out.println("[MBO ASM] Adjusted potion duration in " + transformedName);
         return writer.toByteArray();
