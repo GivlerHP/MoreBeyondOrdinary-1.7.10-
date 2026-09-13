@@ -19,6 +19,8 @@ import ru.givler.mbo.container.stonecutter.ContainerStonecutter;
 import ru.givler.mbo.client.gui.GuiStonecutter;
 import ru.givler.mbo.tileentity.*;
 import ru.givler.mbo.movingplatform.EntityMovingPlatform;
+import ru.givler.mbo.tileentity.TileEntityPlatformStation;
+import ru.givler.mbo.container.ContainerPlatformStation;
 
 public class MboGuiHandler implements IGuiHandler {
     @Override
@@ -46,6 +48,9 @@ public class MboGuiHandler implements IGuiHandler {
                 return tile instanceof ILockableTile ? new ContainerLockpicking(player.inventory) : null;
             case MOVING_PLATFORM:
                 return null;
+            case PLATFORM_STATION:
+                return tile instanceof TileEntityPlatformStation
+                        ? new ContainerPlatformStation(player.inventory, (TileEntityPlatformStation) tile) : null;
             default:
                 return null;
         }
@@ -84,6 +89,9 @@ public class MboGuiHandler implements IGuiHandler {
             case MOVING_PLATFORM:
                 net.minecraft.entity.Entity entity = world.getEntityByID(x);
                 return entity instanceof EntityMovingPlatform ? new GuiMovingPlatform((EntityMovingPlatform) entity) : null;
+            case PLATFORM_STATION:
+                return tile instanceof TileEntityPlatformStation
+                        ? new GuiPlatformStation((TileEntityPlatformStation) tile) : null;
             default:
                 return null;
         }

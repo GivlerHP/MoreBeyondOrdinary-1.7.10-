@@ -13,7 +13,7 @@ import ru.givler.mbo.network.packet.PacketPlatformAction;
 public class GuiMovingPlatform extends GuiScreen {
   private final EntityMovingPlatform platform;
   private int direction, returnMode;
-  private GuiTextField distance, seconds, delay;
+  private GuiTextField platformId, distance, seconds, delay;
 
   public GuiMovingPlatform(EntityMovingPlatform platform) {
     this.platform = platform;
@@ -25,21 +25,24 @@ public class GuiMovingPlatform extends GuiScreen {
   public void initGui() {
     Keyboard.enableRepeatEvents(true);
     buttonList.clear();
-    int x = width / 2 - 100, y = height / 2 - 90;
+    int x = width / 2 - 100, y = height / 2 - 110;
+    platformId = new GuiTextField(fontRendererObj, x, y, 200, 20);
+    platformId.setMaxStringLength(36);
+    platformId.setText(platform.getPlatformId().toString());
+    y += 25;
     buttonList.add(new GuiButton(0, x, y, 200, 20, directionLabel()));
     distance = new GuiTextField(fontRendererObj, x, y + 35, 95, 20);
     distance.setText(String.valueOf(platform.getDistance()));
     seconds = new GuiTextField(fontRendererObj, x + 105, y + 35, 95, 20);
-    seconds.setText(String.valueOf(Math.max(1, platform.getDurationTicks() / 20)));
+    seconds.setText(secondsText(platform.getDurationTicks()));
     buttonList.add(new GuiButton(6, x, y + 60, 130, 20, returnLabel()));
     delay = new GuiTextField(fontRendererObj, x + 140, y + 60, 60, 20);
-    delay.setText(String.valueOf(platform.getDelayTicks() / 20));
+    delay.setText(secondsText(platform.getDelayTicks()));
     buttonList.add(new GuiButton(1, x, y + 85, 98, 20, I18n.format("mbo.platform.save")));
     buttonList.add(new GuiButton(2, x + 102, y + 85, 98, 20, I18n.format("mbo.platform.rebuild")));
     buttonList.add(new GuiButton(3, x, y + 110, 98, 20, I18n.format("mbo.platform.goA")));
     buttonList.add(new GuiButton(4, x + 102, y + 110, 98, 20, I18n.format("mbo.platform.goB")));
-    buttonList.add(new GuiButton(7, x, y + 135, 98, 20, I18n.format("mbo.platform.getA")));
-    buttonList.add(new GuiButton(8, x + 102, y + 135, 98, 20, I18n.format("mbo.platform.getB")));
+    buttonList.add(new GuiButton(7, x, y + 135, 200, 20, I18n.format("mbo.platform.getStation")));
     buttonList.add(new GuiButton(5, x, y + 160, 98, 20, I18n.format("mbo.platform.reset")));
     buttonList.add(new GuiButton(9, x + 102, y + 160, 98, 20, I18n.format("mbo.platform.delete")));
     buttonList.add(new GuiButton(10, x, y + 185, 98, 20, I18n.format("mbo.platform.stop")));
@@ -86,10 +89,8 @@ public class GuiMovingPlatform extends GuiScreen {
                     : b.id == 4
                         ? PacketPlatformAction.GO_B
                         : b.id == 7
-                            ? PacketPlatformAction.GET_A
-                            : b.id == 8
-                                ? PacketPlatformAction.GET_B
-                                : b.id == 9
+                            ? PacketPlatformAction.GET_STATION
+                            : b.id == 9
                                     ? PacketPlatformAction.DELETE
                                     : b.id == 10
                                         ? PacketPlatformAction.STOP
@@ -100,9 +101,10 @@ public class GuiMovingPlatform extends GuiScreen {
             action,
             direction,
             number(distance.getText(), 3),
-            number(seconds.getText(), 3),
+            decimal(seconds.getText(), 3D),
             returnMode,
-            number(delay.getText(), 0)));
+            decimal(delay.getText(), 0D),
+            platformId.getText()));
     mc.displayGuiScreen(null);
   }
 
@@ -114,9 +116,20 @@ public class GuiMovingPlatform extends GuiScreen {
     }
   }
 
+  private static double decimal(String value, double fallback) {
+    try { return Double.parseDouble(value.replace(',', '.')); }
+    catch (Exception ignored) { return fallback; }
+  }
+
+  private static String secondsText(int ticks) {
+    double value = ticks / 20D;
+    return value == Math.rint(value) ? String.valueOf((int) value) : String.valueOf(value);
+  }
+
   @Override
   protected void keyTyped(char c, int key) {
-    if (distance.textboxKeyTyped(c, key)
+    if (platformId.textboxKeyTyped(c, key)
+        || distance.textboxKeyTyped(c, key)
         || seconds.textboxKeyTyped(c, key)
         || delay.textboxKeyTyped(c, key)) return;
     super.keyTyped(c, key);
@@ -125,6 +138,7 @@ public class GuiMovingPlatform extends GuiScreen {
   @Override
   protected void mouseClicked(int x, int y, int button) {
     super.mouseClicked(x, y, button);
+    platformId.mouseClicked(x, y, button);
     distance.mouseClicked(x, y, button);
     seconds.mouseClicked(x, y, button);
     delay.mouseClicked(x, y, button);
@@ -132,6 +146,7 @@ public class GuiMovingPlatform extends GuiScreen {
 
   @Override
   public void updateScreen() {
+    platformId.updateCursorCounter();
     distance.updateCursorCounter();
     seconds.updateCursorCounter();
     delay.updateCursorCounter();
@@ -145,9 +160,12 @@ public class GuiMovingPlatform extends GuiScreen {
   @Override
   public void drawScreen(int mx, int my, float partial) {
     drawDefaultBackground();
-    int x = width / 2 - 100, y = height / 2 - 90;
+    int x = width / 2 - 100, y = height / 2 - 110;
     drawCenteredString(
         fontRendererObj, I18n.format("mbo.platform.title"), width / 2, y - 22, 0xffffff);
+    drawString(fontRendererObj, I18n.format("mbo.platform.uuid"), x, y - 10, 0xaaaaaa);
+    platformId.drawTextBox();
+    y += 25;
     drawString(fontRendererObj, I18n.format("mbo.platform.distance"), x, y + 25, 0xaaaaaa);
     drawString(fontRendererObj, I18n.format("mbo.platform.seconds"), x + 105, y + 25, 0xaaaaaa);
     drawString(fontRendererObj, I18n.format("mbo.platform.delay"), x + 140, y + 51, 0xaaaaaa);

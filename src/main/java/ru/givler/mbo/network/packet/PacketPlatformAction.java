@@ -4,11 +4,13 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
+import cpw.mods.fml.common.network.ByteBufUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import ru.givler.mbo.movingplatform.EntityMovingPlatform;
 import ru.givler.mbo.movingplatform.PlatformAccess;
 import ru.givler.mbo.network.EditorPacketAccess;
+import ru.givler.mbo.tileentity.TileEntityPlatformStation;
 
 public class PacketPlatformAction implements IMessage {
   public static final int SAVE = 0,
@@ -16,11 +18,12 @@ public class PacketPlatformAction implements IMessage {
       RESET = 2,
       GO_A = 3,
       GO_B = 4,
-      GET_A = 5,
-      GET_B = 6,
+      GET_STATION = 5,
       DELETE = 7,
       STOP = 8;
-  private int entityId, action, direction, distance, seconds, returnMode, delaySeconds;
+  private int entityId, action, direction, distance, returnMode;
+  private double seconds, delaySeconds;
+  private String platformId = "";
 
   public PacketPlatformAction() {}
 
@@ -29,9 +32,10 @@ public class PacketPlatformAction implements IMessage {
       int action,
       int direction,
       int distance,
-      int seconds,
+      double seconds,
       int returnMode,
-      int delaySeconds) {
+      double delaySeconds,
+      String platformId) {
     this.entityId = entityId;
     this.action = action;
     this.direction = direction;
@@ -39,6 +43,7 @@ public class PacketPlatformAction implements IMessage {
     this.seconds = seconds;
     this.returnMode = returnMode;
     this.delaySeconds = delaySeconds;
+    this.platformId = platformId == null ? "" : platformId;
   }
 
   @Override
@@ -47,9 +52,10 @@ public class PacketPlatformAction implements IMessage {
     action = b.readInt();
     direction = b.readInt();
     distance = b.readInt();
-    seconds = b.readInt();
+    seconds = b.readDouble();
     returnMode = b.readInt();
-    delaySeconds = b.readInt();
+    delaySeconds = b.readDouble();
+    platformId = ByteBufUtils.readUTF8String(b);
   }
 
   @Override
@@ -58,9 +64,10 @@ public class PacketPlatformAction implements IMessage {
     b.writeInt(action);
     b.writeInt(direction);
     b.writeInt(distance);
-    b.writeInt(seconds);
+    b.writeDouble(seconds);
     b.writeInt(returnMode);
-    b.writeInt(delaySeconds);
+    b.writeDouble(delaySeconds);
+    ByteBufUtils.writeUTF8String(b, platformId);
   }
 
   public static class Handler implements IMessageHandler<PacketPlatformAction, IMessage> {
@@ -75,7 +82,15 @@ public class PacketPlatformAction implements IMessage {
       if (!(e instanceof EntityMovingPlatform)) return;
       EntityMovingPlatform p = (EntityMovingPlatform) e;
       if (m.action == SAVE) {
+        java.util.UUID requestedId;
+        try { requestedId = java.util.UUID.fromString(m.platformId); }
+        catch (IllegalArgumentException invalid) { return; }
+        for (Object loaded : player.worldObj.loadedEntityList)
+          if (loaded instanceof EntityMovingPlatform
+              && loaded != p
+              && requestedId.equals(((EntityMovingPlatform) loaded).getPlatformId())) return;
         if (p.isMoving() && !p.stopAndReturn(player)) return;
+        p.setPlatformId(requestedId);
         p.configure(m.direction, m.distance, m.seconds, m.returnMode, m.delaySeconds);
         p.confirmConfiguration();
         ru.givler.mbo.network.PacketManager.INSTANCE.sendToDimension(
@@ -89,13 +104,13 @@ public class PacketPlatformAction implements IMessage {
       } else if (m.action == RESET) p.reset(player);
       else if (m.action == GO_A) p.start(false, player);
       else if (m.action == GO_B) p.start(true, player);
-      else if (m.action == GET_A || m.action == GET_B) {
+      else if (m.action == GET_STATION) {
         net.minecraft.item.ItemStack stack =
             new net.minecraft.item.ItemStack(ru.givler.mbo.registry.BlockRegistry.PlatformStation);
         stack.setTagCompound(new net.minecraft.nbt.NBTTagCompound());
         net.minecraft.nbt.NBTTagCompound tag = stack.getTagCompound();
         tag.setString("PlatformId", p.getPlatformId().toString());
-        tag.setBoolean("TargetB", m.action == GET_B);
+        tag.setInteger("Mode", TileEntityPlatformStation.SEND_A);
         tag.setInteger("Dimension", player.dimension);
         tag.setInteger("AX", p.getEndpointAX());
         tag.setInteger("AY", p.getEndpointAY());

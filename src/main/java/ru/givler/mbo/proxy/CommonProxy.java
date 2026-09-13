@@ -15,7 +15,7 @@ import ru.givler.mbo.dungeon.IllusoryWallHitHandler;
 import ru.givler.mbo.editor.AreaEditorInteractionHandler;
 import ru.givler.mbo.handler.*;
 import ru.givler.mbo.movingplatform.MovingPlatformTickHandler;
-import ru.givler.mbo.movingplatform.TileEntityPlatformStation;
+import ru.givler.mbo.tileentity.TileEntityPlatformStation;
 import ru.givler.mbo.network.EditorNetworkTickHandler;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;

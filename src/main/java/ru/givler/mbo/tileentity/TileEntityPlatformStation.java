@@ -1,18 +1,21 @@
-package ru.givler.mbo.movingplatform;
+package ru.givler.mbo.tileentity;
 
 import java.util.UUID;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import ru.givler.mbo.movingplatform.EntityMovingPlatform;
 
 public class TileEntityPlatformStation extends TileEntity {
+  public static final int SEND_A = 0, SEND_B = 1, POWERED_A = 2, POWERED_B = 3, MODE_COUNT = 4;
   private UUID platformId;
-  private boolean targetB, powered;
+  private int mode;
+  private boolean powered;
   private int dimension, aX, aY, aZ, bX, bY, bZ;
   private boolean hasEndpoints;
 
   public void readLink(NBTTagCompound tag) {
     platformId = parseUuid(tag.getString("PlatformId"));
-    targetB = tag.getBoolean("TargetB");
+    mode = tag.hasKey("Mode") ? clampMode(tag.getInteger("Mode")) : tag.getBoolean("TargetB") ? SEND_B : SEND_A;
     dimension = tag.getInteger("Dimension");
     hasEndpoints = tag.hasKey("AX") && tag.hasKey("BX");
     aX = tag.getInteger("AX");
@@ -43,11 +46,45 @@ public class TileEntityPlatformStation extends TileEntity {
         worldObj.getChunkFromBlockCoords(bX, bZ);
         platform = findPlatform();
       }
-      if (platform != null) platform.start(targetB, null);
+      if (platform != null) platform.start(targetB(now), null);
     }
     powered = now;
     markDirty();
   }
+
+  private boolean targetB(boolean hasSignal) {
+    if (mode == SEND_B) return true;
+    if (mode == POWERED_A) return !hasSignal;
+    if (mode == POWERED_B) return hasSignal;
+    return false;
+  }
+
+  public void setMode(int value) {
+    mode = clampMode(value);
+    powered = worldObj != null && worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
+    EntityMovingPlatform platform = platformId == null ? null : findPlatform();
+    if (platform != null) platform.start(targetB(powered), null);
+    markDirty();
+    if (worldObj != null) worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+  }
+
+  public int getMode() { return mode; }
+
+  public String getPlatformIdText() { return platformId == null ? "-" : platformId.toString(); }
+
+  public void setPlatformId(UUID value) {
+    platformId = value;
+    hasEndpoints = false;
+    EntityMovingPlatform platform = value == null ? null : findPlatform();
+    if (platform != null) {
+      dimension = worldObj.provider.dimensionId;
+      aX = platform.getEndpointAX(); aY = platform.getEndpointAY(); aZ = platform.getEndpointAZ();
+      bX = platform.getEndpointBX(); bY = platform.getEndpointBY(); bZ = platform.getEndpointBZ();
+      hasEndpoints = true;
+    }
+  }
+
+  private static int clampMode(int value) { return value >= 0 && value < MODE_COUNT ? value : SEND_A; }
 
   private EntityMovingPlatform findPlatform() {
     for (Object o : worldObj.loadedEntityList)
@@ -68,7 +105,7 @@ public class TileEntityPlatformStation extends TileEntity {
   public void writeToNBT(NBTTagCompound tag) {
     super.writeToNBT(tag);
     if (platformId != null) tag.setString("PlatformId", platformId.toString());
-    tag.setBoolean("TargetB", targetB);
+    tag.setInteger("Mode", mode);
     tag.setBoolean("Powered", powered);
     tag.setInteger("Dimension", dimension);
     if (hasEndpoints) {
@@ -79,5 +116,19 @@ public class TileEntityPlatformStation extends TileEntity {
       tag.setInteger("BY", bY);
       tag.setInteger("BZ", bZ);
     }
+  }
+
+  @Override
+  public net.minecraft.network.Packet getDescriptionPacket() {
+    NBTTagCompound tag = new NBTTagCompound();
+    writeToNBT(tag);
+    return new net.minecraft.network.play.server.S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, tag);
+  }
+
+  @Override
+  public void onDataPacket(
+      net.minecraft.network.NetworkManager network,
+      net.minecraft.network.play.server.S35PacketUpdateTileEntity packet) {
+    readFromNBT(packet.func_148857_g());
   }
 }

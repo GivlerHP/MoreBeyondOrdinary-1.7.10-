@@ -33,6 +33,7 @@ import ru.givler.mbo.network.packet.PacketPlatformAction;
 import ru.givler.mbo.network.packet.PacketPlatformOpen;
 import ru.givler.mbo.network.packet.PacketPlatformRemove;
 import ru.givler.mbo.network.packet.PacketPlatformSync;
+import ru.givler.mbo.network.packet.PacketPlatformStationConfig;
 import ru.givler.mbo.network.packet.PacketSetLockDifficulty;
 import ru.givler.mbo.network.packet.PacketSpawnParticle;
 import ru.givler.mbo.network.packet.PacketSpawnParticleHandler;
@@ -100,6 +101,11 @@ public class PacketManager {
         Side.SERVER);
     INSTANCE.registerMessage(
         PacketPlatformAction.Handler.class, PacketPlatformAction.class, nextID++, Side.SERVER);
+    INSTANCE.registerMessage(
+        PacketPlatformStationConfig.Handler.class,
+        PacketPlatformStationConfig.class,
+        nextID++,
+        Side.SERVER);
     INSTANCE.registerMessage(
         PacketAreaEditorInteract.Handler.class,
         PacketAreaEditorInteract.class,

@@ -9,7 +9,8 @@ public enum MboGuiType {
     LOCKPICKING(5),
     LOCKABLE_CHEST(6),
     LOCK_CONFIG(7),
-    MOVING_PLATFORM(8);
+    MOVING_PLATFORM(8),
+    PLATFORM_STATION(9);
 
     public final int id;
 

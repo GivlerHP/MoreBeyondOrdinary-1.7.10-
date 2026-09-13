@@ -8,6 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import ru.givler.mbo.registry.CreativeTabRegistry;
+import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.gui.MboGuiType;
+import ru.givler.mbo.tileentity.TileEntityPlatformStation;
 
 public class BlockPlatformStation extends BlockContainer {
   public BlockPlatformStation() {
@@ -38,5 +41,15 @@ public class BlockPlatformStation extends BlockContainer {
       World world, int x, int y, int z, net.minecraft.block.Block neighbor) {
     TileEntity tile = world.getTileEntity(x, y, z);
     if (tile instanceof TileEntityPlatformStation) ((TileEntityPlatformStation) tile).updatePower();
+  }
+
+  @Override
+  public boolean onBlockActivated(
+      World world, int x, int y, int z, net.minecraft.entity.player.EntityPlayer player,
+      int side, float hitX, float hitY, float hitZ) {
+    if (!PlatformAccess.canEdit(player)) return true;
+    if (!world.isRemote)
+      player.openGui(MoreBeyondOrdinary.instance, MboGuiType.PLATFORM_STATION.id, world, x, y, z);
+    return true;
   }
 }

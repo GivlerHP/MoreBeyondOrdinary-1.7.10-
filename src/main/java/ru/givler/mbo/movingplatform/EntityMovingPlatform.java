@@ -412,6 +412,10 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     return platformId;
   }
 
+  public void setPlatformId(UUID value) {
+    if (value != null) platformId = value;
+  }
+
   public int getEndpointAX() {
     return floor(homeX);
   }
@@ -445,12 +449,12 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   public void configure(
-      int direction, int distance, int seconds, int returnMode, int delaySeconds) {
+      int direction, int distance, double seconds, int returnMode, double delaySeconds) {
     int newDirection = PlatformDirection.byOrdinal(direction).ordinal();
     int newDistance = Math.max(1, Math.min(256, distance));
-    int newDuration = Math.max(1, Math.min(72000, seconds * 20));
+    int newDuration = ticksFromSeconds(seconds, 1);
     int newReturnMode = Math.max(0, Math.min(2, returnMode));
-    int newDelay = Math.max(0, Math.min(72000, delaySeconds * 20));
+    int newDelay = ticksFromSeconds(delaySeconds, 0);
     if (isMoving()) {
       pendingConfiguration = true;
       pendingDirection = newDirection;
@@ -468,6 +472,12 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     dataWatcher.updateObject(21, Integer.valueOf(this.direction));
     dataWatcher.updateObject(22, Integer.valueOf(this.distance));
     dataWatcher.updateObject(23, Integer.valueOf(this.durationTicks));
+  }
+
+  private static int ticksFromSeconds(double seconds, int minimum) {
+    if (Double.isNaN(seconds)) return minimum;
+    double bounded = Math.max(minimum / 20D, Math.min(3600D, seconds));
+    return Math.max(minimum, (int) Math.round(bounded * 20D));
   }
 
   private void applyPendingConfiguration() {
