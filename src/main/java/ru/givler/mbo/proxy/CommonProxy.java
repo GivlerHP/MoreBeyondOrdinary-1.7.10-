@@ -84,6 +84,7 @@ public class CommonProxy {
     MinecraftForge.EVENT_BUS.register(new AreaEditorInteractionHandler());
     MinecraftForge.EVENT_BUS.register(new DungeonAreaProtectionHandler());
     MinecraftForge.EVENT_BUS.register(new IllusoryWallHitHandler());
+    MinecraftForge.EVENT_BUS.register(new DaylightDetectorEvents());
     MinecraftForge.EVENT_BUS.register(new DungeonTriggerEventHandler());
     FMLCommonHandler.instance().bus().register(new DungeonAreaLifecycleHandler());
     WaterloggingEventHandler waterloggingHandler = new WaterloggingEventHandler();

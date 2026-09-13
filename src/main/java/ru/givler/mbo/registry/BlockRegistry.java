@@ -53,10 +53,13 @@ public class BlockRegistry {
     public static Block LockableChest, LockableTrapdoor;
     public static BlockLockableDoor LockableDoor;
     public static BlockPlatformStation PlatformStation;
+    public static BlockInvertedDaylightDetector InvertedDaylightDetector;
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
         PlatformStation = new BlockPlatformStation();
+        InvertedDaylightDetector = new BlockInvertedDaylightDetector();
+        GameRegistry.registerBlock(InvertedDaylightDetector, "InvertedDaylightDetector");
         BlockGreyStone = new BlockBase(Material.rock, "BlockGreyStone", "stone/stone");
         BlockGreyCobblestone = new BlockBase(Material.rock, "BlockGreyCobblestone", "stone/cobblestone");
         BlockEndbrick = new BlockBase(Material.rock, "BlockEndbrick", "stone/end_bricks");
