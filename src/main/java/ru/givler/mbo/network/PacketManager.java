@@ -1,8 +1,11 @@
 package ru.givler.mbo.network;
 
 import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.FMLIndexedMessageToMessageCodec;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.ReflectionHelper;
+import java.lang.reflect.Field;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.network.packet.PacketActivateAmulet;
 import ru.givler.mbo.network.packet.PacketApplyLockTemplate;
@@ -41,6 +44,9 @@ public class PacketManager {
 
   public static final SimpleNetworkWrapper INSTANCE =
       NetworkRegistry.INSTANCE.newSimpleChannel(MoreBeyondOrdinary.MODID);
+
+  private static final Field PACKET_CODEC_FIELD =
+      ReflectionHelper.findField(SimpleNetworkWrapper.class, "packetCodec");
 
   public static int nextID = 0;
 
@@ -158,5 +164,31 @@ public class PacketManager {
         PacketWaterloggedSnapshot.class,
         nextID++,
         Side.CLIENT);
+  }
+
+  /** Registers outgoing client-bound packet IDs without loading client-only handlers. */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public static void registerClientPacketTypesForServer() {
+    Class[] messages = {
+      PacketSpawnParticle.class,
+      PacketLockpickResult.class,
+      PacketSpectatorState.class,
+      PacketGamemodeMenuPermission.class,
+      PacketPlatformSync.class,
+      PacketPlatformOpen.class,
+      PacketPlatformRemove.class,
+      PacketDungeonEditorOpen.class,
+      PacketDungeonAreaSync.class,
+      PacketDungeonTriggerOpen.class,
+      PacketWaterloggedDelta.class,
+      PacketWaterloggedSnapshot.class
+    };
+    try {
+      FMLIndexedMessageToMessageCodec codec =
+          (FMLIndexedMessageToMessageCodec) PACKET_CODEC_FIELD.get(INSTANCE);
+      for (Class message : messages) codec.addDiscriminator(nextID++, message);
+    } catch (IllegalAccessException exception) {
+      throw new RuntimeException("Could not access the MBO packet codec", exception);
+    }
   }
 }

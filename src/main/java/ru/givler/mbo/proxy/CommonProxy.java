@@ -37,7 +37,7 @@ public class CommonProxy {
 
   public void initPackets() {
     PacketManager.registerCommonPackets();
-    PacketManager.registerClientPackets();
+    PacketManager.registerClientPacketTypesForServer();
   }
 
   public void registerRenderers() {}

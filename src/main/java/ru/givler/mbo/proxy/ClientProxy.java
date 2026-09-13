@@ -42,10 +42,12 @@ import ru.givler.mbo.client.render.decormodels.RenderLootContainerTile;
 import ru.givler.mbo.client.render.decormodels.TemplateItemModelRenderer;
 import ru.givler.mbo.client.render.decormodels.TemplateModelRenderer;
 import ru.givler.mbo.core.CauldronHooks;
+import ru.givler.mbo.config.PlayerPingConfig;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
 import ru.givler.mbo.entity.boat.EntityMBOBoatSeat;
 import ru.givler.mbo.entity.boat.EntityMBOChestBoat;
 import ru.givler.mbo.movingplatform.EntityMovingPlatform;
+import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
@@ -64,7 +66,8 @@ public class ClientProxy extends CommonProxy {
 
   @Override
   public void initPackets() {
-    super.initPackets();
+    PacketManager.registerCommonPackets();
+    PacketManager.registerClientPackets();
   }
 
   public static KeyBinding activateAmuletKey;
@@ -78,6 +81,7 @@ public class ClientProxy extends CommonProxy {
 
   public void preInit(FMLPreInitializationEvent event) {
     super.preInit(event);
+    PlayerPingConfig.load(event.getModConfigurationDirectory());
   }
 
   public void init(FMLInitializationEvent event) {

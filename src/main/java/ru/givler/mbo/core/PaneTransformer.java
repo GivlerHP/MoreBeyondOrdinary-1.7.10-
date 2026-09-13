@@ -100,6 +100,9 @@ public final class PaneTransformer implements IClassTransformer, Opcodes {
       System.err.println("[MBO ASM] Incomplete BlockPane patch: " + patched + "/3 methods");
       return bytes;
     }
+    // Some earlier coremods leave duplicate debug-local entries in BlockPane. Re-emitting that
+    // table produces a ClassFormatError on the dedicated server; it is not used by the JVM.
+    for (MethodNode method : node.methods) method.localVariables = null;
     System.out.println("[MBO ASM] Patched pane connections and isolated geometry");
     return write(node);
   }
