@@ -250,7 +250,10 @@ public final class MovingPlatformTickHandler {
       if (offsets != null) offsets.remove(entity);
     }
     if (clientOnly) return;
-    if (dx == 0D && dy == 0D && dz == 0D) return;
+    if (dx == 0D && dy == 0D && dz == 0D) {
+      resolveSideCollision(entity, platform);
+      return;
+    }
     for (PlatformBlock block : platform.getOuterBlocks()) {
       AxisAlignedBB box = blockBox(platform, block);
       if (!entity.boundingBox.intersectsWith(box)) continue;
@@ -337,8 +340,37 @@ public final class MovingPlatformTickHandler {
       player.onGround = true;
       player.fallDistance = 0;
       carriers.put(id, platform.getEntityId());
-    } else if (previous != null && previous.intValue() == platform.getEntityId())
-      carriers.remove(id);
+    } else {
+      resolveSideCollision(player, platform);
+      if (previous != null && previous.intValue() == platform.getEntityId()) carriers.remove(id);
+    }
+  }
+
+  private static void resolveSideCollision(Entity entity, EntityMovingPlatform platform) {
+    // Resolve a few times because an entity can overlap two neighbouring platform blocks.
+    for (int pass = 0; pass < 4; pass++) {
+      boolean moved = false;
+      for (PlatformBlock block : platform.getOuterBlocks()) {
+        AxisAlignedBB box = blockBox(platform, block);
+        if (!entity.boundingBox.intersectsWith(box)) continue;
+        double west = box.minX - entity.boundingBox.maxX;
+        double east = box.maxX - entity.boundingBox.minX;
+        double north = box.minZ - entity.boundingBox.maxZ;
+        double south = box.maxZ - entity.boundingBox.minZ;
+        double pushX = Math.abs(west) < Math.abs(east) ? west : east;
+        double pushZ = Math.abs(north) < Math.abs(south) ? north : south;
+        if (Math.abs(pushX) <= Math.abs(pushZ)) {
+          entity.moveEntity(pushX, 0D, 0D);
+          entity.motionX = 0D;
+        } else {
+          entity.moveEntity(0D, 0D, pushZ);
+          entity.motionZ = 0D;
+        }
+        moved = true;
+        break;
+      }
+      if (!moved) return;
+    }
   }
 
   private static AxisAlignedBB blockBox(EntityMovingPlatform p, PlatformBlock b) {
