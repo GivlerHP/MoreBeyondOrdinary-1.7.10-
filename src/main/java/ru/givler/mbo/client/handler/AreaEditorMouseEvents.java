@@ -1,4 +1,4 @@
-package ru.givler.mbo.client;
+package ru.givler.mbo.client.handler;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -20,7 +20,7 @@ import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.network.packet.PacketAreaEditorInteract;
 import ru.givler.mbo.network.packet.PacketDungeonAreaOpenRequest;
 
-public final class AreaEditorMouseHandler {
+public final class AreaEditorMouseEvents {
   @SubscribeEvent(priority = EventPriority.HIGHEST)
   public void onMouse(MouseEvent event) {
     if (event == null || !event.buttonstate) return;
