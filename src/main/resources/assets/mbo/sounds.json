@@ -130,6 +130,7 @@
     "stonegolem_hit": {"category": "hostile", "sounds": [{"name": "mob/stonegolem_hit", "stream": false}]},
     "stonecutter_use1": {"category": "block", "sounds": [{"name": "stonecutter_use1", "stream": false}]},
     "stonecutter_use2": {"category": "block", "sounds": [{"name": "stonecutter_use2", "stream": false}]},
+    "illusory_wall": {"category": "block", "sounds": [{"name": "illusory_wall", "stream": false}]},
 
   "lock_open": {"category": "block", "sounds": [{"name": "lock/open", "stream": false}]},
   "lock_pin_fail": {"category": "block", "sounds": [{"name": "lock/pin_fail", "stream": false}]},

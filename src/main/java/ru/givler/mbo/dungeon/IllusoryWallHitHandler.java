@@ -17,7 +17,11 @@ public final class IllusoryWallHitHandler {
       DungeonAreaSavedData data = DungeonAreaSavedData.get(event.world);
       DungeonAreaRecord area = data.at(event.x, event.y, event.z);
       matched = area != null && area.getType() == 1 && !area.isActivated();
-      if (matched && area.activate(event.world)) data.changed(event.world);
+      if (matched && area.activate(event.world)) {
+        event.world.playSoundEffect(
+            event.x + 0.5D, event.y + 0.5D, event.z + 0.5D, "mbo:illusory_wall", 1.0F, 1.0F);
+        data.changed(event.world);
+      }
     }
     if (matched) event.setCanceled(true);
   }
