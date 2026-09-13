@@ -22,12 +22,22 @@ public class CauldronTransformer implements IClassTransformer, Opcodes {
     ClassNode node = new ClassNode();
     new ClassReader(bytes).accept(node, 0);
     boolean renderPatched = false;
+    boolean blockPassPatched = false;
+    boolean renderPassPatched = false;
     boolean collisionPatched = false;
+    boolean levelSyncPatched = false;
     for (MethodNode method : node.methods) {
       String mappedName =
           FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(node.name, method.name, method.desc);
       String mappedDesc = FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(method.desc);
       if (mappedDesc.equals("()I")
+          && method.name.equals("getRenderBlockPass")) {
+        method.instructions.clear();
+        method.tryCatchBlocks.clear();
+        method.instructions.add(new InsnNode(ICONST_1));
+        method.instructions.add(new InsnNode(IRETURN));
+        blockPassPatched = true;
+      } else if (mappedDesc.equals("()I")
           && (method.name.equals("getRenderType")
               || method.name.equals("func_149645_b")
               || mappedName.equals("getRenderType")
@@ -38,6 +48,14 @@ public class CauldronTransformer implements IClassTransformer, Opcodes {
             new MethodInsnNode(INVOKESTATIC, HOOKS, "getRenderType", "()I", false));
         method.instructions.add(new InsnNode(IRETURN));
         renderPatched = true;
+      } else if (mappedDesc.equals("(I)Z") && method.name.equals("canRenderInPass")) {
+        method.instructions.clear();
+        method.tryCatchBlocks.clear();
+        method.instructions.add(new VarInsnNode(ILOAD, 1));
+        method.instructions.add(
+            new MethodInsnNode(INVOKESTATIC, HOOKS, "canRenderInPass", "(I)Z", false));
+        method.instructions.add(new InsnNode(IRETURN));
+        renderPassPatched = true;
       } else if (mappedDesc.equals(
               "(Lnet/minecraft/world/World;IIILnet/minecraft/util/AxisAlignedBB;Ljava/util/List;Lnet/minecraft/entity/Entity;)V")
           && (method.name.equals("addCollisionBoxesToList")
@@ -97,26 +115,21 @@ public class CauldronTransformer implements IClassTransformer, Opcodes {
         method.instructions.insert(code);
       } else if (mappedDesc.equals("(Lnet/minecraft/world/World;IIII)V")
           && (method.name.equals("func_150024_a") || mappedName.equals("func_150024_a"))) {
-        for (org.objectweb.asm.tree.AbstractInsnNode instruction = method.instructions.getFirst();
-            instruction != null;
-            instruction = instruction.getNext()) {
-          if (instruction.getOpcode() == RETURN) {
-            InsnList code = new InsnList();
-            code.add(new VarInsnNode(ALOAD, 1));
-            code.add(new VarInsnNode(ILOAD, 2));
-            code.add(new VarInsnNode(ILOAD, 3));
-            code.add(new VarInsnNode(ILOAD, 4));
-            code.add(new VarInsnNode(ILOAD, 5));
-            code.add(
-                new MethodInsnNode(
-                    INVOKESTATIC,
-                    HOOKS,
-                    "syncConnected",
-                    "(Lnet/minecraft/world/World;IIII)V",
-                    false));
-            method.instructions.insertBefore(instruction, code);
-          }
-        }
+        InsnList code = new InsnList();
+        code.add(new VarInsnNode(ALOAD, 1));
+        code.add(new VarInsnNode(ILOAD, 2));
+        code.add(new VarInsnNode(ILOAD, 3));
+        code.add(new VarInsnNode(ILOAD, 4));
+        code.add(new VarInsnNode(ILOAD, 5));
+        code.add(
+            new MethodInsnNode(
+                INVOKESTATIC,
+                HOOKS,
+                "syncConnectedBeforeChange",
+                "(Lnet/minecraft/world/World;IIII)V",
+                false));
+        method.instructions.insert(code);
+        levelSyncPatched = true;
       } else if (mappedDesc.equals("(Lnet/minecraft/world/World;IIILnet/minecraft/entity/Entity;)V")
           && (method.name.equals("onEntityCollidedWithBlock")
               || method.name.equals("func_149670_a")
@@ -149,12 +162,38 @@ public class CauldronTransformer implements IClassTransformer, Opcodes {
         method.instructions.add(new InsnNode(IRETURN));
       }
     }
-    if (!renderPatched || !collisionPatched)
+    if (!blockPassPatched) {
+      MethodNode method = new MethodNode(ACC_PUBLIC, "getRenderBlockPass", "()I", null, null);
+      method.instructions.add(new InsnNode(ICONST_1));
+      method.instructions.add(new InsnNode(IRETURN));
+      node.methods.add(method);
+      blockPassPatched = true;
+    }
+    if (!renderPassPatched) {
+      MethodNode method = new MethodNode(ACC_PUBLIC, "canRenderInPass", "(I)Z", null, null);
+      method.instructions.add(new VarInsnNode(ILOAD, 1));
+      method.instructions.add(
+          new MethodInsnNode(INVOKESTATIC, HOOKS, "canRenderInPass", "(I)Z", false));
+      method.instructions.add(new InsnNode(IRETURN));
+      node.methods.add(method);
+      renderPassPatched = true;
+    }
+    if (!renderPatched
+        || !blockPassPatched
+        || !renderPassPatched
+        || !collisionPatched
+        || !levelSyncPatched)
       System.err.println(
           "[MBO ASM] Incomplete BlockCauldron patch: render="
               + renderPatched
+              + ", blockPass="
+              + blockPassPatched
+              + ", renderPass="
+              + renderPassPatched
               + ", collision="
-              + collisionPatched);
+              + collisionPatched
+              + ", levelSync="
+              + levelSyncPatched);
     ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);
     return writer.toByteArray();

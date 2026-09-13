@@ -16,10 +16,16 @@ import net.minecraft.world.IBlockAccess;
 
 public final class CauldronHooks {
     private static int renderType = 24;
+    private static int renderPass;
     private CauldronHooks() { }
 
     public static int getRenderType() { return renderType; }
     public static void setRenderType(int id) { renderType = id; }
+    public static boolean canRenderInPass(int pass) {
+        renderPass = pass;
+        return pass == 0 || pass == 1;
+    }
+    public static int getRenderPass() { return renderPass; }
 
     public static int handleActivation(BlockCauldron block, World world, int x, int y, int z, EntityPlayer player) {
         ItemStack held=player.getCurrentEquippedItem();
@@ -30,9 +36,8 @@ public final class CauldronHooks {
         if(held!=null && (held.getItem()==Items.lava_bucket || held.getItem()==Items.water_bucket)) {
             boolean fillingLava=held.getItem()==Items.lava_bucket;
             if(level>0 && lava!=fillingLava) return 1;
-            if(!canUseFluid(world,x,y,z,fillingLava)) return 1;
             if(!world.isRemote) {
-                setConnectedLevel(world,x,y,z,(fillingLava?4:0)|3);
+                setConnectedFluidLevel(world,x,y,z,(fillingLava?4:0)|3);
                 if(!player.capabilities.isCreativeMode)
                     player.inventory.setInventorySlotContents(player.inventory.currentItem,new ItemStack(Items.bucket));
             }
@@ -70,8 +75,14 @@ public final class CauldronHooks {
         setConnectedLevel(world, x, y, z, level);
     }
 
-    public static void syncConnected(World world, int x, int y, int z, int level) {
-        setConnectedLevel(world, x, y, z, level);
+    public static void syncConnectedBeforeChange(World world, int x, int y, int z, int newLevel) {
+        int oldMetadata = world.getBlockMetadata(x, y, z);
+        int oldLevel = oldMetadata & 3;
+        int clampedLevel = Math.max(0, Math.min(3, newLevel));
+        if (oldLevel == clampedLevel) return;
+        // func_150024_a is vanilla's water-level setter. Walking the network before it
+        // changes the root preserves the old fluid identity, including when level reaches zero.
+        setConnectedLevel(world, x, y, z, clampedLevel);
     }
 
     private static int findMaximumLevel(World world, int x, int y, int z) {
@@ -84,12 +95,11 @@ public final class CauldronHooks {
                 world.setBlockMetadataWithNotify(pos[0],pos[1],pos[2],level,2);
     }
 
-    private static boolean canUseFluid(World world,int x,int y,int z,boolean lava) {
-        for(int[] pos:connected(world,x,y,z)) {
-            int meta=world.getBlockMetadata(pos[0],pos[1],pos[2]);
-            if((meta&3)>0 && ((meta&4)!=0)!=lava) return false;
-        }
-        return true;
+    private static void setConnectedFluidLevel(World world, int x, int y, int z, int level) {
+        int fluidKind = (level & 4) != 0 ? 2 : 1;
+        for (int[] pos : connectedForFluid(world, x, y, z, fluidKind))
+            if (world.getBlockMetadata(pos[0], pos[1], pos[2]) != level)
+                world.setBlockMetadataWithNotify(pos[0], pos[1], pos[2], level, 2);
     }
 
     public static int getConnectedMetadata(IBlockAccess world,int x,int y,int z) {
@@ -141,25 +151,61 @@ public final class CauldronHooks {
         return result;
     }
 
+    private static List<int[]> connectedForFluid(
+            IBlockAccess world, int rootX, int rootY, int rootZ, int desired) {
+        List<int[]> result = new java.util.ArrayList<int[]>();
+        ArrayDeque<int[]> queue = new ArrayDeque<int[]>();
+        HashSet<String> visited = new HashSet<String>();
+        queue.add(new int[]{rootX, rootY, rootZ});
+        while (!queue.isEmpty() && result.size() < 256) {
+            int[] pos = queue.removeFirst();
+            String key = pos[0] + ":" + pos[1] + ":" + pos[2];
+            if (!visited.add(key)
+                    || !(world.getBlock(pos[0], pos[1], pos[2]) instanceof BlockCauldron)) continue;
+            int kind = fluidKind(world.getBlockMetadata(pos[0], pos[1], pos[2]));
+            boolean root = pos[0] == rootX && pos[1] == rootY && pos[2] == rootZ;
+            if (kind != 0 && kind != desired) continue;
+            if (!root && kind == 0
+                    && (adjacentFluidMask(world, pos[0], pos[1], pos[2])
+                        & oppositeMask(desired)) != 0) continue;
+            result.add(pos);
+            queue.add(new int[]{pos[0] - 1, pos[1], pos[2]});
+            queue.add(new int[]{pos[0] + 1, pos[1], pos[2]});
+            queue.add(new int[]{pos[0], pos[1], pos[2] - 1});
+            queue.add(new int[]{pos[0], pos[1], pos[2] + 1});
+        }
+        return result;
+    }
+
     private static int resolveFluidKind(IBlockAccess world,int x,int y,int z) {
-        int mask=0;
         ArrayDeque<int[]> queue=new ArrayDeque<int[]>();
         HashSet<String> visited=new HashSet<String>();
         queue.add(new int[]{x,y,z});
         while(!queue.isEmpty() && visited.size()<256) {
-            int[] pos=queue.removeFirst();
-            String key=pos[0]+":"+pos[1]+":"+pos[2];
-            if(!visited.add(key) || !(world.getBlock(pos[0],pos[1],pos[2]) instanceof BlockCauldron)) continue;
-            int kind=fluidKind(world.getBlockMetadata(pos[0],pos[1],pos[2]));
-            if(kind==1) mask|=1;
-            else if(kind==2) mask|=2;
-            if(mask==3) return 0;
-            queue.add(new int[]{pos[0]-1,pos[1],pos[2]});
-            queue.add(new int[]{pos[0]+1,pos[1],pos[2]});
-            queue.add(new int[]{pos[0],pos[1],pos[2]-1});
-            queue.add(new int[]{pos[0],pos[1],pos[2]+1});
+            int layerSize=queue.size();
+            int mask=0;
+            for(int i=0;i<layerSize;i++) {
+                int[] pos=queue.removeFirst();
+                String key=pos[0]+":"+pos[1]+":"+pos[2];
+                if(!visited.add(key)
+                        || !(world.getBlock(pos[0],pos[1],pos[2]) instanceof BlockCauldron)) continue;
+                int kind=fluidKind(world.getBlockMetadata(pos[0],pos[1],pos[2]));
+                if(kind==1) {
+                    mask|=1;
+                    continue;
+                }
+                if(kind==2) {
+                    mask|=2;
+                    continue;
+                }
+                queue.add(new int[]{pos[0]-1,pos[1],pos[2]});
+                queue.add(new int[]{pos[0]+1,pos[1],pos[2]});
+                queue.add(new int[]{pos[0],pos[1],pos[2]-1});
+                queue.add(new int[]{pos[0],pos[1],pos[2]+1});
+            }
+            if(mask!=0) return mask==1?1:mask==2?2:0;
         }
-        return mask==1?1:mask==2?2:0;
+        return 0;
     }
 
     private static int adjacentFluidMask(IBlockAccess world,int x,int y,int z) {

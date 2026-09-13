@@ -25,31 +25,35 @@ public class RenderConnectedCauldron implements ISimpleBlockRenderingHandler {
     boolean east = CauldronHooks.canConnect(world, x, y, z, x + 1, y, z);
     boolean north = CauldronHooks.canConnect(world, x, y, z, x, y, z - 1);
     boolean south = CauldronHooks.canConnect(world, x, y, z, x, y, z + 1);
-
-    renderFloorSlab(
-        world,
-        renderer,
-        block,
-        x,
-        y,
-        z,
-        west ? 0 : .125,
-        .25,
-        north ? 0 : .125,
-        east ? 1 : .875,
-        .3125,
-        south ? 1 : .875);
-    if (!west) renderPart(renderer, block, x, y, z, 0, 0, 0, .125, 1, 1);
-    if (!east) renderPart(renderer, block, x, y, z, .875, 0, 0, 1, 1, 1);
-    if (!north)
-      renderPart(renderer, block, x, y, z, west ? 0 : .125, 0, 0, east ? 1 : .875, 1, .125);
-    if (!south)
-      renderPart(renderer, block, x, y, z, west ? 0 : .125, 0, .875, east ? 1 : .875, 1, 1);
-
     int fluidMetadata = getConnectedLevel(world, x, y, z);
     int level = fluidMetadata & 3;
-    if (level > 0)
-      renderFluid(world, x, y, z, level, (fluidMetadata & 4) != 0, west, east, north, south);
+    boolean lava = (fluidMetadata & 4) != 0;
+    int renderPass = CauldronHooks.getRenderPass();
+
+    if (renderPass == 0) {
+      renderFloorSlab(
+          world,
+          renderer,
+          block,
+          x,
+          y,
+          z,
+          west ? 0 : .125,
+          .25,
+          north ? 0 : .125,
+          east ? 1 : .875,
+          .3125,
+          south ? 1 : .875);
+      if (!west) renderPart(renderer, block, x, y, z, 0, 0, 0, .125, 1, 1);
+      if (!east) renderPart(renderer, block, x, y, z, .875, 0, 0, 1, 1, 1);
+      if (!north)
+        renderPart(renderer, block, x, y, z, west ? 0 : .125, 0, 0, east ? 1 : .875, 1, .125);
+      if (!south)
+        renderPart(renderer, block, x, y, z, west ? 0 : .125, 0, .875, east ? 1 : .875, 1, 1);
+    }
+
+    if (level > 0 && ((lava && renderPass == 0) || (!lava && renderPass == 1)))
+      renderFluid(world, x, y, z, level, lava, west, east, north, south);
     renderer.setRenderBounds(0, 0, 0, 1, 1, 1);
     return true;
   }
