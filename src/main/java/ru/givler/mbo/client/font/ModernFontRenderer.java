@@ -15,8 +15,10 @@ import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
@@ -50,10 +52,10 @@ public final class ModernFontRenderer extends FontRenderer
   private final Map<Integer, Glyph> glyphs = new HashMap<Integer, Glyph>();
   private final Map<Integer, Float> spaces = new HashMap<Integer, Float>();
   private final Set<String> loading = new HashSet<String>();
-  private final List<DynamicTexture> hexAtlases = new ArrayList<DynamicTexture>();
   private final List<ResourceLocation> hexAtlasLocations = new ArrayList<ResourceLocation>();
   private final List<BufferedImage> hexAtlasImages = new ArrayList<BufferedImage>();
-  private final List<DynamicTexture> bitmapTextures = new ArrayList<DynamicTexture>();
+  private final List<ResourceLocation> bitmapTextureLocations =
+      new ArrayList<ResourceLocation>();
   private BufferedImage hexAtlasImage;
   private int hexX, hexY, hexPage;
   private boolean scaleAsciiWithUnicode;
@@ -75,13 +77,15 @@ public final class ModernFontRenderer extends FontRenderer
     legacyRenderer.setUnicodeFlag(false);
     legacyRenderer.setBidiFlag(false);
 
+    deleteTextures(hexAtlasLocations);
+    deleteTextures(bitmapTextureLocations);
     glyphs.clear();
     spaces.clear();
     loading.clear();
-    hexAtlases.clear();
     hexAtlasLocations.clear();
     hexAtlasImages.clear();
-    bitmapTextures.clear();
+    bitmapTextureLocations.clear();
+    hexAtlasImage = null;
     scaleAsciiWithUnicode = isRussianLanguage();
     hexX = hexY = hexPage = 0;
     newHexPage();
@@ -153,11 +157,12 @@ public final class ModernFontRenderer extends FontRenderer
     if (columns == 0) return;
     int cellW = image.getWidth() / columns;
     int cellH = image.getHeight() / rows.size();
-    DynamicTexture dynamicTexture = new DynamicTexture(image);
-    bitmapTextures.add(dynamicTexture);
+    ITextureObject dynamicTexture = new UploadedTexture(image);
     ResourceLocation loadedTexture =
-        textures.getDynamicTextureLocation(
-            "mbo_font_" + file.getResourceDomain() + "_" + bitmapTextures.size(), dynamicTexture);
+        registerTexture(
+            "bitmap_" + file.getResourceDomain() + "_" + bitmapTextureLocations.size(),
+            dynamicTexture);
+    bitmapTextureLocations.add(loadedTexture);
     float logicalHeight = provider.has("height") ? provider.get("height").getAsFloat() : 8F;
     float ascent = provider.has("ascent") ? provider.get("ascent").getAsFloat() : 7F;
     float scale = logicalHeight / cellH;
@@ -271,9 +276,32 @@ public final class ModernFontRenderer extends FontRenderer
 
   private void uploadHexAtlases() {
     for (int i = 0; i < hexAtlasImages.size(); i++) {
-      DynamicTexture atlas = new DynamicTexture(hexAtlasImages.get(i));
-      hexAtlases.add(atlas);
-      hexAtlasLocations.add(textures.getDynamicTextureLocation("mbo_modern_font_" + i, atlas));
+      ITextureObject atlas = new UploadedTexture(hexAtlasImages.get(i));
+      hexAtlasLocations.add(registerTexture("unihex_" + i, atlas));
+    }
+    hexAtlasImages.clear();
+    hexAtlasImage = null;
+  }
+
+  private ResourceLocation registerTexture(String name, ITextureObject texture) {
+    ResourceLocation location = new ResourceLocation("mbo", "dynamic/font/" + name);
+    textures.loadTexture(location, texture);
+    return location;
+  }
+
+  private void deleteTextures(List<ResourceLocation> locations) {
+    for (ResourceLocation location : locations) textures.deleteTexture(location);
+  }
+
+  /** Immutable uploaded texture without a permanent CPU-side pixel buffer. */
+  private static final class UploadedTexture extends AbstractTexture {
+    UploadedTexture(BufferedImage image) {
+      TextureUtil.uploadTextureImage(getGlTextureId(), image);
+    }
+
+    @Override
+    public void loadTexture(IResourceManager manager) throws IOException {
+      // Pixels are uploaded by the constructor, like DynamicTexture's no-op reload.
     }
   }
 

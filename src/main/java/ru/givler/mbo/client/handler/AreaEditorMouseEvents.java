@@ -101,6 +101,13 @@ public final class AreaEditorMouseEvents {
         end = eye.addVector(look.xCoord * 6D, look.yCoord * 6D, look.zCoord * 6D);
     EntityMovingPlatform best = null;
     double distance = Double.MAX_VALUE;
+    MovingObjectPosition worldHit = mc.objectMouseOver;
+    double worldDistance =
+        worldHit != null
+                && worldHit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK
+                && worldHit.hitVec != null
+            ? eye.squareDistanceTo(worldHit.hitVec) + 1.0E-6D
+            : Double.MAX_VALUE;
     for (Object value : new java.util.ArrayList(mc.theWorld.loadedEntityList))
       if (value instanceof EntityMovingPlatform) {
         EntityMovingPlatform p = (EntityMovingPlatform) value;
@@ -115,8 +122,9 @@ public final class AreaEditorMouseEvents {
                   p.posY + block.y + 1D,
                   p.posZ + block.z + 1D);
           MovingObjectPosition hit = box.calculateIntercept(eye, end);
-          if (hit != null && eye.squareDistanceTo(hit.hitVec) < distance) {
-            distance = eye.squareDistanceTo(hit.hitVec);
+          double hitDistance = hit == null ? Double.MAX_VALUE : eye.squareDistanceTo(hit.hitVec);
+          if (hitDistance <= worldDistance && hitDistance < distance) {
+            distance = hitDistance;
             best = p;
           }
         }

@@ -60,6 +60,7 @@ public final class DungeonAreaWorldRenderer {
       GL11.glPushMatrix();
       GL11.glTranslated(a.getX() - cx, a.getY() - cy, a.getZ() - cz);
       GL11.glDisable(GL11.GL_LIGHTING);
+      mc.entityRenderer.enableLightmap(e.partialTicks);
       float alpha = a.fadeAlpha(mc.theWorld, e.partialTicks);
       if (alpha < 1F) {
         GL11.glEnable(GL11.GL_BLEND);
@@ -73,6 +74,7 @@ public final class DungeonAreaWorldRenderer {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glDisable(GL11.GL_BLEND);
       }
+      mc.entityRenderer.disableLightmap(e.partialTicks);
       GL11.glEnable(GL11.GL_LIGHTING);
       GL11.glPopMatrix();
     }
@@ -112,7 +114,7 @@ public final class DungeonAreaWorldRenderer {
   }
 
   private Cache compiled(DungeonAreaRecord a, Minecraft mc) {
-    int sig = Arrays.hashCode(a.getLightField());
+    int sig = currentLightSignature(a, mc);
     for (PlatformBlock b : a.getBlocks()) {
       sig = 31 * sig + net.minecraft.block.Block.getIdFromBlock(b.block);
       sig = 31 * sig + b.meta;
@@ -126,14 +128,11 @@ public final class DungeonAreaWorldRenderer {
         new RenderBlocks(
             new PlatformBlockAccess(
                 a.getBlocks(),
-                a.getLightField(),
-                a.getSizeX(),
-                a.getSizeY(),
-                a.getSizeZ(),
                 mc.theWorld,
                 a.getX(),
                 a.getY(),
-                a.getZ()));
+                a.getZ(),
+                true));
     r.renderAllFaces = false;
     Tessellator t = Tessellator.instance;
     t.startDrawingQuads();
@@ -143,6 +142,18 @@ public final class DungeonAreaWorldRenderer {
     Cache made = new Cache(list, sig);
     cache.put(a.getId(), made);
     return made;
+  }
+
+  private int currentLightSignature(DungeonAreaRecord a, Minecraft mc) {
+    int signature = 1;
+    for (int x = -1; x <= a.getSizeX(); x++)
+      for (int y = -1; y <= a.getSizeY(); y++)
+        for (int z = -1; z <= a.getSizeZ(); z++)
+          signature =
+              31 * signature
+                  + mc.theWorld.getLightBrightnessForSkyBlocks(
+                      a.getX() + x, a.getY() + y, a.getZ() + z, 0);
+    return signature;
   }
 
   private static final class Cache {

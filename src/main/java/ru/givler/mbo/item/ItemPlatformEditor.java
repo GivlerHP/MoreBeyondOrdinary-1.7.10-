@@ -39,15 +39,8 @@ public class ItemPlatformEditor extends ItemAreaEditor {
   @SuppressWarnings("unchecked")
   private void openOrCreate(
       ItemStack stack, EntityPlayer player, World world, int x, int y, int z) {
-    java.util.UUID linked = getLinkedPlatform(stack);
-    if (linked != null)
-      for (Object object : new java.util.ArrayList(world.loadedEntityList)) {
-        if (object instanceof EntityMovingPlatform
-            && linked.equals(((EntityMovingPlatform) object).getPlatformId())) {
-          open(player, (EntityMovingPlatform) object, stack);
-          return;
-        }
-      }
+    // The block under the crosshair must win over the editor's previously linked UUID.
+    // Otherwise a materialized platform opens whichever platform was edited last.
     for (Object object : new java.util.ArrayList(world.loadedEntityList)) {
       if (!(object instanceof EntityMovingPlatform)) continue;
       EntityMovingPlatform platform = (EntityMovingPlatform) object;

@@ -19,13 +19,25 @@ final class PlatformBlockAccess implements IBlockAccess {
   private int lightSizeX, lightSizeY, lightSizeZ;
   private final IBlockAccess world;
   private final int originX, originY, originZ;
+  private final boolean useWorldOutside;
 
   PlatformBlockAccess(
       List<PlatformBlock> source, IBlockAccess world, int originX, int originY, int originZ) {
+    this(source, world, originX, originY, originZ, false);
+  }
+
+  PlatformBlockAccess(
+      List<PlatformBlock> source,
+      IBlockAccess world,
+      int originX,
+      int originY,
+      int originZ,
+      boolean useWorldOutside) {
     this.world = world;
     this.originX = originX;
     this.originY = originY;
     this.originZ = originZ;
+    this.useWorldOutside = useWorldOutside;
     for (PlatformBlock block : source) blocks.put(key(block.x, block.y, block.z), block);
   }
 
@@ -71,18 +83,23 @@ final class PlatformBlockAccess implements IBlockAccess {
   @Override
   public Block getBlock(int x, int y, int z) {
     PlatformBlock b = at(x, y, z);
-    return b == null ? Blocks.air : b.block;
+    if (b != null) return b.block;
+    return useWorldOutside ? world.getBlock(originX + x, originY + y, originZ + z) : Blocks.air;
   }
 
   @Override
   public int getBlockMetadata(int x, int y, int z) {
     PlatformBlock b = at(x, y, z);
-    return b == null ? 0 : b.meta;
+    if (b != null) return b.meta;
+    return useWorldOutside
+        ? world.getBlockMetadata(originX + x, originY + y, originZ + z)
+        : 0;
   }
 
   @Override
   public TileEntity getTileEntity(int x, int y, int z) {
-    return null;
+    if (at(x, y, z) != null) return null;
+    return useWorldOutside ? world.getTileEntity(originX + x, originY + y, originZ + z) : null;
   }
 
   @Override
@@ -112,7 +129,7 @@ final class PlatformBlockAccess implements IBlockAccess {
 
   @Override
   public boolean isAirBlock(int x, int y, int z) {
-    return getBlock(x, y, z) == Blocks.air;
+    return getBlock(x, y, z).isAir(this, x, y, z);
   }
 
   @Override
@@ -132,7 +149,9 @@ final class PlatformBlockAccess implements IBlockAccess {
 
   @Override
   public boolean isSideSolid(int x, int y, int z, ForgeDirection side, boolean fallback) {
-    Block b = getBlock(x, y, z);
-    return b == Blocks.air ? false : b.isSideSolid(this, x, y, z, side);
+    PlatformBlock virtual = at(x, y, z);
+    if (virtual != null) return virtual.block.isSideSolid(this, x, y, z, side);
+    return useWorldOutside
+        && world.isSideSolid(originX + x, originY + y, originZ + z, side, fallback);
   }
 }

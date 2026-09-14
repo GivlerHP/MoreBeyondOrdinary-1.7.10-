@@ -39,7 +39,6 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private boolean virtualized;
   private boolean onboardLeverPowered;
   private boolean onboardLeverInitialized;
-  private int renderTransitionTicks;
   private boolean pendingConfiguration;
   private int pendingDirection,
       pendingDistance,
@@ -268,10 +267,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       distance = dataWatcher.getWatchableObjectInt(22);
       durationTicks = dataWatcher.getWatchableObjectInt(23);
       movementStartTick = dataWatcher.getWatchableObjectInt(24);
-      boolean newVirtualized = dataWatcher.getWatchableObjectByte(25) != 0;
-      if (newVirtualized != virtualized) renderTransitionTicks = 3;
-      virtualized = newVirtualized;
-      if (renderTransitionTicks > 0) --renderTransitionTicks;
+      virtualized = dataWatcher.getWatchableObjectByte(25) != 0;
       tickLerp();
       return;
     }
@@ -336,7 +332,9 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   public boolean contains(int x, int y, int z) {
     if (isMoving()) return false;
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
-    return x >= ox && x < ox + sizeX && y >= oy && y < oy + sizeY && z >= oz && z < oz + sizeZ;
+    for (PlatformBlock block : blocks)
+      if (x == ox + block.x && y == oy + block.y && z == oz + block.z) return true;
+    return false;
   }
 
   public boolean isMoving() {
@@ -344,12 +342,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   public boolean isCollisionActive() {
-    return virtualized || isMoving() || (worldObj != null && worldObj.isRemote && lerpSteps > 0);
+    return virtualized || isMoving();
   }
 
   public boolean shouldRenderMovingBlocks() {
-    return isCollisionActive()
-        || (worldObj != null && worldObj.isRemote && renderTransitionTicks > 0);
+    return virtualized || isMoving();
   }
 
   public PlatformDirection getDirection() {
