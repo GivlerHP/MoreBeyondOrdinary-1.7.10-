@@ -85,6 +85,12 @@ public class CommonProxy {
     MinecraftForge.EVENT_BUS.register(new DungeonAreaProtectionHandler());
     MinecraftForge.EVENT_BUS.register(new IllusoryWallHitHandler());
     MinecraftForge.EVENT_BUS.register(new DaylightDetectorEvents());
+    FenceConnectionEvents fenceConnectionEvents = new FenceConnectionEvents();
+    MinecraftForge.EVENT_BUS.register(fenceConnectionEvents);
+    FMLCommonHandler.instance().bus().register(fenceConnectionEvents);
+    TrapdoorLatchEvents trapdoorLatchEvents = new TrapdoorLatchEvents();
+    MinecraftForge.EVENT_BUS.register(trapdoorLatchEvents);
+    FMLCommonHandler.instance().bus().register(trapdoorLatchEvents);
     MinecraftForge.EVENT_BUS.register(new DungeonTriggerEventHandler());
     FMLCommonHandler.instance().bus().register(new DungeonAreaLifecycleHandler());
     WaterloggingEventHandler waterloggingHandler = new WaterloggingEventHandler();

@@ -16,21 +16,72 @@ public final class TrapdoorPlacementTransformer implements IClassTransformer, Op
     if (!TARGET.equals(transformedName)) return bytes;
     ClassNode node = new ClassNode();
     new ClassReader(bytes).accept(node, 0);
+    boolean placed = false;
+    boolean changed = false;
     for (MethodNode method : node.methods) {
       if (("onBlockPlacedBy".equals(method.name) || "func_149689_a".equals(method.name))
           && DESC.equals(method.desc)) {
         inject(method);
-        return write(node);
+        placed = changed = true;
+      }
+      if (("onNeighborBlockChange".equals(method.name) || "func_149695_a".equals(method.name))
+          && method.desc.equals(
+              "(Lnet/minecraft/world/World;IIILnet/minecraft/block/Block;)V")) {
+        injectLatchGuard(method);
+        changed = true;
+      }
+      if (("onBlockActivated".equals(method.name) || "func_149727_a".equals(method.name))
+          && method.desc.equals(
+              "(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z")) {
+        injectActivationGuard(method);
+        changed = true;
       }
     }
-    String methodName =
-        node.name.equals(TARGET.replace('.', '/')) ? "onBlockPlacedBy" : "func_149689_a";
-    MethodNode method = new MethodNode(ACC_PUBLIC, methodName, DESC, null, null);
-    addHook(method.instructions);
-    method.instructions.add(new InsnNode(RETURN));
-    node.methods.add(method);
-    System.out.println("[MBO ASM] Added vanilla trapdoor facing placement");
+    if (!placed) {
+      String methodName =
+          node.name.equals(TARGET.replace('.', '/')) ? "onBlockPlacedBy" : "func_149689_a";
+      MethodNode method = new MethodNode(ACC_PUBLIC, methodName, DESC, null, null);
+      addHook(method.instructions);
+      method.instructions.add(new InsnNode(RETURN));
+      node.methods.add(method);
+      changed = true;
+      System.out.println("[MBO ASM] Added vanilla trapdoor facing placement");
+    }
+    if (changed) System.out.println("[MBO ASM] Added trapdoor state latch");
     return write(node);
+  }
+
+  private static void injectLatchGuard(MethodNode method) {
+    InsnList code = new InsnList();
+    code.add(new VarInsnNode(ALOAD, 1));
+    code.add(new VarInsnNode(ILOAD, 2));
+    code.add(new VarInsnNode(ILOAD, 3));
+    code.add(new VarInsnNode(ILOAD, 4));
+    code.add(new MethodInsnNode(INVOKESTATIC, HOOK, "isLatched",
+        "(Lnet/minecraft/world/World;III)Z", false));
+    LabelNode unlocked = new LabelNode();
+    code.add(new JumpInsnNode(IFEQ, unlocked));
+    code.add(new InsnNode(RETURN));
+    code.add(unlocked);
+    method.instructions.insert(code);
+  }
+
+  private static void injectActivationGuard(MethodNode method) {
+    InsnList code = new InsnList();
+    code.add(new VarInsnNode(ALOAD, 1));
+    code.add(new VarInsnNode(ILOAD, 2));
+    code.add(new VarInsnNode(ILOAD, 3));
+    code.add(new VarInsnNode(ILOAD, 4));
+    code.add(new MethodInsnNode(INVOKESTATIC, HOOK, "isLatched",
+        "(Lnet/minecraft/world/World;III)Z", false));
+    LabelNode unlocked = new LabelNode();
+    code.add(new JumpInsnNode(IFEQ, unlocked));
+    // Returning false suppresses the trapdoor action while allowing the held item's
+    // onItemUse to run, so shift-click placement against the trapdoor still works.
+    code.add(new InsnNode(ICONST_0));
+    code.add(new InsnNode(IRETURN));
+    code.add(unlocked);
+    method.instructions.insert(code);
   }
 
   private static void inject(MethodNode method) {

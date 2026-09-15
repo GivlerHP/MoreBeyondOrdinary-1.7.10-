@@ -24,6 +24,7 @@ import ru.givler.mbo.waterlogging.WaterloggedBlockSupport;
 import ru.givler.mbo.waterlogging.WaterloggedGeometry;
 
 public final class WaterloggedBlockRenderer {
+  private static boolean renderedInTranslucentPass;
   private static final double EDGE = 0.001D;
   private static final double EDGE_MAX = 0.999D;
   private static final double SOURCE_SURFACE =
@@ -36,7 +37,17 @@ public final class WaterloggedBlockRenderer {
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void render(RenderWorldLastEvent event) {
+    if (renderedInTranslucentPass) {
+      renderedInTranslucentPass = false;
+      return;
+    }
     renderNow(event.partialTicks);
+  }
+
+  public static void renderInTranslucentPass(float partialTicks) {
+    if (renderedInTranslucentPass) return;
+    renderedInTranslucentPass = true;
+    renderNow(partialTicks);
   }
 
   public static void renderNow(float partialTicks) {
@@ -57,32 +68,36 @@ public final class WaterloggedBlockRenderer {
             + (minecraft.renderViewEntity.posZ - minecraft.renderViewEntity.lastTickPosZ)
                 * partialTicks;
 
-    minecraft.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
     EntityRenderer entityRenderer = minecraft.entityRenderer;
-    entityRenderer.enableLightmap(partialTicks);
-    GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-    GL11.glEnable(GL11.GL_BLEND);
-    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-    GL11.glDisable(GL11.GL_CULL_FACE);
-    GL11.glDepthMask(false);
+    GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+    try {
+      minecraft.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+      entityRenderer.enableLightmap(partialTicks);
+      GL11.glColor4f(1F, 1F, 1F, 1F);
+      GL11.glEnable(GL11.GL_BLEND);
+      GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+      GL11.glDisable(GL11.GL_CULL_FACE);
+      GL11.glDepthMask(false);
 
-    Tessellator tessellator = Tessellator.instance;
-    tessellator.startDrawingQuads();
-    tessellator.setTranslation(-cameraX, -cameraY, -cameraZ);
-    for (ClientWaterloggedBlocks.Position position : ClientWaterloggedBlocks.all(dimension)) {
-      double dx = position.x + 0.5D - cameraX;
-      double dy = position.y + 0.5D - cameraY;
-      double dz = position.z + 0.5D - cameraZ;
-      if (dx * dx + dy * dy + dz * dz > 96D * 96D
-          || !world.blockExists(position.x, position.y, position.z)) continue;
-      if (WaterloggedBlockSupport.canWaterlog(world, position.x, position.y, position.z))
-        renderWater(world, position);
+      Tessellator tessellator = Tessellator.instance;
+      tessellator.startDrawingQuads();
+      tessellator.setTranslation(-cameraX, -cameraY, -cameraZ);
+      for (ClientWaterloggedBlocks.Position position : ClientWaterloggedBlocks.all(dimension)) {
+        double dx = position.x + 0.5D - cameraX;
+        double dy = position.y + 0.5D - cameraY;
+        double dz = position.z + 0.5D - cameraZ;
+        if (dx * dx + dy * dy + dz * dz > 96D * 96D
+            || !world.blockExists(position.x, position.y, position.z)) continue;
+        if (WaterloggedBlockSupport.canWaterlog(world, position.x, position.y, position.z))
+          renderWater(world, position);
+      }
+      tessellator.setTranslation(0, 0, 0);
+      tessellator.draw();
+    } finally {
+      Tessellator.instance.setTranslation(0, 0, 0);
+      entityRenderer.disableLightmap(partialTicks);
+      GL11.glPopAttrib();
     }
-    tessellator.setTranslation(0, 0, 0);
-    tessellator.draw();
-    GL11.glDepthMask(true);
-    GL11.glPopAttrib();
-    entityRenderer.disableLightmap(partialTicks);
   }
 
   private static void renderWater(World world, ClientWaterloggedBlocks.Position position) {

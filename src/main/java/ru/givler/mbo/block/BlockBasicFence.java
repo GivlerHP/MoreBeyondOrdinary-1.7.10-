@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.registry.CreativeTabRegistry;
+import ru.givler.mbo.core.FenceConnectionHooks;
 
 import java.util.List;
 
@@ -102,6 +103,7 @@ public class BlockBasicFence extends BlockFence {
 
     @Override
     public boolean canConnectFenceTo(IBlockAccess world, int x, int y, int z) {
+        if (!FenceConnectionHooks.allowsConnection(this, world, x, y, z)) return false;
         Block neighbor = world.getBlock(x, y, z);
         if (neighbor instanceof BlockBasicFence
                 || neighbor instanceof BlockBasicFenceGate

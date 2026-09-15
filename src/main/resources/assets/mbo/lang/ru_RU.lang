@@ -1296,3 +1296,7 @@ mbo.dungeon.restore.0=Исчезнуть навсегда
 mbo.dungeon.restore.1=Восстановиться с задержкой
 mbo.dungeon.restore.2=Ждать сигнал
 mbo.dungeon.restoreSeconds=Задержка восстановления (секунды)
+mbo.fence.connection.disabled=Соединение ограды отключено
+mbo.fence.connection.enabled=Соединение ограды включено
+mbo.trapdoor.latched=Состояние люка зафиксировано
+mbo.trapdoor.unlatched=Состояние люка разблокировано

@@ -442,12 +442,14 @@ public final class SmoothOpeningRenderer {
     if (renderPass != 1) return;
     renderedBeforeTranslucent = true;
     renderDynamicBlocks(viewEntity, partialTicks);
+    WaterloggedBlockRenderer.renderInTranslucentPass((float) partialTicks);
   }
 
   public static void renderBeforeNeodymiumTranslucent(int renderPass, double partialTicks) {
     if (renderPass != 1) return;
     renderedBeforeTranslucent = true;
     renderDynamicBlocks(Minecraft.getMinecraft().renderViewEntity, partialTicks);
+    WaterloggedBlockRenderer.renderInTranslucentPass((float) partialTicks);
   }
 
   @SubscribeEvent
@@ -499,6 +501,7 @@ public final class SmoothOpeningRenderer {
       ForgeHooksClient.setRenderPass(previousPass);
       ACTIVE.remove();
       DEPTH.remove();
+      mc.entityRenderer.disableLightmap(partialTicks);
       GL11.glMatrixMode(GL11.GL_MODELVIEW);
       GL11.glPopMatrix();
       GL11.glPopAttrib();

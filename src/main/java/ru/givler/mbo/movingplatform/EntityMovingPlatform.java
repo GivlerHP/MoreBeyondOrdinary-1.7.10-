@@ -39,6 +39,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private boolean virtualized;
   private boolean onboardLeverPowered;
   private boolean onboardLeverInitialized;
+  private int materializationGraceTicks;
   private boolean pendingConfiguration;
   private int pendingDirection,
       pendingDistance,
@@ -267,7 +268,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       distance = dataWatcher.getWatchableObjectInt(22);
       durationTicks = dataWatcher.getWatchableObjectInt(23);
       movementStartTick = dataWatcher.getWatchableObjectInt(24);
-      virtualized = dataWatcher.getWatchableObjectByte(25) != 0;
+      boolean watchedVirtualized = dataWatcher.getWatchableObjectByte(25) != 0;
+      if (virtualized && !watchedVirtualized) materializationGraceTicks = 40;
+      if (watchedVirtualized) materializationGraceTicks = 0;
+      virtualized = watchedVirtualized;
+      if (materializationGraceTicks > 0) --materializationGraceTicks;
       tickLerp();
       return;
     }
@@ -346,7 +351,27 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   public boolean shouldRenderMovingBlocks() {
-    return virtualized || isMoving();
+    if (virtualized || isMoving()) return true;
+    if (worldObj == null || !worldObj.isRemote || materializationGraceTicks <= 0) return false;
+    if (hasMissingMaterializedBlocks()) return true;
+    materializationGraceTicks = 0;
+    return false;
+  }
+
+  public boolean isAwaitingMaterialization() {
+    return !virtualized && !isMoving() && materializationGraceTicks > 0;
+  }
+
+  public boolean shouldRenderPlatformBlock(PlatformBlock block) {
+    if (!isAwaitingMaterialization()) return true;
+    int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
+    return worldObj.getBlock(ox + block.x, oy + block.y, oz + block.z) != block.block
+        || worldObj.getBlockMetadata(ox + block.x, oy + block.y, oz + block.z) != block.meta;
+  }
+
+  private boolean hasMissingMaterializedBlocks() {
+    for (PlatformBlock block : blocks) if (shouldRenderPlatformBlock(block)) return true;
+    return false;
   }
 
   public PlatformDirection getDirection() {

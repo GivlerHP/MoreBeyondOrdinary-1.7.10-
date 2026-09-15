@@ -20,14 +20,30 @@ public class RenderMovingPlatform extends Render {
     EntityMovingPlatform p = (EntityMovingPlatform) entity;
     if (!p.shouldRenderMovingBlocks()) return;
     bindTexture(TextureMap.locationBlocksTexture);
-    Cache compiled = getCache(p);
     GL11.glPushMatrix();
     GL11.glTranslated(x, y, z);
     GL11.glEnable(GL11.GL_TEXTURE_2D);
     GL11.glDisable(GL11.GL_LIGHTING);
-    GL11.glCallList(compiled.list);
+    if (p.isAwaitingMaterialization()) renderMissingBlocks(p);
+    else GL11.glCallList(getCache(p).list);
     GL11.glEnable(GL11.GL_LIGHTING);
     GL11.glPopMatrix();
+  }
+
+  private void renderMissingBlocks(EntityMovingPlatform platform) {
+    int ox = (int) Math.floor(platform.posX),
+        oy = (int) Math.floor(platform.posY),
+        oz = (int) Math.floor(platform.posZ);
+    RenderBlocks renderer =
+        new RenderBlocks(
+            new PlatformBlockAccess(platform.getBlocks(), platform.worldObj, ox, oy, oz));
+    renderer.renderAllFaces = true;
+    Tessellator tessellator = Tessellator.instance;
+    tessellator.startDrawingQuads();
+    for (PlatformBlock block : platform.getBlocks())
+      if (platform.shouldRenderPlatformBlock(block))
+        renderer.renderBlockByRenderType(block.block, block.x, block.y, block.z);
+    tessellator.draw();
   }
 
   private Cache getCache(EntityMovingPlatform platform) {

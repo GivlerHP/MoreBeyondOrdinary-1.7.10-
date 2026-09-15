@@ -11,6 +11,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
+import ru.givler.mbo.core.FenceConnectionHooks;
 
 import java.util.List;
 
@@ -63,6 +64,7 @@ public class BlockBasicWall extends BlockWall {
 
     @Override
     public boolean canConnectWallTo(IBlockAccess world, int x, int y, int z) {
+        if (!FenceConnectionHooks.allowsConnection(this, world, x, y, z)) return false;
         Block block = world.getBlock(x, y, z);
 
         if (block instanceof BlockBasicWall

@@ -18,6 +18,10 @@ import ru.givler.mbo.network.packet.PacketDungeonEditorOpen;
 import ru.givler.mbo.network.packet.PacketDungeonEditorSettings;
 import ru.givler.mbo.network.packet.PacketDungeonTriggerOpen;
 import ru.givler.mbo.network.packet.PacketDungeonTriggerSettings;
+import ru.givler.mbo.network.packet.PacketFenceConnectionDelta;
+import ru.givler.mbo.network.packet.PacketFenceConnectionSnapshot;
+import ru.givler.mbo.network.packet.PacketTrapdoorLatchDelta;
+import ru.givler.mbo.network.packet.PacketTrapdoorLatchSnapshot;
 import ru.givler.mbo.network.packet.PacketGamemodeMenuPermission;
 import ru.givler.mbo.network.packet.PacketGamemodeMenuRequest;
 import ru.givler.mbo.network.packet.PacketLockBarrierSettings;
@@ -170,6 +174,26 @@ public class PacketManager {
         PacketWaterloggedSnapshot.class,
         nextID++,
         Side.CLIENT);
+    INSTANCE.registerMessage(
+        PacketFenceConnectionDelta.Handler.class,
+        PacketFenceConnectionDelta.class,
+        nextID++,
+        Side.CLIENT);
+    INSTANCE.registerMessage(
+        PacketFenceConnectionSnapshot.Handler.class,
+        PacketFenceConnectionSnapshot.class,
+        nextID++,
+        Side.CLIENT);
+    INSTANCE.registerMessage(
+        PacketTrapdoorLatchDelta.Handler.class,
+        PacketTrapdoorLatchDelta.class,
+        nextID++,
+        Side.CLIENT);
+    INSTANCE.registerMessage(
+        PacketTrapdoorLatchSnapshot.Handler.class,
+        PacketTrapdoorLatchSnapshot.class,
+        nextID++,
+        Side.CLIENT);
   }
 
   /** Registers outgoing client-bound packet IDs without loading client-only handlers. */
@@ -187,7 +211,11 @@ public class PacketManager {
       PacketDungeonAreaSync.class,
       PacketDungeonTriggerOpen.class,
       PacketWaterloggedDelta.class,
-      PacketWaterloggedSnapshot.class
+      PacketWaterloggedSnapshot.class,
+      PacketFenceConnectionDelta.class,
+      PacketFenceConnectionSnapshot.class,
+      PacketTrapdoorLatchDelta.class,
+      PacketTrapdoorLatchSnapshot.class
     };
     try {
       FMLIndexedMessageToMessageCodec codec =

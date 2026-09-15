@@ -17,11 +17,13 @@ import org.objectweb.asm.tree.VarInsnNode;
 public final class FenceConnectionTransformer implements IClassTransformer, Opcodes {
     private static final String FENCE = "net.minecraft.block.BlockFence";
     private static final String WALL = "net.minecraft.block.BlockWall";
+    private static final String RENDER_BLOCKS = "net.minecraft.client.renderer.RenderBlocks";
     private static final String HOOKS = "ru/givler/mbo/core/FenceConnectionHooks";
     private static final String DESC = "(Lnet/minecraft/world/IBlockAccess;III)Z";
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
+        boolean renderBlocks = RENDER_BLOCKS.equals(transformedName);
         String mcpName;
         String srgName;
         if (FENCE.equals(transformedName)) {
@@ -30,16 +32,38 @@ public final class FenceConnectionTransformer implements IClassTransformer, Opco
         } else if (WALL.equals(transformedName)) {
             mcpName = "canConnectWallTo";
             srgName = "func_150091_e";
-        } else {
+        } else if (!renderBlocks) {
             return bytes;
+        } else {
+            mcpName = null;
+            srgName = null;
         }
 
         ClassNode node = new ClassNode();
         new ClassReader(bytes).accept(node, 0);
-        boolean changed = false;
+        boolean changed = injectOrigins(node, transformedName);
+        if (renderBlocks) {
+            if (!changed) System.err.println("[MBO ASM] Fence render origins not found in " + transformedName);
+            else System.out.println("[MBO ASM] Patched fence render origins in " + transformedName);
+            ClassWriter writer = SafeClassWriter.create();
+            node.accept(writer);
+            return writer.toByteArray();
+        }
         for (MethodNode method : node.methods) {
             if (!matches(node.name, method, mcpName, srgName)) continue;
             InsnList code = new InsnList();
+            code.add(new VarInsnNode(ALOAD, 0));
+            code.add(new VarInsnNode(ALOAD, 1));
+            code.add(new VarInsnNode(ILOAD, 2));
+            code.add(new VarInsnNode(ILOAD, 3));
+            code.add(new VarInsnNode(ILOAD, 4));
+            code.add(new MethodInsnNode(INVOKESTATIC, HOOKS, "allowsConnection",
+                    "(Lnet/minecraft/block/Block;Lnet/minecraft/world/IBlockAccess;III)Z", false));
+            LabelNode allowed = new LabelNode();
+            code.add(new JumpInsnNode(IFNE, allowed));
+            code.add(new InsnNode(ICONST_0));
+            code.add(new InsnNode(IRETURN));
+            code.add(allowed);
             code.add(new VarInsnNode(ALOAD, 1));
             code.add(new VarInsnNode(ILOAD, 2));
             code.add(new VarInsnNode(ILOAD, 3));
@@ -62,6 +86,35 @@ public final class FenceConnectionTransformer implements IClassTransformer, Opco
         node.accept(writer);
         System.out.println("[MBO ASM] Patched connections in " + transformedName);
         return writer.toByteArray();
+    }
+
+    private static boolean injectOrigins(ClassNode node, String transformedName) {
+        boolean changed = false;
+        for (MethodNode method : node.methods) {
+            String mapped = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(node.name, method.name, method.desc);
+            boolean target;
+            if (RENDER_BLOCKS.equals(transformedName)) {
+                target = "renderBlockFence".equals(method.name) || "renderBlockWall".equals(method.name)
+                        || "renderBlockFence".equals(mapped) || "renderBlockWall".equals(mapped);
+            } else {
+                target = "setBlockBoundsBasedOnState".equals(method.name)
+                        || "addCollisionBoxesToList".equals(method.name)
+                        || "getCollisionBoundingBoxFromPool".equals(method.name)
+                        || "setBlockBoundsBasedOnState".equals(mapped)
+                        || "addCollisionBoxesToList".equals(mapped)
+                        || "getCollisionBoundingBoxFromPool".equals(mapped);
+            }
+            if (!target) continue;
+            InsnList origin = new InsnList();
+            int firstCoordinate = RENDER_BLOCKS.equals(transformedName) ? 2 : 2;
+            origin.add(new VarInsnNode(ILOAD, firstCoordinate));
+            origin.add(new VarInsnNode(ILOAD, firstCoordinate + 1));
+            origin.add(new VarInsnNode(ILOAD, firstCoordinate + 2));
+            origin.add(new MethodInsnNode(INVOKESTATIC, HOOKS, "setOrigin", "(III)V", false));
+            method.instructions.insert(origin);
+            changed = true;
+        }
+        return changed;
     }
 
     private static boolean matches(String owner, MethodNode method, String mcpName, String srgName) {

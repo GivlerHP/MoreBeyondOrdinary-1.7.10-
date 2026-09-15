@@ -1007,3 +1007,7 @@ mbo.dungeon.restore.0=Disappear forever
 mbo.dungeon.restore.1=Restore after delay
 mbo.dungeon.restore.2=Wait for signal
 mbo.dungeon.restoreSeconds=Restore delay (seconds)
+mbo.fence.connection.disabled=Fence connection disabled
+mbo.fence.connection.enabled=Fence connection enabled
+mbo.trapdoor.latched=Trapdoor state locked
+mbo.trapdoor.unlatched=Trapdoor state unlocked
