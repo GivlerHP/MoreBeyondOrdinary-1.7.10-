@@ -82,25 +82,23 @@ public class PacketPlatformAction implements IMessage {
       if (!(e instanceof EntityMovingPlatform)) return;
       EntityMovingPlatform p = (EntityMovingPlatform) e;
       if (m.action == SAVE) {
-        java.util.UUID requestedId;
-        try { requestedId = java.util.UUID.fromString(m.platformId); }
-        catch (IllegalArgumentException invalid) { return; }
-        for (Object loaded : player.worldObj.loadedEntityList)
-          if (loaded instanceof EntityMovingPlatform
-              && loaded != p
-              && requestedId.equals(((EntityMovingPlatform) loaded).getPlatformId())) return;
-        if (p.isMoving() && !p.stopAndReturn(player)) return;
-        p.setPlatformId(requestedId);
-        p.configure(m.direction, m.distance, m.seconds, m.returnMode, m.delaySeconds);
-        p.confirmConfiguration();
+        if (p.isRebuildPending()) {
+          if (p.isMoving() && !p.stopAndReturn(player)) return;
+          if (!p.rebuild(player)) return;
+          p.finishRebuild();
+        }
+        if (!applyConfiguration(m, player, p)) return;
         ru.givler.mbo.network.PacketManager.INSTANCE.sendToDimension(
             new PacketPlatformSync(p), player.dimension);
         player.addChatMessage(
             new net.minecraft.util.ChatComponentTranslation("mbo.platform.saved"));
       } else if (m.action == REBUILD) {
-        if (p.rebuild(player))
+        // Enter edit mode. The next Save rebuilds the snapshot after the player
+        // has changed the materialized blocks.
+        if (p.requestRebuild(player)) {
           ru.givler.mbo.network.PacketManager.INSTANCE.sendToDimension(
               new PacketPlatformSync(p), player.dimension);
+        }
       } else if (m.action == RESET) p.reset(player);
       else if (m.action == GO_A) p.start(false, player);
       else if (m.action == GO_B) p.start(true, player);
@@ -127,6 +125,22 @@ public class PacketPlatformAction implements IMessage {
           ru.givler.mbo.network.PacketManager.INSTANCE.sendToDimension(
               new PacketPlatformRemove(id), player.dimension);
       }
+    }
+
+    private boolean applyConfiguration(
+        PacketPlatformAction m, EntityPlayerMP player, EntityMovingPlatform platform) {
+      java.util.UUID requestedId;
+      try { requestedId = java.util.UUID.fromString(m.platformId); }
+      catch (IllegalArgumentException invalid) { return false; }
+      for (Object loaded : player.worldObj.loadedEntityList)
+        if (loaded instanceof EntityMovingPlatform
+            && loaded != platform
+            && requestedId.equals(((EntityMovingPlatform) loaded).getPlatformId())) return false;
+      if (platform.isMoving() && !platform.stopAndReturn(player)) return false;
+      platform.setPlatformId(requestedId);
+      platform.configure(m.direction, m.distance, m.seconds, m.returnMode, m.delaySeconds);
+      platform.confirmConfiguration();
+      return true;
     }
   }
 }

@@ -182,7 +182,9 @@ public final class MovingPlatformTickHandler {
             Vec3.createVectorHelper(projectile.prevPosX, projectile.prevPosY, projectile.prevPosZ),
         to = Vec3.createVectorHelper(projectile.posX, projectile.posY, projectile.posZ);
     for (PlatformBlock block : platform.getOuterBlocks()) {
-      AxisAlignedBB box = blockBox(platform, block).expand(.15D, .15D, .15D);
+      AxisAlignedBB raw = blockBox(platform, block);
+      if (raw == null) continue;
+      AxisAlignedBB box = raw.expand(.15D, .15D, .15D);
       if (box.isVecInside(to) || box.calculateIntercept(from, to) != null) {
         projectile.setDead();
         return;
@@ -217,8 +219,10 @@ public final class MovingPlatformTickHandler {
     }
     double feet = feet(entity);
     for (PlatformBlock block : platform.getTopBlocks()) {
-      double oldTop = platform.prevPosY + block.y + 1D, newTop = platform.posY + block.y + 1D;
-      if (!overlapXZ(entity, platform.posX + block.x, platform.posZ + block.z)) continue;
+      AxisAlignedBB box = blockBox(platform, block);
+      if (box == null || !overlapXZ(entity, box)) continue;
+      double oldTop = platform.prevPosY + block.y + block.maxY,
+          newTop = platform.posY + block.y + block.maxY;
       double oldGap = previousFeet(entity) - oldTop, newGap = feet - newTop;
       boolean remembered =
           previous != null
@@ -256,6 +260,7 @@ public final class MovingPlatformTickHandler {
     }
     for (PlatformBlock block : platform.getOuterBlocks()) {
       AxisAlignedBB box = blockBox(platform, block);
+      if (box == null) continue;
       if (!entity.boundingBox.intersectsWith(box)) continue;
       double beforeX = entity.posX, beforeY = entity.posY, beforeZ = entity.posZ;
       double pushX =
@@ -300,11 +305,11 @@ public final class MovingPlatformTickHandler {
       return;
     }
     for (PlatformBlock block : platform.getBottomBlocks()) {
-      double x = platform.posX + block.x,
-          z = platform.posZ + block.z,
-          bottom = platform.posY + block.y,
-          oldBottom = platform.prevPosY + block.y;
-      if (overlapXZ(player, x, z)
+      AxisAlignedBB box = blockBox(platform, block);
+      if (box == null) continue;
+      double bottom = platform.posY + block.y + block.minY,
+          oldBottom = platform.prevPosY + block.y + block.minY;
+      if (overlapXZ(player, box)
           && oldBottom - (head + player.prevPosY - player.posY) >= -.08D
           && bottom - head <= .001D
           && player.boundingBox.minY < bottom) {
@@ -317,8 +322,10 @@ public final class MovingPlatformTickHandler {
     PlatformBlock chosen = null;
     double best = Double.MAX_VALUE;
     for (PlatformBlock block : platform.getTopBlocks()) {
-      double oldTop = platform.prevPosY + block.y + 1D, newTop = platform.posY + block.y + 1D;
-      if (!overlapXZ(player, platform.posX + block.x, platform.posZ + block.z)) continue;
+      AxisAlignedBB box = blockBox(platform, block);
+      if (box == null || !overlapXZ(player, box)) continue;
+      double oldTop = platform.prevPosY + block.y + block.maxY,
+          newTop = platform.posY + block.y + block.maxY;
       double oldGap = previousFeet(player) - oldTop, newGap = feet - newTop;
       boolean descendingCrossing = oldGap >= -.08D && newGap <= .08D && player.motionY <= 0D;
       boolean remembered =
@@ -334,7 +341,7 @@ public final class MovingPlatformTickHandler {
       }
     }
     if (chosen != null) {
-      snapFeet(player, platform.prevPosY + chosen.y + 1D);
+      snapFeet(player, platform.prevPosY + chosen.y + chosen.maxY);
       player.moveEntity(dx, dy, dz);
       if (player.motionY < 0) player.motionY = 0;
       player.onGround = true;
@@ -352,6 +359,7 @@ public final class MovingPlatformTickHandler {
       boolean moved = false;
       for (PlatformBlock block : platform.getOuterBlocks()) {
         AxisAlignedBB box = blockBox(platform, block);
+        if (box == null) continue;
         if (!entity.boundingBox.intersectsWith(box)) continue;
         double west = box.minX - entity.boundingBox.maxX;
         double east = box.maxX - entity.boundingBox.minX;
@@ -374,20 +382,21 @@ public final class MovingPlatformTickHandler {
   }
 
   private static AxisAlignedBB blockBox(EntityMovingPlatform p, PlatformBlock b) {
+    if (!b.collidable) return null;
     return AxisAlignedBB.getBoundingBox(
-        p.posX + b.x,
-        p.posY + b.y,
-        p.posZ + b.z,
-        p.posX + b.x + 1D,
-        p.posY + b.y + 1D,
-        p.posZ + b.z + 1D);
+        p.posX + b.x + b.minX,
+        p.posY + b.y + b.minY,
+        p.posZ + b.z + b.minZ,
+        p.posX + b.x + b.maxX,
+        p.posY + b.y + b.maxY,
+        p.posZ + b.z + b.maxZ);
   }
 
-  private static boolean overlapXZ(Entity p, double x, double z) {
-    return p.boundingBox.maxX > x + .02D
-        && p.boundingBox.minX < x + .98D
-        && p.boundingBox.maxZ > z + .02D
-        && p.boundingBox.minZ < z + .98D;
+  private static boolean overlapXZ(Entity entity, AxisAlignedBB box) {
+    return entity.boundingBox.maxX > box.minX + .02D
+        && entity.boundingBox.minX < box.maxX - .02D
+        && entity.boundingBox.maxZ > box.minZ + .02D
+        && entity.boundingBox.minZ < box.maxZ - .02D;
   }
 
   private static double feet(Entity p) {

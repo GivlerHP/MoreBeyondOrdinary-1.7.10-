@@ -10,12 +10,17 @@ public class TileEntityPlatformStation extends TileEntity {
   private UUID platformId;
   private int mode;
   private boolean powered;
+  private boolean priority;
+  private boolean pendingCommand;
+  private boolean pendingTargetB;
+  private EntityMovingPlatform cachedPlatform;
   private int dimension, aX, aY, aZ, bX, bY, bZ;
   private boolean hasEndpoints;
 
   public void readLink(NBTTagCompound tag) {
     platformId = parseUuid(tag.getString("PlatformId"));
     mode = tag.hasKey("Mode") ? clampMode(tag.getInteger("Mode")) : tag.getBoolean("TargetB") ? SEND_B : SEND_A;
+    priority = tag.getBoolean("Priority");
     dimension = tag.getInteger("Dimension");
     hasEndpoints = tag.hasKey("AX") && tag.hasKey("BX");
     aX = tag.getInteger("AX");
@@ -38,18 +43,54 @@ public class TileEntityPlatformStation extends TileEntity {
 
   public void updatePower() {
     if (worldObj == null || worldObj.isRemote) return;
-    boolean now = worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
-    if (now != powered && platformId != null) {
-      EntityMovingPlatform platform = findPlatform();
-      if (platform == null && hasEndpoints && worldObj.provider.dimensionId == dimension) {
-        worldObj.getChunkFromBlockCoords(aX, aZ);
-        worldObj.getChunkFromBlockCoords(bX, bZ);
-        platform = findPlatform();
-      }
-      if (platform != null) platform.start(targetB(now), null);
-    }
+    boolean now = hasControlSignal();
+    boolean changed = now != powered;
     powered = now;
-    markDirty();
+    if (changed) markDirty();
+    controlPlatform(changed, false);
+  }
+
+  private boolean hasControlSignal() {
+    return worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
+  }
+
+  @Override
+  public void updateEntity() {
+    if (worldObj != null && !worldObj.isRemote) updatePower();
+  }
+
+  private void controlPlatform(boolean signalChanged, boolean force) {
+    if (platformId == null) return;
+    boolean followsSignal = mode == POWERED_A || mode == POWERED_B;
+    if (force || signalChanged && (followsSignal || powered)) {
+      pendingCommand = true;
+      pendingTargetB = targetB(powered);
+      markDirty();
+    }
+    if (!pendingCommand) return;
+    EntityMovingPlatform platform = findPlatform();
+    if (platform == null && signalChanged && hasEndpoints
+        && worldObj.provider.dimensionId == dimension) {
+      worldObj.getChunkFromBlockCoords(aX, aZ);
+      worldObj.getChunkFromBlockCoords(bX, bZ);
+      platform = findPlatform();
+    }
+    if (platform == null) return;
+    if (priority && (signalChanged || force)) {
+      if (platform.redirect(pendingTargetB)) {
+        pendingCommand = false;
+        markDirty();
+      }
+    } else if (!platform.isMoving()) {
+      boolean alreadyThere =
+          pendingTargetB
+              ? platform.getState() == EntityMovingPlatform.STOPPED_B
+              : platform.getState() == EntityMovingPlatform.STOPPED_A;
+      if (alreadyThere || platform.start(pendingTargetB, null)) {
+        pendingCommand = false;
+        markDirty();
+      }
+    }
   }
 
   private boolean targetB(boolean hasSignal) {
@@ -59,21 +100,25 @@ public class TileEntityPlatformStation extends TileEntity {
     return false;
   }
 
-  public void setMode(int value) {
+  public void configure(int value, boolean priorityValue) {
     mode = clampMode(value);
-    powered = worldObj != null && worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
-    EntityMovingPlatform platform = platformId == null ? null : findPlatform();
-    if (platform != null) platform.start(targetB(powered), null);
+    priority = priorityValue;
+    powered = worldObj != null && hasControlSignal();
+    controlPlatform(true, true);
     markDirty();
     if (worldObj != null) worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
   }
 
   public int getMode() { return mode; }
 
+  public boolean isPriority() { return priority; }
+
   public String getPlatformIdText() { return platformId == null ? "-" : platformId.toString(); }
 
   public void setPlatformId(UUID value) {
     platformId = value;
+    cachedPlatform = null;
+    pendingCommand = false;
     hasEndpoints = false;
     EntityMovingPlatform platform = value == null ? null : findPlatform();
     if (platform != null) {
@@ -87,10 +132,16 @@ public class TileEntityPlatformStation extends TileEntity {
   private static int clampMode(int value) { return value >= 0 && value < MODE_COUNT ? value : SEND_A; }
 
   private EntityMovingPlatform findPlatform() {
+    if (cachedPlatform != null && !cachedPlatform.isDead
+        && cachedPlatform.worldObj == worldObj
+        && platformId.equals(cachedPlatform.getPlatformId())) return cachedPlatform;
     for (Object o : worldObj.loadedEntityList)
       if (o instanceof EntityMovingPlatform
-          && platformId.equals(((EntityMovingPlatform) o).getPlatformId()))
-        return (EntityMovingPlatform) o;
+          && platformId.equals(((EntityMovingPlatform) o).getPlatformId())) {
+        cachedPlatform = (EntityMovingPlatform) o;
+        return cachedPlatform;
+      }
+    cachedPlatform = null;
     return null;
   }
 
@@ -99,6 +150,9 @@ public class TileEntityPlatformStation extends TileEntity {
     super.readFromNBT(tag);
     readLink(tag);
     powered = tag.getBoolean("Powered");
+    priority = tag.getBoolean("Priority");
+    pendingCommand = tag.getBoolean("PendingCommand");
+    pendingTargetB = tag.getBoolean("PendingTargetB");
   }
 
   @Override
@@ -107,6 +161,9 @@ public class TileEntityPlatformStation extends TileEntity {
     if (platformId != null) tag.setString("PlatformId", platformId.toString());
     tag.setInteger("Mode", mode);
     tag.setBoolean("Powered", powered);
+    tag.setBoolean("Priority", priority);
+    tag.setBoolean("PendingCommand", pendingCommand);
+    tag.setBoolean("PendingTargetB", pendingTargetB);
     tag.setInteger("Dimension", dimension);
     if (hasEndpoints) {
       tag.setInteger("AX", aX);

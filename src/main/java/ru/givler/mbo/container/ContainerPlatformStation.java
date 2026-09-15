@@ -3,7 +3,6 @@ package ru.givler.mbo.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.Slot;
 import ru.givler.mbo.movingplatform.PlatformAccess;
 import ru.givler.mbo.tileentity.TileEntityPlatformStation;
 
@@ -12,8 +11,6 @@ public final class ContainerPlatformStation extends Container {
 
   public ContainerPlatformStation(InventoryPlayer inventory, TileEntityPlatformStation station) {
     this.station = station;
-    for (int slot = 0; slot < 36; slot++)
-      addSlotToContainer(new Slot(inventory, slot, -10000, -10000));
   }
 
   @Override

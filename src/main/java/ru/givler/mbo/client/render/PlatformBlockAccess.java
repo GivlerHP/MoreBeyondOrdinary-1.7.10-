@@ -114,7 +114,11 @@ final class PlatformBlockAccess implements IBlockAccess {
       int sy = lightSizeY + 2,
           sz = lightSizeZ + 2,
           index = (x + 1) * sy * sz + (y + 1) * sz + (z + 1);
-      if (index >= 0 && index < lightField.length) return lightField[index];
+      if (index >= 0 && index < lightField.length) {
+        int packed = lightField[index];
+        int block = Math.max(packed & 0xffff, minimum << 4);
+        return packed & 0xffff0000 | block;
+      }
     }
     Integer saved = frozenLight.get(key(x, y, z));
     return saved == null

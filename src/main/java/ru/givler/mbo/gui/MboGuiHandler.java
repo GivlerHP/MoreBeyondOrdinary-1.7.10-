@@ -91,7 +91,7 @@ public class MboGuiHandler implements IGuiHandler {
                 return entity instanceof EntityMovingPlatform ? new GuiMovingPlatform((EntityMovingPlatform) entity) : null;
             case PLATFORM_STATION:
                 return tile instanceof TileEntityPlatformStation
-                        ? new GuiPlatformStation((TileEntityPlatformStation) tile) : null;
+                        ? new GuiPlatformStation(player.inventory, (TileEntityPlatformStation) tile) : null;
             default:
                 return null;
         }

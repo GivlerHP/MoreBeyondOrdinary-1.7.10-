@@ -13,22 +13,27 @@ import ru.givler.mbo.network.EditorPacketAccess;
 
 public final class PacketPlatformStationConfig implements IMessage {
   private int x, y, z, mode;
+  private boolean priority;
   private String platformId = "";
 
   public PacketPlatformStationConfig() {}
 
-  public PacketPlatformStationConfig(int x, int y, int z, int mode, String platformId) {
+  public PacketPlatformStationConfig(
+      int x, int y, int z, int mode, boolean priority, String platformId) {
     this.x = x; this.y = y; this.z = z; this.mode = mode;
+    this.priority = priority;
     this.platformId = platformId == null ? "" : platformId;
   }
 
   public void fromBytes(ByteBuf buffer) {
     x = buffer.readInt(); y = buffer.readInt(); z = buffer.readInt(); mode = buffer.readByte();
+    priority = buffer.readBoolean();
     platformId = ByteBufUtils.readUTF8String(buffer);
   }
 
   public void toBytes(ByteBuf buffer) {
     buffer.writeInt(x); buffer.writeInt(y); buffer.writeInt(z); buffer.writeByte(mode);
+    buffer.writeBoolean(priority);
     ByteBufUtils.writeUTF8String(buffer, platformId);
   }
 
@@ -46,7 +51,7 @@ public final class PacketPlatformStationConfig implements IMessage {
             catch (IllegalArgumentException invalid) { return; }
             TileEntityPlatformStation station = (TileEntityPlatformStation) tile;
             station.setPlatformId(id);
-            station.setMode(message.mode);
+            station.configure(message.mode, message.priority);
           }
         }
       });

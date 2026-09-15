@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLever;
+import net.minecraft.block.BlockButton;
+import net.minecraft.block.BlockBasePressurePlate;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
@@ -38,9 +41,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private boolean configured;
   private boolean virtualized;
   private boolean onboardLeverPowered;
-  private boolean onboardLeverInitialized;
+  private boolean onboardMomentaryPowered;
+  private boolean onboardControlInitialized;
   private int materializationGraceTicks;
   private boolean pendingConfiguration;
+  private boolean rebuildPending;
   private int pendingDirection,
       pendingDistance,
       pendingDurationTicks,
@@ -99,7 +104,12 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
                   new ChatComponentTranslation("mbo.platform.error.unsupported", wx, wy, wz));
             return false;
           }
-          found.add(new PlatformBlock(x, y, z, block, worldObj.getBlockMetadata(wx, wy, wz)));
+          PlatformBlock saved =
+              new PlatformBlock(
+                  x, y, z, block,
+                  snapshotMetadata(block, worldObj.getBlockMetadata(wx, wy, wz)));
+          saved.captureCollision(worldObj, wx, wy, wz);
+          found.add(saved);
         }
     if (found.isEmpty()) {
       if (feedback != null)
@@ -110,6 +120,30 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     blocks.addAll(found);
     rebuildCollisionCache();
     return true;
+  }
+
+  public boolean requestRebuild(EntityPlayer feedback) {
+    if (isMoving()) {
+      if (feedback != null)
+        feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.blocked"));
+      return false;
+    }
+    rebuildPending = true;
+    return true;
+  }
+
+  public boolean isRebuildPending() {
+    return rebuildPending;
+  }
+
+  public void finishRebuild() {
+    rebuildPending = false;
+  }
+
+  private static int snapshotMetadata(Block block, int metadata) {
+    if (block instanceof BlockButton) return metadata & 7;
+    if (block instanceof BlockBasePressurePlate) return 0;
+    return metadata;
   }
 
   public boolean start(boolean toB, EntityPlayer feedback) {
@@ -136,6 +170,22 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     movementStartTick = worldTick();
     dataWatcher.updateObject(24, Integer.valueOf(movementStartTick));
     motionTick = 0;
+    return true;
+  }
+
+  /** Changes an active trip's destination without changing the platform's current position. */
+  public boolean redirect(boolean toB) {
+    if (!isMoving()) return start(toB, null);
+    if ((toB && state == MOVING_TO_B) || (!toB && state == MOVING_TO_A)) return true;
+    int now = worldTick();
+    int elapsed = Math.max(0, Math.min(durationTicks, now - movementStartTick));
+    int reversedElapsed = Math.max(0, durationTicks - elapsed);
+    state = toB ? MOVING_TO_B : MOVING_TO_A;
+    dataWatcher.updateObject(20, Integer.valueOf(state));
+    movementStartTick = now - reversedElapsed;
+    dataWatcher.updateObject(24, Integer.valueOf(movementStartTick));
+    motionTick = reversedElapsed;
+    waitTicks = 0;
     return true;
   }
 
@@ -173,12 +223,26 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       int x = ox + saved.x;
       int y = oy + saved.y;
       int z = oz + saved.z;
-      if (worldObj.getBlock(x, y, z) != saved.block
-          || worldObj.getBlockMetadata(x, y, z) != saved.meta) return false;
+      if (worldObj.getBlock(x, y, z) != saved.block) return false;
     }
+    refreshMaterializedSnapshot();
     for (PlatformBlock saved : blocks)
       worldObj.setBlock(ox + saved.x, oy + saved.y, oz + saved.z, Blocks.air, 0, 2);
     return true;
+  }
+
+  /** Copies live block states into the entity snapshot while the platform is materialized. */
+  private void refreshMaterializedSnapshot() {
+    if (worldObj == null || virtualized || isMoving()) return;
+    int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
+    for (PlatformBlock saved : blocks) {
+      int x = ox + saved.x, y = oy + saved.y, z = oz + saved.z;
+      if (worldObj.getBlock(x, y, z) == saved.block)
+      {
+        saved.meta = snapshotMetadata(saved.block, worldObj.getBlockMetadata(x, y, z));
+        saved.captureCollision(worldObj, x, y, z);
+      }
+    }
   }
 
   private boolean materialize() {
@@ -187,8 +251,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       if (worldObj.getBlock(ox + saved.x, oy + saved.y, oz + saved.z) != Blocks.air) return false;
     }
     for (PlatformBlock saved : blocks)
-      worldObj.setBlock(ox + saved.x, oy + saved.y, oz + saved.z, saved.block, saved.meta, 2);
+      worldObj.setBlock(
+          ox + saved.x, oy + saved.y, oz + saved.z,
+          saved.block, snapshotMetadata(saved.block, saved.meta), 2);
     setVirtualized(false);
+    captureOnboardControlState();
     return true;
   }
 
@@ -277,7 +344,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       return;
     }
     if (!isMoving()) {
-      if (checkOnboardLever()) return;
+      if (checkOnboardControl()) return;
       if (!worldObj.isRemote
           && returnMode != 2
           && ++waitTicks >= (returnMode == 0 ? 1 : delayTicks)) start(state == STOPPED_A, null);
@@ -554,6 +621,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     configured = tag.getBoolean("Configured");
     virtualized = tag.getBoolean("Virtualized");
     pendingConfiguration = tag.getBoolean("PendingConfiguration");
+    rebuildPending = tag.getBoolean("RebuildPending");
     pendingDirection = tag.getInteger("PendingDirection");
     pendingDistance = tag.getInteger("PendingDistance");
     pendingDurationTicks = tag.getInteger("PendingDuration");
@@ -563,7 +631,10 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     NBTTagList list = tag.getTagList("Blocks", 10);
     for (int i = 0; i < list.tagCount(); i++) {
       PlatformBlock b = PlatformBlock.read(list.getCompoundTagAt(i));
-      if (b != null) blocks.add(b);
+      if (b != null) {
+        b.meta = snapshotMetadata(b.block, b.meta);
+        blocks.add(b);
+      }
     }
     rebuildCollisionCache();
     // Never mutate blocks while AnvilChunkLoader is still constructing this entity.
@@ -579,6 +650,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
 
   @Override
   protected void writeEntityToNBT(NBTTagCompound tag) {
+    if (worldObj != null && !worldObj.isRemote) refreshMaterializedSnapshot();
     tag.setString("PlatformId", platformId.toString());
     if (ownerId != null) tag.setString("OwnerId", ownerId.toString());
     tag.setDouble("HomeX", homeX);
@@ -598,6 +670,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     tag.setBoolean("Configured", configured);
     tag.setBoolean("Virtualized", virtualized);
     tag.setBoolean("PendingConfiguration", pendingConfiguration);
+    tag.setBoolean("RebuildPending", rebuildPending);
     tag.setInteger("PendingDirection", pendingDirection);
     tag.setInteger("PendingDistance", pendingDistance);
     tag.setInteger("PendingDuration", pendingDurationTicks);
@@ -633,30 +706,57 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
 
   private void setVirtualized(boolean value) {
     virtualized = value;
-    if (!value) onboardLeverInitialized = false;
     dataWatcher.updateObject(25, Byte.valueOf((byte) (value ? 1 : 0)));
   }
 
-  private boolean checkOnboardLever() {
+  private boolean checkOnboardControl() {
     if (worldObj.isRemote || virtualized || !configured) return false;
+    int state = readOnboardControlState();
+    boolean leverPowered = (state & 1) != 0;
+    boolean momentaryPowered = (state & 2) != 0;
+    if (!onboardControlInitialized) {
+      onboardControlInitialized = true;
+      boolean pressed = momentaryPowered;
+      onboardLeverPowered = leverPowered;
+      onboardMomentaryPowered = momentaryPowered;
+      return pressed && start(this.state == STOPPED_A, null);
+    }
+    boolean leverChanged = leverPowered != onboardLeverPowered;
+    boolean momentaryPressed = momentaryPowered && !onboardMomentaryPowered;
+    onboardLeverPowered = leverPowered;
+    onboardMomentaryPowered = momentaryPowered;
+    return (leverChanged || momentaryPressed) && start(this.state == STOPPED_A, null);
+  }
+
+  private void captureOnboardControlState() {
+    int state = readOnboardControlState();
+    onboardLeverPowered = (state & 1) != 0;
+    onboardMomentaryPowered = (state & 2) != 0;
+    onboardControlInitialized = true;
+  }
+
+  private int readOnboardControlState() {
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
-    boolean powered = false;
+    boolean leverPowered = false;
+    boolean momentaryPowered = false;
     for (PlatformBlock saved : blocks) {
       int x = ox + saved.x, y = oy + saved.y, z = oz + saved.z;
       Block block = worldObj.getBlock(x, y, z);
-      if (block instanceof BlockLever && (worldObj.getBlockMetadata(x, y, z) & 8) != 0) {
-        powered = true;
-        break;
-      }
+      int metadata = worldObj.getBlockMetadata(x, y, z);
+      if (block instanceof BlockLever && (metadata & 8) != 0) leverPowered = true;
+      if (block instanceof BlockButton && (metadata & 8) != 0) momentaryPowered = true;
+      if (block instanceof BlockBasePressurePlate && hasLivingEntityOnPlate(x, y, z))
+        momentaryPowered = true;
     }
-    if (!onboardLeverInitialized) {
-      onboardLeverPowered = powered;
-      onboardLeverInitialized = true;
-      return false;
-    }
-    boolean changed = powered != onboardLeverPowered;
-    onboardLeverPowered = powered;
-    return changed && start(state == STOPPED_A, null);
+    return (leverPowered ? 1 : 0) | (momentaryPowered ? 2 : 0);
+  }
+
+  @SuppressWarnings("unchecked")
+  private boolean hasLivingEntityOnPlate(int x, int y, int z) {
+    AxisAlignedBB area =
+        AxisAlignedBB.getBoundingBox(
+            x + 0.125D, y, z + 0.125D, x + 0.875D, y + 0.5D, z + 0.875D);
+    return !worldObj.getEntitiesWithinAABB(EntityLivingBase.class, area).isEmpty();
   }
 
   private void rebuildCollisionCache() {

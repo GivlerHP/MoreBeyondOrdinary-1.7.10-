@@ -38,7 +38,12 @@ public class GuiMovingPlatform extends GuiScreen {
     buttonList.add(new GuiButton(6, x, y + 60, 130, 20, returnLabel()));
     delay = new GuiTextField(fontRendererObj, x + 140, y + 60, 60, 20);
     delay.setText(secondsText(platform.getDelayTicks()));
-    buttonList.add(new GuiButton(1, x, y + 85, 98, 20, I18n.format("mbo.platform.save")));
+    buttonList.add(
+        new GuiButton(
+            1, x, y + 85, 98, 20,
+            I18n.format(platform.isRebuildPending()
+                ? "mbo.platform.saveRebuild"
+                : "mbo.platform.save")));
     buttonList.add(new GuiButton(2, x + 102, y + 85, 98, 20, I18n.format("mbo.platform.rebuild")));
     buttonList.add(new GuiButton(3, x, y + 110, 98, 20, I18n.format("mbo.platform.goA")));
     buttonList.add(new GuiButton(4, x + 102, y + 110, 98, 20, I18n.format("mbo.platform.goB")));
