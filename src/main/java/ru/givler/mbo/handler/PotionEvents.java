@@ -5,6 +5,11 @@ import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -12,18 +17,34 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSource;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import ru.givler.mbo.potion.PotionEnum;
+import ru.givler.mbo.potion.Fear;
+import ru.givler.mbo.potion.MindControl;
 import ru.givler.mbo.registry.PotionRegistry;
+import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.particles.EnumParticleType;
+import ru.givler.mbo.particles.ParticleSettings;
+import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.network.packet.magic.PacketStaticAuraImpact;
+import ru.givler.mbo.potion.SyncedPotionEffects;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import ru.givler.mbo.item.magic.ItemSpellScroll;
+import ru.givler.mbo.magic.registry.MagicSpells;
 
 import java.util.Random;
+import java.util.List;
 
 public class PotionEvents {
 
@@ -35,6 +56,18 @@ public class PotionEvents {
         EntityLivingBase target = event.entityLiving;
         if (target.worldObj.isRemote) return;
         float amount = event.ammount;
+
+        if (target instanceof EntityPlayer && ((EntityPlayer) target).isUsingItem()) {
+            ItemStack used = ((EntityPlayer) target).getItemInUse();
+            if (used != null && used.getItem() instanceof ItemSpellScroll
+                    && ((ItemSpellScroll) used.getItem()).getSpell(used) == MagicSpells.SHADOW_WARD) {
+                Entity attacker = event.source.getEntity();
+                if (attacker instanceof EntityLivingBase && attacker != target) {
+                    ((EntityLivingBase) attacker).attackEntityFrom(DamageSource.magic, amount * 0.5F);
+                }
+                amount *= 0.5F;
+            }
+        }
 
         if (target.isPotionActive(PotionEnum.VULNERABILITY)) {
             int amplifier = target.getActivePotionEffect(PotionEnum.VULNERABILITY).getAmplifier();
@@ -147,6 +180,38 @@ public class PotionEvents {
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event) {
         if (event.entityLiving.worldObj.isRemote) return;
+        if (event.entityLiving.isPotionActive(PotionRegistry.Transience)
+                && event.source != null && !event.source.isUnblockable()) {
+            event.setCanceled(true);
+            return;
+        }
+        if (event.source != null && event.source.getEntity() instanceof EntityLivingBase) {
+            EntityLivingBase attacker = (EntityLivingBase) event.source.getEntity();
+            EntityLivingBase victim = event.entityLiving;
+            if (victim.isPotionActive(PotionRegistry.MindTrick)) {
+                victim.removePotionEffect(PotionRegistry.MindTrick.id);
+            }
+            if (!event.source.isProjectile() && victim.isPotionActive(PotionRegistry.Fireskin)) {
+                attacker.setFire(5);
+            }
+            if (!event.source.isProjectile() && victim.isPotionActive(PotionRegistry.IceShroud)) {
+                SyncedPotionEffects.apply(attacker,
+                        new PotionEffect(PotionRegistry.Frost.id, 100, 0, true));
+            }
+            if (!event.source.isProjectile() && victim.isPotionActive(PotionRegistry.StaticAura)
+                    && !"mbo.staticAura".equals(event.source.getDamageType())) {
+                attacker.attackEntityFrom(new EntityDamageSource("mbo.staticAura", victim).setMagicDamage(), 4.0F);
+                PacketManager.INSTANCE.sendToAllAround(new PacketStaticAuraImpact(attacker),
+                        new NetworkRegistry.TargetPoint(attacker.dimension,
+                                attacker.posX, attacker.posY, attacker.posZ, 64.0D));
+                victim.worldObj.playSoundAtEntity(attacker, "mbo:arc", 1.0F,
+                        victim.worldObj.rand.nextFloat() * 0.4F + 1.5F);
+            }
+            if (attacker.isPotionActive(PotionRegistry.Transience)) {
+                event.setCanceled(true);
+                return;
+            }
+        }
         if (!(event.entityLiving instanceof EntityPlayer)) return;
 
         EntityPlayer player = (EntityPlayer) event.entityLiving;
@@ -188,6 +253,7 @@ public class PotionEvents {
      */
     @SubscribeEvent
     public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
+        updateMagicEffects(event.entityLiving);
         if (!(event.entityLiving instanceof EntityPlayer)) {
             return;
         }
@@ -310,6 +376,127 @@ public class PotionEvents {
         }
     }
 
+    private static void updateMagicEffects(EntityLivingBase entity) {
+        World world = entity.worldObj;
+        if (world.isRemote) {
+            double x = entity.posX + (world.rand.nextDouble() - 0.5D) * entity.width;
+            double y = entity.boundingBox.minY + world.rand.nextDouble() * entity.height;
+            double z = entity.posZ + (world.rand.nextDouble() - 0.5D) * entity.width;
+            if (entity.isPotionActive(PotionRegistry.Frost)) MoreBeyondOrdinary.proxy.spawnParticle(
+                    EnumParticleType.SNOW, world, x, y, z, 0, -0.02D, 0,
+                    new ParticleSettings(15 + world.rand.nextInt(5), 1, 1, 1, 0.6F, false));
+            if (entity.isPotionActive(PotionRegistry.Fireskin)) MoreBeyondOrdinary.proxy.spawnParticle(
+                    EnumParticleType.VANILLA_FLAME, world, x, y, z, 0, 0, 0);
+            if (entity.isPotionActive(PotionRegistry.IceShroud)) {
+                float brightness = 0.5F + world.rand.nextFloat() * 0.5F;
+                MoreBeyondOrdinary.proxy.spawnParticle(EnumParticleType.SNOW,
+                        world, x, y, z, 0, -0.02D, 0,
+                        new ParticleSettings(40 + world.rand.nextInt(10), 1, 1, 1, 0.6F, false));
+                MoreBeyondOrdinary.proxy.spawnParticle(EnumParticleType.SPARKLE,
+                        world, x, y, z, 0, 0, 0,
+                        new ParticleSettings(48 + world.rand.nextInt(12), brightness,
+                                brightness + 0.1F, 1.0F, 0.75F, true));
+            }
+            if (entity.isPotionActive(PotionRegistry.StaticAura)) MoreBeyondOrdinary.proxy.spawnParticle(
+                    EnumParticleType.SPARK, world, x, y, z, 0, 0, 0,
+                    new ParticleSettings(3, 1, 1, 1, 1.4F, false));
+            if (entity.isPotionActive(PotionRegistry.Transience)) MoreBeyondOrdinary.proxy.spawnParticle(
+                    EnumParticleType.SPARKLE, world, x, y, z, 0, 0, 0,
+                    new ParticleSettings(20, 0.8F, 0.8F, 1.0F, 0.6F, false));
+            return;
+        }
+        if (entity.isPotionActive(PotionRegistry.Decay) && entity.onGround
+                && entity.ticksExisted % 20 == 0) {
+            boolean hasPatch = false;
+            List nearby = world.getEntitiesWithinAABB(
+                    ru.givler.mbo.entity.magic.EntityGroundMagicEffect.class,
+                    entity.boundingBox.expand(0.25D, 0.25D, 0.25D));
+            for (Object object : nearby) {
+                if (((ru.givler.mbo.entity.magic.EntityGroundMagicEffect) object).kind()
+                        == ru.givler.mbo.entity.magic.EntityGroundMagicEffect.Kind.DECAY) {
+                    hasPatch = true;
+                    break;
+                }
+            }
+            if (!hasPatch) world.spawnEntityInWorld(
+                    new ru.givler.mbo.entity.magic.EntityGroundMagicEffect(world,
+                            entity.posX, entity.posY + 0.01D, entity.posZ, entity,
+                            ru.givler.mbo.entity.magic.EntityGroundMagicEffect.Kind.DECAY,
+                            400, 1.0F));
+        }
+        if (entity instanceof EntityLiving && entity.isPotionActive(PotionRegistry.MindTrick)) {
+            ((EntityLiving) entity).setAttackTarget(null);
+            if (entity instanceof EntityCreature) ((EntityCreature) entity).setTarget(null);
+        }
+        if (entity instanceof EntityLiving && entity.isPotionActive(PotionRegistry.MindControl)) {
+            controlMind((EntityLiving) entity);
+        }
+        if (entity instanceof EntityCreature && entity.isPotionActive(PotionRegistry.Fear)) {
+            runAway((EntityCreature) entity, Fear.getSource(entity));
+        }
+    }
+
+    @SubscribeEvent
+    public void onMagicBreakSpeed(BreakSpeed event) {
+        PotionEffect frost = event.entityPlayer.getActivePotionEffect(PotionRegistry.Frost);
+        if (frost != null) {
+            event.newSpeed = Math.max(0.0F,
+                    event.originalSpeed * (1.0F - 0.5F * (frost.getAmplifier() + 1)));
+        }
+    }
+
+    @SubscribeEvent
+    public void onMagicBlockPlace(BlockEvent.PlaceEvent event) {
+        if (event.player.isPotionActive(PotionRegistry.Transience)) event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public void onMagicBlockBreak(BlockEvent.BreakEvent event) {
+        if (event.getPlayer().isPotionActive(PotionRegistry.Transience)) event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public void onMagicTarget(LivingSetAttackTargetEvent event) {
+        if (!(event.entityLiving instanceof EntityLiving)) return;
+        if ((event.entityLiving.isPotionActive(PotionRegistry.MindTrick)
+                || event.entityLiving.isPotionActive(PotionRegistry.Fear)) && event.target != null) {
+            ((EntityLiving) event.entityLiving).setAttackTarget(null);
+        } else if (event.entityLiving.isPotionActive(PotionRegistry.MindControl)) {
+            controlMind((EntityLiving) event.entityLiving);
+        }
+    }
+
+    private static void controlMind(EntityLiving controlled) {
+        EntityLivingBase owner = MindControl.getController(controlled);
+        if (owner == null) {
+            controlled.setAttackTarget(null);
+            return;
+        }
+        double range = controlled.getEntityAttribute(SharedMonsterAttributes.followRange).getAttributeValue();
+        List nearby = controlled.worldObj.getEntitiesWithinAABB(EntityLivingBase.class,
+                controlled.boundingBox.expand(range, range, range));
+        EntityLivingBase closest = null;
+        for (Object object : nearby) {
+            EntityLivingBase candidate = (EntityLivingBase) object;
+            if (candidate == controlled || candidate == owner || !candidate.isEntityAlive()) continue;
+            if (closest == null || controlled.getDistanceSqToEntity(candidate)
+                    < controlled.getDistanceSqToEntity(closest)) closest = candidate;
+        }
+        controlled.setAttackTarget(closest);
+        if (controlled instanceof EntityCreature) ((EntityCreature) controlled).setTarget(closest);
+    }
+
+    private static void runAway(EntityCreature creature, EntityLivingBase feared) {
+        if (feared == null || creature.getDistanceToEntity(feared) >= 16.0F) return;
+        Vec3 position = RandomPositionGenerator.findRandomTargetBlockAwayFrom(
+                creature, 16, 7, Vec3.createVectorHelper(feared.posX, feared.posY, feared.posZ));
+        creature.setAttackTarget(null);
+        creature.setTarget(null);
+        if (position != null && creature.getNavigator().noPath()) {
+            creature.getNavigator().tryMoveToXYZ(position.xCoord, position.yCoord, position.zCoord, 1.25D);
+        }
+    }
+
     private static ItemStack getMineFantasyBonus(Block block, int amount) {
         try {
             Class<?> bridge = Class.forName(
@@ -320,4 +507,5 @@ public class PotionEvents {
             throw new RuntimeException("Failed to query optional MineFantasy drops", e);
         }
     }
+
 }

@@ -41,9 +41,13 @@ import ru.givler.mbo.network.packet.PacketPlatformStationConfig;
 import ru.givler.mbo.network.packet.PacketSetLockDifficulty;
 import ru.givler.mbo.network.packet.PacketSpawnParticle;
 import ru.givler.mbo.network.packet.PacketSpawnParticleHandler;
+import ru.givler.mbo.network.packet.PacketPotionEffectSync;
 import ru.givler.mbo.network.packet.PacketSpectatorState;
 import ru.givler.mbo.network.packet.PacketWaterloggedDelta;
 import ru.givler.mbo.network.packet.PacketWaterloggedSnapshot;
+import ru.givler.mbo.network.packet.magic.PacketMagicBurst;
+import ru.givler.mbo.network.packet.magic.PacketLightningArc;
+import ru.givler.mbo.network.packet.magic.PacketStaticAuraImpact;
 
 public class PacketManager {
 
@@ -139,6 +143,14 @@ public class PacketManager {
 
   public static void registerClientPackets() {
     INSTANCE.registerMessage(
+        PacketLightningArc.Handler.class, PacketLightningArc.class, nextID++, Side.CLIENT);
+    INSTANCE.registerMessage(
+        PacketMagicBurst.Handler.class, PacketMagicBurst.class, nextID++, Side.CLIENT);
+    INSTANCE.registerMessage(
+        PacketPotionEffectSync.Handler.class, PacketPotionEffectSync.class, nextID++, Side.CLIENT);
+    INSTANCE.registerMessage(
+        PacketStaticAuraImpact.Handler.class, PacketStaticAuraImpact.class, nextID++, Side.CLIENT);
+    INSTANCE.registerMessage(
         PacketSpawnParticleHandler.class, PacketSpawnParticle.class, nextID++, Side.CLIENT);
     INSTANCE.registerMessage(
         PacketLockpickResult.Handler.class, PacketLockpickResult.class, nextID++, Side.CLIENT);
@@ -200,6 +212,9 @@ public class PacketManager {
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static void registerClientPacketTypesForServer() {
     Class[] messages = {
+      PacketMagicBurst.class,
+      PacketPotionEffectSync.class,
+      PacketStaticAuraImpact.class,
       PacketSpawnParticle.class,
       PacketLockpickResult.class,
       PacketSpectatorState.class,

@@ -9,6 +9,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import ru.givler.mbo.block.*;
 import ru.givler.mbo.block.craft.BlockArcanum;
+import ru.givler.mbo.block.magic.BlockMagicSnare;
+import ru.givler.mbo.block.magic.BlockPetrifiedStatue;
+import ru.givler.mbo.block.magic.BlockTemporaryMagic;
 import ru.givler.mbo.block.special.*;
 import ru.givler.mbo.block.model.BlockModelCollision;
 import ru.givler.mbo.movingplatform.BlockPlatformStation;
@@ -50,6 +53,10 @@ public class BlockRegistry {
     public static BlockBasicFenceGate FenceGateSpruce, FenceGateBirch, FenceGateJungle, FenceGateAcacia, FenceGateDarkOak;
     //переменные для крафтовых блоков
     public static Block MagicFurnace;
+    public static Block MagicSnare;
+    public static Block MeteorBlock;
+    public static BlockPetrifiedStatue PetrifiedStatue, FrozenStatue;
+    public static BlockTemporaryMagic TemporaryCobweb, TemporaryFrost, TemporaryLight, TemporarySpectral;
     public static Block LockableChest, LockableTrapdoor;
     public static BlockLockableDoor LockableDoor;
     public static BlockPlatformStation PlatformStation;
@@ -156,6 +163,23 @@ public class BlockRegistry {
         BlockGlass = new BlockTemporaryGlass("BlockGlass");
 
         MagicFurnace = new BlockArcanum(Material.rock, "MagicFurnace");
+        MagicSnare = new BlockMagicSnare();
+        MeteorBlock = new Block(Material.rock) {};
+        MeteorBlock.setBlockName("meteor_block").setBlockTextureName("mbo:magic/meteor").setLightLevel(1.0F);
+        GameRegistry.registerBlock(MagicSnare, "magic_snare");
+        GameRegistry.registerBlock(MeteorBlock, "meteor_block");
+        PetrifiedStatue = new BlockPetrifiedStatue();
+        FrozenStatue = new BlockPetrifiedStatue(true);
+        GameRegistry.registerBlock(PetrifiedStatue, "petrified_statue");
+        GameRegistry.registerBlock(FrozenStatue, "frozen_statue");
+        TemporaryCobweb = new BlockTemporaryMagic(BlockTemporaryMagic.Kind.COBWEB);
+        TemporaryFrost = new BlockTemporaryMagic(BlockTemporaryMagic.Kind.FROST);
+        TemporaryLight = new BlockTemporaryMagic(BlockTemporaryMagic.Kind.LIGHT);
+        TemporarySpectral = new BlockTemporaryMagic(BlockTemporaryMagic.Kind.SPECTRAL);
+        GameRegistry.registerBlock(TemporaryCobweb, "temporary_cobweb");
+        GameRegistry.registerBlock(TemporaryFrost, "temporary_frost");
+        GameRegistry.registerBlock(TemporaryLight, "temporary_light");
+        GameRegistry.registerBlock(TemporarySpectral, "temporary_spectral");
 
         //НИЖЕ НАХОДИТСЯ СТУПЕНЬКИ
         StairsStone = new BlockBasicStairs((BlockBase) BlockGreyStone);

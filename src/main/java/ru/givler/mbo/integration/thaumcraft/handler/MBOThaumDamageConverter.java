@@ -13,7 +13,7 @@ import thaumcraft.common.lib.utils.ProtectionUtils;
 
 import java.lang.reflect.Field;
 
-/** Converts MBO and its wizardry staff projectiles to the shared MF damage contract. */
+/** Converts MBO spell and staff projectiles to the shared MF damage contract. */
 public class MBOThaumDamageConverter {
     private static Field eventSourceField;
 

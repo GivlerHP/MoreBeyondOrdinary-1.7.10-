@@ -18,6 +18,14 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class CreativeTabRegistry {
+  public static final CreativeTabs tabMBOmagic =
+      new CreativeTabs("MBOmagic") {
+        @Override
+        public Item getTabIconItem() {
+          return MagicItemRegistry.spellScroll;
+        }
+      };
+
   public static final CreativeTabs tabMBOblocks =
       new CreativeTabs("MBOblocks") {
         @Override

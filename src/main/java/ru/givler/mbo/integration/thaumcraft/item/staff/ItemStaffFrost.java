@@ -2,7 +2,7 @@ package ru.givler.mbo.integration.thaumcraft.item.staff;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import electroblob.wizardry.entity.projectile.EntityIceShard;
+import ru.givler.mbo.entity.magic.EntityIceShard;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
@@ -95,7 +95,7 @@ public class ItemStaffFrost extends ItemStaffBasic {
                 EntityIceShard iceShard = new EntityIceShard(
                         world, player, 2 * RANGE_MULTIPLIER, DAMAGE_MULTIPLIER);
                 world.spawnEntityInWorld(iceShard);
-                world.playSoundAtEntity(player, "wizardry:ice", 1.0F,
+                world.playSoundAtEntity(player, "mbo:ice", 1.0F,
                         world.rand.nextFloat() * 0.4F + 1.4F);
             }
             player.swingItem();

@@ -2,8 +2,6 @@ package ru.givler.mbo.integration.thaumcraft.item.staff;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import electroblob.wizardry.Wizardry;
-import electroblob.wizardry.tileentity.TileEntityTimer;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,6 +16,8 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.wands.IWandable;
 import thaumcraft.common.Thaumcraft;
 import thaumcraft.common.lib.utils.ProtectionUtils;
+import ru.givler.mbo.registry.BlockRegistry;
+import ru.givler.mbo.tileentity.TileEntityTemporaryMagicBlock;
 
 public class ItemStaffLantern extends ItemStaffBasic {
     @SideOnly(Side.CLIENT)
@@ -111,9 +111,11 @@ public class ItemStaffLantern extends ItemStaffBasic {
                 if (world.isAirBlock(blockHitX, blockHitY, blockHitZ)
                         && ProtectionUtils.canPlayerPlaceBlock(world, player, blockHitX, blockHitY, blockHitZ)) {
                     if (!world.isRemote) {
-                        world.setBlock(blockHitX, blockHitY, blockHitZ, Wizardry.magicLight);
-                        if (world.getTileEntity(blockHitX, blockHitY, blockHitZ) instanceof TileEntityTimer) {
-                            ((TileEntityTimer) world.getTileEntity(blockHitX, blockHitY, blockHitZ))
+                        world.setBlock(blockHitX, blockHitY, blockHitZ, BlockRegistry.TemporaryLight);
+                        if (world.getTileEntity(blockHitX, blockHitY, blockHitZ)
+                                instanceof TileEntityTemporaryMagicBlock) {
+                            ((TileEntityTemporaryMagicBlock) world.getTileEntity(
+                                    blockHitX, blockHitY, blockHitZ))
                                     .setLifetime(LIGHT_DURATION_TICKS);
                         }
                     }
@@ -127,9 +129,10 @@ public class ItemStaffLantern extends ItemStaffBasic {
                 if (world.isAirBlock(x, y, z)
                         && ProtectionUtils.canPlayerPlaceBlock(world, player, x, y, z)) {
                     if (!world.isRemote) {
-                        world.setBlock(x, y, z, Wizardry.magicLight);
-                        if (world.getTileEntity(x, y, z) instanceof TileEntityTimer) {
-                            ((TileEntityTimer) world.getTileEntity(x, y, z)).setLifetime(LIGHT_DURATION_TICKS);
+                        world.setBlock(x, y, z, BlockRegistry.TemporaryLight);
+                        if (world.getTileEntity(x, y, z) instanceof TileEntityTemporaryMagicBlock) {
+                            ((TileEntityTemporaryMagicBlock) world.getTileEntity(x, y, z))
+                                    .setLifetime(LIGHT_DURATION_TICKS);
                         }
                     }
                     placed = true;
@@ -138,7 +141,7 @@ public class ItemStaffLantern extends ItemStaffBasic {
 
             if (placed) {
                 player.swingItem();
-                world.playSoundAtEntity(player, "wizardry:aura", 1.0F, 1.0F);
+                world.playSoundAtEntity(player, "mbo:aura", 1.0F, 1.0F);
             }
         }
         return itemstack;

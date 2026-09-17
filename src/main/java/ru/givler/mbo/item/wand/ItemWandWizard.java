@@ -1,7 +1,6 @@
 package ru.givler.mbo.item.wand;
 
 
-import electroblob.wizardry.entity.projectile.EntityMagicMissile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemStack;
@@ -10,6 +9,8 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.item.ItemWandBase;
+import ru.givler.mbo.magic.api.SpellContext;
+import ru.givler.mbo.magic.registry.MagicSpells;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.List;
@@ -25,17 +26,12 @@ public class ItemWandWizard extends ItemWandBase {
 
     @Override
     public ItemStack onItemRightClick(ItemStack itemstack, World world, EntityPlayer player) {
-        if (!world.isRemote) {
-            EntityMagicMissile magicMissile = new EntityMagicMissile(world, player, 2 * RANGE_MULTIPLIER, DAMAGE_MULTIPLIER);
-            world.spawnEntityInWorld(magicMissile);
-
-            if (!player.capabilities.isCreativeMode) {
-                itemstack.damageItem(1, player);
-            }
+        boolean cast = MagicSpells.MAGIC_MISSILE.cast(new SpellContext(
+                world, player, null, itemstack, 0,
+                DAMAGE_MULTIPLIER, RANGE_MULTIPLIER, 1.0F, 1.0F)).consumesResources();
+        if (cast && !world.isRemote && !player.capabilities.isCreativeMode) {
+            itemstack.damageItem(1, player);
         }
-
-        player.swingItem();
-        world.playSoundAtEntity(player, "wizardry:magic", 1.0F, world.rand.nextFloat() * 0.4F + 1.2F);
 
         return itemstack;
     }

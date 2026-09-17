@@ -6,11 +6,13 @@ buildscript {
     }
     dependencies {
         classpath 'com.anatawa12.forge:ForgeGradle:1.2-1.1.1'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.17.1'
     }
 }
 
 apply plugin: 'forge'
 apply plugin: 'idea'
+apply plugin: 'com.diffplug.spotless'
 
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'

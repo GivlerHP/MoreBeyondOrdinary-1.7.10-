@@ -6,6 +6,8 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.dungeon.DungeonAreaLifecycleHandler;
@@ -14,11 +16,14 @@ import ru.givler.mbo.dungeon.DungeonTriggerEventHandler;
 import ru.givler.mbo.dungeon.IllusoryWallHitHandler;
 import ru.givler.mbo.editor.AreaEditorInteractionHandler;
 import ru.givler.mbo.handler.*;
+import ru.givler.mbo.magic.MagicModule;
+import ru.givler.mbo.magic.item.SpectralItemEvents;
 import ru.givler.mbo.movingplatform.MovingPlatformTickHandler;
 import ru.givler.mbo.tileentity.TileEntityPlatformStation;
 import ru.givler.mbo.network.EditorNetworkTickHandler;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;
+import ru.givler.mbo.particles.ParticleSettings;
 import ru.givler.mbo.recipes.registry.BlockRecipeRegistry;
 import ru.givler.mbo.recipes.registry.RoofRecipeRegistry;
 import ru.givler.mbo.registry.*;
@@ -31,6 +36,9 @@ import ru.givler.mbo.tileentity.TileEntityLockableChest;
 import ru.givler.mbo.tileentity.TileEntityLockableDoor;
 import ru.givler.mbo.tileentity.TileEntityLockableTrapdoor;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
+import ru.givler.mbo.tileentity.TileEntityMagicSnare;
+import ru.givler.mbo.tileentity.TileEntityPetrifiedStatue;
+import ru.givler.mbo.tileentity.TileEntityTemporaryMagicBlock;
 import ru.givler.mbo.waterlogging.WaterloggingEventHandler;
 
 public class CommonProxy {
@@ -49,15 +57,18 @@ public class CommonProxy {
   }
 
   public void preInit(FMLPreInitializationEvent event) {
-    PotionArrayExpander.expand(128);
+    PotionArrayExpander.expand(256);
     BlockRegistry.preLoad(event);
     ItemRegistry.preLoad(event);
     PotionRegistry.preLoad(event);
+    EnchantmentRegistry.register();
     ModelRegistry.preInit(event);
     DrinkRegistry.preLoad(event);
     FoodRegistry.preLoad(event);
     PlantRegistry.preLoad(event);
     ArmorRegistry.preLoad(event);
+    MagicItemRegistry.preLoad(event);
+    MagicModule.preInit(event);
     if (Loader.isModLoaded("Thaumcraft")) {
       invokeOptional(
           "ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry",
@@ -75,6 +86,9 @@ public class CommonProxy {
     MinecraftForge.EVENT_BUS.register(new BeltEvents());
     FMLCommonHandler.instance().bus().register(new BeltEvents());
     MinecraftForge.EVENT_BUS.register(new RingEvents());
+    MinecraftForge.EVENT_BUS.register(new SpectralItemEvents());
+    MinecraftForge.EVENT_BUS.register(new EnchantmentEvents());
+    MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.magic.handler.SoulbindingEvents());
     FMLCommonHandler.instance().bus().register(new RingEvents());
     SpectatorEventHandler spectatorHandler = new SpectatorEventHandler();
     MinecraftForge.EVENT_BUS.register(spectatorHandler);
@@ -124,6 +138,9 @@ public class CommonProxy {
     GameRegistry.registerTileEntity(TileEntityLockableDoor.class, "mbo_lockable_door");
     GameRegistry.registerTileEntity(TileEntityLockableTrapdoor.class, "mbo_lockable_trapdoor");
     GameRegistry.registerTileEntity(TileEntityPlatformStation.class, "mbo_platform_station");
+    GameRegistry.registerTileEntity(TileEntityMagicSnare.class, "mbo_magic_snare");
+    GameRegistry.registerTileEntity(TileEntityPetrifiedStatue.class, "mbo_petrified_statue");
+    GameRegistry.registerTileEntity(TileEntityTemporaryMagicBlock.class, "mbo_temporary_magic_block");
 
     BlockRecipeRegistry.init();
     RoofRecipeRegistry.init();
@@ -145,7 +162,8 @@ public class CommonProxy {
     }
   }
 
-  public void postInit(FMLPostInitializationEvent event) {}
+  public void postInit(FMLPostInitializationEvent event) {
+  }
 
   private static void invokeOptional(String className, String method) {
     invokeOptional(className, method, null, null);
@@ -175,4 +193,27 @@ public class CommonProxy {
       double motionX,
       double motionY,
       double motionZ) {}
+
+  public void spawnParticle(
+      EnumParticleType type, World world, double x, double y, double z,
+      double motionX, double motionY, double motionZ, ParticleSettings settings) {}
+
+  public void spawnSparkle(
+      World world,
+      double x,
+      double y,
+      double z,
+      double motionX,
+      double motionY,
+      double motionZ,
+      int maxAge,
+      float red,
+      float green,
+      float blue) {}
+
+  public void playMovingSound(
+      Entity entity, String soundName, float volume, float pitch, boolean repeat) {}
+
+  public void spawnTornadoParticle(World world, double centreX, double y, double centreZ,
+      double velocityX, double velocityZ, double radius, Block block, int metadata) {}
 }

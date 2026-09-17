@@ -2,8 +2,7 @@ package ru.givler.mbo.integration.thaumcraft.item.staff;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import electroblob.wizardry.entity.projectile.EntityIceCharge;
-import electroblob.wizardry.entity.projectile.EntityIceShard;
+import ru.givler.mbo.entity.magic.EntityIceCharge;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
@@ -97,7 +96,7 @@ public class ItemStaffChillSorrow extends ItemStaffBasic {
                 world.spawnEntityInWorld(iceCharge);
             }
             player.swingItem();
-            world.playSoundAtEntity(player, "wizardry:ice", 1.0F, world.rand.nextFloat() * 0.4F + 1.4F);
+            world.playSoundAtEntity(player, "mbo:ice", 1.0F, world.rand.nextFloat() * 0.4F + 1.4F);
         }
 
         return itemstack;

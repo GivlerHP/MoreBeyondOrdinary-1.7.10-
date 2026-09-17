@@ -4,7 +4,6 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
-import electroblob.wizardry.item.ItemSpectralSword;
 import net.minecraft.item.Item;
 import net.minecraft.util.EnumChatFormatting;
 import ru.givler.mbo.MoreBeyondOrdinary;
@@ -19,6 +18,8 @@ import ru.givler.mbo.item.glyph.*;
 import ru.givler.mbo.item.glyph.ItemGlyphWeapon;
 import ru.givler.mbo.item.wand.ItemWandWizard;
 import ru.givler.mbo.item.weapon.*;
+import ru.givler.mbo.item.magic.ItemSpectralWeapon;
+import ru.givler.mbo.magic.item.SpectralEffects;
 
 
 public class ItemRegistry {
@@ -28,7 +29,7 @@ public class ItemRegistry {
     public static ItemWeaponBase BrokenLongsword, BrokenSword, BrokenRapier, BrokenMace, BrokenAxe, BrokenDagger, BrokenCudgel, Uchigatana,
             DragonSlayer, TorchMat;
     // переменные призрачного оружия
-    public static ItemSpectralSword WeaponRapier;
+    public static ItemSpectralWeapon WeaponRapier;
     // переменные луков
     public static net.minecraft.item.ItemBow BrokenBowHunting ;
     // переменные материалов
@@ -45,7 +46,7 @@ public class ItemRegistry {
     //магические посохи
     public static ItemWandBase BrokenWandWizard, BrokenWandPyromancer;
     // Призрачного оружия
-    public static ItemTorchWeaponMBO TorchWeapon;
+    public static ItemSpectralWeapon TorchWeapon;
     public static Item Lockpick, AdminKey, PlatformEditor, DungeonEditor, LockableDoorItem;
 
     @Mod.EventHandler
@@ -81,11 +82,13 @@ public class ItemRegistry {
         BrokenCudgel = new ItemMaceMBO("BrokenCudgel", "cudgel", BrokenSwordMat, 200, 1);
 
         BrokenBowHunting = new ItemBowMBO("BrokenBowHunting", "brokenlittlecrossbow", 30, 0.25F, 0.7F);
-        WeaponRapier = createSpectralSword("WeaponRapier", "mithrilsword", BrokenSwordMat, 800);
+        WeaponRapier = createSpectralWeapon("WeaponRapier", "mithrilsword", BrokenSwordMat, 800);
         Uchigatana = new ItemSwordMBO("Uchigatana", "uchigatana", Divine, 10000, 1);
         DragonSlayer = new ItemDragonSlayerMBO("DragonSlayer", "dragon_slayer", DragonSlayerMat, 1750, 1);
 
-        TorchWeapon = new ItemTorchWeaponMBO("TorchWeapon", "torch", TorchMat, 800, 1)
+        TorchWeapon = createSpectralWeapon("TorchWeapon", "torch", TorchMat, 800);
+        TorchWeapon.setImpactEffect(SpectralEffects.IGNITE, 0.75F)
+                .setEnchantedAppearance(false)
                 .setDescription("item.TorchWeapon.desc", EnumChatFormatting.RED);
 
         //глифы
@@ -162,9 +165,9 @@ public class ItemRegistry {
 
     }
 
-    private static ItemSpectralSword createSpectralSword(String name, String texture,
-                                                          Item.ToolMaterial material, int duration) {
-        ItemSpectralSword item = new ItemSpectralSword(material);
+    private static ItemSpectralWeapon createSpectralWeapon(String name, String texture,
+                                                            Item.ToolMaterial material, int duration) {
+        ItemSpectralWeapon item = new ItemSpectralWeapon(material, duration);
         item.setUnlocalizedName(name);
         item.setTextureName(MoreBeyondOrdinary.MODID + ":weapon/" + texture);
         item.setCreativeTab(CreativeTabRegistry.tabMBOitems);
@@ -174,6 +177,8 @@ public class ItemRegistry {
         return item;
     }
 
+    // These classes refer to optional mods. Reflection prevents the JVM from loading them
+    // when the corresponding mod is absent.
     private static ItemWandBase createOptionalWand(String className, int durability) {
         try {
             return (ItemWandBase) Class.forName(className)

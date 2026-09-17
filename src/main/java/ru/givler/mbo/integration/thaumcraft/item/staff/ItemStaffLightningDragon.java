@@ -2,7 +2,7 @@ package ru.givler.mbo.integration.thaumcraft.item.staff;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import electroblob.wizardry.entity.projectile.EntityThunderbolt;
+import ru.givler.mbo.entity.magic.EntityThunderbolt;
 import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;

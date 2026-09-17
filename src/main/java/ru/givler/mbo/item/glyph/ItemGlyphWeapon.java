@@ -1,7 +1,6 @@
 package ru.givler.mbo.item.glyph;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import electroblob.wizardry.ExtendedPlayer;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,7 +33,6 @@ public class ItemGlyphWeapon extends ItemGlyphBasic {
             summonedItem.addEnchantment(Enchantment.smite, 3);
 
             if (player.inventory.addItemStackToInventory(summonedItem)) {
-                ExtendedPlayer.get(player).conjuredSwordDuration = 0;
                 player.inventory.markDirty();
                 itemStack.damageItem(10, player);
             }

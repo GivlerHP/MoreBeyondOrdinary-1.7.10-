@@ -16,6 +16,7 @@ import ru.givler.mbo.config.TooltipFrameConfig;
 import ru.givler.mbo.gui.MboGuiHandler;
 import ru.givler.mbo.proxy.CommonProxy;
 import ru.givler.mbo.registry.EntityMobRegistry;
+import ru.givler.mbo.registry.MagicEntityRegistry;
 import ru.givler.mbo.registry.VanillaBlockReplacer;
 
 @Mod(
@@ -51,6 +52,7 @@ public class MoreBeyondOrdinary {
     proxy.preInit(event);
     proxy.initPackets();
     EntityMobRegistry.registerEntities();
+    MagicEntityRegistry.registerEntities();
     IntegrationConfig.load(event.getModConfigurationDirectory());
     TooltipFrameConfig.load(event.getModConfigurationDirectory());
     LockSecurityConfig.load(event.getModConfigurationDirectory());

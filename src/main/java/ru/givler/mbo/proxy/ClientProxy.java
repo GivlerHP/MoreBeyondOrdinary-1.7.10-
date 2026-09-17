@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
@@ -41,16 +42,71 @@ import ru.givler.mbo.client.render.decormodels.RenderLootContainerItem;
 import ru.givler.mbo.client.render.decormodels.RenderLootContainerTile;
 import ru.givler.mbo.client.render.decormodels.TemplateItemModelRenderer;
 import ru.givler.mbo.client.render.decormodels.TemplateModelRenderer;
+import ru.givler.mbo.client.render.magic.RenderMagicMissile;
+import ru.givler.mbo.client.render.magic.RenderSpectralItem;
+import ru.givler.mbo.client.render.magic.RenderBillboardProjectile;
+import ru.givler.mbo.client.render.magic.RenderIceShard;
+import ru.givler.mbo.client.render.magic.RenderInvisibleProjectile;
+import ru.givler.mbo.client.render.magic.RenderArcaneArrow;
+import ru.givler.mbo.client.render.magic.RenderMagicBomb;
+import ru.givler.mbo.client.render.magic.RenderSeekingLightning;
+import ru.givler.mbo.client.render.magic.RenderMagicSigil;
+import ru.givler.mbo.client.render.magic.RenderLightningArc;
+import ru.givler.mbo.client.render.magic.RenderBlackHole;
+import ru.givler.mbo.client.render.magic.RenderGroundMagicEffect;
+import ru.givler.mbo.client.render.magic.RenderMagicBubble;
+import ru.givler.mbo.client.render.magic.RenderMagicShield;
 import ru.givler.mbo.core.CauldronHooks;
 import ru.givler.mbo.config.PlayerPingConfig;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
 import ru.givler.mbo.entity.boat.EntityMBOBoatSeat;
 import ru.givler.mbo.entity.boat.EntityMBOChestBoat;
+import ru.givler.mbo.entity.magic.EntityMagicMissile;
+import ru.givler.mbo.entity.magic.EntitySpectralArrow;
+import ru.givler.mbo.entity.magic.EntityFirebolt;
+import ru.givler.mbo.entity.magic.EntityIceShard;
+import ru.givler.mbo.entity.magic.EntityThunderbolt;
+import ru.givler.mbo.entity.magic.EntityForceOrb;
+import ru.givler.mbo.entity.magic.EntityIceCharge;
+import ru.givler.mbo.entity.magic.EntityFireOrb;
+import ru.givler.mbo.entity.magic.EntityArcaneArrow;
+import ru.givler.mbo.entity.magic.EntityMagicBomb;
+import ru.givler.mbo.entity.magic.EntitySeekingLightning;
+import ru.givler.mbo.entity.magic.EntityMagicSigil;
+import ru.givler.mbo.entity.magic.EntityLightningArc;
+import ru.givler.mbo.entity.magic.EntityBlackHole;
+import ru.givler.mbo.entity.magic.EntityGroundMagicEffect;
+import ru.givler.mbo.entity.magic.EntityMagicBubble;
+import ru.givler.mbo.entity.magic.EntityMagicShield;
+import ru.givler.mbo.entity.magic.EntityMagicStorm;
+import ru.givler.mbo.entity.magic.EntityIceSpike;
+import ru.givler.mbo.client.render.magic.RenderIceSpike;
+import ru.givler.mbo.entity.magic.EntityMagicAura;
+import ru.givler.mbo.client.render.magic.RenderMagicAura;
+import ru.givler.mbo.entity.magic.EntityMeteor;
+import ru.givler.mbo.client.render.magic.RenderMeteor;
+import ru.givler.mbo.entity.magic.EntityMagicConstruct;
+import ru.givler.mbo.client.render.magic.RenderMagicConstruct;
+import ru.givler.mbo.client.sound.MovingSoundEntity;
+import ru.givler.mbo.entity.magic.EntityMagicDecoy;
+import ru.givler.mbo.entity.magic.EntitySpiritHorse;
+import ru.givler.mbo.client.render.magic.RenderSpiritHorse;
+import ru.givler.mbo.client.render.magic.RenderMagicDecoy;
+import ru.givler.mbo.client.render.magic.RenderMagicLight;
+import net.minecraft.client.renderer.entity.RenderArrow;
+import ru.givler.mbo.registry.MagicItemRegistry;
 import ru.givler.mbo.movingplatform.EntityMovingPlatform;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;
 import ru.givler.mbo.particles.ParticleDarkMagic;
+import ru.givler.mbo.particles.ParticleSparkle;
 import ru.givler.mbo.particles.ParticleWhiteMagic;
+import ru.givler.mbo.particles.ParticleSettings;
+import ru.givler.mbo.particles.ParticleSpell;
+import ru.givler.mbo.particles.ParticleBlizzard;
+import ru.givler.mbo.particles.ParticleTextured;
+import ru.givler.mbo.particles.ParticleTornado;
+import ru.givler.mbo.particles.ParticlePath;
 import ru.givler.mbo.registry.BannerRegistry;
 import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.registry.ItemRegistry;
@@ -118,14 +174,62 @@ public class ClientProxy extends CommonProxy {
     ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBanner.class, bannerRenderer);
     MinecraftForgeClient.registerItemRenderer(
         Item.getItemFromBlock(BannerRegistry.banner), new RenderBannerItem());
+    RenderSpectralItem spectralItemRenderer = new RenderSpectralItem();
+    MinecraftForgeClient.registerItemRenderer(MagicItemRegistry.spectralSword, spectralItemRenderer);
+    MinecraftForgeClient.registerItemRenderer(MagicItemRegistry.spectralPickaxe, spectralItemRenderer);
+    MinecraftForgeClient.registerItemRenderer(MagicItemRegistry.spectralBow, spectralItemRenderer);
+    MinecraftForgeClient.registerItemRenderer(MagicItemRegistry.flamingAxe, spectralItemRenderer);
+    MinecraftForgeClient.registerItemRenderer(MagicItemRegistry.frostAxe, spectralItemRenderer);
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOBoat.class, new RenderMBOBoat());
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOChestBoat.class, new RenderMBOBoat());
     RenderingRegistry.registerEntityRenderingHandler(
         EntityMBOBoatSeat.class, new RenderMBOBoatSeat());
     RenderingRegistry.registerEntityRenderingHandler(
         EntityMovingPlatform.class, new RenderMovingPlatform());
+    RenderingRegistry.registerEntityRenderingHandler(
+        EntityMagicMissile.class, new RenderMagicMissile());
+    RenderingRegistry.registerEntityRenderingHandler(EntitySpectralArrow.class, new RenderArrow());
+    RenderingRegistry.registerEntityRenderingHandler(EntityFirebolt.class,
+        new RenderBillboardProjectile(
+            new net.minecraft.util.ResourceLocation("mbo", "textures/entity/magic/firebolt.png"), 0.2F));
+    RenderingRegistry.registerEntityRenderingHandler(EntityIceShard.class, new RenderIceShard());
+    RenderingRegistry.registerEntityRenderingHandler(EntityThunderbolt.class, new RenderInvisibleProjectile());
+    RenderingRegistry.registerEntityRenderingHandler(EntityForceOrb.class,
+        new RenderBillboardProjectile(
+            new net.minecraft.util.ResourceLocation("mbo", "textures/entity/magic/force_orb.png"), 0.7F));
+    RenderingRegistry.registerEntityRenderingHandler(EntityIceCharge.class,
+        new RenderBillboardProjectile(
+            new net.minecraft.util.ResourceLocation("mbo", "textures/entity/magic/ice_charge.png"), 0.6F));
+    RenderingRegistry.registerEntityRenderingHandler(EntityFireOrb.class,
+        new RenderBillboardProjectile(
+            new net.minecraft.util.ResourceLocation("mbo", "textures/entity/magic/firebolt.png"), 0.55F));
+    RenderingRegistry.registerEntityRenderingHandler(EntityArcaneArrow.class, new RenderArcaneArrow());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMagicBomb.class, new RenderMagicBomb());
+    RenderingRegistry.registerEntityRenderingHandler(EntitySeekingLightning.class, new RenderSeekingLightning());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMagicSigil.class, new RenderMagicSigil());
+    RenderingRegistry.registerEntityRenderingHandler(EntityLightningArc.class, new RenderLightningArc());
+    RenderingRegistry.registerEntityRenderingHandler(EntityBlackHole.class, new RenderBlackHole());
+    RenderingRegistry.registerEntityRenderingHandler(
+        EntityGroundMagicEffect.class, new RenderGroundMagicEffect());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMagicBubble.class, new RenderMagicBubble());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMagicShield.class, new RenderMagicShield());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMagicStorm.class, new RenderInvisibleProjectile());
+    RenderingRegistry.registerEntityRenderingHandler(EntityIceSpike.class, new RenderIceSpike());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMagicAura.class, new RenderMagicAura());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMeteor.class, new RenderMeteor());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMagicConstruct.class, new RenderMagicConstruct());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMagicDecoy.class,
+        new RenderMagicDecoy());
+    RenderingRegistry.registerEntityRenderingHandler(EntitySpiritHorse.class,
+        new RenderSpiritHorse());
     ClientRegistry.bindTileEntitySpecialRenderer(
         TileEntitySign.class, new RenderSign());
+    ClientRegistry.bindTileEntitySpecialRenderer(
+        ru.givler.mbo.tileentity.TileEntityPetrifiedStatue.class,
+        new ru.givler.mbo.client.render.RenderPetrifiedStatue());
+    ClientRegistry.bindTileEntitySpecialRenderer(
+        ru.givler.mbo.tileentity.TileEntityTemporaryMagicBlock.class,
+        new RenderMagicLight());
     MinecraftForge.EVENT_BUS.register(new SignGuiEvents());
     MinecraftForge.EVENT_BUS.register(new DungeonAreaWorldRenderer());
     MinecraftForge.EVENT_BUS.register(new WaterloggedBlockRenderer());
@@ -254,35 +358,109 @@ public class ClientProxy extends CommonProxy {
       double motionX,
       double motionY,
       double motionZ) {
-    float r = 0, g = 0, b = 0;
-    int textureIndex = 0;
+    spawnParticle(type, world, x, y, z, motionX, motionY, motionZ,
+        ParticleSettings.defaults(type));
+  }
+
+  @Override
+  public void spawnParticle(
+      EnumParticleType type, World world, double x, double y, double z,
+      double motionX, double motionY, double motionZ, ParticleSettings settings) {
+    String vanilla = type.getVanillaName();
+    if (vanilla != null) {
+      world.spawnParticle(vanilla, x, y, z, motionX, motionY, motionZ);
+      return;
+    }
     EntityFX particle = null;
 
     switch (type) {
       case SACRED:
-        r = 1.0f;
-        g = 1.0f;
-        b = 0.6f;
-        textureIndex = 145;
-        particle = new ParticleWhiteMagic(world, x, y, z, motionX, motionY, motionZ, r, g, b);
+        particle = new ParticleWhiteMagic(world, x, y, z, motionX, motionY, motionZ,
+            settings.red, settings.green, settings.blue);
         break;
       case DARK_MAGIC:
-        r = 0.7f;
-        g = 0.8f;
-        b = 0.9f;
-        textureIndex = 162;
-        particle = new ParticleWhiteMagic(world, x, y, z, motionX, motionY, motionZ, r, g, b);
+        particle = new ParticleDarkMagic(world, x, y, z, motionX, motionY, motionZ,
+            settings.red, settings.green, settings.blue);
         break;
+      case ICE:
+        particle = atlas(world, x, y, z, motionX, motionY, motionZ, settings, "ice_particles.png", 4, 4, false);
+        break;
+      case SNOW:
+        particle = atlas(world, x, y, z, motionX, motionY, motionZ, settings, "snow_particles.png", 4, 4, false);
+        break;
+      case BLIZZARD:
+        particle = new ParticleBlizzard(world, x, y, z, settings);
+        break;
+      case SPARK:
+        particle = atlas(world, x, y, z, motionX, motionY, motionZ, settings, "lightning_particles.png", 4, 8, true);
+        break;
+      case SPARKLE:
+        particle = new ParticleSparkle(
+            world, x, y, z, motionX, motionY, motionZ, settings);
+        break;
+      case DUST:
+        particle = new ParticleSpell(world, x, y, z, motionX, motionY, motionZ, settings, 7);
+        break;
+      case MAGIC_FIRE:
+        particle = new ParticleSpell(world, x, y, z, motionX, motionY, motionZ, settings, 48);
+        break;
+      case LEAF:
+        particle = atlas(world, x, y, z, motionX, motionY, motionZ, settings, "leaf_particles.png", 4, 4, false);
+        break;
+      case PATH:
+        particle = new ParticlePath(world, x, y, z, motionX, motionY, motionZ, settings);
+        break;
+      default: break;
     }
 
     if (particle != null) {
       if (particle instanceof ParticleWhiteMagic) {
-        ((ParticleWhiteMagic) particle).setBaseSpellTextureIndex(textureIndex);
+        ((ParticleWhiteMagic) particle).setBaseSpellTextureIndex(145);
       } else if (particle instanceof ParticleDarkMagic) {
-        ((ParticleDarkMagic) particle).setBaseSpellTextureIndex(textureIndex);
+        ((ParticleDarkMagic) particle).setBaseSpellTextureIndex(162);
       }
       Minecraft.getMinecraft().effectRenderer.addEffect(particle);
     }
+  }
+
+  private static EntityFX atlas(World world, double x, double y, double z,
+      double motionX, double motionY, double motionZ, ParticleSettings settings,
+      String texture, int columns, int rows, boolean animated) {
+    return new ParticleTextured(world, x, y, z, motionX, motionY, motionZ,
+        settings, texture, columns, rows, animated);
+  }
+
+  @Override
+  public void spawnSparkle(
+      World world,
+      double x,
+      double y,
+      double z,
+      double motionX,
+      double motionY,
+      double motionZ,
+      int maxAge,
+      float red,
+      float green,
+      float blue) {
+    Minecraft.getMinecraft().effectRenderer.addEffect(
+        new ParticleSparkle(
+            world, x, y, z, motionX, motionY, motionZ, maxAge, red, green, blue));
+  }
+
+  @Override
+  public void playMovingSound(
+      Entity entity, String soundName, float volume, float pitch, boolean repeat) {
+    Minecraft.getMinecraft().getSoundHandler().playSound(
+        new MovingSoundEntity(entity, soundName, volume, pitch, repeat));
+  }
+
+  @Override
+  public void spawnTornadoParticle(World world, double centreX, double y, double centreZ,
+      double velocityX, double velocityZ, double radius, net.minecraft.block.Block block,
+      int metadata) {
+    Minecraft.getMinecraft().effectRenderer.addEffect(new ParticleTornado(world, 48,
+        centreX, centreZ, radius, y, velocityX, velocityZ, block, metadata));
   }
 
   @Override

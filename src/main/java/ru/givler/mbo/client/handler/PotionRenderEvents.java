@@ -13,12 +13,15 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.potion.PotionEnum;
+import ru.givler.mbo.registry.PotionRegistry;
 
 public class PotionRenderEvents {
 
     private static final ResourceLocation icon = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/gui/effects/sixth_sense_icon.png");
     private static final ResourceLocation overlay = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/gui/sixth_sense_overlay.png");
     private static final ResourceLocation marker = new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/entity/sixth_sense.png");
+    private static final ResourceLocation frostOverlay = new ResourceLocation(
+            MoreBeyondOrdinary.MODID, "textures/gui/frost_overlay.png");
 
     @SubscribeEvent
     public void onRenderLiving(RenderLivingEvent.Post event) {
@@ -69,7 +72,18 @@ public class PotionRenderEvents {
     public void onRenderOverlay(RenderGameOverlayEvent.Post event) {
         Minecraft mc = Minecraft.getMinecraft();
         if (event.type != RenderGameOverlayEvent.ElementType.HELMET) return;
-        if (mc.thePlayer == null || !mc.thePlayer.isPotionActive(PotionEnum.SIXTH)) return;
+        if (mc.thePlayer == null) return;
+
+        if (mc.thePlayer.isPotionActive(PotionEnum.SIXTH)) {
+            drawOverlay(mc, event, overlay);
+        }
+        if (mc.thePlayer.isPotionActive(PotionRegistry.Frost)) {
+            drawOverlay(mc, event, frostOverlay);
+        }
+    }
+
+    private static void drawOverlay(Minecraft mc, RenderGameOverlayEvent event,
+                                    ResourceLocation texture) {
 
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         GL11.glPushMatrix();
@@ -80,7 +94,7 @@ public class PotionRenderEvents {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
 
-        mc.renderEngine.bindTexture(overlay);
+        mc.renderEngine.bindTexture(texture);
         Tessellator tessellator = Tessellator.instance;
         tessellator.startDrawingQuads();
         int w = event.resolution.getScaledWidth();

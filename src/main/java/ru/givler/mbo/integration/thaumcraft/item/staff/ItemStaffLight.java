@@ -98,7 +98,7 @@ public class ItemStaffLight extends ItemStaffBasic {
                 world.spawnEntityInWorld(orb);
             }
             player.swingItem();
-            world.playSoundAtEntity(player, "wizardry:aura", 1.0F, 1.0F);
+            world.playSoundAtEntity(player, "mbo:aura", 1.0F, 1.0F);
         }
 
         return itemstack;
