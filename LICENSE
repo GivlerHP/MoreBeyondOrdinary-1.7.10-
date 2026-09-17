@@ -1,25 +1,48 @@
-All source code (under src/main/java/Givler) is licensed under GPL v3 or later.
-All textures (under src/main/resources/assets/mbo/textures) are licensed under Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0).
+More Beyond Ordinary (MBO) — Licensing
 
 Copyright (c) 2025 Givler <Givler228@gmail.com>
 
---------------------------------------------------------------------------------
+This project uses two licenses: one for the source code and one for the mod assets.
 
-The licenses summarized:
+1. SOURCE CODE
 
-1. You are free to use, modify and distribute the source code as long as:
-  1.1. You include a copy of the license and copyright notice with the code.
-  1.2. You indicate significant changes made to the code.
-  1.3 Source code is made available when distributing the software.
-2. You are free to, but discouraged from using the source code for commercial purposes.
+All original source code under:
 
-3. You are free to use, modify and distribute the textures as long as:
-  3.1. You attribute them to Givler.
-  3.2. If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
-4. You may not use the textures for commercial purposes.
+    src/main/java/
 
-Full version of Creative Commons license can be found at: http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US
-Full version of GPL license follows.
+is licensed under the GNU General Public License, version 3 or (at your option) any later version (GPL-3.0-or-later).
+
+You may use, modify, redistribute, and use the source code commercially, provided that you comply with the GPL. In particular, when distributing GPL-covered software or modified versions, you must preserve the applicable copyright and license notices, state significant changes, and provide the corresponding source code under the GPL as required by the license.
+
+2. MOD ASSETS
+
+All original mod assets under:
+
+    src/main/resources/assets/mbo/
+
+are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported license (CC BY-NC-SA 3.0).
+
+This includes, where applicable, textures, GeckoLib models (*.geo.json), animations, sounds, localization files, model definitions, UI graphics, and other original media/resources contained in that directory.
+
+You may share and adapt these assets provided that:
+
+  2.1. Attribution — You give appropriate credit to Givler.
+  2.2. NonCommercial — You do not use the assets for commercial purposes.
+  2.3. ShareAlike — If you remix, transform, or build upon the assets, you distribute your contributions under the same or a compatible license.
+
+Commercial use of the CC BY-NC-SA-covered assets requires separate permission from the copyright holder.
+
+3. THIRD-PARTY MATERIAL
+
+These license grants apply only to material for which the project copyright holder owns the necessary rights. Third-party libraries, dependencies, code, or assets remain subject to their own respective licenses and notices.
+
+Creative Commons license:
+https://creativecommons.org/licenses/by-nc-sa/3.0/
+
+GNU GPL v3 license:
+https://www.gnu.org/licenses/gpl-3.0.html
+
+The full text of the GNU GPL v3 follows.
 
 --------------------------------------------------------------------------------
 
