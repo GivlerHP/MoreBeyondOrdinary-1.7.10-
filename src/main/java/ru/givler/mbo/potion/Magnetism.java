@@ -14,6 +14,7 @@ public class Magnetism extends PotionBasic {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void performEffect(EntityLivingBase entity, int strength) {
         if (entity.worldObj.isRemote || !(entity instanceof net.minecraft.entity.player.EntityPlayer)) return;
 

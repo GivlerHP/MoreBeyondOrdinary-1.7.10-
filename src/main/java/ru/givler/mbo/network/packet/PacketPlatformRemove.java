@@ -32,6 +32,7 @@ public class PacketPlatformRemove implements IMessage {
     public IMessage onMessage(final PacketPlatformRemove message, MessageContext context) {
       EditorPacketAccess.scheduleClient(new Runnable(){@Override public void run(){apply(message);}});return null;
     }
+    @SuppressWarnings("unchecked")
     private void apply(PacketPlatformRemove message){
       net.minecraft.world.World world = ru.givler.mbo.MoreBeyondOrdinary.proxy.getClientWorld();
       if (world == null) return;
