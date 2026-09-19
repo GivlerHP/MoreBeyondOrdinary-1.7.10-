@@ -535,6 +535,10 @@ tile.ModelDrawing1.name=Blueprint I
 tile.ModelDrawing2.name=Blueprint II
 tile.ModelClock.name=Wall Clock
 tile.ModelBrokenMechanism.name=Broken Mechanism
+tile.ModelAltar.name=Altar
+tile.ModelStonePedestal.name=Stone Pedestal
+tile.ModelStoneCoffin.name=Stone Coffin
+tile.ModelStatue.name=Stone Statue
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Totems/
@@ -756,6 +760,8 @@ tile.SmoothStone.name=Smooth Stone
 tile.tile.SmoothStone_stairs.name=Smooth Stone Stairs
 tile.SlabSmoothStone_slab.name=Smooth Stone Slab
 tile.WallSmoothStone_wall.name=Smooth Stone Wall
+tile.tile.dirt_stairs.name=Dirt Stairs
+tile.SlabDirt_slab.name=Dirt Slab
 tile.SlimeBlock.name=Slime Block
 tile.BouncyBrownMushroomBlock.name=Bouncy Brown Mushroom Block
 tile.BouncyRedMushroomBlock.name=Bouncy Red Mushroom Block

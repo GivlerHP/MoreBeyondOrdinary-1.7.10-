@@ -30,14 +30,15 @@ public class BlockRegistry {
     public static BlockModelCollision ModelCollisionPart;
     //переменные для ступенек
     public static Block  StairsStone, StairsSandstone, StairsStonebrick, StairsIrgadBrick, StairsGreyCobblestone,
-            StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay, StairsAshgarBrick;
+            StairsEndbrick,  StairsImperialBrick, StairsHeneizenBrick, StairsFiredClay, StairsAshgarBrick,
+            StairsDirt;
     public static BlockBasicStairs StairsSmoothStone;
     //переменные для ступенек с методанными
     public static Block[] StairsRoofLaminated, StairsRoofStandart, StairsRoofSheet, StairsRoofFlake, StairsRoofWood,
             StairsTuff, StairsPrismarine;
     //переменные для плит
     public static BlockBasicSlab  SlabStone, SlabCobblestone, SlabStonebrick, SlabSandstone, SlabIrgadBrick, SlabEndbrick,
-             SlabImperialBrick, SlabHeneizenBrick, SlabFiredClay, SlabAshgarBrick, SlabSmoothStone;
+             SlabImperialBrick, SlabHeneizenBrick, SlabFiredClay, SlabAshgarBrick, SlabSmoothStone, SlabDirt;
     //переменные для плит с метаданными
     public static BlockMetaSlab[] SlabRoofLaminated, SlabRoofStandart, SlabRoofSheet, SlabRoofFlake, SlabRoofWood,
             SlabTuff, SlabPrismarine;
@@ -192,6 +193,7 @@ public class BlockRegistry {
         StairsFiredClay = new BlockBasicStairs((BlockBase) BlockFiredClay);
         StairsAshgarBrick = new BlockBasicStairs((BlockBase) BlockAshgarBrick);
         StairsSmoothStone = new BlockBasicStairs(SmoothStone);
+        StairsDirt = new BlockBasicStairs(Blocks.dirt);
 
 
         StairsSandstone = new BlockMetaStairs((BlockMeta) BlockSandstone, 0);
@@ -219,6 +221,7 @@ public class BlockRegistry {
         SlabAshgarBrick = BlockBasicSlab.registerPair("SlabAshgarBrick", "stone/ashgar_brick");
         SlabFiredClay = BlockBasicSlab.registerPair("SlabFiredClay", "stone/brick_firedclay");
         SlabSmoothStone = BlockBasicSlab.registerPair("SlabSmoothStone", "minecraft:stone_slab_top");
+        SlabDirt = BlockBasicSlab.registerPair("SlabDirt", "minecraft:dirt", Material.ground);
 
         SlabRoofStandart  = BlockMetaSlab.registerSlabs((BlockMeta) RoofStandart,  3,  "roof/roofk");
         SlabRoofLaminated = BlockMetaSlab.registerSlabs((BlockMeta) RoofLaminated, 16, "roof/roof1");
@@ -284,6 +287,7 @@ public class BlockRegistry {
         BlockBasicSlab.addStandardRecipes(SlabAshgarBrick, BlockAshgarBrick);
         BlockBasicSlab.addStandardRecipes(SlabFiredClay,     BlockFiredClay);
         BlockBasicSlab.addStandardRecipes(SlabSmoothStone,   SmoothStone);
+        BlockBasicSlab.addStandardRecipes(SlabDirt,           Blocks.dirt);
 
         GameRegistry.addRecipe(new ItemStack(SlimeBlock),
                 new Object[]{"SSS", "SSS", "SSS", 'S', net.minecraft.init.Items.slime_ball});

@@ -593,6 +593,10 @@ tile.ModelDrawing1.name=Чертёж I
 tile.ModelDrawing2.name=Чертёж II  
 tile.ModelClock.name=Настенные часы  
 tile.ModelBrokenMechanism.name=Сломанный механизм
+tile.ModelAltar.name=Алтарь
+tile.ModelStonePedestal.name=Каменный пьедестал
+tile.ModelStoneCoffin.name=Каменный саркофаг
+tile.ModelStatue.name=Каменная статуя
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /Модели книг/
@@ -1044,6 +1048,8 @@ tile.SmoothStone.name=Гладкий камень
 tile.tile.SmoothStone_stairs.name=Ступеньки из гладкого камня
 tile.SlabSmoothStone_slab.name=Плита из гладкого камня
 tile.WallSmoothStone_wall.name=Ограда из гладкого камня
+tile.tile.dirt_stairs.name=Земляные ступеньки
+tile.SlabDirt_slab.name=Земляная плита
 tile.SlimeBlock.name=Блок слизи
 tile.BouncyBrownMushroomBlock.name=Пружинящий блок коричневого гриба
 tile.BouncyRedMushroomBlock.name=Пружинящий блок красного гриба

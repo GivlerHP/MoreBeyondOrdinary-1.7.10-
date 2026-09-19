@@ -40,6 +40,9 @@ public class CreativeTabRegistry {
         public void displayAllReleventItems(List list) {
           if (BlockRegistry.PlatformStation != null)
             list.add(new ItemStack(BlockRegistry.PlatformStation));
+          list.add(new ItemStack(StairsDirt));
+          list.add(new ItemStack(SlabDirt));
+
           list.add(new ItemStack(BlockGreyStone));
           list.add(new ItemStack(StairsStone));
           list.add(new ItemStack(SlabStone));
@@ -561,6 +564,11 @@ public class CreativeTabRegistry {
           list.add(new ItemStack(ModelFuneraryUrn1));
           list.add(new ItemStack(ModelFuneraryUrn2));
           list.add(new ItemStack(ModelFuneraryUrn3));
+
+          list.add(new ItemStack(ModelAltar));
+          list.add(new ItemStack(ModelStonePedestal));
+          list.add(new ItemStack(ModelStoneCoffin));
+          list.add(new ItemStack(ModelStatue));
 
           list.add(new ItemStack(LootContainer));
 
