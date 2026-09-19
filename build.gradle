@@ -17,7 +17,7 @@ apply plugin: 'com.diffplug.spotless'
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.23.5"
+version = "1.24.1"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 
