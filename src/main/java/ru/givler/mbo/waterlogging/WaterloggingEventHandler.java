@@ -101,6 +101,7 @@ public final class WaterloggingEventHandler {
   @SubscribeEvent
   public void worldTick(TickEvent.WorldTickEvent event) {
     if (event.phase != TickEvent.Phase.END || event.world.isRemote) return;
+    WaterloggedFlowQueue.process(event.world);
     Iterator<PendingWater> fillIterator = pendingWaterlogging.iterator();
     while (fillIterator.hasNext()) {
       PendingWater pending = fillIterator.next();
@@ -158,7 +159,8 @@ public final class WaterloggingEventHandler {
         int y = event.y + direction[1];
         int z = event.z + direction[2];
         if (WaterloggedFlow.canFillFromSource(event.world, x, y, z, direction))
-          data.set(event.world, x, y, z, true);
+          data.addIngress(
+              event.world, x, y, z, -direction[0], -direction[1], -direction[2]);
       }
     }
   }
@@ -174,7 +176,7 @@ public final class WaterloggingEventHandler {
           || world.getBlockMetadata(sourceX, sourceY, sourceZ) != 0) continue;
       int[] directionFromSource = {-source[0], -source[1], -source[2]};
       if (WaterloggedFlow.canFillFromSource(world, x, y, z, directionFromSource)) {
-        data.set(world, x, y, z, true);
+        data.addIngress(world, x, y, z, source[0], source[1], source[2]);
         return;
       }
     }
