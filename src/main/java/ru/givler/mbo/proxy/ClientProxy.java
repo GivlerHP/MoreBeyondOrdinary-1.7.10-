@@ -149,6 +149,11 @@ public class ClientProxy extends CommonProxy {
   }
 
   @Override
+  public void recordColoredFire(Entity entity, int color, int remaining) {
+    ColoredBurningRenderHooks.record(entity, color, remaining);
+  }
+
+  @Override
   public void openAdminFireColorGui(ItemStack stack) {
     Minecraft.getMinecraft().displayGuiScreen(new GuiAdminFireColor(stack));
   }
@@ -163,8 +168,8 @@ public class ClientProxy extends CommonProxy {
     registerFenceRenderer();
     registerBarrierRenderer();
     int adminFireRenderId = RenderingRegistry.getNextAvailableRenderId();
-    BlockRegistry.AdminFire.setRenderType(adminFireRenderId);
-    BlockRegistry.AdminFireVanilla.setRenderType(adminFireRenderId);
+    BlockRegistry.ColourFire.setRenderType(adminFireRenderId);
+    BlockRegistry.ColourFireVanilla.setRenderType(adminFireRenderId);
     RenderingRegistry.registerBlockHandler(new RenderAdminFire(adminFireRenderId));
     int slimeRenderId = RenderingRegistry.getNextAvailableRenderId();
     BlockRegistry.SlimeBlock.setSlimeRenderType(slimeRenderId);

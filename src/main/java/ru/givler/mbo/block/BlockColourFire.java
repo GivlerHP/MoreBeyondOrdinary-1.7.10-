@@ -8,7 +8,6 @@ import net.minecraft.block.BlockFire;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.IIcon;
@@ -17,7 +16,7 @@ import net.minecraft.world.World;
 import ru.givler.mbo.client.render.ColoredFireSprite;
 
 /** Permanent coloured fire: it ignites entities but never spreads or consumes blocks. */
-public final class BlockAdminFire extends BlockFire {
+public final class BlockColourFire extends BlockFire {
   public static final int[] COLORS = {
     0xF9FFFE, 0xF9801D, 0xC74EBD, 0x3AB3DA,
     0xFED83D, 0x80C71F, 0xF38BAA, 0x474F52,
@@ -29,7 +28,7 @@ public final class BlockAdminFire extends BlockFire {
   private int renderType;
   private int renderingMetadata;
 
-  public BlockAdminFire(boolean colored) {
+  public BlockColourFire(boolean colored) {
     this.colored = colored;
     setBlockName(colored ? "AdminFire" : "AdminFireVanilla");
     setLightLevel(1.0F);
@@ -65,7 +64,14 @@ public final class BlockAdminFire extends BlockFire {
     if (!entity.isImmuneToFire()) {
       entity.attackEntityFrom(DamageSource.inFire, 1.0F);
       entity.setFire(8);
+      ru.givler.mbo.fire.ColoredBurning.onFireContact(entity,
+          colored ? world.getBlockMetadata(x, y, z) & 15 : -1);
     }
+  }
+
+  @SideOnly(Side.CLIENT)
+  public IIcon getColoredFireIcon(int color, int layer) {
+    return icons[color & 15][layer & 1];
   }
 
   @SideOnly(Side.CLIENT)

@@ -5,7 +5,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import org.lwjgl.opengl.GL11;
-import ru.givler.mbo.block.BlockAdminFire;
+import ru.givler.mbo.block.BlockColourFire;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.network.packet.PacketAdminFireColor;
 
@@ -20,7 +20,7 @@ public final class GuiAdminFireColor extends GuiScreen {
     int left = width / 2 - 92, top = height / 2 - 50;
     for (int i = 0; i < 16; i++)
       buttonList.add(new ColorButton(
-          i, left + (i & 3) * 46, top + (i >> 2) * 25, BlockAdminFire.COLORS[i]));
+          i, left + (i & 3) * 46, top + (i >> 2) * 25, BlockColourFire.COLORS[i]));
     buttonList.add(new GuiButton(
         16, left, top + 102, 180, 20,
         StatCollector.translateToLocal("mbo.adminFire.vanilla")));

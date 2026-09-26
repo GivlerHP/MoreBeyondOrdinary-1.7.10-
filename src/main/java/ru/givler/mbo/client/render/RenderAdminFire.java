@@ -4,7 +4,7 @@ import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.world.IBlockAccess;
-import ru.givler.mbo.block.BlockAdminFire;
+import ru.givler.mbo.block.BlockColourFire;
 
 public final class RenderAdminFire implements ISimpleBlockRenderingHandler {
   private final int renderId;
@@ -14,7 +14,7 @@ public final class RenderAdminFire implements ISimpleBlockRenderingHandler {
   @Override
   public boolean renderWorldBlock(
       IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
-    BlockAdminFire fire = (BlockAdminFire) block;
+    BlockColourFire fire = (BlockColourFire) block;
     fire.beginRender(world, x, y, z);
     return renderer.renderBlockFire(fire, x, y, z);
   }

@@ -34,12 +34,12 @@ public final class ItemAdminLighter extends Item {
     z += Facing.offsetsZForSide[side];
     if (!player.canPlayerEdit(x, y, z, side, stack)
         || !world.isAirBlock(x, y, z)
-        || !BlockRegistry.AdminFire.canPlaceBlockAt(world, x, y, z)) return false;
+        || !BlockRegistry.ColourFire.canPlaceBlockAt(world, x, y, z)) return false;
     if (!world.isRemote) {
       int setting = stack.getItemDamage();
       world.setBlock(
           x, y, z,
-          setting == 0 ? BlockRegistry.AdminFireVanilla : BlockRegistry.AdminFire,
+          setting == 0 ? BlockRegistry.ColourFireVanilla : BlockRegistry.ColourFire,
           setting == 0 ? 0 : (setting - 1) & 15,
           3);
       world.playSoundEffect(x + .5D, y + .5D, z + .5D, "fire.ignite", 1F,

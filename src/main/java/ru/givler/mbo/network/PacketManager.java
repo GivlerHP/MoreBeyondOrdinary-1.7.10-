@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.network.packet.PacketActivateAmulet;
 import ru.givler.mbo.network.packet.PacketAdminFireColor;
+import ru.givler.mbo.network.packet.PacketColoredBurning;
 import ru.givler.mbo.network.packet.PacketApplyLockTemplate;
 import ru.givler.mbo.network.packet.PacketAreaEditorInteract;
 import ru.givler.mbo.network.packet.PacketBoatMove;
@@ -209,6 +210,8 @@ public class PacketManager {
         PacketTrapdoorLatchSnapshot.class,
         nextID++,
         Side.CLIENT);
+    INSTANCE.registerMessage(
+        PacketColoredBurning.Handler.class, PacketColoredBurning.class, nextID++, Side.CLIENT);
   }
 
   /** Registers outgoing client-bound packet IDs without loading client-only handlers. */
@@ -234,7 +237,8 @@ public class PacketManager {
       PacketFenceConnectionDelta.class,
       PacketFenceConnectionSnapshot.class,
       PacketTrapdoorLatchDelta.class,
-      PacketTrapdoorLatchSnapshot.class
+      PacketTrapdoorLatchSnapshot.class,
+      PacketColoredBurning.class
     };
     try {
       FMLIndexedMessageToMessageCodec codec =

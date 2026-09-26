@@ -62,15 +62,15 @@ public class BlockRegistry {
     public static BlockLockableDoor LockableDoor;
     public static BlockPlatformStation PlatformStation;
     public static BlockInvertedDaylightDetector InvertedDaylightDetector;
-    public static BlockAdminFire AdminFire, AdminFireVanilla;
+    public static BlockColourFire ColourFire, ColourFireVanilla;
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
         PlatformStation = new BlockPlatformStation();
-        AdminFire = new BlockAdminFire(true);
-        AdminFireVanilla = new BlockAdminFire(false);
-        GameRegistry.registerBlock(AdminFire, "AdminFire");
-        GameRegistry.registerBlock(AdminFireVanilla, "AdminFireVanilla");
+        ColourFire = new BlockColourFire(true);
+        ColourFireVanilla = new BlockColourFire(false);
+        GameRegistry.registerBlock(ColourFire, "ColourFire");
+        GameRegistry.registerBlock(ColourFireVanilla, "ColourFireVanilla");
         InvertedDaylightDetector = new BlockInvertedDaylightDetector();
         GameRegistry.registerBlock(InvertedDaylightDetector, "InvertedDaylightDetector");
         BlockGreyStone = new BlockBase(Material.rock, "BlockGreyStone", "stone/stone");

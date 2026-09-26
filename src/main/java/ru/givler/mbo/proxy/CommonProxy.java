@@ -18,6 +18,7 @@ import ru.givler.mbo.dungeon.DungeonTriggerEventHandler;
 import ru.givler.mbo.dungeon.IllusoryWallHitHandler;
 import ru.givler.mbo.editor.AreaEditorInteractionHandler;
 import ru.givler.mbo.handler.*;
+import ru.givler.mbo.fire.ColoredBurning;
 import ru.givler.mbo.magic.MagicModule;
 import ru.givler.mbo.magic.item.SpectralItemEvents;
 import ru.givler.mbo.movingplatform.MovingPlatformTickHandler;
@@ -61,6 +62,8 @@ public class CommonProxy {
   public boolean hideOwnPotionParticles(EntityLivingBase entity) {
     return false;
   }
+
+  public void recordColoredFire(Entity entity, int color, int remaining) {}
 
   public void openAdminFireColorGui(ItemStack stack) {}
 
@@ -107,6 +110,7 @@ public class CommonProxy {
     MinecraftForge.EVENT_BUS.register(new AreaEditorInteractionHandler());
     MinecraftForge.EVENT_BUS.register(new DungeonAreaProtectionHandler());
     MinecraftForge.EVENT_BUS.register(new IllusoryWallHitHandler());
+    MinecraftForge.EVENT_BUS.register(new ColoredBurning());
     MinecraftForge.EVENT_BUS.register(new DaylightDetectorEvents());
     FenceConnectionEvents fenceConnectionEvents = new FenceConnectionEvents();
     MinecraftForge.EVENT_BUS.register(fenceConnectionEvents);
