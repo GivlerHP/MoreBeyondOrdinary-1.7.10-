@@ -16,12 +16,18 @@ public final class ColoredFireSprite extends TextureAtlasSprite {
   private final int layer;
   private final int color;
   private final boolean dark;
+  private final boolean translucent;
 
   public ColoredFireSprite(String name, int layer, int color, boolean dark) {
+    this(name, layer, color, dark, false);
+  }
+
+  public ColoredFireSprite(String name, int layer, int color, boolean dark, boolean translucent) {
     super(name);
     this.layer = layer;
     this.color = color;
     this.dark = dark;
+    this.translucent = translucent;
   }
 
   @Override
@@ -58,6 +64,7 @@ public final class ColoredFireSprite extends TextureAtlasSprite {
       for (int x = 0; x < image.getWidth(); x++) {
         int pixel = image.getRGB(x, y);
         int alpha = pixel >>> 24;
+        if (translucent) alpha = Math.round(alpha * .65F);
         int gray = pixel >> 16 & 255;
         int r = Math.min(255, Math.round(gray * red * scale / 255F));
         int g = Math.min(255, Math.round(gray * green * scale / 255F));

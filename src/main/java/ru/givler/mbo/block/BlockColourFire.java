@@ -24,6 +24,7 @@ public final class BlockColourFire extends BlockFire {
     0x835432, 0x5E7C16, 0xB02E26, 0x1D1D21
   };
   private final IIcon[][] icons = new IIcon[16][2];
+  private final IIcon[][] blockIcons = new IIcon[16][2];
   private final boolean colored;
   private int renderType;
   private int renderingMetadata;
@@ -41,6 +42,7 @@ public final class BlockColourFire extends BlockFire {
   @Override public int getRenderType() { return renderType; }
   @Override public boolean isOpaqueCube() { return false; }
   @Override public boolean renderAsNormalBlock() { return false; }
+  @Override public int getRenderBlockPass() { return colored ? 1 : 0; }
   @Override public int quantityDropped(Random random) { return 0; }
   @Override public AxisAlignedBB getCollisionBoundingBoxFromPool(World w, int x, int y, int z) {
     return null;
@@ -81,6 +83,8 @@ public final class BlockColourFire extends BlockFire {
       for (int color = 0; color < 16; color++) {
         icons[color][0] = register.registerIcon("minecraft:fire_layer_0");
         icons[color][1] = register.registerIcon("minecraft:fire_layer_1");
+        blockIcons[color][0] = icons[color][0];
+        blockIcons[color][1] = icons[color][1];
       }
       blockIcon = icons[0][0];
       return;
@@ -92,6 +96,11 @@ public final class BlockColourFire extends BlockFire {
         ColoredFireSprite sprite = new ColoredFireSprite(name, layer, COLORS[color], color == 15);
         atlas.setTextureEntry(name, sprite);
         icons[color][layer] = sprite;
+        String blockName = "mbo:admin_fire/block_" + layer + "_" + color;
+        ColoredFireSprite blockSprite =
+            new ColoredFireSprite(blockName, layer, COLORS[color], color == 15, true);
+        atlas.setTextureEntry(blockName, blockSprite);
+        blockIcons[color][layer] = blockSprite;
       }
     blockIcon = icons[0][0];
   }
@@ -99,7 +108,7 @@ public final class BlockColourFire extends BlockFire {
   @SideOnly(Side.CLIENT)
   @Override
   public IIcon getFireIcon(int layer) {
-    return icons[renderingMetadata & 15][layer & 1];
+    return blockIcons[renderingMetadata & 15][layer & 1];
   }
 
   /**
