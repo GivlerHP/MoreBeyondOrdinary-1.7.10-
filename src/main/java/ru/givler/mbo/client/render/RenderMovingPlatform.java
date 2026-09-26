@@ -23,13 +23,26 @@ public class RenderMovingPlatform extends Render {
     double worldX = p.lastTickPosX + (p.posX - p.lastTickPosX) * partial;
     double worldY = p.lastTickPosY + (p.posY - p.lastTickPosY) * partial;
     double worldZ = p.lastTickPosZ + (p.posZ - p.lastTickPosZ) * partial;
+    boolean handoff = p.isAwaitingMaterialization();
+    if (handoff) {
+      x += p.posX - worldX;
+      y += p.posY - worldY;
+      z += p.posZ - worldZ;
+      worldX = p.posX;
+      worldY = p.posY;
+      worldZ = p.posZ;
+    }
     bindTexture(TextureMap.locationBlocksTexture);
     GL11.glPushMatrix();
     GL11.glTranslated(x, y, z);
     GL11.glEnable(GL11.GL_TEXTURE_2D);
     GL11.glDisable(GL11.GL_LIGHTING);
-    if (p.isAwaitingMaterialization()) renderMissingBlocks(p, worldX, worldY, worldZ);
-    else GL11.glCallList(getCache(p, worldX, worldY, worldZ).list);
+    if (handoff) {
+      GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+      GL11.glPolygonOffset(1F, 1F);
+    }
+    GL11.glCallList(getCache(p, worldX, worldY, worldZ).list);
+    if (handoff) GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
     GL11.glEnable(GL11.GL_LIGHTING);
     GL11.glPopMatrix();
   }

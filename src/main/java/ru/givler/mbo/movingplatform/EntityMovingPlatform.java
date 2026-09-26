@@ -38,8 +38,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private int motionTick;
   private int movementStartTick;
   private int returnMode = 2, delayTicks = 20, waitTicks;
+  private String movementSound = "";
+  private transient ru.givler.mbo.client.sound.MovingSoundPlatform activeSound;
   private boolean configured;
   private boolean virtualized;
+  private transient int clientRenderHandoffTicks;
   private final HashSet<Long> poweredOnboardLevers = new HashSet<Long>();
   private final HashSet<Long> pressedOnboardControls = new HashSet<Long>();
   private boolean onboardControlInitialized;
@@ -125,11 +128,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   public boolean requestRebuild(EntityPlayer feedback) {
-    if (isMoving()) {
-      if (feedback != null)
-        feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.blocked"));
-      return false;
-    }
+    if ((isMoving() || state == STOPPED_B) && !stopAndReturn(feedback)) return false;
     rebuildPending = true;
     return true;
   }
@@ -149,6 +148,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   public boolean start(boolean toB, EntityPlayer feedback) {
+    if (rebuildPending) {
+      if (feedback != null)
+        feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.rebuildPending"));
+      return false;
+    }
     if (!configured) {
       if (feedback != null)
         feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.notConfigured"));
@@ -344,6 +348,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     prevPosY = posY;
     prevPosZ = posZ;
     if (worldObj.isRemote) {
+      int previousStartTick = movementStartTick;
       state = dataWatcher.getWatchableObjectInt(20);
       direction = dataWatcher.getWatchableObjectInt(21);
       distance = dataWatcher.getWatchableObjectInt(22);
@@ -351,13 +356,32 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       movementStartTick = dataWatcher.getWatchableObjectInt(24);
       boolean watchedVirtualized = dataWatcher.getWatchableObjectByte(25) != 0;
       boolean materializing = virtualized && !watchedVirtualized;
+      if (watchedVirtualized) clientRenderHandoffTicks = 0;
+      else if (clientRenderHandoffTicks > 0) --clientRenderHandoffTicks;
       updateClientPosition();
-      if (materializing) materializeClientBlocks();
+      if (returnMode == 3 && state == MOVING_TO_B && previousStartTick != movementStartTick) {
+        prevPosX = posX;
+        prevPosY = posY;
+        prevPosZ = posZ;
+      }
+      if (materializing) {
+        MovingPlatformTickHandler.processClientArrival(
+            this, net.minecraft.client.Minecraft.getMinecraft().thePlayer);
+        materializeClientBlocks();
+        clientRenderHandoffTicks = 6;
+      }
       virtualized = watchedVirtualized;
+      updateMovementSound();
       return;
     }
     if (!isMoving()) {
+      if (rebuildPending) return;
       if (checkOnboardControl()) return;
+      if (returnMode == 3) {
+        if (state == STOPPED_B) teleportToStartAndContinue();
+        else if (state == STOPPED_A && !virtualized) start(true, null);
+        return;
+      }
       if (!worldObj.isRemote
           && returnMode != 2
           && ++waitTicks >= (returnMode == 0 ? 1 : delayTicks)) start(state == STOPPED_A, null);
@@ -370,6 +394,8 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     PlatformDirection d = getDirection();
     setPosition(homeX + d.x * offset, homeY + d.y * offset, homeZ + d.z * offset);
     if (t >= 1D && !worldObj.isRemote) {
+      if (pendingConfiguration || returnMode == 2 || returnMode == 3)
+        MovingPlatformTickHandler.processServerArrival(this);
       boolean arrivedAtB = state == MOVING_TO_B;
       if (pendingConfiguration) {
         applyPendingConfiguration();
@@ -385,11 +411,20 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
         waitTicks = 0;
         return;
       }
+      if (returnMode == 3 && arrivedAtB) {
+        if (teleportToStartAndContinue()) return;
+        state = STOPPED_B;
+        dataWatcher.updateObject(20, Integer.valueOf(state));
+        motionTick = 0;
+        waitTicks = 0;
+        if (virtualized) materialize();
+        return;
+      }
       state = arrivedAtB ? STOPPED_B : STOPPED_A;
       dataWatcher.updateObject(20, Integer.valueOf(state));
       motionTick = 0;
       waitTicks = 0;
-      if (returnMode == 2 && !materialize()) {
+      if ((returnMode == 2 || returnMode == 3) && !materialize()) {
         // The destination became occupied while the platform was in
         // transit. Keep the foreign block and return to the endpoint
         // which was clear when movement began.
@@ -402,6 +437,28 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       }
       applyPendingConfiguration();
     }
+  }
+
+  private boolean teleportToStartAndContinue() {
+    int hx = floor(homeX), hy = floor(homeY), hz = floor(homeZ);
+    for (PlatformBlock block : blocks) {
+      int x = hx + block.x, y = hy + block.y, z = hz + block.z;
+      if (!worldObj.blockExists(x, y, z) || worldObj.getBlock(x, y, z) != Blocks.air)
+        return false;
+    }
+    if (!virtualized && !removeMaterializedBlocks()) return false;
+    setVirtualized(true);
+    setPosition(homeX, homeY, homeZ);
+    prevPosX = posX;
+    prevPosY = posY;
+    prevPosZ = posZ;
+    state = MOVING_TO_B;
+    dataWatcher.updateObject(20, Integer.valueOf(state));
+    movementStartTick = worldTick();
+    dataWatcher.updateObject(24, Integer.valueOf(movementStartTick));
+    motionTick = 0;
+    waitTicks = 0;
+    return true;
   }
 
   public boolean dismantle(EntityPlayer feedback) {
@@ -431,11 +488,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   public boolean shouldRenderMovingBlocks() {
-    return virtualized || isMoving();
+    return virtualized || isMoving() || clientRenderHandoffTicks > 0;
   }
 
   public boolean isAwaitingMaterialization() {
-    return false;
+    return clientRenderHandoffTicks > 0;
   }
 
   public boolean shouldRenderPlatformBlock(PlatformBlock block) {
@@ -546,7 +603,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     int newDirection = PlatformDirection.byOrdinal(direction).ordinal();
     int newDistance = Math.max(1, Math.min(256, distance));
     int newDuration = ticksFromSeconds(seconds, 1);
-    int newReturnMode = Math.max(0, Math.min(2, returnMode));
+    int newReturnMode = Math.max(0, Math.min(3, returnMode));
     int newDelay = ticksFromSeconds(delaySeconds, 0);
     if (isMoving()) {
       pendingConfiguration = true;
@@ -565,6 +622,32 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     dataWatcher.updateObject(21, Integer.valueOf(this.direction));
     dataWatcher.updateObject(22, Integer.valueOf(this.distance));
     dataWatcher.updateObject(23, Integer.valueOf(this.durationTicks));
+  }
+
+  public String getMovementSound() { return movementSound; }
+
+  public void setMovementSound(String sound) {
+    movementSound = sound == null ? "" : sound.trim();
+  }
+
+  @cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
+  private void updateMovementSound() {
+    if (!isMoving() || movementSound.isEmpty()) {
+      if (activeSound != null) activeSound.stop();
+      activeSound = null;
+    } else if (activeSound != null
+        && ru.givler.mbo.client.sound.MovingSoundPlatform.isListenerFarAway(this)) {
+      if (activeSound != null) activeSound.stop();
+      activeSound = null;
+    } else if (activeSound == null
+        && !ru.givler.mbo.client.sound.MovingSoundPlatform.isListenerNearby(this)) {
+      return;
+    } else if (activeSound == null || activeSound.isStopped()
+        || !movementSound.equals(activeSound.getSoundName())) {
+      if (activeSound != null) activeSound.stop();
+      activeSound = new ru.givler.mbo.client.sound.MovingSoundPlatform(this, movementSound);
+      net.minecraft.client.Minecraft.getMinecraft().getSoundHandler().playSound(activeSound);
+    }
   }
 
   private static int ticksFromSeconds(double seconds, int minimum) {
@@ -622,6 +705,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     movementStartTick = tag.getInteger("MovementStart");
     returnMode = tag.hasKey("ReturnMode") ? tag.getInteger("ReturnMode") : 2;
     delayTicks = tag.hasKey("Delay") ? tag.getInteger("Delay") : 20;
+    movementSound = tag.getString("MovementSound");
     configured = tag.getBoolean("Configured");
     virtualized = tag.getBoolean("Virtualized");
     pendingConfiguration = tag.getBoolean("PendingConfiguration");
@@ -671,6 +755,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     tag.setInteger("MovementStart", movementStartTick);
     tag.setInteger("ReturnMode", returnMode);
     tag.setInteger("Delay", delayTicks);
+    tag.setString("MovementSound", movementSound);
     tag.setBoolean("Configured", configured);
     tag.setBoolean("Virtualized", virtualized);
     tag.setBoolean("PendingConfiguration", pendingConfiguration);

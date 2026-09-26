@@ -24,6 +24,7 @@ public class PacketPlatformAction implements IMessage {
   private int entityId, action, direction, distance, returnMode;
   private double seconds, delaySeconds;
   private String platformId = "";
+  private String movementSound = "";
 
   public PacketPlatformAction() {}
 
@@ -35,7 +36,7 @@ public class PacketPlatformAction implements IMessage {
       double seconds,
       int returnMode,
       double delaySeconds,
-      String platformId) {
+      String platformId, String movementSound) {
     this.entityId = entityId;
     this.action = action;
     this.direction = direction;
@@ -44,6 +45,7 @@ public class PacketPlatformAction implements IMessage {
     this.returnMode = returnMode;
     this.delaySeconds = delaySeconds;
     this.platformId = platformId == null ? "" : platformId;
+    this.movementSound = movementSound == null ? "" : movementSound;
   }
 
   @Override
@@ -56,6 +58,7 @@ public class PacketPlatformAction implements IMessage {
     returnMode = b.readInt();
     delaySeconds = b.readDouble();
     platformId = ByteBufUtils.readUTF8String(b);
+    movementSound = ByteBufUtils.readUTF8String(b);
   }
 
   @Override
@@ -68,6 +71,7 @@ public class PacketPlatformAction implements IMessage {
     b.writeInt(returnMode);
     b.writeDouble(delaySeconds);
     ByteBufUtils.writeUTF8String(b, platformId);
+    ByteBufUtils.writeUTF8String(b, movementSound);
   }
 
   public static class Handler implements IMessageHandler<PacketPlatformAction, IMessage> {
@@ -82,12 +86,13 @@ public class PacketPlatformAction implements IMessage {
       if (!(e instanceof EntityMovingPlatform)) return;
       EntityMovingPlatform p = (EntityMovingPlatform) e;
       if (m.action == SAVE) {
-        if (p.isRebuildPending()) {
+        boolean completingRebuild = p.isRebuildPending();
+        if (completingRebuild) {
           if (p.isMoving() && !p.stopAndReturn(player)) return;
           if (!p.rebuild(player)) return;
-          p.finishRebuild();
         }
         if (!applyConfiguration(m, player, p)) return;
+        if (completingRebuild) p.finishRebuild();
         ru.givler.mbo.network.PacketManager.INSTANCE.sendToDimension(
             new PacketPlatformSync(p), player.dimension);
         player.addChatMessage(
@@ -139,6 +144,7 @@ public class PacketPlatformAction implements IMessage {
       if (platform.isMoving() && !platform.stopAndReturn(player)) return false;
       platform.setPlatformId(requestedId);
       platform.configure(m.direction, m.distance, m.seconds, m.returnMode, m.delaySeconds);
+      platform.setMovementSound(m.movementSound.length() > 128 ? m.movementSound.substring(0, 128) : m.movementSound);
       platform.confirmConfiguration();
       return true;
     }

@@ -298,6 +298,7 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         }
         if (button.id == 207) {
             soundDropdownOpen = !soundDropdownOpen;
+            soundDropdownScroll = 0;
             return;
         }
         if ((button.id >= 200 && button.id <= 204) || button.id == 208) {
@@ -654,9 +655,13 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
+        if (destroySoundField.textboxKeyTyped(typedChar, keyCode)) {
+            soundDropdownScroll = 0;
+            validateState();
+            return;
+        }
         if (customNameField.textboxKeyTyped(typedChar, keyCode) ||
-                recoveryField.textboxKeyTyped(typedChar, keyCode) ||
-                destroySoundField.textboxKeyTyped(typedChar, keyCode)) {
+                recoveryField.textboxKeyTyped(typedChar, keyCode)) {
             validateState();
             return;
         }
@@ -740,7 +745,7 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
         if (soundDropdownOpen && isOverSoundDropdown(mouseX, mouseY)) {
             soundDropdownScroll = MathHelper.clamp_int(soundDropdownScroll + (wheel < 0 ? 1 : -1),
-                    0, Math.max(0, availableSounds.size() - 8));
+                    0, Math.max(0, matchingSounds().size() - 8));
             return;
         }
 
@@ -872,32 +877,44 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
 
     private void drawSoundDropdown(int mouseX, int mouseY) {
         if (!soundDropdownOpen || destroySoundField == null) return;
+        List<String> matches = matchingSounds();
         int x = destroySoundField.xPosition;
         int y = destroySoundField.yPosition + destroySoundField.height;
         int width = 280;
-        int visible = Math.min(8, Math.max(1, availableSounds.size()));
+        int visible = Math.min(8, matches.size());
+        if (visible == 0) return;
         drawRect(x, y, x + width, y + visible * 12 + 2, 0xEE101010);
         for (int row = 0; row < visible; row++) {
             int index = soundDropdownScroll + row;
-            if (index >= availableSounds.size()) break;
+            if (index >= matches.size()) break;
             int rowY = y + 1 + row * 12;
             boolean hover = mouseX >= x && mouseX < x + width
                     && mouseY >= rowY && mouseY < rowY + 12;
             if (hover) drawRect(x + 1, rowY, x + width - 1, rowY + 12, 0xFF365A78);
-            drawString(fontRendererObj, availableSounds.get(index), x + 3, rowY + 2, 0xFFFFFF);
+            drawString(fontRendererObj, matches.get(index), x + 3, rowY + 2, 0xFFFFFF);
         }
     }
 
     private boolean clickSoundOption(int mouseX, int mouseY) {
         if (!isOverSoundDropdown(mouseX, mouseY)) {
-            soundDropdownOpen = false;
+            boolean overField = mouseX >= destroySoundField.xPosition
+                    && mouseX < destroySoundField.xPosition + destroySoundField.width
+                    && mouseY >= destroySoundField.yPosition
+                    && mouseY < destroySoundField.yPosition + destroySoundField.height;
+            boolean overButton = mouseX >= destroySoundField.xPosition + 256
+                    && mouseX < destroySoundField.xPosition + 276
+                    && mouseY >= destroySoundField.yPosition
+                    && mouseY < destroySoundField.yPosition + 20;
+            if (!overField && !overButton) soundDropdownOpen = false;
             return false;
         }
         int row = (mouseY - (destroySoundField.yPosition + destroySoundField.height) - 1) / 12;
         int index = soundDropdownScroll + row;
-        if (index >= 0 && index < availableSounds.size()) {
-            destroySoundField.setText(availableSounds.get(index));
+        List<String> matches = matchingSounds();
+        if (index >= 0 && index < matches.size()) {
+            destroySoundField.setText(matches.get(index));
             soundDropdownOpen = false;
+            soundDropdownScroll = 0;
             return true;
         }
         return false;
@@ -907,8 +924,13 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         if (!soundDropdownOpen || destroySoundField == null) return false;
         int x = destroySoundField.xPosition;
         int y = destroySoundField.yPosition + destroySoundField.height;
-        int visible = Math.min(8, Math.max(1, availableSounds.size()));
+        int visible = Math.min(8, matchingSounds().size());
+        if (visible == 0) return false;
         return mouseX >= x && mouseX < x + 280 && mouseY >= y && mouseY < y + visible * 12 + 2;
+    }
+
+    private List<String> matchingSounds() {
+        return LootContainerSoundList.filter(availableSounds, destroySoundField.getText());
     }
 
     private static class EditorState {

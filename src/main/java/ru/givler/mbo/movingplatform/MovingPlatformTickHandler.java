@@ -95,23 +95,54 @@ public final class MovingPlatformTickHandler {
         continue;
       }
       if (!platform.isCollisionActive()) continue;
-      AxisAlignedBB broad = bounds(platform).expand(1.5D, 2.5D, 1.5D);
-      for (Object object : world.getEntitiesWithinAABBExcludingEntity(platform, broad)) {
-        if (!(object instanceof Entity)) continue;
-        Entity entity = (Entity) object;
-        if (entity instanceof EntityMovingPlatform
-            || entity.isDead
-            || entity.boundingBox == null
-            || !entity.boundingBox.intersectsWith(broad)) continue;
-        if (entity instanceof IProjectile) {
-          stopProjectile(entity, platform);
-          continue;
-        }
-        if (entity instanceof EntityPlayer)
-          processPlayer((EntityPlayer) entity, platform, carriers);
-        else processEntity(entity, platform, entityCarriers, null, false);
-      }
+      processServerPlatform(platform, carriers, entityCarriers);
     }
+  }
+
+  /** Applies the final platform displacement before its blocks replace the moving snapshot. */
+  public static void processServerArrival(EntityMovingPlatform platform) {
+    World world = platform.worldObj;
+    if (world == null || world.isRemote) return;
+    Map<UUID, Integer> carriers = CARRIERS.get(world);
+    if (carriers == null) {
+      carriers = new java.util.HashMap<UUID, Integer>();
+      CARRIERS.put(world, carriers);
+    }
+    processServerPlatform(platform, carriers, entityCarriers(world));
+  }
+
+  private static void processServerPlatform(
+      EntityMovingPlatform platform, Map<UUID, Integer> carriers,
+      Map<Entity, Integer> entityCarriers) {
+    AxisAlignedBB broad = bounds(platform).expand(1.5D, 2.5D, 1.5D);
+    for (Object object : platform.worldObj.getEntitiesWithinAABBExcludingEntity(platform, broad)) {
+      if (!(object instanceof Entity)) continue;
+      Entity entity = (Entity) object;
+      if (entity instanceof EntityMovingPlatform
+          || entity.isDead
+          || entity.boundingBox == null
+          || !entity.boundingBox.intersectsWith(broad)) continue;
+      if (entity instanceof IProjectile) {
+        stopProjectile(entity, platform);
+        continue;
+      }
+      if (entity instanceof EntityPlayer)
+        processPlayer((EntityPlayer) entity, platform, carriers);
+      else processEntity(entity, platform, entityCarriers, null, false);
+    }
+  }
+
+  public static void processClientArrival(EntityMovingPlatform platform, EntityPlayer player) {
+    World world = platform.worldObj;
+    if (world == null || !world.isRemote) return;
+    if (player == null || player.worldObj != world) return;
+    Map<UUID, Integer> carriers = CARRIERS.get(world);
+    if (carriers == null) {
+      carriers = new java.util.HashMap<UUID, Integer>();
+      CARRIERS.put(world, carriers);
+    }
+    if (player.boundingBox.intersectsWith(bounds(platform).expand(1.5D, 2.5D, 1.5D)))
+      processPlayer(player, platform, carriers);
   }
 
   public static void processClientPlayer(World world, EntityPlayer player) {

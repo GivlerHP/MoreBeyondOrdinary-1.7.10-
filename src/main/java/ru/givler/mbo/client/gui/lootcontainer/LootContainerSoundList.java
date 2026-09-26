@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,6 +35,15 @@ public final class LootContainerSoundList {
         List<String> result = new ArrayList<String>(sounds);
         Collections.sort(result);
         return result;
+    }
+
+    public static List<String> filter(List<String> sounds, String query) {
+        String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        if (needle.isEmpty()) return sounds;
+        List<String> matches = new ArrayList<String>();
+        for (String sound : sounds)
+            if (sound.toLowerCase(Locale.ROOT).contains(needle)) matches.add(sound);
+        return matches;
     }
 
     private static void collect(Object object, Set<String> out, Set<Object> visited, int depth)
