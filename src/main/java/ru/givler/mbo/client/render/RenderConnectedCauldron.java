@@ -71,7 +71,13 @@ public class RenderConnectedCauldron implements ISimpleBlockRenderingHandler {
       double maxY,
       double maxZ) {
     renderer.setRenderBounds(minX, minY, minZ, maxX, maxY, maxZ);
-    renderer.renderStandardBlock(block, x, y, z);
+    boolean renderAllFaces = renderer.renderAllFaces;
+    renderer.renderAllFaces = true;
+    try {
+      renderer.renderStandardBlock(block, x, y, z);
+    } finally {
+      renderer.renderAllFaces = renderAllFaces;
+    }
   }
 
   private void renderFloorSlab(
