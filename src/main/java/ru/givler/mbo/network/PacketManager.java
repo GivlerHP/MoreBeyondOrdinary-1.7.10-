@@ -8,6 +8,7 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 import java.lang.reflect.Field;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.network.packet.PacketActivateAmulet;
+import ru.givler.mbo.network.packet.PacketAdminFireColor;
 import ru.givler.mbo.network.packet.PacketApplyLockTemplate;
 import ru.givler.mbo.network.packet.PacketAreaEditorInteract;
 import ru.givler.mbo.network.packet.PacketBoatMove;
@@ -60,6 +61,8 @@ public class PacketManager {
   public static int nextID = 0;
 
   public static void registerCommonPackets() {
+    INSTANCE.registerMessage(
+        PacketAdminFireColor.Handler.class, PacketAdminFireColor.class, nextID++, Side.SERVER);
     INSTANCE.registerMessage(
         PacketActivateAmulet.Handler.class, PacketActivateAmulet.class, nextID++, Side.SERVER);
     INSTANCE.registerMessage(
@@ -212,6 +215,7 @@ public class PacketManager {
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static void registerClientPacketTypesForServer() {
     Class[] messages = {
+      PacketLightningArc.class,
       PacketMagicBurst.class,
       PacketPotionEffectSync.class,
       PacketStaticAuraImpact.class,

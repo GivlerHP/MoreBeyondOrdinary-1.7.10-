@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import ru.givler.mbo.editor.AreaSelection;
@@ -194,8 +195,14 @@ public final class DungeonAreaSavedData extends WorldSavedData {
     for (int x = -1; x <= sx; x++)
       for (int y = -1; y <= sy; y++)
         for (int z = -1; z <= sz; z++)
-          a[i++] = w.getLightBrightnessForSkyBlocks(ox + x, oy + y, oz + z, 0);
+          a[i++] = packedLight(w, ox + x, oy + y, oz + z);
     return a;
+  }
+
+  private static int packedLight(World world, int x, int y, int z) {
+    int sky = world.getSavedLightValue(EnumSkyBlock.Sky, x, y, z);
+    int block = world.getSavedLightValue(EnumSkyBlock.Block, x, y, z);
+    return sky << 20 | block << 4;
   }
 
   @Override

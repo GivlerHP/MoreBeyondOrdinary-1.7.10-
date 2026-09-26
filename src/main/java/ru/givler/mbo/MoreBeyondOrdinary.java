@@ -7,13 +7,16 @@ import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import ru.givler.mbo.command.CommandEffectExtended;
 import ru.givler.mbo.command.CommandGameModeExtended;
 import ru.givler.mbo.config.IntegrationConfig;
+import ru.givler.mbo.config.GameplayConfig;
 import ru.givler.mbo.config.LockSecurityConfig;
 import ru.givler.mbo.config.TooltipFrameConfig;
 import ru.givler.mbo.gui.MboGuiHandler;
+import ru.givler.mbo.integration.bukkit.BukkitSpectatorCommandBridge;
 import ru.givler.mbo.proxy.CommonProxy;
 import ru.givler.mbo.registry.EntityMobRegistry;
 import ru.givler.mbo.registry.MagicEntityRegistry;
@@ -48,12 +51,14 @@ public class MoreBeyondOrdinary {
         "Waila",
         "register",
         "ru.givler.mbo.integration.waila.ModelCollisionWailaProvider.register");
+    VanillaBlockReplacer.separateWoodenLocalizationKeys();
     VanillaBlockReplacer.replaceTrapdoor();
     proxy.preInit(event);
     proxy.initPackets();
     EntityMobRegistry.registerEntities();
     MagicEntityRegistry.registerEntities();
     IntegrationConfig.load(event.getModConfigurationDirectory());
+    GameplayConfig.load(event.getModConfigurationDirectory());
     TooltipFrameConfig.load(event.getModConfigurationDirectory());
     LockSecurityConfig.load(event.getModConfigurationDirectory());
   }
@@ -61,6 +66,7 @@ public class MoreBeyondOrdinary {
   @Mod.EventHandler
   public void init(FMLInitializationEvent event) {
     proxy.init(event);
+    VanillaBlockReplacer.restrictTrapdoorRecipeToOak();
     NetworkRegistry.INSTANCE.registerGuiHandler(this, new MboGuiHandler());
   }
 
@@ -75,5 +81,10 @@ public class MoreBeyondOrdinary {
     // Both implementations delegate all unchanged syntax to the vanilla commands.
     event.registerServerCommand(new CommandEffectExtended());
     event.registerServerCommand(new CommandGameModeExtended());
+  }
+
+  @Mod.EventHandler
+  public void serverStarted(FMLServerStartedEvent event) {
+    BukkitSpectatorCommandBridge.install();
   }
 }

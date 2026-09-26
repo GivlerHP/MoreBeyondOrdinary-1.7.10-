@@ -21,6 +21,12 @@ public final class VanillaBlockReplacer {
 
     private VanillaBlockReplacer() {}
 
+    /** Gives wooden variants distinct translation keys from their stone counterparts. */
+    public static void separateWoodenLocalizationKeys() {
+        Blocks.wooden_button.setBlockName("woodenButton");
+        Blocks.wooden_pressure_plate.setBlockName("woodenPressurePlate");
+    }
+
     public static void replaceTrapdoor() {
 
         String key = "minecraft:trapdoor";
@@ -42,6 +48,26 @@ public final class VanillaBlockReplacer {
         ItemBlock itemBlock = new ItemBlock(trapdoor);
         ((Item) itemBlock).setUnlocalizedName("trapdoor");
         GameData.getItemRegistry().putObject(key, itemBlock);
+    }
+
+    /** Replaces the wildcard-plank vanilla recipe with an oak-only recipe. */
+    @SuppressWarnings("unchecked")
+    public static void restrictTrapdoorRecipeToOak() {
+        Block trapdoor = (Block) GameData.getBlockRegistry().getObject("minecraft:trapdoor");
+        Item replacementItem = Item.getItemFromBlock(trapdoor);
+        Item vanillaItem = Item.getItemFromBlock(Blocks.trapdoor);
+
+        Iterator<IRecipe> iterator = CraftingManager.getInstance().getRecipeList().iterator();
+        while (iterator.hasNext()) {
+            ItemStack output = iterator.next().getRecipeOutput();
+            if (output != null
+                    && (output.getItem() == replacementItem || output.getItem() == vanillaItem)) {
+                iterator.remove();
+            }
+        }
+
+        GameRegistry.addRecipe(new ItemStack(trapdoor, 2),
+                "PPP", "PPP", 'P', new ItemStack(Blocks.planks, 1, 0));
     }
 
     public static void replaceWoodenButton() {

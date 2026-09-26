@@ -40,10 +40,9 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private int returnMode = 2, delayTicks = 20, waitTicks;
   private boolean configured;
   private boolean virtualized;
-  private boolean onboardLeverPowered;
-  private boolean onboardMomentaryPowered;
+  private final HashSet<Long> poweredOnboardLevers = new HashSet<Long>();
+  private final HashSet<Long> pressedOnboardControls = new HashSet<Long>();
   private boolean onboardControlInitialized;
-  private int materializationGraceTicks;
   private boolean pendingConfiguration;
   private boolean rebuildPending;
   private int pendingDirection,
@@ -118,6 +117,9 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     }
     blocks.clear();
     blocks.addAll(found);
+    onboardControlInitialized = false;
+    poweredOnboardLevers.clear();
+    pressedOnboardControls.clear();
     rebuildCollisionCache();
     return true;
   }
@@ -212,8 +214,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       if (x == ox + b.x
           && y == oy + b.y
           && z == oz + b.z
-          && worldObj.getBlock(x, y, z) == b.block
-          && worldObj.getBlockMetadata(x, y, z) == b.meta) return true;
+          && worldObj.getBlock(x, y, z) == b.block) return true;
     return false;
   }
 
@@ -257,6 +258,19 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     setVirtualized(false);
     captureOnboardControlState();
     return true;
+  }
+
+  /**
+   * Closes the packet-order gap between the virtualized flag and vanilla block updates. The
+   * server has already validated and materialized this snapshot before clearing the flag.
+   */
+  private void materializeClientBlocks() {
+    int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
+    for (PlatformBlock saved : blocks) {
+      int x = ox + saved.x, y = oy + saved.y, z = oz + saved.z;
+      if (worldObj.getBlock(x, y, z) == Blocks.air)
+        worldObj.setBlock(x, y, z, saved.block, snapshotMetadata(saved.block, saved.meta), 2);
+    }
   }
 
   public boolean reset(EntityPlayer feedback) {
@@ -336,11 +350,10 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       durationTicks = dataWatcher.getWatchableObjectInt(23);
       movementStartTick = dataWatcher.getWatchableObjectInt(24);
       boolean watchedVirtualized = dataWatcher.getWatchableObjectByte(25) != 0;
-      if (virtualized && !watchedVirtualized) materializationGraceTicks = 40;
-      if (watchedVirtualized) materializationGraceTicks = 0;
+      boolean materializing = virtualized && !watchedVirtualized;
+      updateClientPosition();
+      if (materializing) materializeClientBlocks();
       virtualized = watchedVirtualized;
-      if (materializationGraceTicks > 0) --materializationGraceTicks;
-      tickLerp();
       return;
     }
     if (!isMoving()) {
@@ -418,15 +431,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   public boolean shouldRenderMovingBlocks() {
-    if (virtualized || isMoving()) return true;
-    if (worldObj == null || !worldObj.isRemote || materializationGraceTicks <= 0) return false;
-    if (hasMissingMaterializedBlocks()) return true;
-    materializationGraceTicks = 0;
-    return false;
+    return virtualized || isMoving();
   }
 
   public boolean isAwaitingMaterialization() {
-    return !virtualized && !isMoving() && materializationGraceTicks > 0;
+    return false;
   }
 
   public boolean shouldRenderPlatformBlock(PlatformBlock block) {
@@ -434,11 +443,6 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
     return worldObj.getBlock(ox + block.x, oy + block.y, oz + block.z) != block.block
         || worldObj.getBlockMetadata(ox + block.x, oy + block.y, oz + block.z) != block.meta;
-  }
-
-  private boolean hasMissingMaterializedBlocks() {
-    for (PlatformBlock block : blocks) if (shouldRenderPlatformBlock(block)) return true;
-    return false;
   }
 
   public PlatformDirection getDirection() {
@@ -704,6 +708,22 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     setPosition(posX, posY, posZ);
   }
 
+  /** Replays the authoritative trajectory locally so the platform and remote riders share a clock. */
+  private void updateClientPosition() {
+    if (!isMoving()) {
+      setEndpointPosition();
+      lerpSteps = 0;
+      return;
+    }
+    int elapsed = Math.max(0, Math.min(durationTicks, worldTick() - movementStartTick));
+    double t = elapsed / (double) Math.max(1, durationTicks);
+    double eased = t * t * (3D - 2D * t);
+    double offset = state == MOVING_TO_B ? distance * eased : distance * (1D - eased);
+    PlatformDirection d = getDirection();
+    setPosition(homeX + d.x * offset, homeY + d.y * offset, homeZ + d.z * offset);
+    lerpSteps = 0;
+  }
+
   private void setVirtualized(boolean value) {
     virtualized = value;
     dataWatcher.updateObject(25, Byte.valueOf((byte) (value ? 1 : 0)));
@@ -711,44 +731,44 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
 
   private boolean checkOnboardControl() {
     if (worldObj.isRemote || virtualized || !configured) return false;
-    int state = readOnboardControlState();
-    boolean leverPowered = (state & 1) != 0;
-    boolean momentaryPowered = (state & 2) != 0;
+    HashSet<Long> levers = new HashSet<Long>();
+    HashSet<Long> controls = new HashSet<Long>();
+    readOnboardControlState(levers, controls);
     if (!onboardControlInitialized) {
       onboardControlInitialized = true;
-      boolean pressed = momentaryPowered;
-      onboardLeverPowered = leverPowered;
-      onboardMomentaryPowered = momentaryPowered;
+      boolean pressed = !controls.isEmpty();
+      poweredOnboardLevers.addAll(levers);
+      pressedOnboardControls.addAll(controls);
       return pressed && start(this.state == STOPPED_A, null);
     }
-    boolean leverChanged = leverPowered != onboardLeverPowered;
-    boolean momentaryPressed = momentaryPowered && !onboardMomentaryPowered;
-    onboardLeverPowered = leverPowered;
-    onboardMomentaryPowered = momentaryPowered;
+    boolean leverChanged = !levers.equals(poweredOnboardLevers);
+    boolean momentaryPressed = !pressedOnboardControls.containsAll(controls);
+    poweredOnboardLevers.clear();
+    poweredOnboardLevers.addAll(levers);
+    pressedOnboardControls.clear();
+    pressedOnboardControls.addAll(controls);
     return (leverChanged || momentaryPressed) && start(this.state == STOPPED_A, null);
   }
 
   private void captureOnboardControlState() {
-    int state = readOnboardControlState();
-    onboardLeverPowered = (state & 1) != 0;
-    onboardMomentaryPowered = (state & 2) != 0;
+    poweredOnboardLevers.clear();
+    pressedOnboardControls.clear();
+    readOnboardControlState(poweredOnboardLevers, pressedOnboardControls);
     onboardControlInitialized = true;
   }
 
-  private int readOnboardControlState() {
+  private void readOnboardControlState(HashSet<Long> levers, HashSet<Long> controls) {
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
-    boolean leverPowered = false;
-    boolean momentaryPowered = false;
     for (PlatformBlock saved : blocks) {
       int x = ox + saved.x, y = oy + saved.y, z = oz + saved.z;
       Block block = worldObj.getBlock(x, y, z);
       int metadata = worldObj.getBlockMetadata(x, y, z);
-      if (block instanceof BlockLever && (metadata & 8) != 0) leverPowered = true;
-      if (block instanceof BlockButton && (metadata & 8) != 0) momentaryPowered = true;
+      long key = blockKey(saved.x, saved.y, saved.z);
+      if (block instanceof BlockLever && (metadata & 8) != 0) levers.add(key);
+      if (block instanceof BlockButton && (metadata & 8) != 0) controls.add(key);
       if (block instanceof BlockBasePressurePlate && hasLivingEntityOnPlate(x, y, z))
-        momentaryPowered = true;
+        controls.add(key);
     }
-    return (leverPowered ? 1 : 0) | (momentaryPowered ? 2 : 0);
   }
 
   @SuppressWarnings("unchecked")

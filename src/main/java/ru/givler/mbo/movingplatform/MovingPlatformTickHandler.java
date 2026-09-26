@@ -136,7 +136,7 @@ public final class MovingPlatformTickHandler {
         AxisAlignedBB broad = bounds(platform).expand(1.5D, 2.5D, 1.5D);
         for (Object object : world.getEntitiesWithinAABBExcludingEntity(platform, broad))
           if (object instanceof Entity
-              && !(object instanceof EntityPlayer)
+              && object != player
               && !(object instanceof EntityMovingPlatform)
               && !(object instanceof IProjectile)) {
             Entity entity = (Entity) object;

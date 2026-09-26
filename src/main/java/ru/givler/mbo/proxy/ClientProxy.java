@@ -16,6 +16,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.world.World;
@@ -26,6 +27,7 @@ import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.block.special.BlockDestructibleLootContainer;
 import ru.givler.mbo.client.font.ModernFontSupport;
 import ru.givler.mbo.client.gamemode.GamemodeSwitcherInputHandler;
+import ru.givler.mbo.client.gui.GuiAdminFireColor;
 import ru.givler.mbo.client.handler.BarrierVisibilityEvents;
 import ru.givler.mbo.client.handler.ClientKeyEvents;
 import ru.givler.mbo.client.handler.AreaEditorMouseEvents;
@@ -135,6 +137,11 @@ public class ClientProxy extends CommonProxy {
     return Minecraft.getMinecraft().theWorld;
   }
 
+  @Override
+  public void openAdminFireColorGui(ItemStack stack) {
+    Minecraft.getMinecraft().displayGuiScreen(new GuiAdminFireColor(stack));
+  }
+
   public void preInit(FMLPreInitializationEvent event) {
     super.preInit(event);
     PlayerPingConfig.load(event.getModConfigurationDirectory());
@@ -144,6 +151,10 @@ public class ClientProxy extends CommonProxy {
     super.init(event);
     registerFenceRenderer();
     registerBarrierRenderer();
+    int adminFireRenderId = RenderingRegistry.getNextAvailableRenderId();
+    BlockRegistry.AdminFire.setRenderType(adminFireRenderId);
+    BlockRegistry.AdminFireVanilla.setRenderType(adminFireRenderId);
+    RenderingRegistry.registerBlockHandler(new RenderAdminFire(adminFireRenderId));
     int slimeRenderId = RenderingRegistry.getNextAvailableRenderId();
     BlockRegistry.SlimeBlock.setSlimeRenderType(slimeRenderId);
     RenderingRegistry.registerBlockHandler(new RenderSlimeBlock(slimeRenderId));

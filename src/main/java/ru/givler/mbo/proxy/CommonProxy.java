@@ -8,6 +8,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.dungeon.DungeonAreaLifecycleHandler;
@@ -56,6 +57,8 @@ public class CommonProxy {
     return null;
   }
 
+  public void openAdminFireColorGui(ItemStack stack) {}
+
   public void preInit(FMLPreInitializationEvent event) {
     PotionArrayExpander.expand(256);
     BlockRegistry.preLoad(event);
@@ -88,6 +91,7 @@ public class CommonProxy {
     MinecraftForge.EVENT_BUS.register(new RingEvents());
     MinecraftForge.EVENT_BUS.register(new SpectralItemEvents());
     MinecraftForge.EVENT_BUS.register(new EnchantmentEvents());
+    MinecraftForge.EVENT_BUS.register(new GoldenAppleEvents());
     MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.magic.handler.SoulbindingEvents());
     FMLCommonHandler.instance().bus().register(new RingEvents());
     SpectatorEventHandler spectatorHandler = new SpectatorEventHandler();
