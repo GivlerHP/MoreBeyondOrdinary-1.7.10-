@@ -9,9 +9,19 @@ import ru.givler.mbo.MoreBeyondOrdinary;
 
 public class PotionBasic extends Potion {
 	private ResourceLocation inventoryIcon;
+	private boolean showEntityParticles = true;
 
     public PotionBasic(int id, boolean isBadEffect, int liquidColour) {
         super(id, isBadEffect, liquidColour);
+    }
+
+    public PotionBasic setShowEntityParticles(boolean show) {
+        this.showEntityParticles = show;
+        return this;
+    }
+
+    public boolean showsEntityParticles() {
+        return showEntityParticles;
     }
 
     @Override

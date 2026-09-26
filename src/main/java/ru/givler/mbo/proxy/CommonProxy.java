@@ -8,6 +8,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -55,6 +56,10 @@ public class CommonProxy {
 
   public World getClientWorld() {
     return null;
+  }
+
+  public boolean hideOwnPotionParticles(EntityLivingBase entity) {
+    return false;
   }
 
   public void openAdminFireColorGui(ItemStack stack) {}

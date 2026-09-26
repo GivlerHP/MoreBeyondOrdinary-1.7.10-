@@ -635,6 +635,7 @@ potion.mind_trick=Mind Trick
 potion.mind_control=Mind Control
 potion.font_of_mana=Font of Mana
 potion.fear=Fear
+potion.dense_fog=Dense Fog
 item.GoblinAmulet.name=Goblin Amulet
 container.mbo.chest_boat=Chest Boat
 item.oak_boat.name=Oak Boat

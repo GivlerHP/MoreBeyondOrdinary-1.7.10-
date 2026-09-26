@@ -53,6 +53,7 @@ public class PotionRegistry {
     public static Potion MindControl;
     public static Potion FontOfMana;
     public static Potion Fear;
+    public static Potion DenseFog;
 
 
     public static void preLoad(FMLPreInitializationEvent event) {
@@ -86,6 +87,7 @@ public class PotionRegistry {
         MindControl = new MindControl(nextFreeId(), true, 0x320b44);
         FontOfMana = new FontOfMana(nextFreeId(), false, 0xffe5bb);
         Fear = new Fear(nextFreeId(), true, 0xbd0100);
+        DenseFog = new DenseFog(nextFreeId(), false, 0xA8B1B0);
     }
 
     /** Finds a free expanded potion slot; spell effects never claim fixed numeric IDs. */

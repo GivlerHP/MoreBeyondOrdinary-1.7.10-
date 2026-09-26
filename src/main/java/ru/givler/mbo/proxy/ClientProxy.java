@@ -14,6 +14,7 @@ import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -33,6 +34,7 @@ import ru.givler.mbo.client.handler.ClientKeyEvents;
 import ru.givler.mbo.client.handler.AreaEditorMouseEvents;
 import ru.givler.mbo.client.handler.MovingPlatformClientEvents;
 import ru.givler.mbo.client.handler.PotionRenderEvents;
+import ru.givler.mbo.client.handler.DenseFogRenderEvents;
 import ru.givler.mbo.client.handler.SignGuiEvents;
 import ru.givler.mbo.client.handler.TooltipEvents;
 import ru.givler.mbo.client.render.*;
@@ -60,6 +62,7 @@ import ru.givler.mbo.client.render.magic.RenderMagicBubble;
 import ru.givler.mbo.client.render.magic.RenderMagicShield;
 import ru.givler.mbo.core.CauldronHooks;
 import ru.givler.mbo.config.PlayerPingConfig;
+import ru.givler.mbo.config.GameplayConfig;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
 import ru.givler.mbo.entity.boat.EntityMBOBoatSeat;
 import ru.givler.mbo.entity.boat.EntityMBOChestBoat;
@@ -135,6 +138,14 @@ public class ClientProxy extends CommonProxy {
   @Override
   public World getClientWorld() {
     return Minecraft.getMinecraft().theWorld;
+  }
+
+  @Override
+  public boolean hideOwnPotionParticles(EntityLivingBase entity) {
+    Minecraft mc = Minecraft.getMinecraft();
+    return GameplayConfig.hideOwnPotionParticles
+        && entity == mc.thePlayer
+        && mc.gameSettings.thirdPersonView == 0;
   }
 
   @Override
@@ -282,6 +293,7 @@ public class ClientProxy extends CommonProxy {
 
     registerRenderers();
     MinecraftForge.EVENT_BUS.register(new PotionRenderEvents());
+    MinecraftForge.EVENT_BUS.register(new DenseFogRenderEvents());
     MinecraftForge.EVENT_BUS.register(new TooltipEvents());
     MinecraftForge.EVENT_BUS.register(new SpectatorClientHandler());
   }
