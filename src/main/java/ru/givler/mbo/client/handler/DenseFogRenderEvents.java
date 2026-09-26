@@ -11,7 +11,11 @@ import ru.givler.mbo.registry.PotionRegistry;
 
 /** Uses Minecraft's world fog while the camera player has Dense Fog. */
 public final class DenseFogRenderEvents {
-    private boolean active(Entity entity) {
+    public static final float RED = 0.67F;
+    public static final float GREEN = 0.72F;
+    public static final float BLUE = 0.71F;
+
+    public static boolean active(Entity entity) {
         return entity instanceof EntityPlayer
                 && entity == Minecraft.getMinecraft().renderViewEntity
                 && ((EntityPlayer) entity).isPotionActive(PotionRegistry.DenseFog)
@@ -19,21 +23,24 @@ public final class DenseFogRenderEvents {
                 && !entity.isInsideOfMaterial(Material.lava);
     }
 
+    public static float density(EntityPlayer player) {
+        int amplifier = player.getActivePotionEffect(PotionRegistry.DenseFog).getAmplifier();
+        return Math.min(0.16F, 0.04F * (amplifier + 1));
+    }
+
     @SubscribeEvent
     public void onFogDensity(EntityViewRenderEvent.FogDensity event) {
         if (!active(event.entity)) return;
         GL11.glFogi(GL11.GL_FOG_MODE, GL11.GL_EXP2);
-        int amplifier = ((EntityPlayer) event.entity)
-                .getActivePotionEffect(PotionRegistry.DenseFog).getAmplifier();
-        event.density = Math.min(0.16F, 0.04F * (amplifier + 1));
+        event.density = density((EntityPlayer) event.entity);
         event.setCanceled(true);
     }
 
     @SubscribeEvent
     public void onFogColors(EntityViewRenderEvent.FogColors event) {
         if (!active(event.entity)) return;
-        event.red = 0.67F;
-        event.green = 0.72F;
-        event.blue = 0.71F;
+        event.red = RED;
+        event.green = GREEN;
+        event.blue = BLUE;
     }
 }

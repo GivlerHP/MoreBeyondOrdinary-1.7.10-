@@ -1,18 +1,30 @@
 package ru.givler.mbo.client.render;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import java.nio.FloatBuffer;
 import java.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
+import ru.givler.mbo.client.handler.DenseFogRenderEvents;
 import ru.givler.mbo.dungeon.*;
 import ru.givler.mbo.movingplatform.PlatformBlock;
 
 public final class DungeonAreaWorldRenderer {
+  private static final FloatBuffer DENSE_FOG_COLOR = denseFogColor();
   private final Map<UUID, Cache> cache = new HashMap<UUID, Cache>();
+
+  private static FloatBuffer denseFogColor() {
+    FloatBuffer color = BufferUtils.createFloatBuffer(4);
+    color.put(DenseFogRenderEvents.RED).put(DenseFogRenderEvents.GREEN)
+        .put(DenseFogRenderEvents.BLUE).put(1F).flip();
+    return color;
+  }
 
   @SubscribeEvent
   public void unload(WorldEvent.Unload e) {
@@ -57,6 +69,15 @@ public final class DungeonAreaWorldRenderer {
       if (a.getType() == DungeonAreaRecord.TRIGGER) continue;
       if (!a.shouldRender() || a.containsPoint(cx, cy, cz)) continue;
       Cache c = compiled(a, mc);
+      boolean denseFog = DenseFogRenderEvents.active(mc.renderViewEntity);
+      if (denseFog) {
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_FOG_BIT);
+        GL11.glFogi(GL11.GL_FOG_MODE, GL11.GL_EXP2);
+        GL11.glFogf(GL11.GL_FOG_DENSITY,
+            DenseFogRenderEvents.density((EntityPlayer) mc.renderViewEntity));
+        GL11.glFog(GL11.GL_FOG_COLOR, DENSE_FOG_COLOR);
+        GL11.glEnable(GL11.GL_FOG);
+      }
       GL11.glPushMatrix();
       GL11.glTranslated(a.getX() - cx, a.getY() - cy, a.getZ() - cz);
       GL11.glDisable(GL11.GL_LIGHTING);
@@ -77,6 +98,7 @@ public final class DungeonAreaWorldRenderer {
       mc.entityRenderer.disableLightmap(e.partialTicks);
       GL11.glEnable(GL11.GL_LIGHTING);
       GL11.glPopMatrix();
+      if (denseFog) GL11.glPopAttrib();
     }
   }
 
