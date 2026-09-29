@@ -98,7 +98,7 @@ public final class SmoothOpeningRenderer {
     State state = STATES.get(key);
     if (state == null || state.block != block) {
       STATES.put(key, new State(block, x, baseY, z, meta, open, now, snapshot.kind));
-      return false;
+      return OpeningJsonRenderer.render(renderer, block, x, y, z);
     }
     state.seen = now;
     if (state.open != open) state.begin(open, meta, now);
@@ -109,7 +109,8 @@ public final class SmoothOpeningRenderer {
               state, renderer, now, y, isCarpenterBlock(block) && !(access instanceof World)));
     // Chunk display lists must omit a moving block. The World-backed
     // renderer below draws it every frame instead.
-    return state.active(now) && !(access instanceof World) && !isCarpenterBlock(block);
+    if (state.active(now) && !(access instanceof World) && !isCarpenterBlock(block)) return true;
+    return OpeningJsonRenderer.render(renderer, block, x, y, z);
   }
 
   public static void end() {
@@ -166,6 +167,9 @@ public final class SmoothOpeningRenderer {
     out[2] = blue;
     Context context = ACTIVE.get();
     if (context == null) return out;
+    // JSON models supply their own per-face shading. The legacy AO repair
+    // below would brighten their dark sides every time an animation runs.
+    if (OpeningJsonRenderer.supports(context.state.block)) return out;
     float max = Math.max(red, Math.max(green, blue));
     // RenderBlocks calculates ambient occlusion before our vertices are
     // rotated. A face touching a neighbour therefore carries its old dark
@@ -488,13 +492,21 @@ public final class SmoothOpeningRenderer {
       mc.entityRenderer.enableLightmap(partialTicks);
       GL11.glColor4f(1F, 1F, 1F, 1F);
       GL11.glTranslated(-cx, -cy, -cz);
+      // The translucent pass normally disables depth writes. These animated
+      // doors and trapdoors are opaque and must populate the depth buffer so
+      // their own model faces and the water drawn afterwards occlude correctly.
+      GL11.glEnable(GL11.GL_DEPTH_TEST);
+      GL11.glDepthFunc(GL11.GL_LEQUAL);
+      GL11.glDepthMask(true);
       for (State state : STATES.values()) {
         if (!state.visibleDuringRestore(now)) continue;
         if (isCarpenterBlock(state.block)) {
           ForgeHooksClient.setRenderPass(0);
           renderDynamicState(renderer, state);
+          GL11.glDepthMask(false);
           ForgeHooksClient.setRenderPass(1);
           renderDynamicState(renderer, state);
+          GL11.glDepthMask(true);
         } else renderDynamicState(renderer, state);
       }
     } finally {
@@ -510,11 +522,18 @@ public final class SmoothOpeningRenderer {
   }
 
   private static void renderDynamicState(RenderBlocks renderer, State state) {
-    Tessellator.instance.startDrawingQuads();
-    renderer.renderBlockByRenderType(state.block, state.x, state.y, state.z);
-    if (state.kind == DOOR)
-      renderer.renderBlockByRenderType(state.block, state.x, state.y + 1, state.z);
-    Tessellator.instance.draw();
+    boolean jsonModel = OpeningJsonRenderer.supports(state.block);
+    boolean cullingEnabled = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+    if (jsonModel) GL11.glDisable(GL11.GL_CULL_FACE);
+    try {
+      Tessellator.instance.startDrawingQuads();
+      renderer.renderBlockByRenderType(state.block, state.x, state.y, state.z);
+      if (state.kind == DOOR)
+        renderer.renderBlockByRenderType(state.block, state.x, state.y + 1, state.z);
+      Tessellator.instance.draw();
+    } finally {
+      if (jsonModel && cullingEnabled) GL11.glEnable(GL11.GL_CULL_FACE);
+    }
   }
 
   private static final class Context {

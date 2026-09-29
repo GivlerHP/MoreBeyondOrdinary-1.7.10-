@@ -2,6 +2,11 @@ package ru.givler.mbo.registry;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemSoup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.init.Items;
+import net.minecraft.init.Blocks;
+import cpw.mods.fml.common.registry.GameRegistry;
 import ru.givler.mbo.item.ItemFood;
 
 public class FoodRegistry {
@@ -14,7 +19,18 @@ public class FoodRegistry {
     //переменные для еды
     public static Item FoodBacon, FoodBlackBread, FoodBurger, FoodChowder, FoodDeliciousChicken, FoodDeliciousSalad, FoodDivineSteak, FoodFreshBread,
             FoodFriedSausage, FoodCheese, FoodSoup, FoodMeatPie, FoodStrangeFish;
+    public static Item RabbitRaw, RabbitCooked, RabbitStew;
     public static void preLoad(FMLPreInitializationEvent event) {
+        RabbitRaw = new ItemFood("RabbitRaw", "rabbit/rabbit", 3, 0.3F, 64, true);
+        RabbitCooked = new ItemFood("RabbitCooked", "rabbit/cooked_rabbit", 5, 0.6F, 64, true);
+        RabbitStew = new ItemSoup(10).setUnlocalizedName("RabbitStew")
+                .setTextureName("mbo:rabbit/rabbit_stew")
+                .setCreativeTab(CreativeTabRegistry.tabMBOfoods);
+        GameRegistry.registerItem(RabbitStew, "RabbitStew");
+        GameRegistry.addSmelting(RabbitRaw, new ItemStack(RabbitCooked), 0.35F);
+        GameRegistry.addShapelessRecipe(new ItemStack(RabbitStew), RabbitCooked, Items.carrot,
+                Items.baked_potato, Blocks.brown_mushroom, Items.bowl);
+        GameRegistry.addShapedRecipe(new ItemStack(Items.leather), "HH", "HH", 'H', ItemRegistry.RabbitHide);
         FoodBacon = new ItemFood("FoodBacon", "food/bacon", 6, 0.85F, 64, false);
         FoodBlackBread = new ItemFood("FoodBlackBread", "food/black_bread", 5, 0.7F, 64, false);
         FoodBurger = new ItemFood("FoodBurger", "food/burger", 8, 0.8F, 64, false);

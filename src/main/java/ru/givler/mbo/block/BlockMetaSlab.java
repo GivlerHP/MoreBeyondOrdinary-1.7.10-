@@ -7,6 +7,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemSlab;
 import net.minecraft.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
@@ -22,6 +23,7 @@ public class BlockMetaSlab extends BlockSlab {
     }
 
     private BlockMetaSlab singleSlabForDrops;
+    private int copperState = -1;
 
     private BlockMetaSlab(boolean isDouble, BlockMeta baseBlock, String texture, int meta) {
         super(isDouble, baseBlock.getMaterial());
@@ -77,6 +79,31 @@ public class BlockMetaSlab extends BlockSlab {
         return registerSlabs(baseBlock, textures);
     }
 
+    public int getCopperState() { return copperState; }
+
+    public boolean isDoubleSlab() { return field_150004_a; }
+
+    private BlockMetaSlab withCopper(int state) {
+        copperState = state;
+        setHardness(3.0F);
+        setResistance(6.0F);
+        setHarvestLevel("pickaxe", 1);
+        setTickRandomly((state & 8) == 0 && (state & 3) < 3);
+        return this;
+    }
+
+    @Override
+    public void updateTick(World world, int x, int y, int z, Random random) {
+        if (copperState >= 0 && !world.isRemote) CopperOxidation.tick(world, x, y, z, random);
+        else if (copperState < 0) super.updateTick(world, x, y, z, random);
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
+                                    int side, float hitX, float hitY, float hitZ) {
+        return copperState >= 0 && CopperOxidation.interact(world, x, y, z, player);
+    }
+
     public static BlockMetaSlab[] registerSlabs(BlockMeta baseBlock, String[] textures) {
         int count = textures.length;
         BlockMetaSlab[] result = new BlockMetaSlab[count];
@@ -96,6 +123,25 @@ public class BlockMetaSlab extends BlockSlab {
         }
 
         return result;
+    }
+
+    public static BlockMetaSlab[] registerCopperSlabs(BlockMeta baseBlock, BlockMetaSlab[] doubles,
+                                                       String[] textures) {
+        BlockMetaSlab[] singles = new BlockMetaSlab[12];
+        for (int stage = 0; stage < 4; stage++) for (int wax = 0; wax <= 8; wax += 8) {
+            int state = stage + wax;
+            BlockMetaSlab single = new BlockMetaSlab(false, baseBlock, textures[stage], state).withCopper(state);
+            BlockMetaSlab full = new BlockMetaSlab(true, baseBlock, textures[stage], state).withCopper(state);
+            String name = "CutCopperSlab" + state;
+            single.setBlockName(name);
+            full.setBlockName(name + "Double");
+            full.singleSlabForDrops = single;
+            GameRegistry.registerBlock(single, ItemMetaSlab.class, name, single, full, false);
+            GameRegistry.registerBlock(full, ItemMetaSlab.class, name + "Double", single, full, true);
+            singles[state] = single;
+            doubles[state] = full;
+        }
+        return singles;
     }
 
     public static void addStandardRecipes(BlockMetaSlab[] slabs, BlockMeta parent) {

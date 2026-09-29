@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
 import ru.givler.mbo.block.*;
 import ru.givler.mbo.block.craft.BlockArcanum;
 import ru.givler.mbo.block.magic.BlockMagicSnare;
@@ -25,6 +26,7 @@ public class BlockRegistry {
             CoralBlock, DeadCoralBlock, SmoothStone;
     public static BlockBarrier Barrier;
     public static BlockBarrel Barrel;
+    public static BlockCampfire Campfire;
     public static BlockSlimeMBO SlimeBlock;
     public static BlockBouncyMushroom BouncyBrownMushroomBlock, BouncyRedMushroomBlock;
     public static BlockModelCollision ModelCollisionPart;
@@ -58,7 +60,13 @@ public class BlockRegistry {
     public static Block MeteorBlock;
     public static BlockPetrifiedStatue PetrifiedStatue, FrozenStatue;
     public static BlockTemporaryMagic TemporaryCobweb, TemporaryFrost, TemporaryLight, TemporarySpectral;
-    public static Block LockableChest, LockableTrapdoor;
+    public static Block LockableChest, LockableTrapdoor, IronTrapdoor;
+    public static BlockMeta CopperBlock, CutCopper, ChiseledCopper, CopperGrate;
+    public static BlockMetaStairs[] CutCopperStairs;
+    public static BlockMetaSlab[] CutCopperSlabs, CutCopperDoubleSlabs;
+    public static TrapDoorBase[] CopperTrapdoors;
+    public static DoorBase[] CopperDoors;
+    public static BlockCopperBulb[] CopperBulbs;
     public static BlockLockableDoor LockableDoor;
     public static BlockPlatformStation PlatformStation;
     public static BlockInvertedDaylightDetector InvertedDaylightDetector;
@@ -88,12 +96,59 @@ public class BlockRegistry {
         BlockWoodenBox = new BlockBase(Material.wood, "BlockWoodenBox", "wood/wooden_box").setStepSound(Block.soundTypeWood);
         Barrel = new BlockBarrel();
         GameRegistry.registerBlock(Barrel, "Barrel");
+        Campfire = new BlockCampfire();
+        GameRegistry.registerBlock(Campfire, "Campfire");
         ModelCollisionPart = new BlockModelCollision();
         GameRegistry.registerBlock(ModelCollisionPart, "ModelCollisionPart");
         Barrier = new BlockBarrier();
         LockableChest = new BlockLockableChest();
         LockableDoor = new BlockLockableDoor();
         LockableTrapdoor = new BlockLockableTrapdoor();
+        IronTrapdoor = new TrapDoorBase(Material.iron, "IronTrapdoor", "iron_trapdoor")
+                .requireRedstone("mbo:iron_trapdoor.open", "mbo:iron_trapdoor.close");
+        CopperBlock = new BlockMeta(Material.iron, "CopperBlock", copperTextures(
+                "copper_block", "exposed_copper", "weathered_copper", "oxidized_copper")).withCopper(false);
+        CutCopper = new BlockMeta(Material.iron, "CutCopper", copperTextures(
+                "cut_copper", "exposed_cut_copper", "weathered_cut_copper", "oxidized_cut_copper")).withCopper(false);
+        ChiseledCopper = new BlockMeta(Material.iron, "ChiseledCopper", copperTextures(
+                "chiseled_copper", "exposed_chiseled_copper", "weathered_chiseled_copper", "oxidized_chiseled_copper")).withCopper(false);
+        CopperGrate = new BlockMeta(Material.iron, "CopperGrate", copperTextures(
+                "copper_grate", "exposed_copper_grate", "weathered_copper_grate", "oxidized_copper_grate")).withCopper(true);
+        CutCopperStairs = new BlockMetaStairs[12];
+        for (int stage = 0; stage < 4; stage++) {
+            CutCopperStairs[stage] = new BlockMetaStairs(CutCopper, stage,
+                    "CutCopperStairs" + stage, false).withCopper(stage);
+            CutCopperStairs[stage + 8] = new BlockMetaStairs(CutCopper, stage,
+                    "CutCopperStairs" + (stage + 8), false).withCopper(stage + 8);
+        }
+        CutCopperDoubleSlabs = new BlockMetaSlab[12];
+        CutCopperSlabs = BlockMetaSlab.registerCopperSlabs(CutCopper, CutCopperDoubleSlabs,
+                new String[] {"copper/cut_copper", "copper/exposed_cut_copper",
+                        "copper/weathered_cut_copper", "copper/oxidized_cut_copper"});
+        CopperTrapdoors = new TrapDoorBase[12];
+        String[] copperTrapdoorTextures = {"copper_trapdoor", "exposed_copper_trapdoor",
+                "weathered_copper_trapdoor", "oxidized_copper_trapdoor"};
+        for (int stage = 0; stage < 4; stage++) {
+            CopperTrapdoors[stage] = new TrapDoorBase(Material.iron, "CopperTrapdoor" + stage,
+                    "mbo:copper/" + copperTrapdoorTextures[stage]).withCopper(stage, CopperBlock.stepSound);
+            CopperTrapdoors[stage + 8] = new TrapDoorBase(Material.iron, "CopperTrapdoor" + (stage + 8),
+                    "mbo:copper/" + copperTrapdoorTextures[stage]).withCopper(stage + 8, CopperBlock.stepSound);
+        }
+        CopperDoors = new DoorBase[12];
+        String[] copperDoorTextures = {"copper_door", "exposed_copper_door",
+                "weathered_copper_door", "oxidized_copper_door"};
+        for (int stage = 0; stage < 4; stage++) {
+            CopperDoors[stage] = new DoorBase(Material.iron, "CopperDoor" + stage,
+                    "mbo:copper/" + copperDoorTextures[stage], null).withCopper(stage, CopperBlock.stepSound);
+            CopperDoors[stage + 8] = new DoorBase(Material.iron, "CopperDoor" + (stage + 8),
+                    "mbo:copper/" + copperDoorTextures[stage], null).withCopper(stage + 8, CopperBlock.stepSound);
+        }
+        CopperBulbs = new BlockCopperBulb[12];
+        for (int stage = 0; stage < 4; stage++) {
+            CopperBulbs[stage] = new BlockCopperBulb(stage);
+            CopperBulbs[stage + 8] = new BlockCopperBulb(stage + 8);
+        }
+        OreDictionary.registerOre("trapdoorIron", new ItemStack(IronTrapdoor));
         SlimeBlock = new BlockSlimeMBO();
         GameRegistry.registerBlock(SlimeBlock, "SlimeBlock");
         BouncyBrownMushroomBlock = BlockBouncyMushroom.brown();
@@ -272,6 +327,14 @@ public class BlockRegistry {
         FenceGateAcacia = new BlockBasicFenceGate("FenceGateAcacia", Blocks.planks, 4);
         FenceGateDarkOak = new BlockBasicFenceGate("FenceGateDarkOak", Blocks.planks, 5);
 
+    }
+
+    private static String[] copperTextures(String fresh, String exposed, String weathered, String oxidized) {
+        String[] stages = {fresh, exposed, weathered, oxidized};
+        String[] textures = new String[12];
+        for (int i = 0; i < textures.length; i++)
+            textures[i] = "copper/" + stages[i & 3];
+        return textures;
     }
 
     public static void initRecipe() {

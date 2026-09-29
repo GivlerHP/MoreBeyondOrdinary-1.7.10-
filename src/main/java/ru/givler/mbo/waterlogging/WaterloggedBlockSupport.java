@@ -21,7 +21,7 @@ public final class WaterloggedBlockSupport {
   private WaterloggedBlockSupport() {}
 
   public static boolean canWaterlog(World world, int x, int y, int z) {
-    if (world == null || y < 0 || y > 255) return false;
+    if (world == null || y < -64 || y > 255 || !world.blockExists(x, y, z)) return false;
     Block block = world.getBlock(x, y, z);
     if (block instanceof BlockStairs) return true;
     if (block instanceof BlockSlab) return !block.isOpaqueCube();

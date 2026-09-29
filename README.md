@@ -155,6 +155,10 @@ The project uses a dual-license model:
 
 See [LICENSE](LICENSE) for the full license text.
 
+The 12 campfire smoke textures in `src/main/resources/assets/mbo/textures/particle/campfire/`
+come from [Campfire Backport](https://github.com/connor135246/Campfire-Backport)
+and remain under its GPL-3.0 license.
+
 ## Credits
 
 **Author:** [Givler](https://discordapp.com/users/439862750764728343/)

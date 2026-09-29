@@ -7,7 +7,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 
@@ -41,11 +40,11 @@ public final class SpectatorEventHandler {
     }
 
     @SubscribeEvent public void onInteract(PlayerInteractEvent event) {
-        if (SpectatorManager.isSpectator(event.entityPlayer)) event.setCanceled(true);
-    }
-
-    @SubscribeEvent public void onEntityInteract(EntityInteractEvent event) {
-        if (SpectatorManager.isSpectator(event.entityPlayer)) event.setCanceled(true);
+        if (!SpectatorManager.isSpectator(event.entityPlayer)) return;
+        if (event.action != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK
+                && event.action != PlayerInteractEvent.Action.RIGHT_CLICK_AIR) {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent public void onBreak(BlockEvent.BreakEvent event) {

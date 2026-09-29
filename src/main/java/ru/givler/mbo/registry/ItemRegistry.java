@@ -5,6 +5,9 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import ru.givler.mbo.block.DoorBase;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraft.util.EnumChatFormatting;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.item.*;
@@ -34,6 +37,9 @@ public class ItemRegistry {
     public static net.minecraft.item.ItemBow BrokenBowHunting ;
     // переменные материалов
     public static Item Metal, SapphireHeart, SapphireEye, Crystall, GlyphVoid, Drop, TooltipDemo;
+    public static Item CopperIngot, Honeycomb;
+    public static Item RabbitHide, RabbitFoot;
+    public static DoorItemBase[] CopperDoorItems;
     // переменные амулетов
     public static Item HealingAmulet, VampirismAmulet, CleansingAmulet, PhoenixAmulet, CowardAmulet, DragonAmulet, StaminaAmulet, VeilAmulet,
         ThornsAmulet, StrengthAmulet, MercenaryAmulet, GoblinAmulet, GoldBasicAmulet, SilverBasicAmulet;
@@ -51,6 +57,27 @@ public class ItemRegistry {
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
+        CopperIngot = new ItemBase("CopperIngot", "copper/copper_ingot", 64);
+        OreDictionary.registerOre("ingotCopper", new ItemStack(CopperIngot));
+        Honeycomb = new ItemBase("Honeycomb", "copper/honeycomb", 64);
+        for (String waxName : new String[] {"materialWax", "materialWaxcomb",
+                "materialHoneycomb", "itemBeeswax"}) {
+            OreDictionary.registerOre(waxName, new ItemStack(Honeycomb));
+        }
+        RabbitHide = new ItemBase("RabbitHide", "rabbit/rabbit_hide", 64);
+        RabbitFoot = new ItemBase("RabbitFoot", "rabbit/rabbit_foot", 64);
+        RabbitFoot.setPotionEffect("+0+1-2+3&4-4+13");
+        CopperDoorItems = new DoorItemBase[12];
+        String[] copperDoorTextures = {"copper_door", "exposed_copper_door",
+                "weathered_copper_door", "oxidized_copper_door"};
+        for (int stage = 0; stage < 4; stage++) for (int wax = 0; wax <= 8; wax += 8) {
+            int state = stage + wax;
+            DoorBase block = BlockRegistry.CopperDoors[state];
+            CopperDoorItems[state] = new DoorItemBase(block, "CopperDoorItem" + state,
+                    "mbo:copper/" + copperDoorTextures[stage] + "_item");
+            CopperDoorItems[state].setMaxStackSize(64);
+            block.setDropItem(CopperDoorItems[state]);
+        }
         Lockpick = new ItemLockpick();
         AdminKey = new ItemAdminKey();
         AdminLighter = new ItemAdminLighter();

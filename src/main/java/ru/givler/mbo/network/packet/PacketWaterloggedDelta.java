@@ -33,7 +33,7 @@ public final class PacketWaterloggedDelta implements IMessage {
   public void fromBytes(ByteBuf buffer) {
     dimension = buffer.readInt();
     x = buffer.readInt();
-    y = buffer.readUnsignedByte();
+    y = buffer.readShort();
     z = buffer.readInt();
     waterlogged = buffer.readBoolean();
   }
@@ -42,7 +42,7 @@ public final class PacketWaterloggedDelta implements IMessage {
   public void toBytes(ByteBuf buffer) {
     buffer.writeInt(dimension);
     buffer.writeInt(x);
-    buffer.writeByte(y);
+    buffer.writeShort(y);
     buffer.writeInt(z);
     buffer.writeBoolean(waterlogged);
   }

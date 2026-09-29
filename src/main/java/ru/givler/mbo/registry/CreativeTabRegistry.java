@@ -129,7 +129,29 @@ public class CreativeTabRegistry {
           addIfPresent(list, BlockRegistry.LockableChest);
           addIfPresent(list, ItemRegistry.LockableDoorItem);
           addIfPresent(list, BlockRegistry.LockableTrapdoor);
+          addIfPresent(list, BlockRegistry.IronTrapdoor);
+          for (int stage = 0; stage < 4; stage++) {
+            list.add(new ItemStack(BlockRegistry.CopperBlock, 1, stage));
+            list.add(new ItemStack(BlockRegistry.CutCopper, 1, stage));
+            list.add(new ItemStack(BlockRegistry.ChiseledCopper, 1, stage));
+            list.add(new ItemStack(BlockRegistry.CopperGrate, 1, stage));
+            list.add(new ItemStack(BlockRegistry.CutCopperStairs[stage]));
+            list.add(new ItemStack(BlockRegistry.CutCopperSlabs[stage]));
+            list.add(new ItemStack(BlockRegistry.CopperTrapdoors[stage]));
+            list.add(new ItemStack(ItemRegistry.CopperDoorItems[stage]));
+            list.add(new ItemStack(BlockRegistry.CopperBulbs[stage]));
+            list.add(new ItemStack(BlockRegistry.CopperBlock, 1, stage + 8));
+            list.add(new ItemStack(BlockRegistry.CutCopper, 1, stage + 8));
+            list.add(new ItemStack(BlockRegistry.ChiseledCopper, 1, stage + 8));
+            list.add(new ItemStack(BlockRegistry.CopperGrate, 1, stage + 8));
+            list.add(new ItemStack(BlockRegistry.CutCopperStairs[stage + 8]));
+            list.add(new ItemStack(BlockRegistry.CutCopperSlabs[stage + 8]));
+            list.add(new ItemStack(BlockRegistry.CopperTrapdoors[stage + 8]));
+            list.add(new ItemStack(ItemRegistry.CopperDoorItems[stage + 8]));
+            list.add(new ItemStack(BlockRegistry.CopperBulbs[stage + 8]));
+          }
           list.add(new ItemStack(SlimeBlock));
+          list.add(new ItemStack(BlockRegistry.Campfire));
           list.add(new ItemStack(BouncyBrownMushroomBlock));
           list.add(new ItemStack(BouncyRedMushroomBlock));
           list.add(new ItemStack(BannerRegistry.loom));
@@ -258,6 +280,10 @@ public class CreativeTabRegistry {
         @SideOnly(Side.CLIENT)
         public void displayAllReleventItems(List list) {
 
+          list.add(new ItemStack(ItemRegistry.CopperIngot));
+          list.add(new ItemStack(ItemRegistry.Honeycomb));
+          list.add(new ItemStack(ItemRegistry.RabbitHide));
+          list.add(new ItemStack(ItemRegistry.RabbitFoot));
           list.add(new ItemStack(GlyphAmphibian));
           list.add(new ItemStack(GlyphDragon));
           list.add(new ItemStack(GlyphHawk));
@@ -404,6 +430,9 @@ public class CreativeTabRegistry {
           list.add(new ItemStack(FoodSoup));
           list.add(new ItemStack(FoodMeatPie));
           list.add(new ItemStack(FoodStrangeFish));
+          list.add(new ItemStack(FoodRegistry.RabbitRaw));
+          list.add(new ItemStack(FoodRegistry.RabbitCooked));
+          list.add(new ItemStack(FoodRegistry.RabbitStew));
 
           list.add(new ItemStack(DrinkWine));
           list.add(new ItemStack(DrinkAle));

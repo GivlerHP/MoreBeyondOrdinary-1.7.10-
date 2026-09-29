@@ -1,4 +1,5 @@
 {
+	"campfire.crackle": {"category": "block", "sounds": ["campfire/crackle1", "campfire/crackle2", "campfire/crackle3", "campfire/crackle4", "campfire/crackle5", "campfire/crackle6"]},
 	"arc": {"category": "player","sounds": [
 		{"name": "arc1","stream": false},
 		{"name": "arc2","stream": false},
@@ -147,9 +148,31 @@
   "lock_pin_fail": {"category": "block", "sounds": [{"name": "lock/pin_fail", "stream": false}]},
   "lock_pin_match": {"category": "block", "sounds": [{"name": "lock/pin_match1", "stream": false}, {"name": "lock/pin_match2", "stream": false}]},
 
+  "iron_trapdoor.open": {"category": "block", "sounds": [{"name": "trapdoor/iron/open1"}, {"name": "trapdoor/iron/open2"}, {"name": "trapdoor/iron/open3"}, {"name": "trapdoor/iron/open4"}]},
+  "iron_trapdoor.close": {"category": "block", "sounds": [{"name": "trapdoor/iron/close1"}, {"name": "trapdoor/iron/close2"}, {"name": "trapdoor/iron/close3"}, {"name": "trapdoor/iron/close4"}]},
+  "rabbit.ambient": {"category": "neutral", "sounds": [{"name": "rabbit/idle1"}, {"name": "rabbit/idle2"}, {"name": "rabbit/idle3"}, {"name": "rabbit/idle4"}]},
+  "rabbit.jump": {"category": "neutral", "sounds": [{"name": "rabbit/hop1"}, {"name": "rabbit/hop2"}, {"name": "rabbit/hop3"}, {"name": "rabbit/hop4"}]},
+  "rabbit.hurt": {"category": "neutral", "sounds": [{"name": "rabbit/hurt1"}, {"name": "rabbit/hurt2"}, {"name": "rabbit/hurt3"}, {"name": "rabbit/hurt4"}]},
+  "rabbit.death": {"category": "neutral", "sounds": [{"name": "rabbit/hurt1"}, {"name": "rabbit/hurt2"}, {"name": "rabbit/hurt3"}, {"name": "rabbit/hurt4"}]},
   "venik": {"category": "player","sounds": [
     {"name": "venik1","stream": false},
     {"name": "venik2","stream": false},
     {"name": "venik3","stream": false}
-  ]}
+  ]},
+  "copper.break": {"category": "block", "sounds": [{"name": "copper/break1"}, {"name": "copper/break2"}, {"name": "copper/break3"}, {"name": "copper/break4"}]},
+  "copper.step": {"category": "block", "sounds": [{"name": "copper/step1"}, {"name": "copper/step2"}, {"name": "copper/step3"}, {"name": "copper/step4"}, {"name": "copper/step5"}, {"name": "copper/step6"}]},
+  "copper.scrape": {"category": "block", "sounds": [{"name": "copper/scrape1"}, {"name": "copper/scrape2"}, {"name": "copper/scrape3"}]},
+  "copper.wax_off": {"category": "block", "sounds": [{"name": "copper/wax_off1"}, {"name": "copper/wax_off2"}, {"name": "copper/wax_off3"}]},
+  "copper.wax_on": {"category": "block", "sounds": [{"name": "copper/wax_on1"}, {"name": "copper/wax_on2"}, {"name": "copper/wax_on3"}]},
+  "copper.grate.break": {"category": "block", "sounds": [{"name": "copper/grate/break1"}, {"name": "copper/grate/break2"}, {"name": "copper/grate/break3"}, {"name": "copper/grate/break4"}]},
+  "copper.grate.step": {"category": "block", "sounds": [{"name": "copper/grate/step1"}, {"name": "copper/grate/step2"}, {"name": "copper/grate/step3"}, {"name": "copper/grate/step4"}, {"name": "copper/grate/step5"}, {"name": "copper/grate/step6"}]},
+  "copper.trapdoor.open": {"category": "block", "sounds": [{"name": "copper/trapdoor/toggle1"}, {"name": "copper/trapdoor/toggle2"}, {"name": "copper/trapdoor/toggle3"}, {"name": "copper/trapdoor/toggle4"}]},
+  "copper.trapdoor.close": {"category": "block", "sounds": [{"name": "copper/trapdoor/toggle1"}, {"name": "copper/trapdoor/toggle2"}, {"name": "copper/trapdoor/toggle3"}, {"name": "copper/trapdoor/toggle4"}]},
+  "copper.door.open": {"category": "block", "sounds": [{"name": "copper/door/toggle1"}, {"name": "copper/door/toggle2"}, {"name": "copper/door/toggle3"}]},
+  "copper.door.close": {"category": "block", "sounds": [{"name": "copper/door/toggle1"}, {"name": "copper/door/toggle2"}, {"name": "copper/door/toggle3"}]},
+  "copper.bulb.break": {"category": "block", "sounds": [{"name": "copper/bulb/break1"}, {"name": "copper/bulb/break2"}, {"name": "copper/bulb/break3"}, {"name": "copper/bulb/break4"}]},
+  "copper.bulb.place": {"category": "block", "sounds": [{"name": "copper/bulb/place1"}, {"name": "copper/bulb/place2"}, {"name": "copper/bulb/place3"}, {"name": "copper/bulb/place4"}]},
+  "copper.bulb.step": {"category": "block", "sounds": [{"name": "copper/bulb/step1"}, {"name": "copper/bulb/step2"}, {"name": "copper/bulb/step3"}, {"name": "copper/bulb/step4"}, {"name": "copper/bulb/step5"}, {"name": "copper/bulb/step6"}]},
+  "copper.bulb.on": {"category": "block", "sounds": [{"name": "copper/bulb/toggle"}]},
+  "copper.bulb.off": {"category": "block", "sounds": [{"name": "copper/bulb/toggle"}]}
 }

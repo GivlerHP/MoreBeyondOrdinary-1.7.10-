@@ -5,23 +5,31 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import ru.givler.mbo.item.ItemBlockMetadata;
 import ru.givler.mbo.registry.CreativeTabRegistry;
+import java.util.Random;
 
 // Класс создающий ступеньки из метаблоков (BlockMeta)
 public class BlockMetaStairs extends BlockStairs {
     private final BlockMeta baseBlock;
     private final int meta;
+    private int copperState = -1;
 
 
     public BlockMetaStairs(BlockMeta baseBlock, int meta) {
+        this(baseBlock, meta, baseBlock.getUnlocalizedName() + "_stairs_" + meta, true);
+    }
+
+    public BlockMetaStairs(BlockMeta baseBlock, int meta, String registrationName, boolean addRecipe) {
         super(baseBlock, meta); // Используем текстуру базового блока с указанным метаданным
         this.baseBlock = baseBlock;
         this.meta = meta;
 
 
-        this.setBlockName(baseBlock.getUnlocalizedName() + "_stairs_" + meta ); // Уникальное имя
+        this.setBlockName(registrationName); // Уникальное имя
         this.setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         this.setHardness(baseBlock.getBlockHardness(null, 0, 0, 0)); // Твёрдость
         this.setResistance(baseBlock.getExplosionResistance(null)); // Сопротивление взрывам
@@ -31,9 +39,33 @@ public class BlockMetaStairs extends BlockStairs {
         this.setLightOpacity(baseBlock.getLightOpacity()); // Прозрачность
         this.useNeighborBrightness = true; // Улучшенная обработка освещения
 
-        GameRegistry.registerBlock(this, ItemBlockMetadata.class, baseBlock.getUnlocalizedName() + "_stairs_" + meta);
-        GameRegistry.addRecipe(new ItemStack(this, 4),
+        if (addRecipe) GameRegistry.registerBlock(this, ItemBlockMetadata.class, registrationName);
+        else GameRegistry.registerBlock(this, registrationName);
+        if (addRecipe) GameRegistry.addRecipe(new ItemStack(this, 4),
                 new Object[]{"X  ", "XX ", "XXX", 'X', new ItemStack(baseBlock, 1, meta)});
+    }
+
+    public BlockMetaStairs withCopper(int state) {
+        copperState = state;
+        setHardness(3.0F);
+        setResistance(6.0F);
+        setHarvestLevel("pickaxe", 1);
+        setTickRandomly((state & 8) == 0 && (state & 3) < 3);
+        return this;
+    }
+
+    public int getCopperState() { return copperState; }
+
+    @Override
+    public void updateTick(World world, int x, int y, int z, Random random) {
+        if (copperState >= 0 && !world.isRemote) CopperOxidation.tick(world, x, y, z, random);
+        else if (copperState < 0) super.updateTick(world, x, y, z, random);
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
+                                    int side, float hitX, float hitY, float hitZ) {
+        return copperState >= 0 && CopperOxidation.interact(world, x, y, z, player);
     }
 
     @Override

@@ -31,7 +31,7 @@ public final class WaterloggedFlowQueue {
       int checkX = x + offset[0];
       int checkY = y + offset[1];
       int checkZ = z + offset[2];
-      if (checkY < 0
+      if (checkY < -64
           || checkY >= world.getHeight()
           || !world.blockExists(checkX, checkY, checkZ)
           || !WaterloggedBlockSupport.canWaterlog(world, checkX, checkY, checkZ)) continue;
@@ -112,7 +112,7 @@ public final class WaterloggedFlowQueue {
       int waterX = x + offset[0];
       int waterY = y + offset[1];
       int waterZ = z + offset[2];
-      if (waterY < 0 || waterY >= world.getHeight()) continue;
+      if (waterY < -64 || waterY >= world.getHeight()) continue;
       Block water = world.getBlock(waterX, waterY, waterZ);
       if (water.getMaterial() != Material.water) continue;
       water.onNeighborBlockChange(world, waterX, waterY, waterZ, world.getBlock(x, y, z));
@@ -132,7 +132,8 @@ public final class WaterloggedFlowQueue {
   }
 
   private static int unpackY(long packed) {
-    return (int) (packed & 0xFFFL);
+    int y = (int) (packed & 0xFFFL);
+    return y >= 2048 ? y - 4096 : y;
   }
 
   private static int unpackZ(long packed) {

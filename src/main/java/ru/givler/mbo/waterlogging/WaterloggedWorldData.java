@@ -41,11 +41,13 @@ public final class WaterloggedWorldData extends WorldSavedData {
   }
 
   public boolean contains(int x, int y, int z) {
+    if (y < -64 || y > 255) return false;
     WaterloggedChunk positions = chunks.get(chunkKey(x >> 4, z >> 4));
     return positions != null && positions.contains(pack(x, y, z));
   }
 
   public byte ingressMask(int x, int y, int z) {
+    if (y < -64 || y > 255) return 0;
     WaterloggedChunk positions = chunks.get(chunkKey(x >> 4, z >> 4));
     return positions == null ? 0 : positions.mask(pack(x, y, z));
   }
@@ -59,6 +61,7 @@ public final class WaterloggedWorldData extends WorldSavedData {
   }
 
   public boolean set(World world, int x, int y, int z, boolean waterlogged) {
+    if (y < -64 || y > 255) return false;
     if (waterlogged && !WaterloggedBlockSupport.canWaterlog(world, x, y, z)) return false;
     long chunkKey = chunkKey(x >> 4, z >> 4);
     WaterloggedChunk positions = chunks.get(chunkKey);
@@ -118,7 +121,7 @@ public final class WaterloggedWorldData extends WorldSavedData {
     for (Map.Entry<Long, WaterloggedChunk> entry : chunks.entrySet()) {
       int chunkX = (int) (entry.getKey() >> 32);
       int chunkZ = (int) (long) entry.getKey();
-      for (short packed : entry.getValue().values()) result.add(unpack(chunkX, chunkZ, packed));
+      for (int packed : entry.getValue().values()) result.add(unpack(chunkX, chunkZ, packed));
     }
     return Collections.unmodifiableList(result);
   }
@@ -129,14 +132,20 @@ public final class WaterloggedWorldData extends WorldSavedData {
     NBTTagList list = tag.getTagList("Chunks", 10);
     for (int i = 0; i < list.tagCount(); i++) {
       NBTTagCompound chunk = list.getCompoundTagAt(i);
-      byte[] bytes = chunk.getByteArray("Positions");
+      byte[] bytes = chunk.hasKey("PositionsV2")
+          ? chunk.getByteArray("PositionsV2") : chunk.getByteArray("Positions");
       byte[] masks = chunk.getByteArray("Ingress");
-      if ((bytes.length & 1) != 0) continue;
+      boolean newFormat = chunk.hasKey("PositionsV2");
+      int stride = newFormat ? 3 : 2;
+      if (bytes.length % stride != 0) continue;
       WaterloggedChunk positions = new WaterloggedChunk();
-      for (int p = 0; p < bytes.length; p += 2) {
-        byte mask = p / 2 < masks.length ? masks[p / 2] : ALL_FACES;
+      for (int p = 0; p < bytes.length; p += stride) {
+        byte mask = p / stride < masks.length ? masks[p / stride] : ALL_FACES;
         if (mask == 0x3F) mask = ALL_FACES;
-        positions.add((short) ((bytes[p] & 255) << 8 | bytes[p + 1] & 255), mask);
+        int packed = newFormat
+            ? (bytes[p] & 255) << 16 | (bytes[p + 1] & 255) << 8 | bytes[p + 2] & 255
+            : oldPosition((bytes[p] & 255) << 8 | bytes[p + 1] & 255);
+        if (packed < (1 << 17) && (packed & 511) < 320) positions.add(packed, mask);
       }
       if (!positions.isEmpty())
         positionsFor(chunk.getInteger("X"), chunk.getInteger("Z"), positions);
@@ -150,13 +159,14 @@ public final class WaterloggedWorldData extends WorldSavedData {
       NBTTagCompound chunk = new NBTTagCompound();
       chunk.setInteger("X", (int) (entry.getKey() >> 32));
       chunk.setInteger("Z", (int) (long) entry.getKey());
-      byte[] bytes = new byte[entry.getValue().size() * 2];
+      byte[] bytes = new byte[entry.getValue().size() * 3];
       int index = 0;
-      for (short position : entry.getValue().values()) {
+      for (int position : entry.getValue().values()) {
+        bytes[index++] = (byte) (position >>> 16);
         bytes[index++] = (byte) (position >>> 8);
         bytes[index++] = (byte) position;
       }
-      chunk.setByteArray("Positions", bytes);
+      chunk.setByteArray("PositionsV2", bytes);
       chunk.setByteArray("Ingress", entry.getValue().masks());
       list.appendTag(chunk);
     }
@@ -167,14 +177,18 @@ public final class WaterloggedWorldData extends WorldSavedData {
     chunks.put(chunkKey(chunkX, chunkZ), positions);
   }
 
-  private static short pack(int x, int y, int z) {
-    return (short) ((x & 15) << 12 | (z & 15) << 8 | y & 255);
+  private static int pack(int x, int y, int z) {
+    return (x & 15) << 13 | (z & 15) << 9 | (y + 64);
   }
 
-  private static Position unpack(int chunkX, int chunkZ, short packedValue) {
-    int packed = packedValue & 65535;
+  private static int oldPosition(int packed) {
+    return (packed >>> 12) << 13 | (packed >>> 8 & 15) << 9 | (packed & 255) + 64;
+  }
+
+  private static Position unpack(int chunkX, int chunkZ, int packed) {
     return new Position(
-        (chunkX << 4) | packed >>> 12, packed & 255, (chunkZ << 4) | packed >>> 8 & 15);
+        (chunkX << 4) | packed >>> 13, (packed & 511) - 64,
+        (chunkZ << 4) | packed >>> 9 & 15);
   }
 
   private static long chunkKey(int x, int z) {
@@ -182,19 +196,19 @@ public final class WaterloggedWorldData extends WorldSavedData {
   }
 
   private static final class WaterloggedChunk {
-    private short[] positions = new short[0];
+    private int[] positions = new int[0];
     private byte[] ingress = new byte[0];
 
-    boolean contains(short position) {
+    boolean contains(int position) {
       return Arrays.binarySearch(positions, position) >= 0;
     }
 
-    byte mask(short position) {
+    byte mask(int position) {
       int index = Arrays.binarySearch(positions, position);
       return index < 0 ? 0 : ingress[index];
     }
 
-    boolean add(short position, byte mask) {
+    boolean add(int position, byte mask) {
       int index = Arrays.binarySearch(positions, position);
       if (index >= 0) {
         byte combined = (byte) (ingress[index] | mask);
@@ -203,7 +217,7 @@ public final class WaterloggedWorldData extends WorldSavedData {
         return true;
       }
       index = -index - 1;
-      short[] expanded = new short[positions.length + 1];
+      int[] expanded = new int[positions.length + 1];
       byte[] expandedIngress = new byte[ingress.length + 1];
       System.arraycopy(positions, 0, expanded, 0, index);
       System.arraycopy(ingress, 0, expandedIngress, 0, index);
@@ -216,10 +230,10 @@ public final class WaterloggedWorldData extends WorldSavedData {
       return true;
     }
 
-    boolean remove(short position) {
+    boolean remove(int position) {
       int index = Arrays.binarySearch(positions, position);
       if (index < 0) return false;
-      short[] reduced = new short[positions.length - 1];
+      int[] reduced = new int[positions.length - 1];
       byte[] reducedIngress = new byte[ingress.length - 1];
       System.arraycopy(positions, 0, reduced, 0, index);
       System.arraycopy(ingress, 0, reducedIngress, 0, index);
@@ -234,7 +248,7 @@ public final class WaterloggedWorldData extends WorldSavedData {
       return positions.length == 0;
     }
 
-    short[] values() {
+    int[] values() {
       return positions;
     }
 

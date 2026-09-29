@@ -64,6 +64,7 @@ import ru.givler.mbo.core.CauldronHooks;
 import ru.givler.mbo.config.PlayerPingConfig;
 import ru.givler.mbo.config.GameplayConfig;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
+import ru.givler.mbo.entity.EntityRabbit;
 import ru.givler.mbo.entity.boat.EntityMBOBoatSeat;
 import ru.givler.mbo.entity.boat.EntityMBOChestBoat;
 import ru.givler.mbo.entity.magic.EntityMagicMissile;
@@ -110,6 +111,7 @@ import ru.givler.mbo.particles.ParticleSettings;
 import ru.givler.mbo.particles.ParticleSpell;
 import ru.givler.mbo.particles.ParticleBlizzard;
 import ru.givler.mbo.particles.ParticleTextured;
+import ru.givler.mbo.particles.ParticleCampfireSmoke;
 import ru.givler.mbo.particles.ParticleTornado;
 import ru.givler.mbo.particles.ParticlePath;
 import ru.givler.mbo.registry.BannerRegistry;
@@ -119,6 +121,7 @@ import ru.givler.mbo.registry.StonecutterRegistry;
 import ru.givler.mbo.spectator.SpectatorClientHandler;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.tileentity.TileEntityBanner;
+import ru.givler.mbo.tileentity.TileEntityCampfire;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
@@ -174,6 +177,10 @@ public class ClientProxy extends CommonProxy {
     int slimeRenderId = RenderingRegistry.getNextAvailableRenderId();
     BlockRegistry.SlimeBlock.setSlimeRenderType(slimeRenderId);
     RenderingRegistry.registerBlockHandler(new RenderSlimeBlock(slimeRenderId));
+    int campfireRenderId = RenderingRegistry.getNextAvailableRenderId();
+    BlockRegistry.Campfire.setCampfireRenderType(campfireRenderId);
+    RenderingRegistry.registerBlockHandler(new RenderCampfire(campfireRenderId));
+    ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCampfire.class, new RenderCampfireFood());
     int stonecutterRenderId = RenderingRegistry.getNextAvailableRenderId();
     StonecutterRegistry.stonecutter.setStonecutterRenderType(stonecutterRenderId);
     RenderingRegistry.registerBlockHandler(new RenderStonecutter(stonecutterRenderId));
@@ -274,6 +281,7 @@ public class ClientProxy extends CommonProxy {
         new ru.givler.mbo.client.render.SmoothOpeningRenderer();
     FMLCommonHandler.instance().bus().register(smoothOpeningRenderer);
     MinecraftForge.EVENT_BUS.register(smoothOpeningRenderer);
+    MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.render.OpeningJsonRenderer.INSTANCE);
     F3AOcclusionFix.register();
 
     if (Loader.isModLoaded("NotEnoughItems")) {
@@ -366,6 +374,7 @@ public class ClientProxy extends CommonProxy {
         ItemRegistry.DragonSlayer, new RenderWeapon(1.8F, -0.68F, -0.10F, 0.01F));
     MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenBowHunting, new RenderCrossbow());
     RenderStoneGolem.register();
+    RenderingRegistry.registerEntityRenderingHandler(EntityRabbit.class, new RenderRabbit());
   }
 
   private static void invokeOptional(String className, String method) {
@@ -426,6 +435,17 @@ public class ClientProxy extends CommonProxy {
         particle = new ParticleSparkle(
             world, x, y, z, motionX, motionY, motionZ, settings);
         break;
+      case COPPER_WAX_ON:
+      case COPPER_WAX_OFF:
+      case COPPER_SCRAPE:
+        float red = type == EnumParticleType.COPPER_SCRAPE ? 0.47F : 1.0F;
+        float green = type == EnumParticleType.COPPER_WAX_ON ? 0.64F
+                : type == EnumParticleType.COPPER_SCRAPE ? 0.85F : 1.0F;
+        float blue = type == EnumParticleType.COPPER_WAX_ON ? 0.17F
+                : type == EnumParticleType.COPPER_SCRAPE ? 0.76F : 1.0F;
+        particle = new ParticleSparkle(world, x, y, z, motionX, motionY, motionZ,
+                30 + world.rand.nextInt(26), red, green, blue);
+        break;
       case DUST:
         particle = new ParticleSpell(world, x, y, z, motionX, motionY, motionZ, settings, 7);
         break;
@@ -474,6 +494,20 @@ public class ClientProxy extends CommonProxy {
     Minecraft.getMinecraft().effectRenderer.addEffect(
         new ParticleSparkle(
             world, x, y, z, motionX, motionY, motionZ, maxAge, red, green, blue));
+  }
+
+  @Override
+  public void spawnCampfireParticles(World world, int x, int y, int z, ItemStack[] food) {
+    if (world.rand.nextFloat() < .11F) {
+      int count = 2 + world.rand.nextInt(2);
+      for (int i = 0; i < count; i++)
+        Minecraft.getMinecraft().effectRenderer.addEffect(new ParticleCampfireSmoke(world, x, y, z));
+    }
+    double[][] smoke = {{.78125,.51,.1875},{.78125,.51,.78125},
+        {.21875,.51,.8125},{.1875,.51,.21875}};
+    for (int i = 0; i < 4; i++) if (food[i] != null && world.rand.nextFloat() < .2F)
+      world.spawnParticle("smoke", x + smoke[i][0], y + smoke[i][1], z + smoke[i][2],
+          0, .0005, 0);
   }
 
   @Override

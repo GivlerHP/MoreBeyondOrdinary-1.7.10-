@@ -4,13 +4,62 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 import ru.givler.mbo.block.BlockMeta;
 import ru.givler.mbo.block.BlockMetaSlab;
 import ru.givler.mbo.registry.BlockRegistry;
+import ru.givler.mbo.registry.ItemRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
 public class BlockRecipeRegistry {
     public static void init() {
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.Campfire),
+                " S ", "SCS", "LLL", 'S', "stickWood", 'C', Items.coal, 'L', "logWood"));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.CopperBlock),
+                "III", "III", "III", 'I', "ingotCopper"));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ItemRegistry.CopperIngot, 9),
+                "B", 'B', new ItemStack(BlockRegistry.CopperBlock)));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.CutCopper, 4),
+                "BB", "BB", 'B', new ItemStack(BlockRegistry.CopperBlock)));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.ChiseledCopper),
+                "B", "B", 'B', new ItemStack(BlockRegistry.CutCopperSlabs[0])));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.CopperGrate, 4),
+                " B ", "B B", " B ", 'B', new ItemStack(BlockRegistry.CopperBlock)));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.CutCopperStairs[0], 4),
+                "B  ", "BB ", "BBB", 'B', new ItemStack(BlockRegistry.CutCopper)));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.CutCopperSlabs[0], 6),
+                "BBB", 'B', new ItemStack(BlockRegistry.CutCopper)));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.CopperTrapdoors[0], 2),
+                "III", "III", 'I', "ingotCopper"));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ItemRegistry.CopperDoorItems[0], 3),
+                "II", "II", "II", 'I', "ingotCopper"));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.CopperBulbs[0], 4),
+                " C ", "CBC", " R ", 'C', new ItemStack(BlockRegistry.CopperBlock),
+                'B', Items.blaze_rod, 'R', "dustRedstone"));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ItemRegistry.Honeycomb),
+                " S ", "SLS", " S ", 'S', Items.sugar, 'L', Items.slime_ball));
+        for (int stage = 0; stage < 4; stage++) {
+            addWaxRecipe(new ItemStack(BlockRegistry.CopperBlock, 1, stage),
+                    new ItemStack(BlockRegistry.CopperBlock, 1, stage + 8));
+            addWaxRecipe(new ItemStack(BlockRegistry.CutCopper, 1, stage),
+                    new ItemStack(BlockRegistry.CutCopper, 1, stage + 8));
+            addWaxRecipe(new ItemStack(BlockRegistry.ChiseledCopper, 1, stage),
+                    new ItemStack(BlockRegistry.ChiseledCopper, 1, stage + 8));
+            addWaxRecipe(new ItemStack(BlockRegistry.CopperGrate, 1, stage),
+                    new ItemStack(BlockRegistry.CopperGrate, 1, stage + 8));
+            addWaxRecipe(new ItemStack(BlockRegistry.CutCopperStairs[stage]),
+                    new ItemStack(BlockRegistry.CutCopperStairs[stage + 8]));
+            addWaxRecipe(new ItemStack(BlockRegistry.CutCopperSlabs[stage]),
+                    new ItemStack(BlockRegistry.CutCopperSlabs[stage + 8]));
+            addWaxRecipe(new ItemStack(BlockRegistry.CopperTrapdoors[stage]),
+                    new ItemStack(BlockRegistry.CopperTrapdoors[stage + 8]));
+            addWaxRecipe(new ItemStack(ItemRegistry.CopperDoorItems[stage]),
+                    new ItemStack(ItemRegistry.CopperDoorItems[stage + 8]));
+            addWaxRecipe(new ItemStack(BlockRegistry.CopperBulbs[stage]),
+                    new ItemStack(BlockRegistry.CopperBulbs[stage + 8]));
+        }
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.IronTrapdoor),
+                "II", "II", 'I', "ingotIron"));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.Barrel),
                 "PSP", "P P", "PSP", 'P', "plankWood", 'S', "slabWood"));
         //Серый камень
@@ -103,5 +152,9 @@ public class BlockRecipeRegistry {
         BlockMetaSlab.addStandardRecipes(
                 BlockRegistry.SlabPrismarine, (BlockMeta) BlockRegistry.BlockPrismarine);
 
+    }
+
+    private static void addWaxRecipe(ItemStack input, ItemStack output) {
+        GameRegistry.addRecipe(new ShapelessOreRecipe(output, input, "materialHoneycomb"));
     }
 }

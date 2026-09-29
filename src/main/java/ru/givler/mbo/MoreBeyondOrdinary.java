@@ -8,9 +8,12 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import ru.givler.mbo.command.CommandEffectExtended;
 import ru.givler.mbo.command.CommandGameModeExtended;
+import ru.givler.mbo.command.CommandSpeed;
+import ru.givler.mbo.command.SpeedEventHandler;
 import ru.givler.mbo.config.IntegrationConfig;
 import ru.givler.mbo.config.GameplayConfig;
 import ru.givler.mbo.config.LockSecurityConfig;
@@ -81,10 +84,13 @@ public class MoreBeyondOrdinary {
     // Both implementations delegate all unchanged syntax to the vanilla commands.
     event.registerServerCommand(new CommandEffectExtended());
     event.registerServerCommand(new CommandGameModeExtended());
+    event.registerServerCommand(new CommandSpeed());
+    FMLCommonHandler.instance().bus().register(new SpeedEventHandler());
   }
 
   @Mod.EventHandler
   public void serverStarted(FMLServerStartedEvent event) {
     BukkitSpectatorCommandBridge.install();
+    ru.givler.mbo.integration.bukkit.BukkitSpeedCommandBridge.install();
   }
 }

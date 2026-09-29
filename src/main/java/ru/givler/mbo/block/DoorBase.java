@@ -29,6 +29,7 @@ public class DoorBase extends BlockDoor {
     private final String doorName;
     private final String textureName;
     private Item dropItem;
+    private int copperState = -1;
 
     /**
      * Универсальный класс для создания дверей
@@ -59,6 +60,25 @@ public class DoorBase extends BlockDoor {
      */
     public void setDropItem(Item item) {
         this.dropItem = item;
+    }
+
+    public DoorBase withCopper(int state, SoundType sound) {
+        copperState = state;
+        setHardness(3.0F);
+        setResistance(6.0F);
+        setHarvestLevel("pickaxe", 1);
+        setStepSound(sound);
+        setTickRandomly((state & 8) == 0 && (state & 3) < 3);
+        return this;
+    }
+
+    public int getCopperState() { return copperState; }
+
+    @Override
+    public void updateTick(World world, int x, int y, int z, Random random) {
+        if (copperState >= 0 && !world.isRemote && (world.getBlockMetadata(x, y, z) & 8) != 0)
+            CopperOxidation.tick(world, x, y, z, random);
+        else if (copperState < 0) super.updateTick(world, x, y, z, random);
     }
 
     @Override
@@ -157,6 +177,18 @@ public class DoorBase extends BlockDoor {
 
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+        if (copperState >= 0) {
+            int bottomY = (world.getBlockMetadata(x, y, z) & 8) != 0 ? y - 1 : y;
+            if (CopperOxidation.interact(world, x, bottomY, z, player)) return true;
+            if (!world.isRemote) {
+                int bottomMeta = world.getBlockMetadata(x, bottomY, z);
+                boolean open = (bottomMeta & 4) == 0;
+                world.setBlockMetadataWithNotify(x, bottomY, z, bottomMeta ^ 4, 2);
+                world.markBlockRangeForRenderUpdate(x, bottomY, z, x, bottomY + 1, z);
+                playCopperSound(world, x, bottomY, z, open);
+            }
+            return true;
+        }
         if (this.blockMaterial == Material.iron) {
             return false; // Железные двери не открываются вручную
         }
@@ -175,5 +207,25 @@ public class DoorBase extends BlockDoor {
 
         world.playAuxSFXAtEntity(player, 1003, x, y, z, 0);
         return true;
+    }
+
+    @Override
+    public void func_150014_a(World world, int x, int y, int z, boolean powered) {
+        if (copperState < 0) {
+            super.func_150014_a(world, x, y, z, powered);
+            return;
+        }
+        if (world.isRemote) return;
+        int bottomY = (world.getBlockMetadata(x, y, z) & 8) != 0 ? y - 1 : y;
+        int meta = world.getBlockMetadata(x, bottomY, z);
+        if (((meta & 4) != 0) == powered) return;
+        world.setBlockMetadataWithNotify(x, bottomY, z, meta ^ 4, 2);
+        world.markBlockRangeForRenderUpdate(x, bottomY, z, x, bottomY + 1, z);
+        playCopperSound(world, x, bottomY, z, powered);
+    }
+
+    private void playCopperSound(World world, int x, int y, int z, boolean open) {
+        world.playSoundEffect(x + 0.5D, y + 0.5D, z + 0.5D,
+                open ? "mbo:copper.door.open" : "mbo:copper.door.close", 1.0F, 1.0F);
     }
 }

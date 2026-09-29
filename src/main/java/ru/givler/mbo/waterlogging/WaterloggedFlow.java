@@ -93,7 +93,7 @@ public final class WaterloggedFlow {
   }
 
   public static boolean flowDown(World world, WaterloggedWorldData data, int x, int y, int z) {
-    if (world.isRemote || y <= 0 || !canFlowTo(world, data, x, y, z, 0, -1, 0)) return false;
+    if (world.isRemote || y <= -64 || !canFlowTo(world, data, x, y, z, 0, -1, 0)) return false;
 
     int belowY = y - 1;
     if (WaterloggedBlockSupport.canWaterlog(world, x, belowY, z)) {

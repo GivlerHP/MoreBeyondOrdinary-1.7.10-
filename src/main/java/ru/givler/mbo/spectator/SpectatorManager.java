@@ -33,7 +33,10 @@ public final class SpectatorManager {
 
     public static void leave(EntityPlayerMP player) {
         persisted(player).setBoolean(ACTIVE, false);
-        moveOutOfBlocks(player);
+        player.motionX = 0;
+        player.motionY = 0;
+        player.motionZ = 0;
+        player.fallDistance = 0;
         player.noClip = false;
         player.setInvisible(false);
         player.capabilities.disableDamage = false;
@@ -42,18 +45,6 @@ public final class SpectatorManager {
         player.capabilities.allowEdit = true;
         player.sendPlayerAbilities();
         syncAll(player, false);
-    }
-
-    private static void moveOutOfBlocks(EntityPlayerMP player) {
-        int attempts = 0;
-        while (!player.worldObj.getCollidingBoundingBoxes(player, player.boundingBox).isEmpty()
-                && player.posY < player.worldObj.getHeight() - 2 && attempts++ < 256) {
-            player.setPositionAndUpdate(player.posX, Math.floor(player.posY) + 1.01D, player.posZ);
-        }
-        player.motionX = 0;
-        player.motionY = 0;
-        player.motionZ = 0;
-        player.fallDistance = 0;
     }
 
     public static void apply(EntityPlayer player) {

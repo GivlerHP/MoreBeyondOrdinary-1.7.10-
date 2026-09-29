@@ -35,12 +35,12 @@ public final class PacketWaterloggedSnapshot implements IMessage {
   public void fromBytes(ByteBuf buffer) {
     dimension = buffer.readInt();
     int count = buffer.readInt();
-    if (count < 0 || count > MAX_POSITIONS || buffer.readableBytes() < count * 9) return;
+    if (count < 0 || count > MAX_POSITIONS || buffer.readableBytes() < count * 10) return;
     positions = new ArrayList<WaterloggedWorldData.Position>(count);
     for (int i = 0; i < count; i++)
       positions.add(
           new WaterloggedWorldData.Position(
-              buffer.readInt(), buffer.readUnsignedByte(), buffer.readInt()));
+              buffer.readInt(), buffer.readShort(), buffer.readInt()));
   }
 
   @Override
@@ -49,7 +49,7 @@ public final class PacketWaterloggedSnapshot implements IMessage {
     buffer.writeInt(positions.size());
     for (WaterloggedWorldData.Position position : positions) {
       buffer.writeInt(position.x);
-      buffer.writeByte(position.y);
+      buffer.writeShort(position.y);
       buffer.writeInt(position.z);
     }
   }

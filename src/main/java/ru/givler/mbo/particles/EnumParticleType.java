@@ -20,7 +20,10 @@ public enum EnumParticleType {
   VANILLA_MAGICCRIT,
   VANILLA_HEART,
   VANILLA_SPLASH,
-  VANILLA_BUBBLE;
+  VANILLA_BUBBLE,
+  COPPER_WAX_ON,
+  COPPER_WAX_OFF,
+  COPPER_SCRAPE;
 
   /** Возвращает строку для world.spawnParticle(), только для VANILLA_* типов */
   public String getVanillaName() {

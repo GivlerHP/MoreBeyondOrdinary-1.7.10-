@@ -35,6 +35,7 @@ import ru.givler.mbo.spectator.SpectatorEventHandler;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.tileentity.TileEntityArcanum;
 import ru.givler.mbo.tileentity.TileEntityBarrel;
+import ru.givler.mbo.tileentity.TileEntityCampfire;
 import ru.givler.mbo.tileentity.TileEntityLockableChest;
 import ru.givler.mbo.tileentity.TileEntityLockableDoor;
 import ru.givler.mbo.tileentity.TileEntityLockableTrapdoor;
@@ -94,6 +95,7 @@ public class CommonProxy {
     BannerRegistry.init();
     StonecutterRegistry.init();
     MinecraftForge.EVENT_BUS.register(new PotionEvents());
+    MinecraftForge.EVENT_BUS.register(new RabbitEvents());
     MinecraftForge.EVENT_BUS.register(new BeltEvents());
     FMLCommonHandler.instance().bus().register(new BeltEvents());
     MinecraftForge.EVENT_BUS.register(new RingEvents());
@@ -146,6 +148,7 @@ public class CommonProxy {
     GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
     GameRegistry.registerTileEntity(TileEntityLootContainer.class, "loot_container_tile");
     GameRegistry.registerTileEntity(TileEntityBarrel.class, "mbo_barrel");
+    GameRegistry.registerTileEntity(TileEntityCampfire.class, "mbo_campfire");
     GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileEntityBanner.class, "mbo_banner");
     GameRegistry.registerTileEntity(TileEntityLockableChest.class, "mbo_lockable_chest");
     GameRegistry.registerTileEntity(TileEntityLockableDoor.class, "mbo_lockable_door");
@@ -206,6 +209,8 @@ public class CommonProxy {
       double motionX,
       double motionY,
       double motionZ) {}
+
+  public void spawnCampfireParticles(World world, int x, int y, int z, ItemStack[] food) {}
 
   public void spawnParticle(
       EnumParticleType type, World world, double x, double y, double z,

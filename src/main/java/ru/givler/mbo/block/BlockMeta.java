@@ -9,18 +9,24 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import ru.givler.mbo.item.ItemBlockMetadata;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 
 import java.util.List;
+import java.util.Random;
 
 //класс необходимых для блоков с метаданными. Если есть много блоков одного типа, их можно сделать через этот класс, тогда это потребует лишь 1 id.
 public class BlockMeta extends Block {
 
     private int count;
     private String[] textureNames;
+    private boolean copper;
+    private boolean copperGrate;
     @SideOnly(Side.CLIENT)
     private IIcon[] icon;
 
@@ -45,6 +51,25 @@ public class BlockMeta extends Block {
         this.textureNames = textures;
     }
 
+    public BlockMeta withCopper(boolean grate) {
+        copper = true;
+        copperGrate = grate;
+        setHardness(3.0F);
+        setResistance(6.0F);
+        setHarvestLevel("pickaxe", 1);
+        setLightOpacity(grate ? 0 : 255);
+        setTickRandomly(true);
+        final String sound = grate ? "copper.grate" : "copper";
+        setStepSound(new SoundType("copper", 1.0F, 1.0F) {
+            @Override public String getBreakSound() { return "mbo:" + sound + ".break"; }
+            @Override public String getStepResourcePath() { return "mbo:" + sound + ".step"; }
+            @Override public String func_150496_b() { return "mbo:" + sound + ".break"; }
+        });
+        return this;
+    }
+
+    public boolean isCopper() { return copper; }
+
     @Override
     public int damageDropped(int meta) {
         return meta;
@@ -54,8 +79,36 @@ public class BlockMeta extends Block {
     @SideOnly(Side.CLIENT)
     public void getSubBlocks(Item item, CreativeTabs tab, List subItems) {
         for (int n=0; n<this.count; ++n) {
+            if (copper && n >= 4 && n < 8) continue;
             subItems.add(new ItemStack(this,1,n));
         }
+    }
+
+    @Override
+    public boolean isOpaqueCube() { return !copperGrate; }
+
+    @Override
+    public boolean renderAsNormalBlock() { return !copperGrate; }
+
+    @Override
+    public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int side) {
+        // RenderBlocks passes the coordinates of the neighbouring block here.
+        // All oxidation and wax states share this block ID, so their touching
+        // grate faces are internal even when their metadata differs.
+        if (copperGrate && world.getBlock(x, y, z) == this) return false;
+        return super.shouldSideBeRendered(world, x, y, z, side);
+    }
+
+    @Override
+    public void updateTick(World world, int x, int y, int z, Random random) {
+        if (copper && !world.isRemote) CopperOxidation.tick(world, x, y, z, random);
+        else if (!copper) super.updateTick(world, x, y, z, random);
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
+                                    int side, float hitX, float hitY, float hitZ) {
+        return copper && CopperOxidation.interact(world, x, y, z, player);
     }
 
     //определяет какую текстуру будет использовать блок
