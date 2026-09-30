@@ -20,6 +20,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 import ru.givler.mbo.tileentity.TileEntityCampfire;
+import ru.givler.mbo.waterlogging.WaterloggedWorldData;
 
 import java.util.Random;
 
@@ -65,6 +66,7 @@ public final class BlockCampfire extends BlockContainer {
         if (!(tile instanceof TileEntityCampfire)) return false;
         TileEntityCampfire fire = (TileEntityCampfire) tile;
         if (held != null && held.getItem() == Items.flint_and_steel && (world.getBlockMetadata(x, y, z) & 1) == 0) {
+            if (!world.isRemote && WaterloggedWorldData.get(world).contains(x, y, z)) return true;
             if (!world.isRemote) {
                 world.setBlockMetadataWithNotify(x, y, z, 1, 3);
                 if (!player.capabilities.isCreativeMode) held.damageItem(1, player);

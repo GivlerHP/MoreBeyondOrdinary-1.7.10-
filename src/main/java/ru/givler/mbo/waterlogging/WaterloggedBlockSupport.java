@@ -12,9 +12,11 @@ import net.minecraft.block.BlockPane;
 import net.minecraft.block.BlockBasePressurePlate;
 import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.block.BlockWall;
+import net.minecraft.block.BlockChest;
 import net.minecraft.world.World;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.block.DoorBase;
+import ru.givler.mbo.block.BlockCampfire;
 import ru.givler.mbo.block.model.BlockModelCollision;
 
 public final class WaterloggedBlockSupport {
@@ -24,6 +26,7 @@ public final class WaterloggedBlockSupport {
     if (world == null || y < -64 || y > 255 || !world.blockExists(x, y, z)) return false;
     Block block = world.getBlock(x, y, z);
     if (block instanceof BlockStairs) return true;
+    if (block instanceof BlockChest || block instanceof BlockCampfire) return true;
     if (block instanceof BlockSlab) return !block.isOpaqueCube();
     return block instanceof BlockModels
         || block instanceof BlockModelCollision

@@ -41,7 +41,13 @@ public final class WaterloggingEventHandler {
     if (!WaterloggedBlockSupport.canWaterlog(event.world, event.x, event.y, event.z)) return;
 
     event.setCanceled(true);
-    if (event.world.isRemote) return;
+    if (event.world.isRemote) {
+      if (held.getItem() == Items.water_bucket
+          && !ClientWaterloggedBlocks.contains(
+              event.world.provider.dimensionId, event.x, event.y, event.z))
+        event.entityPlayer.swingItem();
+      return;
+    }
 
     WaterloggedWorldData data = WaterloggedWorldData.get(event.world);
     if (held.getItem() == Items.water_bucket) {
@@ -51,6 +57,7 @@ public final class WaterloggingEventHandler {
         return;
       }
       replaceBucket(event, new ItemStack(Items.bucket));
+      playWaterBucketSound(event.world, event.x, event.y, event.z);
     } else if (setIncludingDoor(event.world, data, event.x, event.y, event.z, false)) {
       replaceBucket(event, new ItemStack(Items.water_bucket));
     }
@@ -70,6 +77,8 @@ public final class WaterloggingEventHandler {
       if (!WaterloggedBlockSupport.canWaterlog(event.world, x, y, z)) return;
       if (event.world.isRemote) {
         event.setCanceled(true);
+        if (!ClientWaterloggedBlocks.contains(event.world.provider.dimensionId, x, y, z))
+          event.entityPlayer.swingItem();
         return;
       }
       WaterloggedWorldData data = WaterloggedWorldData.get(event.world);
@@ -79,6 +88,7 @@ public final class WaterloggingEventHandler {
         return;
       }
       event.result = new ItemStack(Items.bucket);
+      playWaterBucketSound(event.world, x, y, z);
       event.setResult(Result.ALLOW);
       return;
     }
@@ -199,6 +209,10 @@ public final class WaterloggingEventHandler {
   public void dimension(PlayerEvent.PlayerChangedDimensionEvent event) {
     if (event.player instanceof EntityPlayerMP)
       PacketWaterloggedSnapshot.send((EntityPlayerMP) event.player);
+  }
+
+  private static void playWaterBucketSound(World world, int x, int y, int z) {
+    world.playSoundEffect(x + .5D, y + .5D, z + .5D, "mbo:bucket.empty_water", 1.0F, 1.0F);
   }
 
   private static int[] sideOffset(int side) {

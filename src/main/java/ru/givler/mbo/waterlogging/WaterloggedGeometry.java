@@ -12,12 +12,14 @@ import net.minecraft.block.BlockBasePressurePlate;
 import net.minecraft.block.BlockButton;
 import net.minecraft.block.BlockLever;
 import net.minecraft.block.BlockWall;
+import net.minecraft.block.BlockChest;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import ru.givler.mbo.block.model.BlockModelCollision;
+import ru.givler.mbo.block.BlockCampfire;
 
 public final class WaterloggedGeometry {
   private WaterloggedGeometry() {}
@@ -25,6 +27,10 @@ public final class WaterloggedGeometry {
   public static boolean[] freeCells(World world, int x, int y, int z) {
     boolean[] free = new boolean[8];
     Block block = world.getBlock(x, y, z);
+    if (block instanceof BlockChest || block instanceof BlockCampfire) {
+      for (int i = 0; i < free.length; i++) free[i] = true;
+      return free;
+    }
     List<AxisAlignedBB> collision = new ArrayList<AxisAlignedBB>();
     block.addCollisionBoxesToList(
         world,

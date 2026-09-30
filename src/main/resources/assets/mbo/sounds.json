@@ -174,5 +174,6 @@
   "copper.bulb.place": {"category": "block", "sounds": [{"name": "copper/bulb/place1"}, {"name": "copper/bulb/place2"}, {"name": "copper/bulb/place3"}, {"name": "copper/bulb/place4"}]},
   "copper.bulb.step": {"category": "block", "sounds": [{"name": "copper/bulb/step1"}, {"name": "copper/bulb/step2"}, {"name": "copper/bulb/step3"}, {"name": "copper/bulb/step4"}, {"name": "copper/bulb/step5"}, {"name": "copper/bulb/step6"}]},
   "copper.bulb.on": {"category": "block", "sounds": [{"name": "copper/bulb/toggle"}]},
-  "copper.bulb.off": {"category": "block", "sounds": [{"name": "copper/bulb/toggle"}]}
+  "copper.bulb.off": {"category": "block", "sounds": [{"name": "copper/bulb/toggle"}]},
+  "bucket.empty_water": {"category": "block", "sounds": [{"name": "bucket/empty1"}, {"name": "bucket/empty2"}, {"name": "bucket/empty3"}]}
 }

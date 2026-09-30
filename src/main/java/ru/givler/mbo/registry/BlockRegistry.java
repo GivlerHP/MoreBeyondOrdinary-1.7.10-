@@ -16,6 +16,7 @@ import ru.givler.mbo.block.magic.BlockTemporaryMagic;
 import ru.givler.mbo.block.special.*;
 import ru.givler.mbo.block.model.BlockModelCollision;
 import ru.givler.mbo.movingplatform.BlockPlatformStation;
+import ru.givler.mbo.item.ItemLeafLitter;
 
 public class BlockRegistry {
     //переменные для блоков
@@ -27,6 +28,9 @@ public class BlockRegistry {
     public static BlockBarrier Barrier;
     public static BlockBarrel Barrel;
     public static BlockCampfire Campfire;
+    public static BlockMeta FramelessGlass, FramelessStainedGlass, FramelessTintedGlass;
+    public static BlockObserver Observer;
+    public static BlockLeafLitter LeafLitter;
     public static BlockSlimeMBO SlimeBlock;
     public static BlockBouncyMushroom BouncyBrownMushroomBlock, BouncyRedMushroomBlock;
     public static BlockModelCollision ModelCollisionPart;
@@ -98,6 +102,10 @@ public class BlockRegistry {
         GameRegistry.registerBlock(Barrel, "Barrel");
         Campfire = new BlockCampfire();
         GameRegistry.registerBlock(Campfire, "Campfire");
+        Observer = new BlockObserver();
+        GameRegistry.registerBlock(Observer, "Observer");
+        LeafLitter = new BlockLeafLitter();
+        GameRegistry.registerBlock(LeafLitter, ItemLeafLitter.class, "LeafLitter");
         ModelCollisionPart = new BlockModelCollision();
         GameRegistry.registerBlock(ModelCollisionPart, "ModelCollisionPart");
         Barrier = new BlockBarrier();
@@ -114,6 +122,12 @@ public class BlockRegistry {
                 "chiseled_copper", "exposed_chiseled_copper", "weathered_chiseled_copper", "oxidized_chiseled_copper")).withCopper(false);
         CopperGrate = new BlockMeta(Material.iron, "CopperGrate", copperTextures(
                 "copper_grate", "exposed_copper_grate", "weathered_copper_grate", "oxidized_copper_grate")).withCopper(true);
+        for (BlockMeta copper : new BlockMeta[] {CopperBlock, CutCopper, ChiseledCopper, CopperGrate}) {
+            copper.setHardness(3.0F);
+            copper.setResistance(6.0F);
+            copper.setHarvestLevel("pickaxe", 1);
+            copper.setLightOpacity(copper == CopperGrate ? 0 : 255);
+        }
         CutCopperStairs = new BlockMetaStairs[12];
         for (int stage = 0; stage < 4; stage++) {
             CutCopperStairs[stage] = new BlockMetaStairs(CutCopper, stage,
@@ -222,6 +236,25 @@ public class BlockRegistry {
         BlockFogWhite = new BlockFog(Material.web, "BlockFogWhite", "another/fogwhite");
         BlockFogGrey = new BlockFogGrey(Material.web, "BlockFogGrey", "another/foggrey");
         BlockGlass = new BlockTemporaryGlass("BlockGlass");
+        FramelessGlass = new BlockMeta(Material.glass, "FramelessGlass",
+                new String[] {"glass/glass"}).withGlass(false);
+        FramelessStainedGlass = new BlockMeta(Material.glass, "FramelessStainedGlass",
+                new String[] {"glass/white_stained_glass", "glass/orange_stained_glass",
+                        "glass/magenta_stained_glass", "glass/light_blue_stained_glass",
+                        "glass/yellow_stained_glass", "glass/lime_stained_glass",
+                        "glass/pink_stained_glass", "glass/gray_stained_glass",
+                        "glass/light_gray_stained_glass", "glass/cyan_stained_glass",
+                        "glass/purple_stained_glass", "glass/blue_stained_glass",
+                        "glass/brown_stained_glass", "glass/green_stained_glass",
+                        "glass/red_stained_glass", "glass/black_stained_glass"}).withGlass(false);
+        FramelessTintedGlass = new BlockMeta(Material.glass, "FramelessTintedGlass",
+                new String[] {"glass/tinted_glass"}).withGlass(true);
+        for (BlockMeta glass : new BlockMeta[] {FramelessGlass, FramelessStainedGlass, FramelessTintedGlass}) {
+            glass.setHardness(0.3F);
+            glass.setResistance(1.5F);
+            glass.setStepSound(Block.soundTypeGlass);
+            glass.setLightOpacity(glass == FramelessTintedGlass ? 255 : 0);
+        }
 
         MagicFurnace = new BlockArcanum(Material.rock, "MagicFurnace");
         MagicSnare = new BlockMagicSnare();

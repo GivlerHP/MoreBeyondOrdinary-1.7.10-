@@ -11,6 +11,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.Block;
+import ru.givler.mbo.block.BlockCampfire;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import ru.givler.mbo.network.packet.PacketWaterloggedDelta;
@@ -80,6 +81,7 @@ public final class WaterloggedWorldData extends WorldSavedData {
       if (positions != null && positions.isEmpty()) chunks.remove(chunkKey);
     }
     if (changed) {
+      if (waterlogged) extinguishCampfire(world, x, y, z);
       markDirty();
       world.markBlockForUpdate(x, y, z);
       PacketWaterloggedDelta.broadcast(world, x, y, z, waterlogged);
@@ -108,12 +110,20 @@ public final class WaterloggedWorldData extends WorldSavedData {
     boolean wasPresent = positions.contains(pack(x, y, z));
     boolean changed = positions.add(pack(x, y, z), addedMask);
     if (changed) {
+      extinguishCampfire(world, x, y, z);
       markDirty();
       world.markBlockForUpdate(x, y, z);
       if (!wasPresent) PacketWaterloggedDelta.broadcast(world, x, y, z, true);
       WaterloggedFlow.flow(world, this, x, y, z);
     }
     return changed;
+  }
+
+  private static void extinguishCampfire(World world, int x, int y, int z) {
+    if (!(world.getBlock(x, y, z) instanceof BlockCampfire)) return;
+    if ((world.getBlockMetadata(x, y, z) & 1) == 0) return;
+    world.setBlockMetadataWithNotify(x, y, z, 0, 3);
+    world.playSoundEffect(x + .5D, y + .5D, z + .5D, "random.fizz", .8F, 1.0F);
   }
 
   public List<Position> all() {

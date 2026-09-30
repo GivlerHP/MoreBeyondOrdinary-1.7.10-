@@ -180,6 +180,12 @@ public class ClientProxy extends CommonProxy {
     int campfireRenderId = RenderingRegistry.getNextAvailableRenderId();
     BlockRegistry.Campfire.setCampfireRenderType(campfireRenderId);
     RenderingRegistry.registerBlockHandler(new RenderCampfire(campfireRenderId));
+    int leafLitterRenderId = RenderingRegistry.getNextAvailableRenderId();
+    BlockRegistry.LeafLitter.setLeafLitterRenderType(leafLitterRenderId);
+    RenderingRegistry.registerBlockHandler(new RenderLeafLitter(leafLitterRenderId));
+    int observerRenderId = RenderingRegistry.getNextAvailableRenderId();
+    BlockRegistry.Observer.setObserverRenderType(observerRenderId);
+    RenderingRegistry.registerBlockHandler(new RenderObserver(observerRenderId));
     ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCampfire.class, new RenderCampfireFood());
     int stonecutterRenderId = RenderingRegistry.getNextAvailableRenderId();
     StonecutterRegistry.stonecutter.setStonecutterRenderType(stonecutterRenderId);

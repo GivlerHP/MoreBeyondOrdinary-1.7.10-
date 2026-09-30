@@ -13,8 +13,15 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 
 public class BlockRecipeRegistry {
     public static void init() {
+        GameRegistry.addShapelessRecipe(new ItemStack(BlockRegistry.FramelessGlass), Blocks.glass);
+        for (int color = 0; color < 16; color++)
+            GameRegistry.addShapelessRecipe(new ItemStack(BlockRegistry.FramelessStainedGlass, 1, color),
+                    new ItemStack(Blocks.stained_glass, 1, color));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.Campfire),
                 " S ", "SCS", "LLL", 'S', "stickWood", 'C', Items.coal, 'L', "logWood"));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.Observer),
+                "CCC", "RRQ", "CCC", 'C', Blocks.cobblestone, 'R', "dustRedstone",
+                'Q', Items.quartz));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.CopperBlock),
                 "III", "III", "III", 'I', "ingotCopper"));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ItemRegistry.CopperIngot, 9),

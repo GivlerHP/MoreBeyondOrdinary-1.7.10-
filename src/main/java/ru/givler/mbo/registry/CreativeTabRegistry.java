@@ -122,6 +122,10 @@ public class CreativeTabRegistry {
           list.add(new ItemStack(BlockClayWall));
           list.add(new ItemStack(BlockFogWhite));
           list.add(new ItemStack(BlockFogGrey));
+          list.add(new ItemStack(FramelessGlass));
+          for (int color = 0; color < 16; color++)
+            list.add(new ItemStack(FramelessStainedGlass, 1, color));
+          list.add(new ItemStack(FramelessTintedGlass));
 
           list.add(new ItemStack(BlockWoodenBox));
           list.add(new ItemStack(Barrel));

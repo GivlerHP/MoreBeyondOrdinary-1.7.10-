@@ -11,6 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.Facing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import ru.givler.mbo.item.ItemBlockMetadata;
@@ -27,6 +28,8 @@ public class BlockMeta extends Block {
     private String[] textureNames;
     private boolean copper;
     private boolean copperGrate;
+    private boolean glass;
+    private boolean tintedGlass;
     @SideOnly(Side.CLIENT)
     private IIcon[] icon;
 
@@ -54,10 +57,6 @@ public class BlockMeta extends Block {
     public BlockMeta withCopper(boolean grate) {
         copper = true;
         copperGrate = grate;
-        setHardness(3.0F);
-        setResistance(6.0F);
-        setHarvestLevel("pickaxe", 1);
-        setLightOpacity(grate ? 0 : 255);
         setTickRandomly(true);
         final String sound = grate ? "copper.grate" : "copper";
         setStepSound(new SoundType("copper", 1.0F, 1.0F) {
@@ -69,6 +68,12 @@ public class BlockMeta extends Block {
     }
 
     public boolean isCopper() { return copper; }
+
+    public BlockMeta withGlass(boolean tinted) {
+        glass = true;
+        tintedGlass = tinted;
+        return this;
+    }
 
     @Override
     public int damageDropped(int meta) {
@@ -85,10 +90,20 @@ public class BlockMeta extends Block {
     }
 
     @Override
-    public boolean isOpaqueCube() { return !copperGrate; }
+    public boolean isOpaqueCube() { return !copperGrate && !glass; }
 
     @Override
-    public boolean renderAsNormalBlock() { return !copperGrate; }
+    public boolean renderAsNormalBlock() { return !copperGrate && !glass; }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public int getRenderBlockPass() { return glass ? 1 : 0; }
+
+    @Override
+    public int quantityDropped(Random random) { return glass && !tintedGlass ? 0 : super.quantityDropped(random); }
+
+    @Override
+    protected boolean canSilkHarvest() { return glass || super.canSilkHarvest(); }
 
     @Override
     public boolean shouldSideBeRendered(IBlockAccess world, int x, int y, int z, int side) {
@@ -96,6 +111,13 @@ public class BlockMeta extends Block {
         // All oxidation and wax states share this block ID, so their touching
         // grate faces are internal even when their metadata differs.
         if (copperGrate && world.getBlock(x, y, z) == this) return false;
+        if (glass && world.getBlock(x, y, z) == this) {
+            int ownX = x - Facing.offsetsXForSide[side];
+            int ownY = y - Facing.offsetsYForSide[side];
+            int ownZ = z - Facing.offsetsZForSide[side];
+            if (world.getBlockMetadata(x, y, z) == world.getBlockMetadata(ownX, ownY, ownZ))
+                return false;
+        }
         return super.shouldSideBeRendered(world, x, y, z, side);
     }
 
