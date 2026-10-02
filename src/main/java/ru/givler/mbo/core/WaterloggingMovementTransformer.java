@@ -8,7 +8,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -41,10 +40,9 @@ public final class WaterloggingMovementTransformer implements IClassTransformer,
               new MethodInsnNode(
                   INVOKESTATIC,
                   "ru/givler/mbo/core/WaterloggingEntityHooks",
-                  "touchesWaterlogged",
-                  "(Lnet/minecraft/entity/Entity;)Z",
+                  "mergeWaterMovement",
+                  "(ZLnet/minecraft/entity/Entity;)Z",
                   false));
-          hook.add(new InsnNode(IOR));
           method.instructions.insertBefore(instruction, hook);
         }
         patched = true;

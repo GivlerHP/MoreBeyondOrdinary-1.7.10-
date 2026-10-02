@@ -32,6 +32,7 @@ import ru.givler.mbo.recipes.registry.RoofRecipeRegistry;
 import ru.givler.mbo.registry.*;
 import ru.givler.mbo.registry.PotionArrayExpander;
 import ru.givler.mbo.spectator.SpectatorEventHandler;
+import ru.givler.mbo.swimming.SwimmingEvents;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.tileentity.TileEntityArcanum;
 import ru.givler.mbo.tileentity.TileEntityBarrel;
@@ -107,6 +108,7 @@ public class CommonProxy {
     SpectatorEventHandler spectatorHandler = new SpectatorEventHandler();
     MinecraftForge.EVENT_BUS.register(spectatorHandler);
     FMLCommonHandler.instance().bus().register(spectatorHandler);
+    FMLCommonHandler.instance().bus().register(new SwimmingEvents());
     FMLCommonHandler.instance().bus().register(new MovingPlatformTickHandler());
     FMLCommonHandler.instance().bus().register(new EditorNetworkTickHandler());
     MinecraftForge.EVENT_BUS.register(new AreaEditorInteractionHandler());

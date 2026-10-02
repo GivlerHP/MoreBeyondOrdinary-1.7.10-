@@ -41,7 +41,8 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.core.WaterloggingLiquidHeightTransformer",
       "ru.givler.mbo.core.WaterloggingFarmlandTransformer",
       "ru.givler.mbo.core.GuiStatsTransformer",
-      "ru.givler.mbo.core.PlayerPingTransformer"
+      "ru.givler.mbo.core.PlayerPingTransformer",
+      "ru.givler.mbo.core.SwimmingTransformer"
     };
   }
 

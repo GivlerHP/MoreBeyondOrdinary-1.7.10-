@@ -16,12 +16,14 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.world.WorldEvent;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.waterlogging.ClientWaterloggedBlocks;
 import ru.givler.mbo.waterlogging.WaterloggedBlockSupport;
 import ru.givler.mbo.waterlogging.WaterloggedGeometry;
+import ru.givler.mbo.core.WaterloggingCameraHooks;
 
 public final class WaterloggedBlockRenderer {
   private static boolean renderedInTranslucentPass;
@@ -32,7 +34,34 @@ public final class WaterloggedBlockRenderer {
 
   @SubscribeEvent
   public void unload(WorldEvent.Unload event) {
-    if (event.world.isRemote) ClientWaterloggedBlocks.clear();
+    if (event.world.isRemote) {
+      ClientWaterloggedBlocks.clear();
+    }
+  }
+
+  @SubscribeEvent
+  public void underwaterFog(EntityViewRenderEvent.FogDensity event) {
+    if (event.entity != Minecraft.getMinecraft().renderViewEntity) return;
+    if (event.block.getMaterial() != Material.water) return;
+    // Use the same underwater distance for terrain, sky and particles. The
+    // former 96-block range made shallow rivers almost indistinguishable from air.
+    float end = Math.min(48.0F,
+        Math.max(16.0F, Minecraft.getMinecraft().gameSettings.renderDistanceChunks * 16.0F - 8.0F));
+    GL11.glFogi(GL11.GL_FOG_MODE, GL11.GL_LINEAR);
+    GL11.glFogf(GL11.GL_FOG_START, 0.0F);
+    GL11.glFogf(GL11.GL_FOG_END, end);
+    event.setCanceled(true);
+  }
+
+  @SubscribeEvent
+  public void underwaterColor(EntityViewRenderEvent.FogColors event) {
+    if (event.entity != Minecraft.getMinecraft().renderViewEntity
+        || event.block.getMaterial() != Material.water) return;
+    // The 1.7.10 water branch is a very dark, height-dependent blue. Keep the
+    // clear colour and fog colour identical while the camera is underwater.
+    event.red = 0.055F;
+    event.green = 0.145F;
+    event.blue = 0.235F;
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)

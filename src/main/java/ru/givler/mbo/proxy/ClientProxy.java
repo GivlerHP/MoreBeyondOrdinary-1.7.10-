@@ -273,6 +273,7 @@ public class ClientProxy extends CommonProxy {
     MinecraftForge.EVENT_BUS.register(new SignGuiEvents());
     MinecraftForge.EVENT_BUS.register(new DungeonAreaWorldRenderer());
     MinecraftForge.EVENT_BUS.register(new WaterloggedBlockRenderer());
+    MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.client.render.WaterSurfaceColor());
     MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.client.render.PlatformTechnicalRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaSelectionRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaEditorMouseEvents());
@@ -280,6 +281,10 @@ public class ClientProxy extends CommonProxy {
     activateAmuletKey = new KeyBinding("key.mbo.amulet.desc", Keyboard.KEY_R, "MoreBeyondOrdinary");
     ClientRegistry.registerKeyBinding(activateAmuletKey);
     FMLCommonHandler.instance().bus().register(new ClientKeyEvents());
+      ru.givler.mbo.client.handler.SwimmingInputHandler swimmingInput =
+          new ru.givler.mbo.client.handler.SwimmingInputHandler();
+      FMLCommonHandler.instance().bus().register(swimmingInput);
+      MinecraftForge.EVENT_BUS.register(swimmingInput);
     FMLCommonHandler.instance().bus().register(new GamemodeSwitcherInputHandler());
     FMLCommonHandler.instance().bus().register(new BarrierVisibilityEvents());
     ru.givler.mbo.client.render.SmoothOpeningRenderer.configureIntegrations();

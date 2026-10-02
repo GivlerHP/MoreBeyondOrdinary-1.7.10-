@@ -78,6 +78,9 @@ public class BlockRegistry {
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
+        // Update Aquatic: water attenuates light by one level per block.
+        Blocks.water.setLightOpacity(1);
+        Blocks.flowing_water.setLightOpacity(1);
         PlatformStation = new BlockPlatformStation();
         ColourFire = new BlockColourFire(true);
         ColourFireVanilla = new BlockColourFire(false);

@@ -17,7 +17,7 @@ apply plugin: 'com.diffplug.spotless'
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.24.5"
+version = "1.25.0"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 
@@ -90,6 +90,13 @@ task verifyWaterloggedStorage(type: JavaExec, dependsOn: testClasses) {
 }
 
 tasks.check.dependsOn('verifyWaterloggedStorage')
+
+task verifySwimmingAsm(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.swimming.SwimmingAsmSmoke'
+}
+
+tasks.check.dependsOn('verifySwimmingAsm')
 
 processResources {
     duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.EXCLUDE

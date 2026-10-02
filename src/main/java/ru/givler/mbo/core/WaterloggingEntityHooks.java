@@ -4,21 +4,44 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.ReflectionHelper;
+import java.lang.reflect.Field;
 import ru.givler.mbo.waterlogging.ClientWaterloggedBlocks;
 import ru.givler.mbo.waterlogging.WaterloggedBlockSupport;
 import ru.givler.mbo.waterlogging.WaterloggedGeometry;
 import ru.givler.mbo.waterlogging.WaterloggedWorldData;
 
 public final class WaterloggingEntityHooks {
+  private static final Field IN_WATER = ReflectionHelper.findField(
+      Entity.class, "inWater", "field_70171_ac");
   private WaterloggingEntityHooks() {}
+
+  public static boolean mergeWaterMovement(boolean vanilla, Entity entity) {
+    if (vanilla) return true;
+    if (!touchesWaterlogged(entity)
+        && !(entity instanceof net.minecraft.entity.player.EntityPlayer
+            && ru.givler.mbo.swimming.SwimmingHooks.shouldUseWaterMovement(
+                (net.minecraft.entity.player.EntityPlayer) entity))) return false;
+    try {
+      IN_WATER.setBoolean(entity, true);
+    } catch (IllegalAccessException exception) {
+      throw new IllegalStateException("Cannot set entity water state", exception);
+    }
+    return true;
+  }
 
   public static boolean isInsideWaterlogged(Entity entity, Material material) {
     if (material != Material.water || entity == null || entity.worldObj == null) return false;
-    World world = entity.worldObj;
     double eyeY = entity.posY + entity.getEyeHeight();
-    int x = floor(entity.posX);
+    return isInsideWaterloggedAt(entity, entity.posX, eyeY, entity.posZ);
+  }
+
+  public static boolean isInsideWaterloggedAt(Entity entity, double eyeX, double eyeY, double eyeZ) {
+    if (entity == null || entity.worldObj == null) return false;
+    World world = entity.worldObj;
+    int x = floor(eyeX);
     int y = floor(eyeY);
-    int z = floor(entity.posZ);
+    int z = floor(eyeZ);
     boolean waterlogged =
         world.isRemote
             ? ClientWaterloggedBlocks.contains(world.provider.dimensionId, x, y, z)
@@ -26,12 +49,12 @@ public final class WaterloggingEntityHooks {
     if (!waterlogged || !WaterloggedBlockSupport.canWaterlog(world, x, y, z)) return false;
     AxisAlignedBB eye =
         AxisAlignedBB.getBoundingBox(
-            entity.posX - 0.001D,
+            eyeX - 0.001D,
             eyeY - 0.001D,
-            entity.posZ - 0.001D,
-            entity.posX + 0.001D,
+            eyeZ - 0.001D,
+            eyeX + 0.001D,
             eyeY + 0.001D,
-            entity.posZ + 0.001D);
+            eyeZ + 0.001D);
     return WaterloggedGeometry.intersects(world, x, y, z, eye);
   }
 
