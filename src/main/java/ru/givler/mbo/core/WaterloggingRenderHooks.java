@@ -1,6 +1,9 @@
 package ru.givler.mbo.core;
 
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.world.ChunkCache;
 import net.minecraft.world.World;
 import ru.givler.mbo.waterlogging.ClientWaterloggedBlocks;
@@ -19,4 +22,16 @@ public final class WaterloggingRenderHooks {
     return access instanceof ChunkCache && ClientWaterloggedBlocks.containsCurrent(x, y, z);
   }
 
+  public static boolean shouldHideFace(
+      BlockLiquid liquid, IBlockAccess access, int x, int y, int z, int side) {
+    if (liquid.getMaterial() != Material.water) return false;
+    if (isWaterlogged(access, x, y, z)) return true;
+    return false;
+  }
+
+  public static boolean shouldHideTopUnderside(
+      Block liquid, IBlockAccess access, int x, int y, int z) {
+    return liquid.getMaterial() == Material.water
+        && access.getBlock(x, y + 1, z).isOpaqueCube();
+  }
 }

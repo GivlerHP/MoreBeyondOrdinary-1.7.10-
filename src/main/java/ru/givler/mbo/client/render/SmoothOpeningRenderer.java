@@ -446,6 +446,7 @@ public final class SmoothOpeningRenderer {
     if (renderPass != 1) return;
     renderedBeforeTranslucent = true;
     renderDynamicBlocks(viewEntity, partialTicks);
+    DungeonAreaWorldRenderer.renderBeforeTranslucent((float) partialTicks);
     WaterloggedBlockRenderer.renderInTranslucentPass((float) partialTicks);
   }
 
@@ -453,6 +454,7 @@ public final class SmoothOpeningRenderer {
     if (renderPass != 1) return;
     renderedBeforeTranslucent = true;
     renderDynamicBlocks(Minecraft.getMinecraft().renderViewEntity, partialTicks);
+    DungeonAreaWorldRenderer.renderBeforeTranslucent((float) partialTicks);
     WaterloggedBlockRenderer.renderInTranslucentPass((float) partialTicks);
   }
 

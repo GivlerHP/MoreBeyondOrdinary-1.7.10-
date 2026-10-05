@@ -28,9 +28,39 @@ import ru.givler.mbo.core.WaterloggingCameraHooks;
 public final class WaterloggedBlockRenderer {
   private static boolean renderedInTranslucentPass;
   private static final double EDGE = 0.001D;
-  private static final double EDGE_MAX = 0.999D;
-  private static final double SOURCE_SURFACE =
-      1.0D - BlockLiquid.getLiquidHeightPercent(0) - 0.001D;
+  private static final double SOURCE_SURFACE = WaterloggedLiquidHeightHooks.sourceSurface();
+  private static final ThreadLocal<double[]> CHUNK_QUAD = new ThreadLocal<double[]>();
+  private static final ThreadLocal<Integer> CHUNK_VERTEX = new ThreadLocal<Integer>();
+
+  public static void renderPaneWaterInChunk(World world, int x, int y, int z) {
+    CHUNK_QUAD.set(new double[20]);
+    CHUNK_VERTEX.set(0);
+    try {
+      renderWater(world, new ClientWaterloggedBlocks.Position(x, y, z));
+    } finally {
+      CHUNK_QUAD.remove();
+      CHUNK_VERTEX.remove();
+    }
+  }
+
+  private static void addFaceVertex(Tessellator tessellator, double x, double y, double z, double u, double v) {
+    tessellator.addVertexWithUV(x, y, z, u, v);
+    double[] quad = CHUNK_QUAD.get();
+    if (quad == null) return;
+    int vertex = CHUNK_VERTEX.get();
+    int offset = vertex * 5;
+    quad[offset] = x; quad[offset + 1] = y; quad[offset + 2] = z;
+    quad[offset + 3] = u; quad[offset + 4] = v;
+    if (++vertex == 4) {
+      // Chunk rendering uses face culling; water needs the reversed quad underwater too.
+      for (int i = 3; i >= 0; --i) {
+        int n = i * 5;
+        tessellator.addVertexWithUV(quad[n], quad[n + 1], quad[n + 2], quad[n + 3], quad[n + 4]);
+      }
+      vertex = 0;
+    }
+    CHUNK_VERTEX.set(vertex);
+  }
 
   @SubscribeEvent
   public void unload(WorldEvent.Unload event) {
@@ -117,7 +147,9 @@ public final class WaterloggedBlockRenderer {
         double dz = position.z + 0.5D - cameraZ;
         if (dx * dx + dy * dy + dz * dz > 96D * 96D
             || !world.blockExists(position.x, position.y, position.z)) continue;
-        if (WaterloggedBlockSupport.canWaterlog(world, position.x, position.y, position.z))
+        if (world.getBlock(position.x, position.y, position.z).getMaterial() != Material.water
+            && !(world.getBlock(position.x, position.y, position.z) instanceof BlockPane)
+            && WaterloggedBlockSupport.canWaterlog(world, position.x, position.y, position.z))
           renderWater(world, position);
       }
       tessellator.setTranslation(0, 0, 0);
@@ -130,8 +162,32 @@ public final class WaterloggedBlockRenderer {
   }
 
   private static void renderWater(World world, ClientWaterloggedBlocks.Position position) {
+    double[] heights = new double[4];
+    for (int x = 0; x < 2; ++x) for (int z = 0; z < 2; ++z)
+      heights[x*2+z] = (double)WaterloggedLiquidHeightHooks.cornerHeight(
+          world,position.x+x,position.y,position.z+z) - (double)0.001F;
+    SURFACE_CORNERS.set(heights);
+    try { renderWaterBody(world,position); }
+    finally { SURFACE_CORNERS.remove(); }
+  }
+
+  private static final ThreadLocal<double[]> SURFACE_CORNERS = new ThreadLocal<double[]>();
+
+  private static double surfaceY(ClientWaterloggedBlocks.Position position, double x, double z, double maxY) {
+    double[] heights = SURFACE_CORNERS.get();
+    if (heights == null || maxY <= 0.5D) return position.y+maxY;
+    double localX = x-position.x, localZ = z-position.z;
+    return position.y + (heights[0]*(1-localZ)+heights[1]*localZ)*(1-localX)
+        + (heights[2]*(1-localZ)+heights[3]*localZ)*localX;
+  }
+
+  private static void renderWaterBody(World world, ClientWaterloggedBlocks.Position position) {
     boolean[] free =
         WaterloggedGeometry.waterCellsForRender(world, position.x, position.y, position.z);
+    if (world.getBlock(position.x, position.y, position.z) instanceof BlockPane
+        && renderMergedPaneWater(world, position, free)) return;
+    if (world.getBlock(position.x, position.y, position.z) instanceof BlockPane
+        && renderPaneColumns(world, position, free)) return;
     boolean[] mergedTop = new boolean[2];
     IIcon still = Blocks.water.getIcon(1, 0);
     for (int cellY = 0; cellY < 2; cellY++) {
@@ -144,10 +200,10 @@ public final class WaterloggedBlockRenderer {
         for (int cellZ = 0; cellZ < 2; cellZ++)
           fullLayer &= cellMaxY(world, position, cellX, cellY, cellZ) == mergedHeight;
       if (fullLayer && shouldRenderFace(world, position, 0, cellY, 0, 0, 1, 0)) {
-        double minY = cellY == 0 ? EDGE : 0.5D;
+        double minY = cellY == 0 ? 0.0D : 0.5D;
         double maxY = mergedHeight;
         setFaceLighting(world, position, 1, Blocks.water.colorMultiplier(world, position.x, position.y, position.z));
-        renderFace(position, EDGE, minY, EDGE, EDGE_MAX, maxY, EDGE_MAX, 1, still);
+        renderFace(position, 0.0D, minY, 0.0D, 1.0D, maxY, 1.0D, 1, still);
         mergedTop[cellY] = true;
       }
     }
@@ -159,6 +215,92 @@ public final class WaterloggedBlockRenderer {
         }
   }
 
+  private static boolean renderMergedPaneWater(
+      World world, ClientWaterloggedBlocks.Position position, boolean[] wet) {
+    int minX = 2, minZ = 2, maxX = -1, maxZ = -1;
+    for (int x = 0; x < 2; ++x) for (int z = 0; z < 2; ++z) {
+      if (wet[WaterloggedGeometry.index(x, 0, z)] != wet[WaterloggedGeometry.index(x, 1, z)]) return false;
+      if (!wet[WaterloggedGeometry.index(x, 0, z)]) continue;
+      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+      minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z);
+    }
+    if (maxX < 0) return true;
+    double height = cellMaxY(world, position, minX, 1, minZ);
+    for (int x = minX; x <= maxX; ++x) for (int z = minZ; z <= maxZ; ++z)
+      if (!wet[WaterloggedGeometry.index(x, 0, z)]
+          || cellMaxY(world, position, x, 1, z) != height) return false;
+    int[][] directions = {{0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1}, {-1,0,0}, {1,0,0}};
+    boolean[] visible = new boolean[6];
+    for (int side = 0; side < 6; ++side) {
+      boolean first = true;
+      int[] d = directions[side];
+      for (int x = minX; x <= maxX; ++x) for (int y = 0; y < 2; ++y) for (int z = minZ; z <= maxZ; ++z) {
+        if (d[0] < 0 && x != minX || d[0] > 0 && x != maxX
+            || d[1] < 0 && y != 0 || d[1] > 0 && y != 1
+            || d[2] < 0 && z != minZ || d[2] > 0 && z != maxZ) continue;
+        boolean cellVisible = shouldRenderFace(world, position, x, y, z, d[0], d[1], d[2]);
+        if (!first && cellVisible != visible[side]) return false;
+        visible[side] = cellVisible; first = false;
+      }
+    }
+    double[] low = WaterloggedGeometry.paneWaterCellBounds(wet, minX, 0, minZ);
+    double[] high = WaterloggedGeometry.paneWaterCellBounds(wet, maxX, 0, maxZ);
+    int color = Blocks.water.colorMultiplier(world, position.x, position.y, position.z);
+    // One quad per face instead of independently sorted half-cell tiles. Stained
+    // glass is translucent too; small tiles otherwise interleave with its large faces.
+    for (int side = 0; side < 6; ++side) if (visible[side]) {
+      setFaceLighting(world, position, side, color);
+      renderFace(position, low[0], 0D, low[2], high[1], height, high[3], side,
+          Blocks.water.getIcon(side < 2 ? 1 : 2, 0));
+    }
+    return true;
+  }
+
+  private static boolean renderPaneColumns(World world, ClientWaterloggedBlocks.Position position, boolean[] wet) {
+    int[][] directions = {{0,-1,0},{0,1,0},{0,0,-1},{0,0,1},{-1,0,0},{1,0,0}};
+    java.util.List<double[]> faces = new java.util.ArrayList<double[]>();
+    for (int x = 0; x < 2; ++x) for (int z = 0; z < 2; ++z) {
+      if (wet[WaterloggedGeometry.index(x,0,z)] != wet[WaterloggedGeometry.index(x,1,z)]) return false;
+      if (!wet[WaterloggedGeometry.index(x,0,z)]) continue;
+      double[] bounds = WaterloggedGeometry.paneWaterCellBounds(wet,x,0,z);
+      for (int side = 0; side < 6; ++side) {
+        int[] d = directions[side];
+        boolean visible = shouldRenderFace(world,position,x,side == 1 ? 1 : 0,z,d[0],d[1],d[2]);
+        if (side > 1 && visible != shouldRenderFace(world,position,x,1,z,d[0],d[1],d[2])) return false;
+        if (visible) faces.add(new double[] {bounds[0],0,bounds[2],bounds[1],
+            cellMaxY(world,position,x,1,z),bounds[3],side});
+      }
+    }
+    // Merge coplanar rectangles before the translucent sorter sees them.
+    boolean changed;
+    do {
+      changed = false;
+      outer: for (int i = 0; i < faces.size(); ++i) for (int j = i+1; j < faces.size(); ++j) {
+        double[] a = faces.get(i), b = faces.get(j);
+        if (a[6] != b[6]) continue;
+        int normal = a[6] < 2 ? 1 : a[6] < 4 ? 2 : 0;
+        int plane = normal + (((int)a[6] & 1) == 0 ? 0 : 3);
+        if (a[plane] != b[plane]) continue;
+        for (int axis = 0; axis < 3; ++axis) {
+          if (axis == normal) continue;
+          int other = 3-normal-axis;
+          if (a[other] != b[other] || a[other+3] != b[other+3]
+              || !(a[axis+3] == b[axis] || b[axis+3] == a[axis])) continue;
+          a[axis] = Math.min(a[axis],b[axis]); a[axis+3] = Math.max(a[axis+3],b[axis+3]);
+          faces.remove(j); changed = true; break outer;
+        }
+      }
+    } while (changed);
+    int color = Blocks.water.colorMultiplier(world,position.x,position.y,position.z);
+    for (double[] face : faces) {
+      int side = (int)face[6];
+      setFaceLighting(world,position,side,color);
+      renderFace(position,face[0],face[1],face[2],face[3],face[4],face[5],side,
+          Blocks.water.getIcon(side < 2 ? 1 : 2,0));
+    }
+    return true;
+  }
+
   private static void renderCell(
       World world,
       ClientWaterloggedBlocks.Position position,
@@ -166,12 +308,18 @@ public final class WaterloggedBlockRenderer {
       int cellY,
       int cellZ,
       boolean topAlreadyRendered) {
-    double minX = cellX == 0 ? EDGE : 0.5D;
-    double minY = cellY == 0 ? EDGE : 0.5D;
-    double minZ = cellZ == 0 ? EDGE : 0.5D;
-    double maxX = cellX == 1 ? EDGE_MAX : 0.5D;
+    double minX = cellX == 0 ? 0.0D : 0.5D;
+    double minY = cellY == 0 ? 0.0D : 0.5D;
+    double minZ = cellZ == 0 ? 0.0D : 0.5D;
+    double maxX = cellX == 1 ? 1.0D : 0.5D;
     double maxY = cellMaxY(world, position, cellX, cellY, cellZ);
-    double maxZ = cellZ == 1 ? EDGE_MAX : 0.5D;
+    double maxZ = cellZ == 1 ? 1.0D : 0.5D;
+    if (world.getBlock(position.x, position.y, position.z) instanceof BlockPane) {
+      double[] bounds = WaterloggedGeometry.paneWaterCellBounds(
+          WaterloggedGeometry.waterCellsForRender(world, position.x, position.y, position.z),
+          cellX, cellY, cellZ);
+      minX = bounds[0]; maxX = bounds[1]; minZ = bounds[2]; maxZ = bounds[3];
+    }
     int color = Blocks.water.colorMultiplier(world, position.x, position.y, position.z);
     IIcon still = Blocks.water.getIcon(1, 0);
     IIcon flowing = Blocks.water.getIcon(2, 0);
@@ -273,21 +421,32 @@ public final class WaterloggedBlockRenderer {
     double x0 = position.x + minX, x1 = position.x + maxX;
     double y0 = position.y + minY, y1 = position.y + maxY;
     double z0 = position.z + minZ, z1 = position.z + maxZ;
+    // Offset only the face's normal, never its edges: neighbouring water must
+    // meet exactly at block boundaries instead of exposing the terrain below.
+    if (side == 0 && minY == 0.0D) y0 += EDGE;
+    if (side == 2 && minZ == 0.0D) z0 += EDGE;
+    if (side == 3 && maxZ == 1.0D) z1 -= EDGE;
+    if (side == 4 && minX == 0.0D) x0 += EDGE;
+    if (side == 5 && maxX == 1.0D) x1 -= EDGE;
+    if (side == 2 && minZ == 9D / 16D) z0 += EDGE;
+    if (side == 3 && maxZ == 7D / 16D) z1 -= EDGE;
+    if (side == 4 && minX == 9D / 16D) x0 += EDGE;
+    if (side == 5 && maxX == 7D / 16D) x1 -= EDGE;
     Tessellator tessellator = Tessellator.instance;
     if (side == 0 || side == 1) {
       double u0 = icon.getInterpolatedU(minX * 16), u1 = icon.getInterpolatedU(maxX * 16);
       double v0 = icon.getInterpolatedV(minZ * 16), v1 = icon.getInterpolatedV(maxZ * 16);
       double y = side == 0 ? y0 : y1;
       if (side == 0) {
-        tessellator.addVertexWithUV(x0, y, z0, u0, v0);
-        tessellator.addVertexWithUV(x1, y, z0, u1, v0);
-        tessellator.addVertexWithUV(x1, y, z1, u1, v1);
-        tessellator.addVertexWithUV(x0, y, z1, u0, v1);
+        addFaceVertex(tessellator, x0, y, z0, u0, v0);
+        addFaceVertex(tessellator, x1, y, z0, u1, v0);
+        addFaceVertex(tessellator, x1, y, z1, u1, v1);
+        addFaceVertex(tessellator, x0, y, z1, u0, v1);
       } else {
-        tessellator.addVertexWithUV(x0, y, z1, u0, v1);
-        tessellator.addVertexWithUV(x1, y, z1, u1, v1);
-        tessellator.addVertexWithUV(x1, y, z0, u1, v0);
-        tessellator.addVertexWithUV(x0, y, z0, u0, v0);
+        addFaceVertex(tessellator, x0, surfaceY(position,x0,z1,maxY), z1, u0, v1);
+        addFaceVertex(tessellator, x1, surfaceY(position,x1,z1,maxY), z1, u1, v1);
+        addFaceVertex(tessellator, x1, surfaceY(position,x1,z0,maxY), z0, u1, v0);
+        addFaceVertex(tessellator, x0, surfaceY(position,x0,z0,maxY), z0, u0, v0);
       }
       return;
     }
@@ -297,30 +456,30 @@ public final class WaterloggedBlockRenderer {
       double u0 = icon.getInterpolatedU(minX * 16), u1 = icon.getInterpolatedU(maxX * 16);
       double z = side == 2 ? z0 : z1;
       if (side == 2) {
-        tessellator.addVertexWithUV(x0, y1, z, u0, v0);
-        tessellator.addVertexWithUV(x1, y1, z, u1, v0);
-        tessellator.addVertexWithUV(x1, y0, z, u1, v1);
-        tessellator.addVertexWithUV(x0, y0, z, u0, v1);
+        addFaceVertex(tessellator, x0, surfaceY(position,x0,z,maxY), z, u0, v0);
+        addFaceVertex(tessellator, x1, surfaceY(position,x1,z,maxY), z, u1, v0);
+        addFaceVertex(tessellator, x1, y0, z, u1, v1);
+        addFaceVertex(tessellator, x0, y0, z, u0, v1);
       } else {
-        tessellator.addVertexWithUV(x0, y0, z, u0, v1);
-        tessellator.addVertexWithUV(x1, y0, z, u1, v1);
-        tessellator.addVertexWithUV(x1, y1, z, u1, v0);
-        tessellator.addVertexWithUV(x0, y1, z, u0, v0);
+        addFaceVertex(tessellator, x0, y0, z, u0, v1);
+        addFaceVertex(tessellator, x1, y0, z, u1, v1);
+        addFaceVertex(tessellator, x1, surfaceY(position,x1,z,maxY), z, u1, v0);
+        addFaceVertex(tessellator, x0, surfaceY(position,x0,z,maxY), z, u0, v0);
       }
       return;
     }
     double u0 = icon.getInterpolatedU(minZ * 16), u1 = icon.getInterpolatedU(maxZ * 16);
     double x = side == 4 ? x0 : x1;
     if (side == 4) {
-      tessellator.addVertexWithUV(x, y0, z0, u0, v1);
-      tessellator.addVertexWithUV(x, y0, z1, u1, v1);
-      tessellator.addVertexWithUV(x, y1, z1, u1, v0);
-      tessellator.addVertexWithUV(x, y1, z0, u0, v0);
+      addFaceVertex(tessellator, x, y0, z0, u0, v1);
+      addFaceVertex(tessellator, x, y0, z1, u1, v1);
+      addFaceVertex(tessellator, x, surfaceY(position,x,z1,maxY), z1, u1, v0);
+      addFaceVertex(tessellator, x, surfaceY(position,x,z0,maxY), z0, u0, v0);
     } else {
-      tessellator.addVertexWithUV(x, y1, z0, u0, v0);
-      tessellator.addVertexWithUV(x, y1, z1, u1, v0);
-      tessellator.addVertexWithUV(x, y0, z1, u1, v1);
-      tessellator.addVertexWithUV(x, y0, z0, u0, v1);
+      addFaceVertex(tessellator, x, surfaceY(position,x,z0,maxY), z0, u0, v0);
+      addFaceVertex(tessellator, x, surfaceY(position,x,z1,maxY), z1, u1, v0);
+      addFaceVertex(tessellator, x, y0, z1, u1, v1);
+      addFaceVertex(tessellator, x, y0, z0, u0, v1);
     }
   }
 
@@ -336,14 +495,12 @@ public final class WaterloggedBlockRenderer {
     int adjacentCellX = cellX + directionX;
     int adjacentCellY = cellY + directionY;
     int adjacentCellZ = cellZ + directionZ;
-    // Faces between two half-block cells are internal. This includes the boundary between
-    // water and the solid part of the stair/slab; the block geometry already closes it.
     if (insideCell(adjacentCellX, adjacentCellY, adjacentCellZ)) {
+      // Glass is transparent: the wet/dry boundary needs a water side face.
+      // Its plane is clipped to the glass surface and sorted in the chunk buffer.
       if (!(world.getBlock(position.x, position.y, position.z) instanceof BlockPane)) return false;
-      boolean[] water =
-          WaterloggedGeometry.waterCellsForRender(world, position.x, position.y, position.z);
-      return !water[
-          WaterloggedGeometry.index(adjacentCellX, adjacentCellY, adjacentCellZ)];
+      boolean[] water = WaterloggedGeometry.waterCellsForRender(world, position.x, position.y, position.z);
+      return !water[WaterloggedGeometry.index(adjacentCellX, adjacentCellY, adjacentCellZ)];
     }
 
     int adjacentX = position.x + directionX;
@@ -366,7 +523,12 @@ public final class WaterloggedBlockRenderer {
     if (!ClientWaterloggedBlocks.contains(
             world.provider.dimensionId, adjacentX, adjacentY, adjacentZ)
         || !WaterloggedBlockSupport.canWaterlog(world, adjacentX, adjacentY, adjacentZ)) return true;
-    return false;
+    boolean[] adjacentWater = WaterloggedGeometry.waterCellsForRender(
+        world, adjacentX, adjacentY, adjacentZ);
+    int neighbourCellX = directionX < 0 ? 1 : directionX > 0 ? 0 : cellX;
+    int neighbourCellY = directionY < 0 ? 1 : directionY > 0 ? 0 : cellY;
+    int neighbourCellZ = directionZ < 0 ? 1 : directionZ > 0 ? 0 : cellZ;
+    return !adjacentWater[WaterloggedGeometry.index(neighbourCellX, neighbourCellY, neighbourCellZ)];
   }
 
   private static boolean insideCell(int x, int y, int z) {

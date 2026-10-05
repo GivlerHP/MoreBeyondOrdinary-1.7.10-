@@ -13,6 +13,7 @@ import net.minecraft.block.BlockBasePressurePlate;
 import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.block.BlockWall;
 import net.minecraft.block.BlockChest;
+import net.minecraft.block.material.Material;
 import net.minecraft.world.World;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.block.DoorBase;
@@ -25,6 +26,13 @@ public final class WaterloggedBlockSupport {
   public static boolean canWaterlog(World world, int x, int y, int z) {
     if (world == null || y < -64 || y > 255 || !world.blockExists(x, y, z)) return false;
     Block block = world.getBlock(x, y, z);
+    // CaveAbyss crystal blocks contain source water, including when placed by hand.
+    if (block.getMaterial() == Material.water) {
+      Object name = Block.blockRegistry.getNameForObject(block);
+      if (name != null && name.toString().startsWith("caveabyss:")
+          && (name.toString().endsWith("_aquamarine_bud")
+              || name.toString().endsWith(":aquamarine_cluster"))) return true;
+    }
     if (block instanceof BlockStairs) return true;
     if (block instanceof BlockChest || block instanceof BlockCampfire) return true;
     if (block instanceof BlockSlab) return !block.isOpaqueCube();

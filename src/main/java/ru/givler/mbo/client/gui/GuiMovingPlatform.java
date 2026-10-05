@@ -19,6 +19,7 @@ public class GuiMovingPlatform extends GuiScreen {
   private GuiTextField platformId, distance, seconds, delay, sound;
   private List<String> sounds;
   private boolean soundListOpen;
+  private boolean clipAboveSelection;
   private int soundScroll;
   private int leftX, columnWidth;
 
@@ -26,6 +27,7 @@ public class GuiMovingPlatform extends GuiScreen {
     this.platform = platform;
     this.direction = platform.getDirectionIndex();
     this.returnMode = platform.getReturnMode();
+    this.clipAboveSelection = platform.isClipAboveSelection();
   }
 
   @Override
@@ -55,6 +57,7 @@ public class GuiMovingPlatform extends GuiScreen {
     sound.setText(platform.getMovementSound());
     sounds = LootContainerSoundList.getSounds();
     buttonList.add(new GuiButton(12, leftX + columnWidth - 20, 205, 20, 20, "v"));
+    buttonList.add(new GuiButton(13, leftX, 230, columnWidth, 20, clipLabel()));
     buttonList.add(
         new GuiButton(
             1, rightX, 32, rightWidth, 20,
@@ -83,6 +86,10 @@ public class GuiMovingPlatform extends GuiScreen {
     return I18n.format("mbo.platform.returnMode." + returnMode);
   }
 
+  private String clipLabel() {
+    return I18n.format("mbo.platform.clipAbove", I18n.format(clipAboveSelection ? "options.on" : "options.off"));
+  }
+
   private int dropdownTop() {
     return sound.yPosition - Math.min(8, matchingSounds().size()) * 12;
   }
@@ -104,6 +111,11 @@ public class GuiMovingPlatform extends GuiScreen {
       return;
     }
     if (b.id == 12) { soundListOpen = !soundListOpen; soundScroll = 0; return; }
+    if (b.id == 13) {
+      clipAboveSelection = !clipAboveSelection;
+      b.displayString = clipLabel();
+      return;
+    }
     if (b.id == 11) {
       mc.displayGuiScreen(null);
       return;
@@ -133,7 +145,7 @@ public class GuiMovingPlatform extends GuiScreen {
             decimal(seconds.getText(), 3D),
             returnMode,
             decimal(delay.getText(), 0D),
-            platformId.getText(), sound.getText()));
+            platformId.getText(), sound.getText(), clipAboveSelection));
     mc.displayGuiScreen(null);
   }
 

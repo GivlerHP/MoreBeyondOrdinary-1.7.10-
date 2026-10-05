@@ -252,8 +252,8 @@ public final class MovingPlatformTickHandler {
     for (PlatformBlock block : platform.getTopBlocks()) {
       AxisAlignedBB box = blockBox(platform, block);
       if (box == null || !overlapXZ(entity, box)) continue;
-      double oldTop = platform.prevPosY + block.y + block.maxY,
-          newTop = platform.posY + block.y + block.maxY;
+      double oldTop = platform.clipCollisionTop(platform.prevPosY + block.y + block.maxY),
+          newTop = box.maxY;
       double oldGap = previousFeet(entity) - oldTop, newGap = feet - newTop;
       boolean remembered =
           previous != null
@@ -265,7 +265,7 @@ public final class MovingPlatformTickHandler {
       boolean resting = newGap >= -.35D && newGap <= .12D && entity.motionY <= .05D;
       if (remembered || landing || resting) {
         snapFeet(entity, oldTop);
-        entity.moveEntity(clientOnly ? 0D : dx, dy, clientOnly ? 0D : dz);
+        entity.moveEntity(clientOnly ? 0D : dx, newTop - oldTop, clientOnly ? 0D : dz);
         if (entity.motionY < 0D) entity.motionY = 0D;
         entity.onGround = true;
         entity.fallDistance = 0;
@@ -355,8 +355,8 @@ public final class MovingPlatformTickHandler {
     for (PlatformBlock block : platform.getTopBlocks()) {
       AxisAlignedBB box = blockBox(platform, block);
       if (box == null || !overlapXZ(player, box)) continue;
-      double oldTop = platform.prevPosY + block.y + block.maxY,
-          newTop = platform.posY + block.y + block.maxY;
+      double oldTop = platform.clipCollisionTop(platform.prevPosY + block.y + block.maxY),
+          newTop = box.maxY;
       double oldGap = previousFeet(player) - oldTop, newGap = feet - newTop;
       boolean descendingCrossing = oldGap >= -.08D && newGap <= .08D && player.motionY <= 0D;
       boolean remembered =
@@ -372,8 +372,10 @@ public final class MovingPlatformTickHandler {
       }
     }
     if (chosen != null) {
-      snapFeet(player, platform.prevPosY + chosen.y + chosen.maxY);
-      player.moveEntity(dx, dy, dz);
+      double oldTop = platform.clipCollisionTop(platform.prevPosY + chosen.y + chosen.maxY);
+      double newTop = platform.clipCollisionTop(platform.posY + chosen.y + chosen.maxY);
+      snapFeet(player, oldTop);
+      player.moveEntity(dx, newTop - oldTop, dz);
       if (player.motionY < 0) player.motionY = 0;
       player.onGround = true;
       player.fallDistance = 0;
@@ -414,12 +416,15 @@ public final class MovingPlatformTickHandler {
 
   private static AxisAlignedBB blockBox(EntityMovingPlatform p, PlatformBlock b) {
     if (!b.collidable) return null;
+    double minY = p.posY + b.y + b.minY;
+    double maxY = p.clipCollisionTop(p.posY + b.y + b.maxY);
+    if (minY >= maxY) return null;
     return AxisAlignedBB.getBoundingBox(
         p.posX + b.x + b.minX,
-        p.posY + b.y + b.minY,
+        minY,
         p.posZ + b.z + b.minZ,
         p.posX + b.x + b.maxX,
-        p.posY + b.y + b.maxY,
+        maxY,
         p.posZ + b.z + b.maxZ);
   }
 

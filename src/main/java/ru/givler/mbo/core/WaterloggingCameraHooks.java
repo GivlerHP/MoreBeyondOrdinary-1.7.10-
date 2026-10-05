@@ -16,6 +16,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.nio.FloatBuffer;
+import java.nio.Buffer;
 
 public final class WaterloggingCameraHooks {
   private static final FloatBuffer MODELVIEW = BufferUtils.createFloatBuffer(16);
@@ -37,9 +38,9 @@ public final class WaterloggingCameraHooks {
       // Swimming changes the camera's eye height as well as the F5 transform.
       // Both modes must use the same transform that renders this frame, not
       // a second eye-position formula built from the player coordinates.
-      MODELVIEW.clear();
+      ((Buffer) MODELVIEW).clear();
       GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, MODELVIEW);
-      MODELVIEW.rewind();
+      ((Buffer) MODELVIEW).rewind();
       Matrix4f matrix = new Matrix4f();
       matrix.load(MODELVIEW);
       Matrix4f inverse = Matrix4f.invert(matrix, null);

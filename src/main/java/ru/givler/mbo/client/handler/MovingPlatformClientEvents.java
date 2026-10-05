@@ -9,6 +9,8 @@ public final class MovingPlatformClientEvents {
   @SubscribeEvent
   public void onClientTick(TickEvent.ClientTickEvent event) {
     Minecraft minecraft = Minecraft.getMinecraft();
+    if (event.phase == TickEvent.Phase.END)
+      ru.givler.mbo.client.render.PlatformClippingHooks.refresh(minecraft.theWorld);
     if (event.phase == TickEvent.Phase.END
         && minecraft.theWorld != null
         && !minecraft.isGamePaused())

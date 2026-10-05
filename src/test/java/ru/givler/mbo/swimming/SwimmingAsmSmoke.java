@@ -11,6 +11,10 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import ru.givler.mbo.core.WaterloggingRenderTransformer;
+import ru.givler.mbo.core.SmoothOpeningTransformer;
+import ru.givler.mbo.core.PlatformClippingTransformer;
 import ru.givler.mbo.core.SwimmingTransformer;
 import ru.givler.mbo.core.WaterloggingCameraTransformer;
 import ru.givler.mbo.core.WaterloggingCameraHooks;
@@ -24,6 +28,9 @@ public final class SwimmingAsmSmoke {
       throw new AssertionError("Player size accessor failed");
     verifySwimSpeeds();
     verifyWaterSurface();
+    verifyWaterloggedSourceRegeneration();
+    verifyHalfFilledPane();
+    verifyPaneWaterChunkRendering();
     verify("net.minecraft.entity.player.EntityPlayer", "eyeHeight", 1);
     verify("net.minecraft.entity.player.EntityPlayer", "canTriggerWalking", 1);
     verify("net.minecraft.entity.EntityLivingBase", "swimMoveFlying", 1);
@@ -37,6 +44,11 @@ public final class SwimmingAsmSmoke {
     verifyFogCameraOrder();
     verifyUnderwaterOverlay();
     verifyUnderwaterSky();
+    verifyWaterTopUnderside();
+    verifyDungeonRenderPass();
+    ru.givler.mbo.movingplatform.PlatformClippingSmoke.check();
+    verifyPlatformClippingAsm();
+    ru.givler.mbo.core.TickRateSmoke.check();
     System.out.println("Swimming ASM hooks passed");
   }
 
@@ -54,7 +66,108 @@ public final class SwimmingAsmSmoke {
     assertClose("down", down, -0.272388059701D);
   }
 
+  private static void verifyPaneWaterChunkRendering() throws Exception {
+    String name = "net.minecraft.client.renderer.WorldRenderer";
+    byte[] transformed = new ru.givler.mbo.core.WaterloggedPaneChunkTransformer()
+        .transform(name, name, classBytes(name));
+    checkClass(name, transformed);
+    ClassNode node = new ClassNode();
+    new ClassReader(transformed).accept(node, 0);
+    int pass = 0, canRender = 0, render = 0;
+    for (MethodNode method : node.methods)
+      for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext()) {
+        if (!(insn instanceof MethodInsnNode)) continue;
+        MethodInsnNode call = (MethodInsnNode) insn;
+        if (!call.owner.equals("ru/givler/mbo/client/render/WaterloggedPaneChunkHooks")) continue;
+        if (call.name.equals("renderPass")) ++pass;
+        if (call.name.equals("canRender")) ++canRender;
+        if (call.name.equals("render")) ++render;
+      }
+    if (pass != 1 || canRender != 1 || render != 2)
+      throw new AssertionError("Pane water must enter the same translucent chunk buffer as ordinary water");
+    Class<?> renderer = ru.givler.mbo.client.render.WaterloggedBlockRenderer.class;
+    java.lang.reflect.Field quadField = renderer.getDeclaredField("CHUNK_QUAD");
+    java.lang.reflect.Field indexField = renderer.getDeclaredField("CHUNK_VERTEX");
+    quadField.setAccessible(true); indexField.setAccessible(true);
+    ThreadLocal<double[]> quad = (ThreadLocal<double[]>) quadField.get(null);
+    ThreadLocal<Integer> index = (ThreadLocal<Integer>) indexField.get(null);
+    java.lang.reflect.Method vertex = renderer.getDeclaredMethod("addFaceVertex",
+        net.minecraft.client.renderer.Tessellator.class, double.class, double.class, double.class, double.class, double.class);
+    vertex.setAccessible(true);
+    java.lang.reflect.Constructor<net.minecraft.client.renderer.Tessellator> constructor =
+        net.minecraft.client.renderer.Tessellator.class.getDeclaredConstructor(int.class);
+    constructor.setAccessible(true);
+    net.minecraft.client.renderer.Tessellator tessellator = constructor.newInstance(4096);
+    tessellator.startDrawingQuads();
+    quad.set(new double[20]); index.set(0);
+    try {
+      for (int i = 0; i < 4; ++i) vertex.invoke(null, tessellator, (double) i, 0D, 0D, 0D, 0D);
+      java.lang.reflect.Field count = net.minecraft.client.renderer.Tessellator.class.getDeclaredField("vertexCount");
+      count.setAccessible(true);
+      if (count.getInt(tessellator) != 8 || index.get() != 0)
+        throw new AssertionError("Water quads must remain visible on both sides in the culled chunk pass");
+    } finally { quad.remove(); index.remove(); }
+    System.out.println("Half-filled pane water joins sorted translucent chunks and emits both face windings");
+  }
+
+  private static void verifyWaterloggedSourceRegeneration() throws Exception {
+    String name = "net.minecraft.block.BlockDynamicLiquid";
+    byte[] transformed = new ru.givler.mbo.core.WaterloggingFlowTransformer()
+        .transform(name, name, classBytes(name));
+    checkClass(name, transformed);
+    ClassNode node = new ClassNode();
+    new ClassReader(transformed).accept(node, 0);
+    boolean found = false;
+    for (MethodNode method : node.methods)
+      for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext()) {
+        if (!(insn instanceof MethodInsnNode)
+            || !((MethodInsnNode) insn).name.equals("isWaterloggedFlowSource")) continue;
+        found = true;
+        for (AbstractInsnNode next = insn.getNext(); next != null && next.getOpcode() != org.objectweb.asm.Opcodes.IRETURN;
+            next = next.getNext())
+          if (next.getOpcode() == org.objectweb.asm.Opcodes.PUTFIELD)
+            throw new AssertionError("Waterlogged supply must not increment the real source counter");
+      }
+    if (!found) throw new AssertionError("Waterlogged flow supply hook missing");
+  }
+
+  private static void verifyHalfFilledPane() {
+    for (int wetSide = 0; wetSide < 2; wetSide++) {
+      boolean[] wet = new boolean[8];
+      for (int y = 0; y < 2; y++)
+        for (int z = 0; z < 2; z++)
+          wet[ru.givler.mbo.waterlogging.WaterloggedGeometry.index(wetSide, y, z)] = true;
+      double[] bounds = ru.givler.mbo.waterlogging.WaterloggedGeometry.paneWaterCellBounds(wet, wetSide, 1, 0);
+      if (wetSide == 0 ? bounds[0] != 0D || bounds[1] != 7D / 16D
+          : bounds[0] != 9D / 16D || bounds[1] != 1D)
+        throw new AssertionError("Half-filled pane water must end at the glass surface");
+      if (bounds[2] != 0D || bounds[3] != 0.5D)
+        throw new AssertionError("Water must still reach the ordinary-water boundary along the pane");
+    }
+    boolean[] full = new boolean[8];
+    java.util.Arrays.fill(full, true);
+    double[] bounds = ru.givler.mbo.waterlogging.WaterloggedGeometry.paneWaterCellBounds(full, 0, 1, 0);
+    if (bounds[1] != 0.5D || bounds[3] != 0.5D)
+      throw new AssertionError("Fully submerged panes must retain joined water cells");
+  }
+
   private static void verifyWaterSurface() {
+    // Vanilla getLiquidHeight returns float; renderBlockLiquid promotes it to
+    // double and subtracts a float-derived epsilon exactly once.
+    float rawSource = 1.0F - net.minecraft.block.BlockLiquid.getLiquidHeightPercent(0);
+    double vanillaSurface = (double) rawSource - (double) 0.001F;
+    if (ru.givler.mbo.client.render.WaterloggedLiquidHeightHooks.sourceHeight() != rawSource
+        || ru.givler.mbo.client.render.WaterloggedLiquidHeightHooks.sourceSurface() != vanillaSurface)
+      throw new AssertionError("Ordinary and waterlogged source surfaces must match exactly");
+    try {
+      java.lang.reflect.Field surface = ru.givler.mbo.client.render.WaterloggedBlockRenderer.class
+          .getDeclaredField("SOURCE_SURFACE");
+      surface.setAccessible(true);
+      if (surface.getDouble(null) != vanillaSurface)
+        throw new AssertionError("Waterlogged renderer must use the vanilla rendered height");
+    } catch (ReflectiveOperationException error) {
+      throw new AssertionError(error);
+    }
     if (!WaterloggingCameraHooks.isBelowWaterSurface(64.88D, 64, 0, false)
         || WaterloggingCameraHooks.isBelowWaterSurface(64.90D, 64, 0, false)
         || !WaterloggingCameraHooks.isBelowWaterSurface(64.90D, 64, 0, true))
@@ -92,6 +205,81 @@ public final class SwimmingAsmSmoke {
     while ((read = stream.read(buffer)) >= 0) bytes.write(buffer, 0, read);
     stream.close();
     return bytes.toByteArray();
+  }
+
+  private static void verifyWaterTopUnderside() throws Exception {
+    String name = "net.minecraft.client.renderer.RenderBlocks";
+    byte[] transformed = new WaterloggingRenderTransformer().transform(name, name, classBytes(name));
+    checkClass(name, transformed);
+    ClassNode node = new ClassNode();
+    new ClassReader(transformed).accept(node, 0);
+    for (MethodNode method : node.methods) {
+      int topVertices = 0;
+      for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext()) {
+        if (!(insn instanceof MethodInsnNode)) continue;
+        MethodInsnNode call = (MethodInsnNode) insn;
+        if (call.name.equals("addVertexWithUV")) topVertices++;
+        if (!call.name.equals("shouldHideTopUnderside")) continue;
+        JumpInsnNode branch = (JumpInsnNode) call.getNext();
+        int undersideVertices = 0;
+        for (AbstractInsnNode skipped = branch.getNext(); skipped != branch.label; skipped = skipped.getNext()) {
+          if (skipped instanceof MethodInsnNode
+              && ((MethodInsnNode) skipped).name.equals("addVertexWithUV")) undersideVertices++;
+        }
+        if (topVertices != 4 || undersideVertices != 4)
+          throw new AssertionError("Liquid underside patch must preserve the upper quad and skip only the lower quad");
+        return;
+      }
+    }
+    throw new AssertionError("Liquid underside hook missing");
+  }
+
+  private static void verifyDungeonRenderPass() throws Exception {
+    String name = "net.minecraft.client.renderer.RenderGlobal";
+    byte[] transformed = new SmoothOpeningTransformer().transform(name, name, classBytes(name));
+    checkClass(name, transformed);
+    ClassNode node = new ClassNode();
+    new ClassReader(transformed).accept(node, 0);
+    int hooks = 0;
+    for (MethodNode method : node.methods)
+      for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext())
+        if (insn instanceof MethodInsnNode
+            && ((MethodInsnNode) insn).owner.equals("ru/givler/mbo/client/render/SmoothOpeningRenderer")
+            && ((MethodInsnNode) insn).name.equals("renderBeforeTranslucent")) hooks++;
+    if (hooks != 1) throw new AssertionError("World translucent pass hook missing");
+    new ClassReader(classBytes("ru.givler.mbo.client.render.SmoothOpeningRenderer")).accept(node = new ClassNode(), 0);
+    int verified = 0;
+    for (MethodNode method : node.methods) {
+      if (!method.name.equals("renderBeforeTranslucent")
+          && !method.name.equals("renderBeforeNeodymiumTranslucent")) continue;
+      boolean wallRendered = false;
+      for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext()) {
+        if (!(insn instanceof MethodInsnNode)) continue;
+        MethodInsnNode call = (MethodInsnNode) insn;
+        if (call.owner.equals("ru/givler/mbo/client/render/DungeonAreaWorldRenderer")) wallRendered = true;
+        if (call.owner.equals("ru/givler/mbo/client/render/WaterloggedBlockRenderer")) {
+          if (!wallRendered) throw new AssertionError("Dungeon walls must render before water");
+          verified++;
+        }
+      }
+    }
+    if (verified != 2) throw new AssertionError("Dungeon render order missing in vanilla or Neodymium");
+  }
+
+  private static void verifyPlatformClippingAsm() throws Exception {
+    String name = "net.minecraft.client.renderer.RenderBlocks";
+    byte[] transformed = new SmoothOpeningTransformer().transform(name, name, classBytes(name));
+    transformed = new WaterloggingRenderTransformer().transform(name, name, transformed);
+    transformed = new PlatformClippingTransformer().transform(name, name, transformed);
+    checkClass(name, transformed);
+    ClassNode node = new ClassNode();
+    new ClassReader(transformed).accept(node, 0);
+    for (MethodNode method : node.methods)
+      for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext())
+        if (insn instanceof MethodInsnNode
+            && ((MethodInsnNode) insn).owner.equals("ru/givler/mbo/client/render/PlatformClippingHooks")
+            && ((MethodInsnNode) insn).name.equals("shouldHideBlock")) return;
+    throw new AssertionError("Stationary elevator clipping hook missing");
   }
 
   private static void checkClass(String name, byte[] transformed) {

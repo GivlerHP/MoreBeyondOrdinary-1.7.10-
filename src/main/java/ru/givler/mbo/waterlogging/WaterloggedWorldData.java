@@ -22,6 +22,17 @@ public final class WaterloggedWorldData extends WorldSavedData {
   public static final byte INTERNAL_SOURCE = 0x40;
   public static final byte OPEN_TRAPDOOR_INGRESS = (byte) 0x80;
   private final Map<Long, WaterloggedChunk> chunks = new HashMap<Long, WaterloggedChunk>();
+  private final java.util.Set<String> drained = new java.util.HashSet<String>();
+
+  public void clearDrain(int x,int y,int z) {
+    if (drained.remove(x+":"+y+":"+z)) markDirty();
+  }
+
+  public boolean drain(World world, int x, int y, int z) {
+    boolean changed = set(world, x, y, z, false);
+    if (changed) { drained.add(x+":"+y+":"+z); markDirty(); }
+    return changed;
+  }
 
   public WaterloggedWorldData() {
     super(NAME);
@@ -54,6 +65,7 @@ public final class WaterloggedWorldData extends WorldSavedData {
   }
 
   public boolean addIngress(World world, int x, int y, int z, int faceX, int faceY, int faceZ) {
+    if (drained.contains(x+":"+y+":"+z)) return false;
     if (!WaterloggedBlockSupport.canWaterlog(world, x, y, z)) return false;
     byte mask = WaterloggedGeometry.faceBit(faceX, faceY, faceZ);
     if (isOpenBarrier(world, x, y, z))
@@ -62,6 +74,7 @@ public final class WaterloggedWorldData extends WorldSavedData {
   }
 
   public boolean set(World world, int x, int y, int z, boolean waterlogged) {
+    if (drained.remove(x+":"+y+":"+z)) markDirty();
     if (y < -64 || y > 255) return false;
     if (waterlogged && !WaterloggedBlockSupport.canWaterlog(world, x, y, z)) return false;
     long chunkKey = chunkKey(x >> 4, z >> 4);
@@ -85,7 +98,10 @@ public final class WaterloggedWorldData extends WorldSavedData {
       markDirty();
       world.markBlockForUpdate(x, y, z);
       PacketWaterloggedDelta.broadcast(world, x, y, z, waterlogged);
-      if (waterlogged) WaterloggedFlow.flow(world, this, x, y, z);
+      if (waterlogged) {
+        WaterloggedFlow.flow(world, this, x, y, z);
+        WaterloggedFlowQueue.scheduleAround(world,x,y,z);
+      }
       else WaterloggedFlowQueue.onWaterloggedRemoved(world, x, y, z);
     }
     return changed;
@@ -115,6 +131,7 @@ public final class WaterloggedWorldData extends WorldSavedData {
       world.markBlockForUpdate(x, y, z);
       if (!wasPresent) PacketWaterloggedDelta.broadcast(world, x, y, z, true);
       WaterloggedFlow.flow(world, this, x, y, z);
+      WaterloggedFlowQueue.scheduleAround(world,x,y,z);
     }
     return changed;
   }
@@ -138,6 +155,12 @@ public final class WaterloggedWorldData extends WorldSavedData {
 
   @Override
   public void readFromNBT(NBTTagCompound tag) {
+    drained.clear();
+    NBTTagList dry = tag.getTagList("Drained", 10);
+    for (int i = 0; i < dry.tagCount(); ++i) {
+      NBTTagCompound p = dry.getCompoundTagAt(i);
+      drained.add(p.getInteger("X")+":"+p.getInteger("Y")+":"+p.getInteger("Z"));
+    }
     chunks.clear();
     NBTTagList list = tag.getTagList("Chunks", 10);
     for (int i = 0; i < list.tagCount(); i++) {
@@ -164,6 +187,16 @@ public final class WaterloggedWorldData extends WorldSavedData {
 
   @Override
   public void writeToNBT(NBTTagCompound tag) {
+    NBTTagList dry = new NBTTagList();
+    for (String position : drained) {
+      String[] xyz = position.split(":");
+      NBTTagCompound p = new NBTTagCompound();
+      p.setInteger("X", Integer.parseInt(xyz[0]));
+      p.setInteger("Y", Integer.parseInt(xyz[1]));
+      p.setInteger("Z", Integer.parseInt(xyz[2]));
+      dry.appendTag(p);
+    }
+    tag.setTag("Drained", dry);
     NBTTagList list = new NBTTagList();
     for (Map.Entry<Long, WaterloggedChunk> entry : chunks.entrySet()) {
       NBTTagCompound chunk = new NBTTagCompound();

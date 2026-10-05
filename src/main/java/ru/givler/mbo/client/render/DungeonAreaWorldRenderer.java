@@ -16,13 +16,26 @@ import ru.givler.mbo.dungeon.*;
 import ru.givler.mbo.movingplatform.PlatformBlock;
 
 public final class DungeonAreaWorldRenderer {
+  private static DungeonAreaWorldRenderer instance;
+  private boolean renderedBeforeTranslucent;
   private static final FloatBuffer DENSE_FOG_COLOR = denseFogColor();
   private final Map<UUID, Cache> cache = new HashMap<UUID, Cache>();
+
+  public DungeonAreaWorldRenderer() {
+    instance = this;
+  }
+
+  public static void renderBeforeTranslucent(float partialTicks) {
+    if (instance == null || instance.renderedBeforeTranslucent) return;
+    instance.renderedBeforeTranslucent = true;
+    instance.renderWalls(partialTicks);
+  }
 
   private static FloatBuffer denseFogColor() {
     FloatBuffer color = BufferUtils.createFloatBuffer(4);
     color.put(DenseFogRenderEvents.RED).put(DenseFogRenderEvents.GREEN)
-        .put(DenseFogRenderEvents.BLUE).put(1F).flip();
+        .put(DenseFogRenderEvents.BLUE).put(1F);
+    ((java.nio.Buffer) color).flip();
     return color;
   }
 
@@ -31,74 +44,91 @@ public final class DungeonAreaWorldRenderer {
     if (e.world.isRemote) {
       for (Cache c : cache.values()) GL11.glDeleteLists(c.list, 1);
       cache.clear();
+      renderedBeforeTranslucent = false;
       ClientDungeonAreas.clear();
     }
   }
 
   @SubscribeEvent
   public void render(RenderWorldLastEvent e) {
+    renderedBeforeTranslucent = false;
     Minecraft mc = Minecraft.getMinecraft();
     if (mc.theWorld == null || mc.renderViewEntity == null) return;
-    double
-        cx =
-            mc.renderViewEntity.lastTickPosX
-                + (mc.renderViewEntity.posX - mc.renderViewEntity.lastTickPosX) * e.partialTicks,
-        cy =
-            mc.renderViewEntity.lastTickPosY
-                + (mc.renderViewEntity.posY - mc.renderViewEntity.lastTickPosY) * e.partialTicks,
-        cz =
-            mc.renderViewEntity.lastTickPosZ
-                + (mc.renderViewEntity.posZ - mc.renderViewEntity.lastTickPosZ) * e.partialTicks;
-    mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
     boolean showTechnical =
         mc.thePlayer != null
             && mc.thePlayer.getCurrentEquippedItem() != null
             && mc.thePlayer.getCurrentEquippedItem().getItem()
                 instanceof ru.givler.mbo.item.ItemDungeonEditor
             && ru.givler.mbo.editor.BuilderAccess.canEdit(mc.thePlayer);
-    for (DungeonAreaRecord a : ClientDungeonAreas.all()) {
-      if (showTechnical)
-        renderOutline(
-            a,
-            cx,
-            cy,
-            cz,
-            a.getType() == DungeonAreaRecord.TRIGGER ? 1F : .75F,
-            a.getType() == DungeonAreaRecord.TRIGGER ? .45F : .15F,
-            a.getType() == DungeonAreaRecord.TRIGGER ? .05F : 1F);
-      if (a.getType() == DungeonAreaRecord.TRIGGER) continue;
-      if (!a.shouldRender() || a.containsPoint(cx, cy, cz)) continue;
-      Cache c = compiled(a, mc);
-      boolean denseFog = DenseFogRenderEvents.active(mc.renderViewEntity);
-      if (denseFog) {
-        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_FOG_BIT);
+    if (!showTechnical) return;
+    double cx = mc.renderViewEntity.lastTickPosX
+        + (mc.renderViewEntity.posX - mc.renderViewEntity.lastTickPosX) * e.partialTicks;
+    double cy = mc.renderViewEntity.lastTickPosY
+        + (mc.renderViewEntity.posY - mc.renderViewEntity.lastTickPosY) * e.partialTicks;
+    double cz = mc.renderViewEntity.lastTickPosZ
+        + (mc.renderViewEntity.posZ - mc.renderViewEntity.lastTickPosZ) * e.partialTicks;
+    for (DungeonAreaRecord a : ClientDungeonAreas.all())
+      renderOutline(a, cx, cy, cz,
+          a.getType() == DungeonAreaRecord.TRIGGER ? 1F : .75F,
+          a.getType() == DungeonAreaRecord.TRIGGER ? .45F : .15F,
+          a.getType() == DungeonAreaRecord.TRIGGER ? .05F : 1F);
+  }
+
+  private void renderWalls(float partialTicks) {
+    Minecraft mc = Minecraft.getMinecraft();
+    if (mc.theWorld == null || mc.renderViewEntity == null) return;
+    double
+        cx =
+            mc.renderViewEntity.lastTickPosX
+                + (mc.renderViewEntity.posX - mc.renderViewEntity.lastTickPosX) * partialTicks,
+        cy =
+            mc.renderViewEntity.lastTickPosY
+                + (mc.renderViewEntity.posY - mc.renderViewEntity.lastTickPosY) * partialTicks,
+        cz =
+            mc.renderViewEntity.lastTickPosZ
+                + (mc.renderViewEntity.posZ - mc.renderViewEntity.lastTickPosZ) * partialTicks;
+    int previousMatrixMode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
+    GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+    GL11.glMatrixMode(GL11.GL_MODELVIEW);
+    try {
+      mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+      GL11.glEnable(GL11.GL_DEPTH_TEST);
+      GL11.glDepthFunc(GL11.GL_LEQUAL);
+      GL11.glDisable(GL11.GL_LIGHTING);
+      GL11.glColor4f(1F, 1F, 1F, 1F);
+      mc.entityRenderer.enableLightmap(partialTicks);
+      if (DenseFogRenderEvents.active(mc.renderViewEntity)) {
         GL11.glFogi(GL11.GL_FOG_MODE, GL11.GL_EXP2);
         GL11.glFogf(GL11.GL_FOG_DENSITY,
             DenseFogRenderEvents.density((EntityPlayer) mc.renderViewEntity));
         GL11.glFog(GL11.GL_FOG_COLOR, DENSE_FOG_COLOR);
         GL11.glEnable(GL11.GL_FOG);
       }
-      GL11.glPushMatrix();
-      GL11.glTranslated(a.getX() - cx, a.getY() - cy, a.getZ() - cz);
-      GL11.glDisable(GL11.GL_LIGHTING);
-      mc.entityRenderer.enableLightmap(e.partialTicks);
-      float alpha = a.fadeAlpha(mc.theWorld, e.partialTicks);
-      if (alpha < 1F) {
-        GL11.glEnable(GL11.GL_BLEND);
-        GL14.glBlendColor(1, 1, 1, alpha);
-        GL11.glBlendFunc(0x8003, 0x8004);
-        GL11.glDepthMask(false);
-      }
-      GL11.glCallList(c.list);
-      if (alpha < 1F) {
-        GL11.glDepthMask(true);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+      for (DungeonAreaRecord a : ClientDungeonAreas.all()) {
+        if (a.getType() == DungeonAreaRecord.TRIGGER) continue;
+        if (!a.shouldRender() || a.containsPoint(cx, cy, cz)) continue;
+        float alpha = a.fadeAlpha(mc.theWorld, partialTicks);
+        if (alpha <= 0F) continue;
+        Cache c = compiled(a, mc);
+        GL11.glDepthMask(alpha >= 1F);
         GL11.glDisable(GL11.GL_BLEND);
+        if (alpha < 1F) {
+          GL11.glEnable(GL11.GL_BLEND);
+          GL14.glBlendColor(1, 1, 1, alpha);
+          GL11.glBlendFunc(0x8003, 0x8004); // GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA
+        }
+        GL11.glPushMatrix();
+        try {
+          GL11.glTranslated(a.getX() - cx, a.getY() - cy, a.getZ() - cz);
+          GL11.glCallList(c.list);
+        } finally {
+          GL11.glPopMatrix();
+        }
       }
-      mc.entityRenderer.disableLightmap(e.partialTicks);
-      GL11.glEnable(GL11.GL_LIGHTING);
-      GL11.glPopMatrix();
-      if (denseFog) GL11.glPopAttrib();
+    } finally {
+      mc.entityRenderer.disableLightmap(partialTicks);
+      GL11.glPopAttrib();
+      GL11.glMatrixMode(previousMatrixMode);
     }
   }
 

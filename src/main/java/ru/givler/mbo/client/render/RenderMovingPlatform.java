@@ -3,6 +3,9 @@ package ru.givler.mbo.client.render;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Arrays;
+import java.nio.Buffer;
+import java.nio.DoubleBuffer;
+import org.lwjgl.BufferUtils;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
@@ -15,6 +18,7 @@ import ru.givler.mbo.movingplatform.PlatformBlock;
 
 public class RenderMovingPlatform extends Render {
   private final Map<java.util.UUID, Cache> cache = new HashMap<java.util.UUID, Cache>();
+  private final DoubleBuffer clipPlane = BufferUtils.createDoubleBuffer(4);
 
   @Override
   public void doRender(Entity entity, double x, double y, double z, float yaw, float partial) {
@@ -33,8 +37,18 @@ public class RenderMovingPlatform extends Render {
       worldZ = p.posZ;
     }
     bindTexture(TextureMap.locationBlocksTexture);
+    GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
     GL11.glPushMatrix();
+    try {
     GL11.glTranslated(x, y, z);
+    if (p.isClipAboveSelection() && !p.isRebuildPending()) {
+      ((Buffer) clipPlane).clear();
+      clipPlane.put(0D).put(-1D).put(0D).put(p.getRenderCeilingY() - worldY);
+      ((Buffer) clipPlane).flip();
+      // Defined after the platform translation: the constant is local to its current position.
+      GL11.glClipPlane(GL11.GL_CLIP_PLANE0, clipPlane);
+      GL11.glEnable(GL11.GL_CLIP_PLANE0);
+    }
     GL11.glEnable(GL11.GL_TEXTURE_2D);
     GL11.glDisable(GL11.GL_LIGHTING);
     if (handoff) {
@@ -42,9 +56,10 @@ public class RenderMovingPlatform extends Render {
       GL11.glPolygonOffset(1F, 1F);
     }
     GL11.glCallList(getCache(p, worldX, worldY, worldZ).list);
-    if (handoff) GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
-    GL11.glEnable(GL11.GL_LIGHTING);
-    GL11.glPopMatrix();
+    } finally {
+      GL11.glPopMatrix();
+      GL11.glPopAttrib();
+    }
   }
 
   private void renderMissingBlocks(

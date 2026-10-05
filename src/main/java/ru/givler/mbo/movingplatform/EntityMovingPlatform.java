@@ -11,7 +11,6 @@ import net.minecraft.block.BlockLever;
 import net.minecraft.block.BlockButton;
 import net.minecraft.block.BlockBasePressurePlate;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
@@ -39,6 +38,8 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private int movementStartTick;
   private int returnMode = 2, delayTicks = 20, waitTicks;
   private String movementSound = "";
+  private boolean clipAboveSelection;
+  private boolean migrateVisualClipping;
   private transient ru.givler.mbo.client.sound.MovingSoundPlatform activeSound;
   private boolean configured;
   private boolean virtualized;
@@ -46,6 +47,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private final HashSet<Long> poweredOnboardLevers = new HashSet<Long>();
   private final HashSet<Long> pressedOnboardControls = new HashSet<Long>();
   private boolean onboardControlInitialized;
+  private int pressurePlateSettleTicks;
   private boolean pendingConfiguration;
   private boolean rebuildPending;
   private int pendingDirection,
@@ -204,6 +206,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
         int x = floor(homeX) + saved.x + d.x * offset;
         int y = floor(homeY) + saved.y + d.y * offset;
         int z = floor(homeZ) + saved.z + d.z * offset;
+        if (isHiddenAt(y)) continue;
         if (!worldObj.blockExists(x, y, z)) return false;
         if (worldObj.getBlock(x, y, z) != Blocks.air && !isCurrentPlatformBlock(x, y, z))
           return false;
@@ -213,6 +216,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   private boolean isCurrentPlatformBlock(int x, int y, int z) {
+    if (virtualized || isHiddenAt(y)) return false;
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
     for (PlatformBlock b : blocks)
       if (x == ox + b.x
@@ -223,16 +227,19 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   private boolean removeMaterializedBlocks() {
+    if (virtualized) return true;
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
     for (PlatformBlock saved : blocks) {
       int x = ox + saved.x;
       int y = oy + saved.y;
       int z = oz + saved.z;
+      if (isHiddenAt(y)) continue;
       if (worldObj.getBlock(x, y, z) != saved.block) return false;
     }
     refreshMaterializedSnapshot();
     for (PlatformBlock saved : blocks)
-      worldObj.setBlock(ox + saved.x, oy + saved.y, oz + saved.z, Blocks.air, 0, 2);
+      if (!isHiddenAt(oy + saved.y))
+        worldObj.setBlock(ox + saved.x, oy + saved.y, oz + saved.z, Blocks.air, 0, 2);
     return true;
   }
 
@@ -242,6 +249,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
     for (PlatformBlock saved : blocks) {
       int x = ox + saved.x, y = oy + saved.y, z = oz + saved.z;
+      if (isHiddenAt(y)) continue;
       if (worldObj.getBlock(x, y, z) == saved.block)
       {
         saved.meta = snapshotMetadata(saved.block, worldObj.getBlockMetadata(x, y, z));
@@ -253,10 +261,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private boolean materialize() {
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
     for (PlatformBlock saved : blocks) {
+      if (isHiddenAt(oy + saved.y)) continue;
       if (worldObj.getBlock(ox + saved.x, oy + saved.y, oz + saved.z) != Blocks.air) return false;
     }
     for (PlatformBlock saved : blocks)
-      worldObj.setBlock(
+      if (!isHiddenAt(oy + saved.y)) worldObj.setBlock(
           ox + saved.x, oy + saved.y, oz + saved.z,
           saved.block, snapshotMetadata(saved.block, saved.meta), 2);
     setVirtualized(false);
@@ -272,6 +281,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
     for (PlatformBlock saved : blocks) {
       int x = ox + saved.x, y = oy + saved.y, z = oz + saved.z;
+      if (isHiddenAt(y)) continue;
       if (worldObj.getBlock(x, y, z) == Blocks.air)
         worldObj.setBlock(x, y, z, saved.block, snapshotMetadata(saved.block, saved.meta), 2);
     }
@@ -298,10 +308,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private boolean canResetToHome(int ox, int oy, int oz, int hx, int hy, int hz) {
     for (PlatformBlock saved : blocks) {
       int x = hx + saved.x, y = hy + saved.y, z = hz + saved.z;
+      if (isHiddenAt(y)) continue;
       Block existing = worldObj.getBlock(x, y, z);
       if (existing == Blocks.air) continue;
       PlatformBlock current = findSavedBlock(x - ox, y - oy, z - oz);
-      if (current == null
+      if (virtualized || current == null || isHiddenAt(oy + current.y)
           || existing != current.block
           || worldObj.getBlockMetadata(x, y, z) != current.meta) return false;
     }
@@ -317,6 +328,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private void removeMatchingSnapshotAt(int ox, int oy, int oz) {
     for (PlatformBlock saved : blocks) {
       int x = ox + saved.x, y = oy + saved.y, z = oz + saved.z;
+      if (isHiddenAt(y) || virtualized) continue;
       if (worldObj.getBlock(x, y, z) == saved.block
           && worldObj.getBlockMetadata(x, y, z) == saved.meta)
         worldObj.setBlock(x, y, z, Blocks.air, 0, 2);
@@ -327,7 +339,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     if (!isMoving()) return reset(feedback);
     int ox = floor(homeX), oy = floor(homeY), oz = floor(homeZ);
     for (PlatformBlock saved : blocks)
-      if (worldObj.getBlock(ox + saved.x, oy + saved.y, oz + saved.z) != Blocks.air) {
+      if (!isHiddenAt(oy + saved.y) && worldObj.getBlock(ox + saved.x, oy + saved.y, oz + saved.z) != Blocks.air) {
         if (feedback != null)
           feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.blocked"));
         return false;
@@ -374,6 +386,13 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       updateMovementSound();
       return;
     }
+    if (migrateVisualClipping) {
+      migrateVisualClipping = false;
+      if (!virtualized && !isMoving()) {
+        clipAboveSelection = false;
+        setClipAboveSelection(true);
+      }
+    }
     if (!isMoving()) {
       if (rebuildPending) return;
       if (checkOnboardControl()) return;
@@ -387,12 +406,22 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
           && ++waitTicks >= (returnMode == 0 ? 1 : delayTicks)) start(state == STOPPED_A, null);
       return;
     }
+    int previousMotionTick = motionTick;
     motionTick = Math.max(0, worldTick() - movementStartTick);
     double t = Math.min(1D, motionTick / (double) Math.max(1, durationTicks));
     double eased = t * t * (3D - 2D * t);
     double offset = state == MOVING_TO_B ? distance * eased : distance * (1D - eased);
     PlatformDirection d = getDirection();
-    setPosition(homeX + d.x * offset, homeY + d.y * offset, homeZ + d.z * offset);
+    double nextX = homeX + d.x * offset, nextY = homeY + d.y * offset,
+        nextZ = homeZ + d.z * offset;
+    if (clipAboveSelection && !sweptVisibleSpaceIsClear(nextX, nextY, nextZ)) {
+      // Freeze the trip clock as well as the position, including on clients.
+      movementStartTick = worldTick() - previousMotionTick;
+      motionTick = previousMotionTick;
+      dataWatcher.updateObject(24, Integer.valueOf(movementStartTick));
+      return;
+    }
+    setPosition(nextX, nextY, nextZ);
     if (t >= 1D && !worldObj.isRemote) {
       if (pendingConfiguration || returnMode == 2 || returnMode == 3)
         MovingPlatformTickHandler.processServerArrival(this);
@@ -443,6 +472,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     int hx = floor(homeX), hy = floor(homeY), hz = floor(homeZ);
     for (PlatformBlock block : blocks) {
       int x = hx + block.x, y = hy + block.y, z = hz + block.z;
+      if (isHiddenAt(y)) continue;
       if (!worldObj.blockExists(x, y, z) || worldObj.getBlock(x, y, z) != Blocks.air)
         return false;
     }
@@ -461,6 +491,24 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     return true;
   }
 
+  private boolean sweptVisibleSpaceIsClear(double nextX, double nextY, double nextZ) {
+    for (PlatformBlock saved : blocks) {
+      double minY = Math.min(posY, nextY) + saved.y;
+      double maxY = clipCollisionTop(Math.max(posY, nextY) + saved.y + 1D);
+      if (minY >= maxY) continue;
+      int minX = (int) Math.floor(Math.min(posX, nextX) + saved.x);
+      int maxX = (int) Math.floor(Math.max(posX, nextX) + saved.x + 1D - 1E-7D);
+      int minZ = (int) Math.floor(Math.min(posZ, nextZ) + saved.z);
+      int maxZ = (int) Math.floor(Math.max(posZ, nextZ) + saved.z + 1D - 1E-7D);
+      for (int x = minX; x <= maxX; ++x)
+        for (int y = (int) Math.floor(minY); y <= (int) Math.floor(maxY - 1E-7D); ++y)
+          for (int z = minZ; z <= maxZ; ++z)
+            if (!worldObj.blockExists(x, y, z) || worldObj.getBlock(x, y, z) != Blocks.air)
+              return false;
+    }
+    return true;
+  }
+
   public boolean dismantle(EntityPlayer feedback) {
     if (isMoving() && !stopAndReturn(feedback)) return false;
     for (Object object : new java.util.ArrayList(worldObj.loadedEntityList))
@@ -472,7 +520,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   public boolean contains(int x, int y, int z) {
-    if (isMoving()) return false;
+    if (isMoving() || isHiddenAt(y)) return false;
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
     for (PlatformBlock block : blocks)
       if (x == ox + block.x && y == oy + block.y && z == oz + block.z) return true;
@@ -489,6 +537,52 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
 
   public boolean shouldRenderMovingBlocks() {
     return virtualized || isMoving() || clientRenderHandoffTicks > 0;
+  }
+
+  public boolean isClipAboveSelection() { return clipAboveSelection; }
+
+  public boolean setClipAboveSelection(boolean enabled) {
+    if (enabled == clipAboveSelection) return true;
+    if (worldObj == null || worldObj.isRemote || virtualized || isMoving()) {
+      clipAboveSelection = enabled;
+      return true;
+    }
+    int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
+    // Validate all restored cells before changing anything; foreign blocks must survive.
+    if (!enabled) {
+      for (PlatformBlock saved : blocks)
+        if (isHiddenAt(oy + saved.y)
+            && worldObj.getBlock(ox + saved.x, oy + saved.y, oz + saved.z) != Blocks.air)
+          return false;
+    }
+    for (PlatformBlock saved : blocks) {
+      int x = ox + saved.x, y = oy + saved.y, z = oz + saved.z;
+      if (y < getRenderCeilingY()) continue;
+      if (enabled) {
+        if (worldObj.getBlock(x, y, z) == saved.block) {
+          saved.meta = snapshotMetadata(saved.block, worldObj.getBlockMetadata(x, y, z));
+          worldObj.setBlock(x, y, z, Blocks.air, 0, 2);
+        }
+      } else worldObj.setBlock(x, y, z, saved.block, saved.meta, 2);
+    }
+    clipAboveSelection = enabled;
+    return true;
+  }
+
+  public boolean isHiddenAt(double bottomY) {
+    return clipAboveSelection && !rebuildPending && bottomY >= getRenderCeilingY();
+  }
+
+  public double clipCollisionTop(double topY) {
+    return clipAboveSelection && !rebuildPending ? Math.min(topY, getRenderCeilingY()) : topY;
+  }
+
+  public double getRenderCeilingY() { return homeY + sizeY; }
+
+  public boolean hidesMaterializedBlock(Block block, int x, int y, int z) {
+    // Hidden pieces are absent from the world. A block here belongs to the world,
+    // even when it happens to have the same type as a stored platform piece.
+    return false;
   }
 
   public boolean isAwaitingMaterialization() {
@@ -511,11 +605,22 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   public List<PlatformBlock> getOuterBlocks() {
-    return outerBlocks;
+    return withClippedSurface(outerBlocks);
   }
 
   public List<PlatformBlock> getTopBlocks() {
-    return topBlocks;
+    return withClippedSurface(topBlocks);
+  }
+
+  private List<PlatformBlock> withClippedSurface(List<PlatformBlock> surfaces) {
+    if (!clipAboveSelection || rebuildPending) return surfaces;
+    List<PlatformBlock> result = new ArrayList<PlatformBlock>(surfaces);
+    double ceiling = getRenderCeilingY();
+    for (PlatformBlock block : blocks)
+      if (posY + block.y + block.minY < ceiling
+          && posY + block.y + block.maxY >= ceiling && !result.contains(block))
+        result.add(block);
+    return result;
   }
 
   public List<PlatformBlock> getBottomBlocks() {
@@ -706,8 +811,11 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     returnMode = tag.hasKey("ReturnMode") ? tag.getInteger("ReturnMode") : 2;
     delayTicks = tag.hasKey("Delay") ? tag.getInteger("Delay") : 20;
     movementSound = tag.getString("MovementSound");
+    clipAboveSelection = tag.getBoolean("ClipAboveSelection");
+    migrateVisualClipping = clipAboveSelection && !tag.getBoolean("PhysicalClipping");
     configured = tag.getBoolean("Configured");
     virtualized = tag.getBoolean("Virtualized");
+    pressurePlateSettleTicks = 20;
     pendingConfiguration = tag.getBoolean("PendingConfiguration");
     rebuildPending = tag.getBoolean("RebuildPending");
     pendingDirection = tag.getInteger("PendingDirection");
@@ -756,6 +864,8 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     tag.setInteger("ReturnMode", returnMode);
     tag.setInteger("Delay", delayTicks);
     tag.setString("MovementSound", movementSound);
+    tag.setBoolean("ClipAboveSelection", clipAboveSelection);
+    tag.setBoolean("PhysicalClipping", !migrateVisualClipping);
     tag.setBoolean("Configured", configured);
     tag.setBoolean("Virtualized", virtualized);
     tag.setBoolean("PendingConfiguration", pendingConfiguration);
@@ -819,15 +929,25 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     HashSet<Long> levers = new HashSet<Long>();
     HashSet<Long> controls = new HashSet<Long>();
     readOnboardControlState(levers, controls);
+    HashSet<Long> newlyPressed = new HashSet<Long>(controls);
+    newlyPressed.removeAll(pressedOnboardControls);
+    if (pressurePlateSettleTicks > 0) {
+      --pressurePlateSettleTicks;
+      // Materialization resets plate metadata; its next update must not count
+      // as a fresh press by a passenger who stayed on the platform.
+      for (PlatformBlock saved : blocks)
+        if (saved.block instanceof BlockBasePressurePlate)
+          newlyPressed.remove(blockKey(saved.x, saved.y, saved.z));
+    }
     if (!onboardControlInitialized) {
       onboardControlInitialized = true;
-      boolean pressed = !controls.isEmpty();
+      boolean pressed = !newlyPressed.isEmpty();
       poweredOnboardLevers.addAll(levers);
       pressedOnboardControls.addAll(controls);
       return pressed && start(this.state == STOPPED_A, null);
     }
     boolean leverChanged = !levers.equals(poweredOnboardLevers);
-    boolean momentaryPressed = !pressedOnboardControls.containsAll(controls);
+    boolean momentaryPressed = !newlyPressed.isEmpty();
     poweredOnboardLevers.clear();
     poweredOnboardLevers.addAll(levers);
     pressedOnboardControls.clear();
@@ -840,28 +960,23 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     pressedOnboardControls.clear();
     readOnboardControlState(poweredOnboardLevers, pressedOnboardControls);
     onboardControlInitialized = true;
+    pressurePlateSettleTicks = 20;
   }
 
   private void readOnboardControlState(HashSet<Long> levers, HashSet<Long> controls) {
     int ox = floor(posX), oy = floor(posY), oz = floor(posZ);
     for (PlatformBlock saved : blocks) {
       int x = ox + saved.x, y = oy + saved.y, z = oz + saved.z;
+      if (isHiddenAt(y)) continue;
       Block block = worldObj.getBlock(x, y, z);
       int metadata = worldObj.getBlockMetadata(x, y, z);
       long key = blockKey(saved.x, saved.y, saved.z);
       if (block instanceof BlockLever && (metadata & 8) != 0) levers.add(key);
       if (block instanceof BlockButton && (metadata & 8) != 0) controls.add(key);
-      if (block instanceof BlockBasePressurePlate && hasLivingEntityOnPlate(x, y, z))
+      if (block instanceof BlockBasePressurePlate
+          && block.isProvidingWeakPower(worldObj, x, y, z, 1) > 0)
         controls.add(key);
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  private boolean hasLivingEntityOnPlate(int x, int y, int z) {
-    AxisAlignedBB area =
-        AxisAlignedBB.getBoundingBox(
-            x + 0.125D, y, z + 0.125D, x + 0.875D, y + 0.5D, z + 0.875D);
-    return !worldObj.getEntitiesWithinAABB(EntityLivingBase.class, area).isEmpty();
   }
 
   private void rebuildCollisionCache() {

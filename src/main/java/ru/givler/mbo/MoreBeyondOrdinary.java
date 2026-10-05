@@ -8,6 +8,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
+import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import ru.givler.mbo.command.CommandEffectExtended;
@@ -50,6 +51,7 @@ public class MoreBeyondOrdinary {
 
   @Mod.EventHandler
   public void preLoad(FMLPreInitializationEvent event) {
+    FMLCommonHandler.instance().bus().register(new ru.givler.mbo.command.TickRateEvents());
     FMLInterModComms.sendMessage(
         "Waila",
         "register",
@@ -80,6 +82,8 @@ public class MoreBeyondOrdinary {
 
   @Mod.EventHandler
   public void serverStarting(FMLServerStartingEvent event) {
+    ru.givler.mbo.core.TickRateHooks.setServerRate(20);
+    event.registerServerCommand(new ru.givler.mbo.command.CommandTick());
     // Registering commands with vanilla names replaces their command-map entries.
     // Both implementations delegate all unchanged syntax to the vanilla commands.
     event.registerServerCommand(new CommandEffectExtended());
@@ -92,5 +96,10 @@ public class MoreBeyondOrdinary {
   public void serverStarted(FMLServerStartedEvent event) {
     BukkitSpectatorCommandBridge.install();
     ru.givler.mbo.integration.bukkit.BukkitSpeedCommandBridge.install();
+  }
+
+  @Mod.EventHandler
+  public void serverStopped(FMLServerStoppedEvent event) {
+    ru.givler.mbo.core.TickRateHooks.setServerRate(20);
   }
 }

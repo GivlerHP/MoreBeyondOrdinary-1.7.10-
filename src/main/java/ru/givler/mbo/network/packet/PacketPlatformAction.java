@@ -25,6 +25,7 @@ public class PacketPlatformAction implements IMessage {
   private double seconds, delaySeconds;
   private String platformId = "";
   private String movementSound = "";
+  private boolean clipAboveSelection;
 
   public PacketPlatformAction() {}
 
@@ -36,7 +37,7 @@ public class PacketPlatformAction implements IMessage {
       double seconds,
       int returnMode,
       double delaySeconds,
-      String platformId, String movementSound) {
+      String platformId, String movementSound, boolean clipAboveSelection) {
     this.entityId = entityId;
     this.action = action;
     this.direction = direction;
@@ -46,6 +47,7 @@ public class PacketPlatformAction implements IMessage {
     this.delaySeconds = delaySeconds;
     this.platformId = platformId == null ? "" : platformId;
     this.movementSound = movementSound == null ? "" : movementSound;
+    this.clipAboveSelection = clipAboveSelection;
   }
 
   @Override
@@ -59,6 +61,7 @@ public class PacketPlatformAction implements IMessage {
     delaySeconds = b.readDouble();
     platformId = ByteBufUtils.readUTF8String(b);
     movementSound = ByteBufUtils.readUTF8String(b);
+    clipAboveSelection = b.isReadable() && b.readBoolean();
   }
 
   @Override
@@ -72,6 +75,7 @@ public class PacketPlatformAction implements IMessage {
     b.writeDouble(delaySeconds);
     ByteBufUtils.writeUTF8String(b, platformId);
     ByteBufUtils.writeUTF8String(b, movementSound);
+    b.writeBoolean(clipAboveSelection);
   }
 
   public static class Handler implements IMessageHandler<PacketPlatformAction, IMessage> {
@@ -142,6 +146,10 @@ public class PacketPlatformAction implements IMessage {
             && loaded != platform
             && requestedId.equals(((EntityMovingPlatform) loaded).getPlatformId())) return false;
       if (platform.isMoving() && !platform.stopAndReturn(player)) return false;
+      if (!platform.setClipAboveSelection(m.clipAboveSelection)) {
+        player.addChatMessage(new net.minecraft.util.ChatComponentTranslation("mbo.platform.error.blocked"));
+        return false;
+      }
       platform.setPlatformId(requestedId);
       platform.configure(m.direction, m.distance, m.seconds, m.returnMode, m.delaySeconds);
       platform.setMovementSound(m.movementSound.length() > 128 ? m.movementSound.substring(0, 128) : m.movementSound);

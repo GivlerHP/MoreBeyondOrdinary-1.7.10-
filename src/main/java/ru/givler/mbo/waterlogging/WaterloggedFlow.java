@@ -111,7 +111,7 @@ public final class WaterloggedFlow {
 
   public static boolean hasOpenBottom(World world, int x, int y, int z) {
     if (!WaterloggedGeometry.isFaceOpen(world, x, y, z, 0, -1, 0)) return false;
-    boolean[] free = WaterloggedGeometry.waterCellsForRender(world, x, y, z);
+    boolean[] free = WaterloggedGeometry.waterCellsForFlow(world, x, y, z);
     for (int cellX = 0; cellX < 2; cellX++)
       for (int cellZ = 0; cellZ < 2; cellZ++)
         if (free[WaterloggedGeometry.index(cellX, 0, cellZ)]) return true;
@@ -166,7 +166,7 @@ public final class WaterloggedFlow {
       World world, int x, int y, int z, int directionX, int directionZ) {
     if (!WaterloggedGeometry.isFaceOpen(
         world, x, y, z, directionX, 0, directionZ)) return false;
-    boolean[] free = WaterloggedGeometry.waterCellsForRender(world, x, y, z);
+    boolean[] free = WaterloggedGeometry.waterCellsForFlow(world, x, y, z);
     int cellX = directionX < 0 ? 0 : directionX > 0 ? 1 : -1;
     int cellZ = directionZ < 0 ? 0 : directionZ > 0 ? 1 : -1;
     for (int cellY = 0; cellY < 2; cellY++)

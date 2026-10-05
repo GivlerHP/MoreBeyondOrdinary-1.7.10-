@@ -9,6 +9,7 @@ import java.util.Map;
 public class MBOCorePlugin implements IFMLLoadingPlugin {
   public String[] getASMTransformerClass() {
     return new String[] {
+      "ru.givler.mbo.core.TickRateTransformer",
       "ru.givler.mbo.core.BlockButtonTransformer",
       "ru.givler.mbo.core.BoatCreativeTransformer",
       "ru.givler.mbo.core.TrapdoorPlacementTransformer",
@@ -38,6 +39,8 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.core.WaterloggingCameraTransformer",
       "ru.givler.mbo.core.WaterloggingMovementTransformer",
       "ru.givler.mbo.core.WaterloggingRenderTransformer",
+      "ru.givler.mbo.core.WaterloggedPaneChunkTransformer",
+      "ru.givler.mbo.core.PlatformClippingTransformer",
       "ru.givler.mbo.core.WaterloggingLiquidHeightTransformer",
       "ru.givler.mbo.core.WaterloggingFarmlandTransformer",
       "ru.givler.mbo.core.GuiStatsTransformer",

@@ -50,6 +50,7 @@ public final class WaterloggedFlowQueue {
     Set<Long> positions = PENDING.remove(world);
     if (positions == null || positions.isEmpty()) return;
     WaterloggedWorldData data = WaterloggedWorldData.get(world);
+    Set<Long> changed = new HashSet<Long>();
     PROCESSING.set(Boolean.TRUE);
     try {
       for (long packed : positions) {
@@ -58,6 +59,7 @@ public final class WaterloggedFlowQueue {
         int z = unpackZ(packed);
         if (!world.blockExists(x, y, z)
             || !WaterloggedBlockSupport.canWaterlog(world, x, y, z)) continue;
+        byte before = data.ingressMask(x,y,z);
         if (data.contains(x, y, z)
             && (!WaterloggedFlow.canRetainWater(world, data, x, y, z)
                 || !hasActiveIngress(world, data, x, y, z))) {
@@ -69,10 +71,13 @@ public final class WaterloggedFlowQueue {
           WaterloggedFlow.flow(world, data, x, y, z);
           wakeAdjacentWater(world, x, y, z);
         }
+        if (before != data.ingressMask(x,y,z)) changed.add(packed);
       }
     } finally {
       PROCESSING.remove();
     }
+    for (long position : changed)
+      scheduleAround(world,unpackX(position),unpackY(position),unpackZ(position));
   }
 
   private static boolean hasActiveIngress(
@@ -85,8 +90,8 @@ public final class WaterloggedFlowQueue {
     for (int[] face : faces) {
       if ((mask & WaterloggedGeometry.faceBit(face[0], face[1], face[2])) == 0) continue;
       int waterX = x + face[0], waterY = y + face[1], waterZ = z + face[2];
-      if (world.getBlock(waterX, waterY, waterZ).getMaterial() != Material.water) continue;
-      if (face[1] > 0 || world.getBlockMetadata(waterX, waterY, waterZ) == 0) return true;
+      if (hasConnectedSupply(world, data, waterX, waterY, waterZ,
+          -face[0], -face[1], -face[2])) return true;
     }
     return false;
   }
@@ -98,12 +103,45 @@ public final class WaterloggedFlowQueue {
       int sourceX = x + source[0];
       int sourceY = y + source[1];
       int sourceZ = z + source[2];
-      if (world.getBlock(sourceX, sourceY, sourceZ).getMaterial() != Material.water) continue;
-      if (source[1] == 0 && world.getBlockMetadata(sourceX, sourceY, sourceZ) != 0) continue;
+      if (!hasConnectedSupply(world, data, sourceX, sourceY, sourceZ,
+          -source[0], -source[1], -source[2])) continue;
       int[] directionFromSource = {-source[0], -source[1], -source[2]};
       if (!WaterloggedFlow.canFillFromSource(world, x, y, z, directionFromSource)) continue;
       data.addIngress(world, x, y, z, source[0], source[1], source[2]);
     }
+  }
+
+  /** Trace upstream to real water; a loop of waterlogged blocks is not a source. */
+  private static boolean hasConnectedSupply(World world, WaterloggedWorldData data,
+      int x, int y, int z, int outX, int outY, int outZ) {
+    java.util.ArrayDeque<int[]> pending = new java.util.ArrayDeque<int[]>();
+    java.util.HashSet<String> visited = new java.util.HashSet<String>();
+    pending.add(new int[] {x, y, z, outX, outY, outZ});
+    int[][] faces = {{-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1}};
+    while (!pending.isEmpty()) {
+      int[] node = pending.removeFirst();
+      if (!visited.add(node[0]+":"+node[1]+":"+node[2]+":"+node[3]+":"+node[4]+":"+node[5])) continue;
+      if (world.getBlock(node[0], node[1], node[2]).getMaterial() == Material.water) {
+        if (node[4] < 0 || world.getBlockMetadata(node[0], node[1], node[2]) == 0) return true;
+        continue;
+      }
+      if (!data.contains(node[0], node[1], node[2])
+          || !WaterloggedFlow.canSupplyWaterTo(world, data, node[0], node[1], node[2],
+              node[3], node[4], node[5])) continue;
+      byte mask = data.ingressMask(node[0], node[1], node[2]);
+      if ((mask & WaterloggedWorldData.INTERNAL_SOURCE) != 0) return true;
+      for (int side = 0; side < faces.length; ++side) {
+        int[] face = faces[side];
+        if ((mask & WaterloggedGeometry.faceBit(face[0], face[1], face[2])) == 0
+            || face[0] == node[3] && face[1] == node[4] && face[2] == node[5]) continue;
+        if (!WaterloggedGeometry.canReachFace(world, node[0], node[1], node[2],
+            WaterloggedGeometry.faceBit(face[0], face[1], face[2]),
+            node[3], node[4], node[5])) continue;
+        pending.add(new int[] {node[0]+face[0], node[1]+face[1], node[2]+face[2],
+            -face[0], -face[1], -face[2]});
+      }
+    }
+    return false;
   }
 
   private static void wakeAdjacentWater(World world, int x, int y, int z) {

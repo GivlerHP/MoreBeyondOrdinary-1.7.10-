@@ -80,12 +80,8 @@ public final class WaterloggingFlowTransformer implements IClassTransformer, Opc
                   "(Lnet/minecraft/world/World;III)Z",
                   false));
           sourceHook.add(new JumpInsnNode(IFEQ, vanilla));
-          sourceHook.add(new VarInsnNode(ALOAD, 0));
-          sourceHook.add(new InsnNode(DUP));
-          sourceHook.add(new FieldInsnNode(GETFIELD, node.name, adjacentSourceField, "I"));
-          sourceHook.add(new InsnNode(ICONST_1));
-          sourceHook.add(new InsnNode(IADD));
-          sourceHook.add(new FieldInsnNode(PUTFIELD, node.name, adjacentSourceField, "I"));
+          // Supply level-one flow, but never count a waterlogged block towards
+          // vanilla's two-source regeneration: closing its outlet must drain it.
           sourceHook.add(new InsnNode(ICONST_0));
           sourceHook.add(new InsnNode(IRETURN));
           sourceHook.add(vanilla);

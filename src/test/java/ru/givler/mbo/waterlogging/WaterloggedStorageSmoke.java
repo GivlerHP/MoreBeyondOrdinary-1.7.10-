@@ -19,6 +19,10 @@ public final class WaterloggedStorageSmoke {
     chunk.setByteArray("Ingress", new byte[] {1, 2});
     chunks.appendTag(chunk);
     root.setTag("Chunks", chunks);
+    NBTTagList dry = new NBTTagList();
+    NBTTagCompound dryPosition = new NBTTagCompound();
+    dryPosition.setInteger("X", -8); dryPosition.setInteger("Y", -1); dryPosition.setInteger("Z", 12);
+    dry.appendTag(dryPosition); root.setTag("Drained", dry);
 
     WaterloggedWorldData data = new WaterloggedWorldData();
     data.readFromNBT(root);
@@ -31,6 +35,8 @@ public final class WaterloggedStorageSmoke {
     data.writeToNBT(saved);
     WaterloggedWorldData restored = new WaterloggedWorldData();
     restored.readFromNBT(saved);
+    if (restored.addIngress(null,-8,-1,12,1,0,0))
+      throw new AssertionError("Bucket-drained pane must remain dry after save/reload");
     if (!restored.contains(x, -1, z) || !restored.contains(x, 255, z))
       throw new AssertionError("Waterlogged storage round trip failed");
 

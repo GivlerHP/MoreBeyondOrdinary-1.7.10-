@@ -58,7 +58,7 @@ public final class WaterloggingEventHandler {
       }
       replaceBucket(event, new ItemStack(Items.bucket));
       playWaterBucketSound(event.world, event.x, event.y, event.z);
-    } else if (setIncludingDoor(event.world, data, event.x, event.y, event.z, false)) {
+    } else if (drainIncludingDoor(event.world, data, event.x, event.y, event.z)) {
       replaceBucket(event, new ItemStack(Items.water_bucket));
     }
   }
@@ -67,6 +67,25 @@ public final class WaterloggingEventHandler {
   public void fillBucket(FillBucketEvent event) {
     if (event.current == null || event.target == null) return;
     int x = event.target.blockX, y = event.target.blockY, z = event.target.blockZ;
+    if (event.current.getItem() == Items.bucket) {
+      // Vanilla empty buckets trace liquids first, which can hide the pane
+      // behind its own water. Trace the solid shape separately for draining.
+      net.minecraft.util.Vec3 eye = net.minecraft.util.Vec3.createVectorHelper(
+          event.entityPlayer.posX,
+          event.entityPlayer.posY + event.entityPlayer.getEyeHeight() - event.entityPlayer.yOffset,
+          event.entityPlayer.posZ);
+      net.minecraft.util.Vec3 look = event.entityPlayer.getLook(1F);
+      double reach = event.entityPlayer instanceof EntityPlayerMP
+          ? ((EntityPlayerMP) event.entityPlayer).theItemInWorldManager.getBlockReachDistance() : 5D;
+      net.minecraft.util.MovingObjectPosition solid = event.world.func_147447_a(
+          eye, eye.addVector(look.xCoord*reach, look.yCoord*reach, look.zCoord*reach), false, true, false);
+      if (solid != null && solid.typeOfHit == net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK
+          && WaterloggedBlockSupport.canWaterlog(event.world, solid.blockX, solid.blockY, solid.blockZ)
+          && ru.givler.mbo.core.WaterloggingRenderHooks.isWaterlogged(
+              event.world, solid.blockX, solid.blockY, solid.blockZ)) {
+        x = solid.blockX; y = solid.blockY; z = solid.blockZ;
+      }
+    }
     if (event.current.getItem() == Items.water_bucket) {
       if (!WaterloggedBlockSupport.canWaterlog(event.world, x, y, z)) {
         int[] offset = sideOffset(event.target.sideHit);
@@ -94,7 +113,7 @@ public final class WaterloggingEventHandler {
     }
     if (event.world.isRemote) return;
     if (event.current.getItem() != Items.bucket) return;
-    if (!WaterloggedWorldData.get(event.world).set(event.world, x, y, z, false)) return;
+    if (!drainIncludingDoor(event.world, WaterloggedWorldData.get(event.world), x, y, z)) return;
     event.result = new ItemStack(Items.water_bucket);
     event.setResult(Result.ALLOW);
   }
@@ -103,7 +122,10 @@ public final class WaterloggingEventHandler {
   public void breakBlock(BlockEvent.BreakEvent event) {
     if (event.world.isRemote) return;
     WaterloggedWorldData data = WaterloggedWorldData.get(event.world);
-    if (!data.contains(event.x, event.y, event.z)) return;
+    if (!data.contains(event.x, event.y, event.z)) {
+      data.set(event.world, event.x, event.y, event.z, false);
+      return;
+    }
     data.set(event.world, event.x, event.y, event.z, false);
     brokenWaterloggedBlocks.add(new PendingWater(event.world, event.x, event.y, event.z));
   }
@@ -146,6 +168,7 @@ public final class WaterloggingEventHandler {
   public void placeBlock(BlockEvent.PlaceEvent event) {
     if (event.world.isRemote) return;
     WaterloggedWorldData data = WaterloggedWorldData.get(event.world);
+    data.clearDrain(event.x,event.y,event.z);
     boolean supported =
         WaterloggedBlockSupport.canWaterlog(event.world, event.x, event.y, event.z);
     if (!supported)
@@ -247,6 +270,15 @@ public final class WaterloggingEventHandler {
     boolean changed = data.set(world, x, baseY, z, waterlogged);
     if (world.getBlock(x, baseY + 1, z) == block)
       changed |= data.set(world, x, baseY + 1, z, waterlogged);
+    return changed;
+  }
+
+  private static boolean drainIncludingDoor(World world, WaterloggedWorldData data, int x, int y, int z) {
+    Block block = world.getBlock(x,y,z);
+    if (!(block instanceof BlockDoor)) return data.drain(world,x,y,z);
+    int baseY = (world.getBlockMetadata(x,y,z) & 8) == 0 ? y : y-1;
+    boolean changed = data.drain(world,x,baseY,z);
+    if (world.getBlock(x,baseY+1,z) == block) changed |= data.drain(world,x,baseY+1,z);
     return changed;
   }
 

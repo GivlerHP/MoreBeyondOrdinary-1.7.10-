@@ -47,6 +47,7 @@ import ru.givler.mbo.network.packet.PacketPotionEffectSync;
 import ru.givler.mbo.network.packet.PacketSpectatorState;
 import ru.givler.mbo.network.packet.PacketWaterloggedDelta;
 import ru.givler.mbo.network.packet.PacketWaterloggedSnapshot;
+import ru.givler.mbo.network.packet.PacketTickRate;
 import ru.givler.mbo.network.packet.magic.PacketMagicBurst;
 import ru.givler.mbo.network.packet.magic.PacketLightningArc;
 import ru.givler.mbo.network.packet.magic.PacketStaticAuraImpact;
@@ -212,6 +213,8 @@ public class PacketManager {
         Side.CLIENT);
     INSTANCE.registerMessage(
         PacketColoredBurning.Handler.class, PacketColoredBurning.class, nextID++, Side.CLIENT);
+    INSTANCE.registerMessage(
+        PacketTickRate.Handler.class, PacketTickRate.class, nextID++, Side.CLIENT);
   }
 
   /** Registers outgoing client-bound packet IDs without loading client-only handlers. */
@@ -238,7 +241,8 @@ public class PacketManager {
       PacketFenceConnectionSnapshot.class,
       PacketTrapdoorLatchDelta.class,
       PacketTrapdoorLatchSnapshot.class,
-      PacketColoredBurning.class
+      PacketColoredBurning.class,
+      PacketTickRate.class
     };
     try {
       FMLIndexedMessageToMessageCodec codec =
