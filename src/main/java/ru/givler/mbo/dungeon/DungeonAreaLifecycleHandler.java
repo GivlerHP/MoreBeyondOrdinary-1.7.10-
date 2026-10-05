@@ -9,6 +9,8 @@ import ru.givler.mbo.network.packet.PacketDungeonAreaSync;
 public final class DungeonAreaLifecycleHandler {
   @SubscribeEvent
   public void tick(TickEvent.WorldTickEvent e) {
+    if (e.side.isServer() && e.phase == TickEvent.Phase.START)
+      IllusoryWallHitHandler.hitProjectiles(e.world);
     if (e.side.isServer() && e.phase == TickEvent.Phase.END)
       DungeonAreaSavedData.get(e.world).tick(e.world);
   }
