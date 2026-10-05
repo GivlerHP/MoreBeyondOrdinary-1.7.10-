@@ -270,13 +270,21 @@ public final class MovingPlatformTickHandler {
         entity.onGround = true;
         entity.fallDistance = 0;
         carriers.put(entity, platform.getEntityId());
-        if (clientOnly && (ride == null || ride.platformId != platform.getEntityId()))
-          offsets.put(
-              entity,
-              new RideOffset(
-                  platform.getEntityId(),
-                  entity.posX - platform.posX,
-                  entity.posZ - platform.posZ));
+        if (clientOnly) {
+          if (ride == null || ride.platformId != platform.getEntityId()) {
+            ride = new RideOffset(platform.getEntityId(),entity.posX-platform.posX,entity.posZ-platform.posZ);
+            offsets.put(entity,ride);
+          }
+          if (entity instanceof EntityLivingBase) {
+            EntityLivingBase living=(EntityLivingBase)entity;
+            if (ride.animation == null)
+              ride.animation=new PassengerWalkAnimation(ride.x,ride.z,living.limbSwing,living.prevLimbSwingAmount);
+            ride.animation.update(ride.x,ride.z);
+            living.prevLimbSwingAmount=ride.animation.previousAmount;
+            living.limbSwingAmount=ride.animation.amount;
+            living.limbSwing=ride.animation.phase;
+          }
+        }
         return;
       }
     }
@@ -456,11 +464,42 @@ public final class MovingPlatformTickHandler {
   private static final class RideOffset {
     final int platformId;
     double x, z;
+    PassengerWalkAnimation animation;
 
     RideOffset(int platformId, double x, double z) {
       this.platformId = platformId;
       this.x = x;
       this.z = z;
+    }
+  }
+
+  private static boolean carried(EntityLivingBase entity) {
+    Map<Entity,Integer> carriers=ENTITY_CARRIERS.get(entity.worldObj);
+    return carriers!=null && carriers.containsKey(entity);
+  }
+
+  public static double animationPreviousX(EntityLivingBase entity) {
+    return carried(entity) ? entity.posX-entity.motionX : entity.prevPosX;
+  }
+
+  public static double animationPreviousZ(EntityLivingBase entity) {
+    return carried(entity) ? entity.posZ-entity.motionZ : entity.prevPosZ;
+  }
+
+  /** Vanilla limb smoothing, measured in the platform's coordinate system. */
+  public static final class PassengerWalkAnimation {
+    private double x,z;
+    public float previousAmount,amount,phase;
+    public PassengerWalkAnimation(double x,double z,float phase,float amount) {
+      this.x=x; this.z=z; this.phase=phase; this.amount=amount;
+    }
+    public void update(double nextX,double nextZ) {
+      double dx=nextX-x,dz=nextZ-z;
+      float target=Math.min(1F,(float)Math.sqrt(dx*dx+dz*dz)*4F);
+      previousAmount=amount;
+      amount+=(target-amount)*0.4F;
+      phase+=amount;
+      x=nextX; z=nextZ;
     }
   }
 }

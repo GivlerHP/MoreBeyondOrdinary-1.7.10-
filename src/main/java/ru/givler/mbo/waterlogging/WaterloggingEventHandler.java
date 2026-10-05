@@ -229,6 +229,16 @@ public final class WaterloggingEventHandler {
   }
 
   @SubscribeEvent
+  public void watchChunk(net.minecraftforge.event.world.ChunkWatchEvent.Watch event) {
+    PacketWaterloggedSnapshot.sendChunk(event.player,event.chunk.chunkXPos,event.chunk.chunkZPos,true);
+  }
+
+  @SubscribeEvent
+  public void unwatchChunk(net.minecraftforge.event.world.ChunkWatchEvent.UnWatch event) {
+    PacketWaterloggedSnapshot.sendChunk(event.player,event.chunk.chunkXPos,event.chunk.chunkZPos,false);
+  }
+
+  @SubscribeEvent
   public void dimension(PlayerEvent.PlayerChangedDimensionEvent event) {
     if (event.player instanceof EntityPlayerMP)
       PacketWaterloggedSnapshot.send((EntityPlayerMP) event.player);

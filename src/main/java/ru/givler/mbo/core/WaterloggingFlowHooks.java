@@ -20,12 +20,16 @@ public final class WaterloggingFlowHooks {
   private WaterloggingFlowHooks() {}
 
   public static void onNeighborNotification(World world, int x, int y, int z) {
+    ru.givler.mbo.waterlogging.WaterloggedGeometry.invalidate();
     WaterloggedFlowQueue.scheduleAround(world, x, y, z);
   }
 
   public static void onMetadataChanged(
       boolean changed, World world, int x, int y, int z) {
-    if (changed) WaterloggedFlowQueue.scheduleAround(world, x, y, z);
+    if (changed) {
+      ru.givler.mbo.waterlogging.WaterloggedGeometry.invalidate();
+      WaterloggedFlowQueue.scheduleAround(world, x, y, z);
+    }
   }
 
   public static boolean protectsFromWaterFlow(

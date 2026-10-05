@@ -38,7 +38,7 @@ public final class WaterloggedFlowQueue {
       if (positions == null) {
         positions = PENDING.get(world);
         if (positions == null) {
-          positions = new HashSet<Long>();
+          positions = new java.util.LinkedHashSet<Long>();
           PENDING.put(world, positions);
         }
       }
@@ -51,9 +51,14 @@ public final class WaterloggedFlowQueue {
     if (positions == null || positions.isEmpty()) return;
     WaterloggedWorldData data = WaterloggedWorldData.get(world);
     Set<Long> changed = new HashSet<Long>();
+    boolean scope = WaterloggedGeometry.beginScope(world);
+    long deadline = System.nanoTime()+5_000_000L;
+    int processed = 0;
     PROCESSING.set(Boolean.TRUE);
     try {
-      for (long packed : positions) {
+      for (java.util.Iterator<Long> iterator = positions.iterator(); iterator.hasNext();) {
+        if (processed >= 512 || processed > 0 && System.nanoTime() >= deadline) break;
+        long packed = iterator.next(); iterator.remove(); ++processed;
         int x = unpackX(packed);
         int y = unpackY(packed);
         int z = unpackZ(packed);
@@ -75,6 +80,12 @@ public final class WaterloggedFlowQueue {
       }
     } finally {
       PROCESSING.remove();
+      if (scope) WaterloggedGeometry.endScope();
+      if (!positions.isEmpty()) {
+        Set<Long> additional = PENDING.get(world);
+        if (additional != null) positions.addAll(additional);
+        PENDING.put(world,positions);
+      }
     }
     for (long position : changed)
       scheduleAround(world,unpackX(position),unpackY(position),unpackZ(position));
@@ -114,13 +125,29 @@ public final class WaterloggedFlowQueue {
   /** Trace upstream to real water; a loop of waterlogged blocks is not a source. */
   private static boolean hasConnectedSupply(World world, WaterloggedWorldData data,
       int x, int y, int z, int outX, int outY, int outZ) {
+    boolean owned=WaterloggedGeometry.beginScope(world);
+    try {
+      String key=x+":"+y+":"+z+":"+outX+":"+outY+":"+outZ;
+      Boolean cached=WaterloggedGeometry.cachedSupply(key);
+      if (cached!=null) return cached;
+      boolean supplied=traceConnectedSupply(world,data,x,y,z,outX,outY,outZ);
+      WaterloggedGeometry.cacheSupply(key,supplied); return supplied;
+    } finally { if (owned) WaterloggedGeometry.endScope(); }
+  }
+
+  private static boolean traceConnectedSupply(World world, WaterloggedWorldData data,
+      int x, int y, int z, int outX, int outY, int outZ) {
     java.util.ArrayDeque<int[]> pending = new java.util.ArrayDeque<int[]>();
     java.util.HashSet<String> visited = new java.util.HashSet<String>();
     pending.add(new int[] {x, y, z, outX, outY, outZ});
     int[][] faces = {{-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1}};
     while (!pending.isEmpty()) {
       int[] node = pending.removeFirst();
-      if (!visited.add(node[0]+":"+node[1]+":"+node[2]+":"+node[3]+":"+node[4]+":"+node[5])) continue;
+      String state=node[0]+":"+node[1]+":"+node[2]+":"+node[3]+":"+node[4]+":"+node[5];
+      if (!visited.add(state)) continue;
+      Boolean cached=WaterloggedGeometry.cachedSupply(state);
+      if (Boolean.TRUE.equals(cached)) return true;
+      if (Boolean.FALSE.equals(cached)) continue;
       if (world.getBlock(node[0], node[1], node[2]).getMaterial() == Material.water) {
         if (node[4] < 0 || world.getBlockMetadata(node[0], node[1], node[2]) == 0) return true;
         continue;
@@ -141,6 +168,7 @@ public final class WaterloggedFlowQueue {
             -face[0], -face[1], -face[2]});
       }
     }
+    for (String state:visited) WaterloggedGeometry.cacheSupply(state,false);
     return false;
   }
 

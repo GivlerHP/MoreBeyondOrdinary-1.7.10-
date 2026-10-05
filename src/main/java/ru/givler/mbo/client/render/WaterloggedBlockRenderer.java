@@ -141,7 +141,7 @@ public final class WaterloggedBlockRenderer {
       Tessellator tessellator = Tessellator.instance;
       tessellator.startDrawingQuads();
       tessellator.setTranslation(-cameraX, -cameraY, -cameraZ);
-      for (ClientWaterloggedBlocks.Position position : ClientWaterloggedBlocks.all(dimension)) {
+      for (ClientWaterloggedBlocks.Position position : ClientWaterloggedBlocks.nearby(dimension,cameraX,cameraZ,96)) {
         double dx = position.x + 0.5D - cameraX;
         double dy = position.y + 0.5D - cameraY;
         double dz = position.z + 0.5D - cameraZ;
@@ -162,6 +162,8 @@ public final class WaterloggedBlockRenderer {
   }
 
   private static void renderWater(World world, ClientWaterloggedBlocks.Position position) {
+    boolean scope = WaterloggedGeometry.beginScope(world);
+    try {
     double[] heights = new double[4];
     for (int x = 0; x < 2; ++x) for (int z = 0; z < 2; ++z)
       heights[x*2+z] = (double)WaterloggedLiquidHeightHooks.cornerHeight(
@@ -169,6 +171,7 @@ public final class WaterloggedBlockRenderer {
     SURFACE_CORNERS.set(heights);
     try { renderWaterBody(world,position); }
     finally { SURFACE_CORNERS.remove(); }
+    } finally { if (scope) WaterloggedGeometry.endScope(); }
   }
 
   private static final ThreadLocal<double[]> SURFACE_CORNERS = new ThreadLocal<double[]>();

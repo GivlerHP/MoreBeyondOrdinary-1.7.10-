@@ -19,6 +19,32 @@ import ru.givler.mbo.movingplatform.PlatformBlock;
 public class RenderMovingPlatform extends Render {
   private final Map<java.util.UUID, Cache> cache = new HashMap<java.util.UUID, Cache>();
   private final DoubleBuffer clipPlane = BufferUtils.createDoubleBuffer(4);
+  private static long lightEpoch;
+
+  public RenderMovingPlatform() {
+    net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(this);
+    cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(this);
+  }
+
+  @cpw.mods.fml.common.eventhandler.SubscribeEvent
+  public void unload(net.minecraftforge.event.world.WorldEvent.Unload event) {
+    if (!event.world.isRemote) return;
+    for (Cache entry : cache.values()) GL11.glDeleteLists(entry.list,1);
+    cache.clear();
+  }
+
+  @cpw.mods.fml.common.eventhandler.SubscribeEvent
+  public void tick(cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent event) {
+    if (event.phase != cpw.mods.fml.common.gameevent.TickEvent.Phase.END) return;
+    ++lightEpoch;
+    for (java.util.Iterator<Cache> it = cache.values().iterator(); it.hasNext();) {
+      Cache entry = it.next(); EntityMovingPlatform owner = entry.owner.get();
+      if (owner == null || owner.isDead || owner.worldObj != net.minecraft.client.Minecraft.getMinecraft().theWorld
+          || owner.worldObj.getEntityByID(owner.getEntityId()) != owner) {
+        GL11.glDeleteLists(entry.list,1); it.remove();
+      }
+    }
+  }
 
   @Override
   public void doRender(Entity entity, double x, double y, double z, float yaw, float partial) {
@@ -85,7 +111,10 @@ public class RenderMovingPlatform extends Render {
     int ox = (int) Math.floor(worldX),
         oy = (int) Math.floor(worldY),
         oz = (int) Math.floor(worldZ);
-    int[] light = interpolatedLightField(platform, worldX, worldY, worldZ);
+    Cache old = cache.get(platform.getPlatformId());
+    LightSamples samples=old!=null && old.samples.matches(platform,worldX,worldY,worldZ)
+        ? old.samples : new LightSamples(platform,worldX,worldY,worldZ);
+    int[] light = interpolatedLightField(platform, worldX, worldY, worldZ,samples);
     int signature = 1;
     for (PlatformBlock b : platform.getBlocks()) {
       signature = 31 * signature + net.minecraft.block.Block.getIdFromBlock(b.block);
@@ -97,8 +126,7 @@ public class RenderMovingPlatform extends Render {
     signature = 31 * signature + Arrays.hashCode(light);
     int cx = ox + platform.getSizeX() / 2, cz = oz + platform.getSizeZ() / 2;
     signature = 31 * signature + platform.worldObj.getBiomeGenForCoords(cx, cz).biomeID;
-    Cache old = cache.get(platform.getPlatformId());
-    if (old != null && old.signature == signature) return old;
+    if (old != null && old.signature == signature) { old.samples=samples; return old; }
     if (old != null) GL11.glDeleteLists(old.list, 1);
     int list = GL11.glGenLists(1);
     GL11.glNewList(list, GL11.GL_COMPILE);
@@ -110,17 +138,27 @@ public class RenderMovingPlatform extends Render {
     renderer.renderAllFaces = true;
     Tessellator tessellator = Tessellator.instance;
     tessellator.startDrawingQuads();
-    for (PlatformBlock b : platform.getBlocks())
+    for (PlatformBlock b : platform.getBlocks()) {
+      // Cull interior faces only for vanilla-style full cubes; custom models
+      // retain their original rendering behaviour.
+      renderer.renderAllFaces=platform.isClipAboveSelection()
+          || !(b.block.getRenderType()==0 && b.block.isNormalCube());
       renderer.renderBlockByRenderType(b.block, b.x, b.y, b.z);
+    }
     tessellator.draw();
     GL11.glEndList();
-    Cache made = new Cache(list, signature);
+    Cache made = new Cache(list, signature,platform,samples);
     cache.put(platform.getPlatformId(), made);
     return made;
   }
 
   private static int[] interpolatedLightField(
       EntityMovingPlatform platform, double worldX, double worldY, double worldZ) {
+    return interpolatedLightField(platform,worldX,worldY,worldZ,new LightSamples(platform,worldX,worldY,worldZ));
+  }
+
+  private static int[] interpolatedLightField(
+      EntityMovingPlatform platform, double worldX, double worldY, double worldZ,LightSamples samples) {
     int sizeX = platform.getSizeX(), sizeY = platform.getSizeY(), sizeZ = platform.getSizeZ();
     int sy = sizeY + 2, sz = sizeZ + 2;
     int[] result = new int[(sizeX + 2) * sy * sz];
@@ -128,12 +166,12 @@ public class RenderMovingPlatform extends Render {
     for (int x = -1; x <= sizeX; x++)
       for (int y = -1; y <= sizeY; y++)
         for (int z = -1; z <= sizeZ; z++)
-          result[index++] = interpolateLight(platform, worldX + x, worldY + y, worldZ + z);
+          result[index++] = interpolateLight(samples, worldX + x, worldY + y, worldZ + z);
     return result;
   }
 
   private static int interpolateLight(
-      EntityMovingPlatform platform, double x, double y, double z) {
+      LightSamples samples, double x, double y, double z) {
     int x0 = (int) Math.floor(x), y0 = (int) Math.floor(y), z0 = (int) Math.floor(z);
     double fx = x - x0, fy = y - y0, fz = z - z0;
     double block = 0D, sky = 0D;
@@ -143,8 +181,8 @@ public class RenderMovingPlatform extends Render {
           double weight = (dx == 0 ? 1D - fx : fx)
               * (dy == 0 ? 1D - fy : fy)
               * (dz == 0 ? 1D - fz : fz);
-          int packed = platform.worldObj.getLightBrightnessForSkyBlocks(
-              x0 + dx, y0 + dy, z0 + dz, 0);
+          if (weight == 0D) continue;
+          int packed = samples.get(x0+dx,y0+dy,z0+dz);
           block += (packed & 0xffff) * weight;
           sky += (packed >>> 16 & 0xffff) * weight;
         }
@@ -157,10 +195,40 @@ public class RenderMovingPlatform extends Render {
 
   private static final class Cache {
     final int list, signature;
+    final java.lang.ref.WeakReference<EntityMovingPlatform> owner;
+    LightSamples samples;
 
-    Cache(int list, int signature) {
+    Cache(int list, int signature,EntityMovingPlatform platform,LightSamples samples) {
       this.list = list;
       this.signature = signature;
+      owner = new java.lang.ref.WeakReference<EntityMovingPlatform>(platform);
+      this.samples=samples;
+    }
+  }
+
+  private static final class LightSamples {
+    final net.minecraft.world.World world;
+    final int x,y,z,sy,sz;
+    final int[] values;
+    final long epoch=lightEpoch;
+    LightSamples(EntityMovingPlatform platform,double worldX,double worldY,double worldZ) {
+      this.world = platform.worldObj;
+      x = (int)Math.floor(worldX)-1; y = (int)Math.floor(worldY)-1; z = (int)Math.floor(worldZ)-1;
+      sy = platform.getSizeY()+3; sz = platform.getSizeZ()+3;
+      values = new int[(platform.getSizeX()+3)*sy*sz];
+      Arrays.fill(values,Integer.MIN_VALUE);
+    }
+    boolean matches(EntityMovingPlatform owner,double worldX,double worldY,double worldZ) {
+      return owner.worldObj==world && epoch==lightEpoch
+          && x==(int)Math.floor(worldX)-1 && y==(int)Math.floor(worldY)-1 && z==(int)Math.floor(worldZ)-1
+          && sy==owner.getSizeY()+3 && sz==owner.getSizeZ()+3
+          && values.length==(owner.getSizeX()+3)*sy*sz;
+    }
+    int get(int worldX,int worldY,int worldZ) {
+      int index = ((worldX-x)*sy+(worldY-y))*sz+(worldZ-z);
+      if (values[index] == Integer.MIN_VALUE)
+        values[index] = world.getLightBrightnessForSkyBlocks(worldX,worldY,worldZ,0);
+      return values[index];
     }
   }
 

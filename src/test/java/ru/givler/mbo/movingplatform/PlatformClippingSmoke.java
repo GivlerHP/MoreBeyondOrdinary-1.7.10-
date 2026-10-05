@@ -11,6 +11,7 @@ public final class PlatformClippingSmoke {
   private PlatformClippingSmoke() { }
 
   public static void check() {
+    verifyPassengerAnimation();
     NBTTagCompound original = new NBTTagCompound();
     original.setDouble("HomeY", 100D);
     original.setInteger("SizeX", 1);
@@ -56,6 +57,22 @@ public final class PlatformClippingSmoke {
     System.out.println("Elevator clipping: persistence, collision, world ownership, obstruction and editor packet passed");
   }
 
+  private static void verifyPassengerAnimation() {
+    MovingPlatformTickHandler.PassengerWalkAnimation animation=
+        new MovingPlatformTickHandler.PassengerWalkAnimation(.5D,.5D,2F,0F);
+    for (int tick=0;tick<60;++tick) animation.update(.5D,.5D);
+    if (animation.amount!=0F || animation.phase!=2F)
+      throw new AssertionError("Transport with an unchanged relative position must not animate walking");
+    animation.update(.75D,.5D);
+    if (Math.abs(animation.amount-.4F)>0.000001F || animation.previousAmount!=0F)
+      throw new AssertionError("Walking on a platform must retain vanilla limb animation");
+    float before=animation.amount;
+    animation.update(.75D,.5D);
+    if (Math.abs(animation.amount-before*.6F)>0.000001F || animation.previousAmount!=before)
+      throw new AssertionError("Stopping on a platform must smoothly settle the walk animation");
+    System.out.println("Passenger animation: stationary transport, relative walking and smooth stopping passed");
+  }
+
   private static final class TestBlock extends Block {
     TestBlock() { super(Material.rock); }
   }
@@ -91,6 +108,8 @@ public final class PlatformClippingSmoke {
       world.cells = new java.util.HashMap<String, Block>();
       world.metadata = new java.util.HashMap<String, Integer>();
       verifyPaneWaterSides(world);
+      verifyLightSampling(world);
+      verifyPassengerTurn(world);
       verifyPlateActivation(world, original);
       EntityMovingPlatform p = new EntityMovingPlatform(null);
       p.readPlatformTag(original);
@@ -147,6 +166,53 @@ public final class PlatformClippingSmoke {
     java.lang.reflect.Method method = EntityMovingPlatform.class.getDeclaredMethod(name);
     method.setAccessible(true);
     return (Boolean) method.invoke(p);
+  }
+
+  private static void verifyLightSampling(TestWorld world) throws ReflectiveOperationException {
+    NBTTagCompound tag=new NBTTagCompound();
+    tag.setInteger("SizeX",5); tag.setInteger("SizeY",40); tag.setInteger("SizeZ",5);
+    EntityMovingPlatform platform=new EntityMovingPlatform(null); platform.readPlatformTag(tag); platform.worldObj=world;
+    java.lang.reflect.Method method=ru.givler.mbo.client.render.RenderMovingPlatform.class.getDeclaredMethod(
+        "interpolatedLightField",EntityMovingPlatform.class,double.class,double.class,double.class);
+    method.setAccessible(true);
+    for (double fraction:new double[] {0D,0.375D}) {
+      world.lightQueries=0;
+      int[] actual=(int[])method.invoke(null,platform,10D+fraction,20D+fraction,30D+fraction);
+      int queries=world.lightQueries,index=0;
+      for (int x=-1;x<=5;++x) for (int y=-1;y<=40;++y) for (int z=-1;z<=5;++z) {
+        double block=0D,sky=0D;
+        for (int dx=0;dx<2;++dx) for (int dy=0;dy<2;++dy) for (int dz=0;dz<2;++dz) {
+          double weight=(dx==0?1-fraction:fraction)*(dy==0?1-fraction:fraction)*(dz==0?1-fraction:fraction);
+          int light=world.getLightBrightnessForSkyBlocks(10+x+dx,20+y+dy,30+z+dz,0);
+          block+=(light&65535)*weight; sky+=(light >>> 16 & 65535)*weight;
+        }
+        int expected=(int)Math.round(block) | (int)Math.round(sky) << 16;
+        if (actual[index++]!=expected) throw new AssertionError("Optimized light interpolation changed a vertex's packed light");
+      }
+      if (queries>8*43*8) throw new AssertionError("Each light coordinate must be fetched only once");
+      System.out.println("Platform 5x40x5 light queries: 16464 -> "+queries+", exact interpolation retained");
+    }
+  }
+
+  private static void verifyPassengerTurn(TestWorld world) throws ReflectiveOperationException {
+    java.lang.reflect.Field unsafe=sun.misc.Unsafe.class.getDeclaredField("theUnsafe"); unsafe.setAccessible(true);
+    net.minecraft.entity.EntityLivingBase mob=(net.minecraft.entity.EntityLivingBase)
+        ((sun.misc.Unsafe)unsafe.get(null)).allocateInstance(net.minecraft.entity.passive.EntityCow.class);
+    mob.worldObj=world; mob.posX=2D; mob.posZ=3D; mob.prevPosX=1D; mob.prevPosZ=1D;
+    mob.rotationYaw=45F; mob.rotationYawHead=90F;
+    if (MovingPlatformTickHandler.animationPreviousX(mob)!=1D)
+      throw new AssertionError("Non-passenger rotation must retain vanilla movement detection");
+    java.lang.reflect.Field field=MovingPlatformTickHandler.class.getDeclaredField("ENTITY_CARRIERS"); field.setAccessible(true);
+    java.util.Map map=(java.util.Map)field.get(null);
+    java.util.Map carriers=new java.util.WeakHashMap(); carriers.put(mob,1); map.put(world,carriers);
+    try {
+      if (MovingPlatformTickHandler.animationPreviousX(mob)!=2D || MovingPlatformTickHandler.animationPreviousZ(mob)!=3D)
+        throw new AssertionError("Lift transport must not put body rotation into its walking branch");
+      mob.motionX=.125D; mob.motionZ=.25D;
+      if (MovingPlatformTickHandler.animationPreviousX(mob)!=1.875D || MovingPlatformTickHandler.animationPreviousZ(mob)!=2.75D
+          || mob.rotationYaw!=45F || mob.rotationYawHead!=90F)
+        throw new AssertionError("Passenger walking and independent head rotation must remain available");
+    } finally { map.remove(world); }
   }
 
   private static void verifyPlateActivation(TestWorld world, NBTTagCompound original)
@@ -293,6 +359,28 @@ public final class PlatformClippingSmoke {
       for (int pane = 0; pane < 2; ++pane)
         for (boolean wet : ru.givler.mbo.waterlogging.WaterloggedGeometry.waterCellsForFlow(world,pane,0,0))
           if (wet) throw new AssertionError("Connected panes without a source must not manufacture water");
+      world.cells.clear(); world.metadata.clear();
+      ru.givler.mbo.waterlogging.ClientWaterloggedBlocks.clear();
+      int length=2048;
+      for (int x=-1;x<=length;++x) for (int z=-1;z<=1;++z) world.setBlock(x,0,z,air,0,2);
+      for (int x=0;x<length;++x) {
+        world.setBlock(x,0,0,new TestPane(false),0,2); world.setBlock(x,1,0,air,0,2);
+        ru.givler.mbo.waterlogging.ClientWaterloggedBlocks.set(0,x,0,0,true);
+      }
+      world.setBlock(0,0,-1,water,0,2);
+      TestPane.connectionQueries=0;
+      boolean scope=ru.givler.mbo.waterlogging.WaterloggedGeometry.beginScope(world);
+      try {
+        for (int pane=0;pane<length;++pane) {
+          boolean[] wet=ru.givler.mbo.waterlogging.WaterloggedGeometry.waterCellsForFlow(world,pane,0,0);
+          for (int x=0;x<2;++x) for (int y=0;y<2;++y) for (int z=0;z<2;++z)
+            if (wet[ru.givler.mbo.waterlogging.WaterloggedGeometry.index(x,y,z)]!=(z==0))
+              throw new AssertionError("Long pane chain changed its wet side");
+        }
+        if (TestPane.connectionQueries!=length*4)
+          throw new AssertionError("Pane connectivity must be evaluated once per component, not once per path");
+      } finally { if (scope) ru.givler.mbo.waterlogging.WaterloggedGeometry.endScope(); }
+      System.out.println("2048 connected panes: 8192 connection queries, cached results, dry half preserved");
       remote.setBoolean(world,previousRemote);
     } catch (ReflectiveOperationException error) { throw new AssertionError(error); }
     finally {
@@ -346,10 +434,12 @@ public final class PlatformClippingSmoke {
   }
 
   private static final class TestPane extends net.minecraft.block.BlockPane {
+    static int connectionQueries;
     private final boolean northSouth;
     TestPane(boolean northSouth) { super("glass", "glass_pane_top", Material.glass, false); this.northSouth = northSouth; }
     @Override public boolean canPaneConnectTo(net.minecraft.world.IBlockAccess world, int x, int y, int z,
         net.minecraftforge.common.util.ForgeDirection side) {
+      ++connectionQueries;
       return northSouth ? side.offsetZ != 0 : side.offsetX != 0;
     }
     @Override public void addCollisionBoxesToList(net.minecraft.world.World world, int x, int y, int z,
@@ -368,6 +458,7 @@ public final class PlatformClippingSmoke {
   private static final class TestWorld extends net.minecraft.client.multiplayer.WorldClient {
     java.util.Map<String, Block> cells;
     java.util.Map<String, Integer> metadata;
+    int lightQueries;
     private TestWorld() { super(null, null, 0, net.minecraft.world.EnumDifficulty.NORMAL, null); }
     private String key(int x, int y, int z) { return x + ":" + y + ":" + z; }
     @Override public Block getBlock(int x, int y, int z) {
@@ -379,6 +470,10 @@ public final class PlatformClippingSmoke {
       return value == null ? 0 : value;
     }
     @Override public long getTotalWorldTime() { return 0L; }
+    @Override public int getLightBrightnessForSkyBlocks(int x,int y,int z,int minimum) {
+      ++lightQueries;
+      return ((x+y+z)&15) << 20 | ((x-y+z)&15) << 4;
+    }
     @Override public boolean blockExists(int x, int y, int z) { return true; }
     @Override public boolean setBlock(int x, int y, int z, Block b, int meta, int flags) {
       cells.put(key(x, y, z), b);

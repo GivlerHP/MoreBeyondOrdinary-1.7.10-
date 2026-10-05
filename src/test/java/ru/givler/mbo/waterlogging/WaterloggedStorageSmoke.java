@@ -54,6 +54,46 @@ public final class WaterloggedStorageSmoke {
     if (positions.size() != 1 || positions.get(0).y != 255
         || !restored.contains(x, 255, z) || restored.contains(x, -1, z))
       throw new AssertionError("Legacy waterlogged storage migration failed");
+    verifyClientChunks();
+    verifyChunkPackets();
     System.out.println("Waterlogged negative Y storage and migration passed");
+  }
+
+  private static void verifyClientChunks() {
+    ClientWaterloggedBlocks.clear();
+    ClientWaterloggedBlocks.set(7,-1,-32,-1,true);
+    ClientWaterloggedBlocks.set(7,1600,0,1600,true);
+    int count=0;
+    for (ClientWaterloggedBlocks.Position p:ClientWaterloggedBlocks.nearby(7,-1,-1,96)) {
+      if (p.x==1600) throw new AssertionError("Distant chunk included in local water rendering");
+      ++count;
+    }
+    if (count!=1) throw new AssertionError("Negative chunk coordinates lost water");
+    ClientWaterloggedBlocks.replaceChunk(7,-1,-1,java.util.Collections.<WaterloggedWorldData.Position>emptyList());
+    if (ClientWaterloggedBlocks.contains(7,-1,-32,-1) || !ClientWaterloggedBlocks.contains(7,1600,0,1600))
+      throw new AssertionError("Unwatching a chunk must only clear that chunk");
+    ClientWaterloggedBlocks.replaceChunk(7,-1,-1,java.util.Arrays.asList(new WaterloggedWorldData.Position(-2,-1,-2)));
+    if (!ClientWaterloggedBlocks.contains(7,-2,-1,-2)) throw new AssertionError("Watching a chunk must restore water");
+    ClientWaterloggedBlocks.set(8,0,0,0,true);
+    count=0;
+    for (ClientWaterloggedBlocks.Position p:ClientWaterloggedBlocks.nearby(8,-1,-1,96)) ++count;
+    if (count!=1) throw new AssertionError("Water chunk index survived a dimension change");
+    ClientWaterloggedBlocks.clear();
+  }
+
+  private static void verifyChunkPackets() {
+    for (boolean chunk:new boolean[] {false,true}) {
+      io.netty.buffer.ByteBuf input=io.netty.buffer.Unpooled.buffer(), output=io.netty.buffer.Unpooled.buffer();
+      try {
+        input.writeInt(7).writeBoolean(chunk);
+        if (chunk) input.writeInt(-1).writeInt(-2);
+        input.writeInt(1).writeInt(-3).writeShort(-32).writeInt(-17);
+        int length=input.readableBytes();
+        ru.givler.mbo.network.packet.PacketWaterloggedSnapshot packet=new ru.givler.mbo.network.packet.PacketWaterloggedSnapshot();
+        packet.fromBytes(input.duplicate()); packet.toBytes(output);
+        if (output.readableBytes()!=length || !io.netty.buffer.ByteBufUtil.equals(input,output))
+          throw new AssertionError("Chunk-scoped water snapshot lost positions or mode");
+      } finally { input.release(); output.release(); }
+    }
   }
 }

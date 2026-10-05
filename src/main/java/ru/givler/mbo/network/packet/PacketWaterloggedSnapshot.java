@@ -17,23 +17,35 @@ import ru.givler.mbo.waterlogging.WaterloggedWorldData;
 public final class PacketWaterloggedSnapshot implements IMessage {
   private static final int MAX_POSITIONS = 1_000_000;
   private int dimension;
+  private boolean chunkScoped;
+  private int chunkX,chunkZ;
   private List<WaterloggedWorldData.Position> positions =
       new ArrayList<WaterloggedWorldData.Position>();
 
   public PacketWaterloggedSnapshot() {}
 
-  private PacketWaterloggedSnapshot(World world) {
-    dimension = world.provider.dimensionId;
-    positions = WaterloggedWorldData.get(world).all();
+  private PacketWaterloggedSnapshot(EntityPlayerMP player) {
+    dimension = player.worldObj.provider.dimensionId;
+    positions = WaterloggedWorldData.get(player.worldObj).watchedBy(player);
   }
 
   public static void send(EntityPlayerMP player) {
-    PacketManager.INSTANCE.sendTo(new PacketWaterloggedSnapshot(player.worldObj), player);
+    PacketManager.INSTANCE.sendTo(new PacketWaterloggedSnapshot(player), player);
+  }
+
+  public static void sendChunk(EntityPlayerMP player,int x,int z,boolean loaded) {
+    PacketWaterloggedSnapshot message=new PacketWaterloggedSnapshot();
+    message.dimension=player.worldObj.provider.dimensionId;
+    message.chunkScoped=true; message.chunkX=x; message.chunkZ=z;
+    if (loaded) message.positions=WaterloggedWorldData.get(player.worldObj).inChunk(x,z);
+    PacketManager.INSTANCE.sendTo(message,player);
   }
 
   @Override
   public void fromBytes(ByteBuf buffer) {
     dimension = buffer.readInt();
+    chunkScoped=buffer.readBoolean();
+    if (chunkScoped) { chunkX=buffer.readInt(); chunkZ=buffer.readInt(); }
     int count = buffer.readInt();
     if (count < 0 || count > MAX_POSITIONS || buffer.readableBytes() < count * 10) return;
     positions = new ArrayList<WaterloggedWorldData.Position>(count);
@@ -46,6 +58,8 @@ public final class PacketWaterloggedSnapshot implements IMessage {
   @Override
   public void toBytes(ByteBuf buffer) {
     buffer.writeInt(dimension);
+    buffer.writeBoolean(chunkScoped);
+    if (chunkScoped) { buffer.writeInt(chunkX); buffer.writeInt(chunkZ); }
     buffer.writeInt(positions.size());
     for (WaterloggedWorldData.Position position : positions) {
       buffer.writeInt(position.x);
@@ -64,6 +78,12 @@ public final class PacketWaterloggedSnapshot implements IMessage {
             public void run() {
               World world = MoreBeyondOrdinary.proxy.getClientWorld();
               if (world != null && world.provider.dimensionId == message.dimension) {
+                if (message.chunkScoped) {
+                  ClientWaterloggedBlocks.replaceChunk(message.dimension,message.chunkX,message.chunkZ,message.positions);
+                  world.markBlockRangeForRenderUpdate((message.chunkX << 4)-1,-64,(message.chunkZ << 4)-1,
+                      (message.chunkX << 4)+16,world.getHeight()-1,(message.chunkZ << 4)+16);
+                  return;
+                }
                 ClientWaterloggedBlocks.replace(message.dimension, message.positions);
                 for (WaterloggedWorldData.Position position : message.positions) {
                   if (world.blockExists(position.x, position.y, position.z))

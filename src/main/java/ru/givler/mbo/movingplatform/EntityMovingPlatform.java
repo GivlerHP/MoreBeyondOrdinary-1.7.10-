@@ -27,6 +27,9 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private final List<PlatformBlock> outerBlocks = new ArrayList<PlatformBlock>();
   private final List<PlatformBlock> topBlocks = new ArrayList<PlatformBlock>();
   private final List<PlatformBlock> bottomBlocks = new ArrayList<PlatformBlock>();
+  private final java.util.Map<List<PlatformBlock>,List<PlatformBlock>> clippedSurfaces =
+      new java.util.IdentityHashMap<List<PlatformBlock>,List<PlatformBlock>>();
+  private double clippedSurfaceY = Double.NaN, clippedSurfaceCeiling = Double.NaN;
   private UUID platformId = UUID.randomUUID();
   private UUID ownerId;
   private int sizeX = 1, sizeY = 1, sizeZ = 1;
@@ -614,12 +617,19 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
 
   private List<PlatformBlock> withClippedSurface(List<PlatformBlock> surfaces) {
     if (!clipAboveSelection || rebuildPending) return surfaces;
-    List<PlatformBlock> result = new ArrayList<PlatformBlock>(surfaces);
     double ceiling = getRenderCeilingY();
+    if (clippedSurfaceY != posY || clippedSurfaceCeiling != ceiling) {
+      clippedSurfaces.clear(); clippedSurfaceY = posY; clippedSurfaceCeiling = ceiling;
+    }
+    List<PlatformBlock> cached = clippedSurfaces.get(surfaces);
+    if (cached != null) return cached;
+    List<PlatformBlock> result = new ArrayList<PlatformBlock>(surfaces);
+    HashSet<PlatformBlock> included = new HashSet<PlatformBlock>(surfaces);
     for (PlatformBlock block : blocks)
       if (posY + block.y + block.minY < ceiling
-          && posY + block.y + block.maxY >= ceiling && !result.contains(block))
+          && posY + block.y + block.maxY >= ceiling && included.add(block))
         result.add(block);
+    clippedSurfaces.put(surfaces,result);
     return result;
   }
 
@@ -980,6 +990,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   private void rebuildCollisionCache() {
+    clippedSurfaces.clear();
     outerBlocks.clear();
     topBlocks.clear();
     bottomBlocks.clear();

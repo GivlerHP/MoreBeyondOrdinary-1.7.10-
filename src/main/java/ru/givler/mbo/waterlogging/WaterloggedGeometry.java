@@ -82,17 +82,42 @@ public final class WaterloggedGeometry {
   }
 
   public static boolean[] waterCellsForFlow(World world, int x, int y, int z) {
-    return waterCellsForFlow(world,x,y,z,new java.util.HashSet<String>());
+    boolean owned = beginScope(world);
+    try {
+      String key = x+":"+y+":"+z;
+      boolean[] cached = SCOPE.get().cells.get(key);
+      if (cached != null) return cached;
+      boolean[] cells = paneCells(world,x,y,z);
+      SCOPE.get().cells.put(key,cells);
+      return cells;
+    } finally { if (owned) endScope(); }
   }
 
-  private static boolean[] waterCellsForFlow(World world, int x, int y, int z, java.util.Set<String> visiting) {
-    String key = x+":"+y+":"+z;
-    if (!visiting.add(key)) return new boolean[8];
-    try { return paneCells(world,x,y,z,visiting); }
-    finally { visiting.remove(key); }
+  private static final ThreadLocal<Scope> SCOPE = new ThreadLocal<Scope>();
+  private static final class Scope {
+    final World world;
+    final java.util.Map<String,boolean[]> cells = new java.util.HashMap<String,boolean[]>();
+    final java.util.Map<String,Boolean> reachable = new java.util.HashMap<String,Boolean>();
+    final java.util.Map<String,Boolean> supply = new java.util.HashMap<String,Boolean>();
+    Scope(World world) { this.world = world; }
+  }
+  public static boolean beginScope(World world) {
+    Scope current = SCOPE.get();
+    if (current != null && current.world == world) return false;
+    SCOPE.set(new Scope(world)); return true;
+  }
+  public static void endScope() { SCOPE.remove(); }
+  public static void invalidate() {
+    Scope current = SCOPE.get();
+    if (current != null) { current.cells.clear(); current.reachable.clear(); current.supply.clear(); }
+  }
+  static Boolean cachedSupply(String key) { return SCOPE.get().supply.get(key); }
+  static void cacheSupply(String key,boolean value) { SCOPE.get().supply.put(key,value); }
+  static void cacheCells(int x,int y,int z,boolean[] cells) {
+    SCOPE.get().cells.put(x+":"+y+":"+z,cells);
   }
 
-  private static boolean[] paneCells(World world, int x, int y, int z, java.util.Set<String> visiting) {
+  private static boolean[] paneCells(World world, int x, int y, int z) {
     boolean[] free = freeCells(world, x, y, z);
     Block block = world.getBlock(x, y, z);
     if (block instanceof BlockTrapDoor) {
@@ -121,72 +146,7 @@ public final class WaterloggedGeometry {
       java.util.Arrays.fill(free, true);
       return free;
     }
-    BlockPane pane = (BlockPane) block;
-    boolean north = pane.canPaneConnectTo(world, x, y, z - 1, ForgeDirection.NORTH);
-    boolean south = pane.canPaneConnectTo(world, x, y, z + 1, ForgeDirection.SOUTH);
-    boolean west = pane.canPaneConnectTo(world, x - 1, y, z, ForgeDirection.WEST);
-    boolean east = pane.canPaneConnectTo(world, x + 1, y, z, ForgeDirection.EAST);
-    if (!north && !south && !west && !east) {
-      for (int i = 0; i < free.length; i++) free[i] = true;
-      return free;
-    }
-
-    boolean[] wet = new boolean[4];
-    seedWater(world, x, y, z - 1, wet, 0, 2, 0,1,1,1,visiting);
-    seedWater(world, x, y, z + 1, wet, 1, 3, 0,0,1,0,visiting);
-    seedWater(world, x - 1, y, z, wet, 0, 1, 1,0,1,1,visiting);
-    seedWater(world, x + 1, y, z, wet, 2, 3, 0,0,0,1,visiting);
-    if (!wet[0] && !wet[1] && !wet[2] && !wet[3]) {
-      // A recursive neighbour with no supply is empty, not a full source.
-      // Otherwise the return edge of a pane cycle wets its dry compartment.
-      if (visiting.size() > 1) return new boolean[8];
-      if (world.getBlock(x,y+1,z) != null && hasWater(world,x,y+1,z)) return free;
-      if (!world.isRemote && world.perWorldStorage != null
-          && (WaterloggedWorldData.get(world).ingressMask(x,y,z)
-              & WaterloggedWorldData.INTERNAL_SOURCE) != 0) return free;
-      // An isolated client pane can be an explicitly bucket-filled source.
-      // A connected component must obtain its water from a real seed instead.
-      if (world.isRemote && world.provider != null
-          && ClientWaterloggedBlocks.contains(world.provider.dimensionId,x,y,z)
-          && !ClientWaterloggedBlocks.contains(world.provider.dimensionId,x-1,y,z)
-          && !ClientWaterloggedBlocks.contains(world.provider.dimensionId,x+1,y,z)
-          && !ClientWaterloggedBlocks.contains(world.provider.dimensionId,x,y,z-1)
-          && !ClientWaterloggedBlocks.contains(world.provider.dimensionId,x,y,z+1)) return free;
-      return new boolean[8];
-    }
-    boolean changed;
-    do {
-      changed = false;
-      // Each arm separates its own two quadrants, including L-shaped corners.
-      changed |= connect(wet, 0, 2, !north);
-      changed |= connect(wet, 1, 3, !south);
-      changed |= connect(wet, 0, 1, !west);
-      changed |= connect(wet, 2, 3, !east);
-    } while (changed);
-    for (int cellX = 0; cellX < 2; cellX++)
-      for (int cellY = 0; cellY < 2; cellY++)
-        for (int cellZ = 0; cellZ < 2; cellZ++)
-          free[index(cellX, cellY, cellZ)] &= wet[cellX * 2 + cellZ];
-    return free;
-  }
-
-  private static void seedWater(
-      World world, int x, int y, int z, boolean[] wet, int first, int second,
-      int ax,int az,int bx,int bz,java.util.Set<String> visiting) {
-    if (hasWater(world, x, y, z)) {
-      wet[first] = true;
-      wet[second] = true;
-    } else if (world.getBlock(x,y,z) instanceof BlockPane
-        && ru.givler.mbo.core.WaterloggingRenderHooks.isWaterlogged(world,x,y,z)) {
-      boolean[] neighbour = waterCellsForFlow(world,x,y,z,visiting);
-      wet[first] |= neighbour[index(ax,0,az)];
-      wet[second] |= neighbour[index(bx,0,bz)];
-    }
-  }
-
-  private static boolean hasWater(World world, int x, int y, int z) {
-    return world.getBlock(x, y, z).getMaterial() == Material.water
-        && world.getBlockMetadata(x, y, z) == 0;
+    return PaneWaterSolver.solve(world,x,y,z);
   }
 
   public static boolean isFaceOpen(
@@ -268,6 +228,18 @@ public final class WaterloggedGeometry {
   }
 
   public static boolean canReachFace(
+      World world, int x, int y, int z, byte ingressMask, int outX, int outY, int outZ) {
+    boolean owned=beginScope(world);
+    try {
+      String key=x+":"+y+":"+z+":"+ingressMask+":"+outX+":"+outY+":"+outZ;
+      Boolean value=SCOPE.get().reachable.get(key);
+      if (value!=null) return value;
+      boolean reached=calculateReachable(world,x,y,z,ingressMask,outX,outY,outZ);
+      SCOPE.get().reachable.put(key,reached); return reached;
+    } finally { if (owned) endScope(); }
+  }
+
+  private static boolean calculateReachable(
       World world, int x, int y, int z, byte ingressMask, int outX, int outY, int outZ) {
     if (ingressMask == 0) return false;
     Block block = world.getBlock(x, y, z);
@@ -361,12 +333,6 @@ public final class WaterloggedGeometry {
       net.minecraft.util.Vec3 end = net.minecraft.util.Vec3.createVectorHelper(bx, by, bz);
       if (box.calculateIntercept(start, end) != null) return false;
     }
-    return true;
-  }
-
-  private static boolean connect(boolean[] wet, int first, int second, boolean open) {
-    if (!open || wet[first] == wet[second]) return false;
-    wet[first] = wet[second] = true;
     return true;
   }
 

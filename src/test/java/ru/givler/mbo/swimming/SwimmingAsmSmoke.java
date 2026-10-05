@@ -27,6 +27,7 @@ public final class SwimmingAsmSmoke {
     if (SwimmingHooks.eyeHeight(1.62F, null) != 1.62F)
       throw new AssertionError("Player size accessor failed");
     verifySwimSpeeds();
+    verifyFogFade();
     verifyWaterSurface();
     verifyWaterloggedSourceRegeneration();
     verifyHalfFilledPane();
@@ -48,6 +49,7 @@ public final class SwimmingAsmSmoke {
     verifyDungeonRenderPass();
     ru.givler.mbo.movingplatform.PlatformClippingSmoke.check();
     verifyPlatformClippingAsm();
+    verifyPassengerBodyAsm();
     ru.givler.mbo.core.TickRateSmoke.check();
     System.out.println("Swimming ASM hooks passed");
   }
@@ -64,6 +66,34 @@ public final class SwimmingAsmSmoke {
     assertClose("forward", forward, 0.1764D);
     assertClose("up", up, 0.173387096774D);
     assertClose("down", down, -0.272388059701D);
+  }
+
+  private static void verifyFogFade() {
+    ru.givler.mbo.client.handler.DenseFogRenderEvents.Fade fade =
+        new ru.givler.mbo.client.handler.DenseFogRenderEvents.Fade();
+    float initial = fade.update(true,2,0);
+    if (fade.update(false,0,10) != initial
+        || Math.abs(fade.update(false,0,1_000_000_010L)-initial*0.5F) > 0.000001F
+        || fade.update(false,0,2_000_000_010L) != 0F)
+      throw new AssertionError("Fog must fade continuously to zero over two seconds");
+    fade.update(true,1,3_000_000_000L);
+    fade.update(false,0,3_000_000_001L);
+    if (fade.update(true,3,3_500_000_000L) != 0.16F)
+      throw new AssertionError("Reapplying fog must cancel its fade and restore the new amplifier");
+    fade.reset();
+    if (fade.update(false,0,4_000_000_000L) != 0F)
+      throw new AssertionError("Fog must reset when changing camera or world");
+  }
+
+  private static void verifyPassengerBodyAsm() throws Exception {
+    String name="net.minecraft.entity.EntityBodyHelper";
+    byte[] bytes=new ru.givler.mbo.core.PlatformPassengerBodyTransformer().transform(name,name,classBytes(name));
+    checkClass(name,bytes);
+    ClassNode node=new ClassNode(); new ClassReader(bytes).accept(node,0);
+    int hooks=0;
+    for (MethodNode method:node.methods) for (AbstractInsnNode instruction=method.instructions.getFirst();instruction!=null;instruction=instruction.getNext())
+      if (instruction instanceof MethodInsnNode && ((MethodInsnNode)instruction).name.startsWith("animationPrevious")) ++hooks;
+    if (hooks!=2) throw new AssertionError("Passenger body rotation must use relative movement on both axes");
   }
 
   private static void verifyPaneWaterChunkRendering() throws Exception {

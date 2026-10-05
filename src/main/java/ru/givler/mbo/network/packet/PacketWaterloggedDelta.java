@@ -25,8 +25,13 @@ public final class PacketWaterloggedDelta implements IMessage {
   }
 
   public static void broadcast(World world, int x, int y, int z, boolean waterlogged) {
-    PacketManager.INSTANCE.sendToDimension(
-        new PacketWaterloggedDelta(world, x, y, z, waterlogged), world.provider.dimensionId);
+    net.minecraft.world.WorldServer server=(net.minecraft.world.WorldServer)world;
+    PacketWaterloggedDelta message=new PacketWaterloggedDelta(world,x,y,z,waterlogged);
+    for (Object object:world.playerEntities) {
+      net.minecraft.entity.player.EntityPlayerMP player=(net.minecraft.entity.player.EntityPlayerMP)object;
+      if (server.getPlayerManager().isPlayerWatchingChunk(player,x >> 4,z >> 4))
+        PacketManager.INSTANCE.sendTo(message,player);
+    }
   }
 
   @Override

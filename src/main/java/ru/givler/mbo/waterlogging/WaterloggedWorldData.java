@@ -94,6 +94,7 @@ public final class WaterloggedWorldData extends WorldSavedData {
       if (positions != null && positions.isEmpty()) chunks.remove(chunkKey);
     }
     if (changed) {
+      WaterloggedGeometry.invalidate();
       if (waterlogged) extinguishCampfire(world, x, y, z);
       markDirty();
       world.markBlockForUpdate(x, y, z);
@@ -126,6 +127,7 @@ public final class WaterloggedWorldData extends WorldSavedData {
     boolean wasPresent = positions.contains(pack(x, y, z));
     boolean changed = positions.add(pack(x, y, z), addedMask);
     if (changed) {
+      WaterloggedGeometry.invalidate();
       extinguishCampfire(world, x, y, z);
       markDirty();
       world.markBlockForUpdate(x, y, z);
@@ -151,6 +153,24 @@ public final class WaterloggedWorldData extends WorldSavedData {
       for (int packed : entry.getValue().values()) result.add(unpack(chunkX, chunkZ, packed));
     }
     return Collections.unmodifiableList(result);
+  }
+
+  public List<Position> inChunk(int chunkX,int chunkZ) {
+    List<Position> result=new ArrayList<Position>();
+    WaterloggedChunk chunk=chunks.get(chunkKey(chunkX,chunkZ));
+    if (chunk!=null) for (int packed:chunk.values()) result.add(unpack(chunkX,chunkZ,packed));
+    return result;
+  }
+
+  public List<Position> watchedBy(net.minecraft.entity.player.EntityPlayerMP player) {
+    List<Position> result=new ArrayList<Position>();
+    net.minecraft.server.management.PlayerManager manager=((net.minecraft.world.WorldServer)player.worldObj).getPlayerManager();
+    for (Map.Entry<Long,WaterloggedChunk> entry:chunks.entrySet()) {
+      int cx=(int)(entry.getKey() >> 32), cz=(int)(long)entry.getKey();
+      if (manager.isPlayerWatchingChunk(player,cx,cz))
+        for (int packed:entry.getValue().values()) result.add(unpack(cx,cz,packed));
+    }
+    return result;
   }
 
   @Override
