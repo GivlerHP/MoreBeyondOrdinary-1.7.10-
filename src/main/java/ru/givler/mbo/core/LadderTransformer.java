@@ -60,6 +60,19 @@ public final class LadderTransformer implements IClassTransformer, Opcodes {
                 method.instructions.insert(code);
             }
         }
+        // BlockLadder inherits this callback; add an override for floor/ceiling placement.
+        MethodNode placed = new MethodNode(ACC_PUBLIC,
+                Boolean.TRUE.equals(net.minecraft.launchwrapper.Launch.blackboard.get("fml.deobfuscatedEnvironment"))
+                        ? "onBlockPlacedBy" : "func_149689_a",
+                "(Lnet/minecraft/world/World;IIILnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;)V",
+                null, null);
+        placed.instructions.add(loadWorldXYZ());
+        placed.instructions.add(new VarInsnNode(ALOAD, 5));
+        placed.instructions.add(new VarInsnNode(ALOAD, 6));
+        placed.instructions.add(new MethodInsnNode(INVOKESTATIC, HOOK, "placedBy", placed.desc, false));
+        placed.instructions.add(new InsnNode(RETURN));
+        placed.maxLocals = 7;
+        node.methods.add(placed);
         ClassWriter writer = SafeClassWriter.create();
         node.accept(writer);
         return writer.toByteArray();

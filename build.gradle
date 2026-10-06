@@ -89,6 +89,11 @@ task verifyWaterloggedStorage(type: JavaExec, dependsOn: testClasses) {
     main = 'ru.givler.mbo.waterlogging.WaterloggedStorageSmoke'
 }
 
+task verifyBoatRiderRender(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.BoatRiderRenderSmoke'
+}
+
 tasks.check.dependsOn('verifyWaterloggedStorage')
 
 task verifySwimmingAsm(type: JavaExec, dependsOn: testClasses) {

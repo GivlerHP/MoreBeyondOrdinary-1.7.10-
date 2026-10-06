@@ -33,6 +33,20 @@ import java.lang.reflect.Field;
 
 public class EntityRabbit extends EntityAnimal {
 
+	@Override
+	public boolean getCanSpawnHere() {
+		int x = MathHelper.floor_double(posX);
+		int y = MathHelper.floor_double(boundingBox.minY);
+		int z = MathHelper.floor_double(posZ);
+		Block ground = worldObj.getBlock(x, y - 1, z);
+		// EntityAnimal's grass-only check prevents the desert and snowy variants spawning.
+		return (ground == Blocks.grass || ground == Blocks.sand || ground == Blocks.snow)
+				&& worldObj.getFullBlockLightValue(x, y, z) > 8
+				&& worldObj.checkNoEntityCollision(boundingBox)
+				&& worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty()
+				&& !worldObj.isAnyLiquid(boundingBox);
+	}
+
 	private int jumpTicks = 0;
 	private int jumpDuration = 0;
 	boolean field_175536_bo = false;

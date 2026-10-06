@@ -14,15 +14,24 @@ import org.lwjgl.opengl.*;
 import ru.givler.mbo.client.handler.DenseFogRenderEvents;
 import ru.givler.mbo.dungeon.*;
 import ru.givler.mbo.movingplatform.PlatformBlock;
+import ru.givler.mbo.integration.thaumcraft.client.render.ThaumometerLens;
 
 public final class DungeonAreaWorldRenderer {
   private static DungeonAreaWorldRenderer instance;
   private boolean renderedBeforeTranslucent;
   private static final FloatBuffer DENSE_FOG_COLOR = denseFogColor();
+  private static final FloatBuffer REVEAL_COLOR = revealColor();
   private final Map<UUID, Cache> cache = new HashMap<UUID, Cache>();
 
   public DungeonAreaWorldRenderer() {
     instance = this;
+    cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(this);
+  }
+
+  @SubscribeEvent
+  public void prepareLens(cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent event) {
+    if (event.phase == cpw.mods.fml.common.gameevent.TickEvent.Phase.START
+        && holdingThaumometer(Minecraft.getMinecraft().thePlayer)) ThaumometerLens.prepare();
   }
 
   public static void renderBeforeTranslucent(float partialTicks) {
@@ -37,6 +46,19 @@ public final class DungeonAreaWorldRenderer {
         .put(DenseFogRenderEvents.BLUE).put(1F);
     ((java.nio.Buffer) color).flip();
     return color;
+  }
+
+  private static FloatBuffer revealColor() {
+    FloatBuffer color = BufferUtils.createFloatBuffer(4);
+    color.put(.3F).put(.7F).put(1F).put(1F);
+    ((java.nio.Buffer) color).flip();
+    return color;
+  }
+
+  private static boolean holdingThaumometer(EntityPlayer player) {
+    return player != null && player.getCurrentEquippedItem() != null
+        && player.getCurrentEquippedItem().getItem()
+            == cpw.mods.fml.common.registry.GameRegistry.findItem("Thaumcraft", "ItemThaumometer");
   }
 
   @SubscribeEvent
@@ -87,10 +109,12 @@ public final class DungeonAreaWorldRenderer {
         cz =
             mc.renderViewEntity.lastTickPosZ
                 + (mc.renderViewEntity.posZ - mc.renderViewEntity.lastTickPosZ) * partialTicks;
+    boolean revealPassableWalls = holdingThaumometer(mc.thePlayer);
     int previousMatrixMode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
     GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
     GL11.glMatrixMode(GL11.GL_MODELVIEW);
     try {
+      boolean lensMask = revealPassableWalls && ThaumometerLens.begin();
       mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
       GL11.glEnable(GL11.GL_DEPTH_TEST);
       GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -106,10 +130,38 @@ public final class DungeonAreaWorldRenderer {
       }
       for (DungeonAreaRecord a : ClientDungeonAreas.all()) {
         if (a.getType() == DungeonAreaRecord.TRIGGER) continue;
+        boolean reveal = lensMask && a.getType() == DungeonAreaRecord.PASSABLE;
         if (!a.shouldRender() || a.containsPoint(cx, cy, cz)) continue;
         float alpha = a.fadeAlpha(mc.theWorld, partialTicks);
+        if (reveal) alpha *= .45F;
         if (alpha <= 0F) continue;
         Cache c = compiled(a, mc);
+        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        if (reveal) {
+          GL11.glEnable(GL11.GL_STENCIL_TEST);
+          ThaumometerLens.select(false);
+          GL11.glDepthMask(true);
+          GL11.glDisable(GL11.GL_BLEND);
+          GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+          GL11.glPushMatrix();
+          try {
+            GL11.glTranslated(a.getX() - cx, a.getY() - cy, a.getZ() - cz);
+            GL11.glCallList(c.list);
+          } finally {
+            GL11.glPopMatrix();
+          }
+          ThaumometerLens.select(true);
+        }
+        // Display lists contain per-vertex colors, so tint the texture instead of glColor.
+        if (reveal) {
+          GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL13.GL_COMBINE);
+          GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_COMBINE_RGB, GL11.GL_MODULATE);
+          GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_SOURCE0_RGB, GL11.GL_TEXTURE);
+          GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_SOURCE1_RGB, GL13.GL_CONSTANT);
+          GL11.glTexEnv(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_COLOR, REVEAL_COLOR);
+        } else {
+          GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+        }
         GL11.glDepthMask(alpha >= 1F);
         GL11.glDisable(GL11.GL_BLEND);
         if (alpha < 1F) {

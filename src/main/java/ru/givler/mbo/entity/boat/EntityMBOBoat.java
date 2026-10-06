@@ -22,6 +22,9 @@ import ru.givler.mbo.registry.BoatRegistry;
 /** 1.9-style boat physics adapted from Et Futurum Requiem for MBO. */
 public class EntityMBOBoat extends Entity {
   public static final float VISUAL_Y_OFFSET = 0.1875F;
+  public float getVisualYOffset() {
+    return onGround || status == Status.ON_LAND ? 0F : VISUAL_Y_OFFSET;
+  }
   private static final int HIT = 17, FORWARD = 18, DAMAGE = 19, TYPE = 21;
   private static final int[] PADDLES = {24, 25};
   private final float[] paddlePositions = new float[2];
@@ -375,9 +378,10 @@ public class EntityMBOBoat extends Entity {
     vector.rotateAroundY(-rotationYaw * 0.017453292F - (float) Math.PI / 2);
     passenger.setPosition(
         posX + vector.xCoord,
-        posY + getMountedYOffset() + passenger.getYOffset() + VISUAL_Y_OFFSET,
+        posY + getMountedYOffset() + passenger.getYOffset() + getVisualYOffset(),
         posZ + vector.zCoord);
     passenger.rotationYaw += deltaRotation;
+    MBOBoatRiderView.clampView(passenger);
   }
 
   public double getMountedYOffset() {

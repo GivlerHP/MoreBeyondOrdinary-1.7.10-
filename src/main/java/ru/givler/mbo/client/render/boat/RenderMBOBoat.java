@@ -27,7 +27,7 @@ public class RenderMBOBoat extends Render {
     public void doRender(Entity raw, double x, double y, double z, float yaw, float partial) {
         EntityMBOBoat boat = (EntityMBOBoat)raw;
         GL11.glPushMatrix();
-        GL11.glTranslatef((float)x, (float)y + 0.375F + EntityMBOBoat.VISUAL_Y_OFFSET, (float)z);
+        GL11.glTranslatef((float)x, (float)y + 0.375F + boat.getVisualYOffset(), (float)z);
         GL11.glRotatef(180F - yaw, 0, 1, 0);
         float hit = boat.getTimeSinceHit() - partial;
         float damage = boat.getDamageTaken() - partial;
@@ -65,7 +65,7 @@ public class RenderMBOBoat extends Render {
                                  float yaw, float partial) {
         GL11.glPushMatrix();
         GL11.glTranslatef((float)x,
-                (float)y + 0.375F + EntityMBOBoat.VISUAL_Y_OFFSET, (float)z);
+                (float)y + 0.375F + boat.getVisualYOffset(), (float)z);
         GL11.glRotatef(180F - yaw, 0, 1, 0);
         float hit = boat.getTimeSinceHit() - partial;
         float damage = Math.max(0, boat.getDamageTaken() - partial);

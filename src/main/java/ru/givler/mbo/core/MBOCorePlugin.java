@@ -5,13 +5,14 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.Name("MBOCore")
 @IFMLLoadingPlugin.MCVersion("1.7.10")
-@IFMLLoadingPlugin.TransformerExclusions({"ru.givler.mbo.core"})
+@IFMLLoadingPlugin.TransformerExclusions({"ru.givler.mbo.core", "ru.givler.mbo.integration.thaumcraft.core"})
 public class MBOCorePlugin implements IFMLLoadingPlugin {
   public String[] getASMTransformerClass() {
     return new String[] {
       "ru.givler.mbo.core.TickRateTransformer",
       "ru.givler.mbo.core.BlockButtonTransformer",
       "ru.givler.mbo.core.BoatCreativeTransformer",
+      "ru.givler.mbo.core.BoatRiderRenderTransformer",
       "ru.givler.mbo.core.TrapdoorPlacementTransformer",
       "ru.givler.mbo.core.LadderTransformer",
       "ru.givler.mbo.core.RailTransformer",
@@ -22,6 +23,7 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.core.LootingPotionTransformer",
       "ru.givler.mbo.core.SmoothOpeningTransformer",
       "ru.givler.mbo.core.ThaumcraftFontTransformer",
+      "ru.givler.mbo.integration.thaumcraft.core.ThaumometerLensTransformer",
       "ru.givler.mbo.core.TooltipFrameTransformer",
       "ru.givler.mbo.core.ItemTooltipContextTransformer",
       "ru.givler.mbo.core.NeiTooltipFrameTransformer",
