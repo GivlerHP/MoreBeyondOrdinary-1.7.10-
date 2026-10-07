@@ -39,6 +39,8 @@ local.properties
 /.vscode
 /logs
 /.ref
+/docs
+/tools
 
 # Eclipse Core
 .project
