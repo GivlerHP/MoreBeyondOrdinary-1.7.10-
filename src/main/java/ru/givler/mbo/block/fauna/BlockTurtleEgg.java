@@ -59,7 +59,7 @@ public final class BlockTurtleEgg extends BlockBase {
 
   @Override
   public void setBlockBoundsForItemRender() {
-    setBlockBounds(.1875F, 0, .1875F, .75F, .4375F, .75F);
+    setBlockBounds(5F / 16F, 0, 4F / 16F, 9F / 16F, 7F / 16F, 8F / 16F);
   }
 
   @Override

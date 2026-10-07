@@ -23,6 +23,7 @@ import ru.givler.mbo.registry.BlockRegistry;
 public final class EntityMBOFrog extends EntityAnimal {
   private int jumpTicks, croakTicks, tongueTicks, huntCooldown;
   private EntitySlime prey;
+  private boolean variantChosen;
   private int previousFlags;
   private final int[] animationStarts = {-1, -1, -1};
 
@@ -33,6 +34,23 @@ public final class EntityMBOFrog extends EntityAnimal {
     getNavigator().setCanSwim(true);
     getNavigator().setAvoidsWater(false);
     tasks.addTask(0, new EntityAISwimming(this));
+    tasks.addTask(
+        0,
+        new EntityAIBase() {
+          {
+            setMutexBits(3);
+          }
+
+          @Override
+          public boolean shouldExecute() {
+            return tongueTicks > 0;
+          }
+
+          @Override
+          public void updateTask() {
+            stopTongueMovement();
+          }
+        });
     tasks.addTask(1, new EntityAIPanic(this, 1D));
     tasks.addTask(2, new Breed());
     tasks.addTask(3, new EntityAITempt(this, .5D, Items.slime_ball, false));
@@ -68,7 +86,7 @@ public final class EntityMBOFrog extends EntityAnimal {
   protected void applyEntityAttributes() {
     super.applyEntityAttributes();
     getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(10D);
-    getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(1D);
+    getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(.25D);
   }
 
   public static int variantFor(World world, double x, double z) {
@@ -84,6 +102,7 @@ public final class EntityMBOFrog extends EntityAnimal {
 
   public void setVariant(int value) {
     dataWatcher.updateObject(20, Byte.valueOf((byte) MathHelper.clamp_int(value, 0, 2)));
+    variantChosen = true;
   }
 
   public boolean pregnant() {
@@ -114,15 +133,32 @@ public final class EntityMBOFrog extends EntityAnimal {
 
   @Override
   public IEntityLivingData onSpawnWithEgg(IEntityLivingData data) {
-    setVariant(variantFor(worldObj, posX, posZ));
+    if (!variantChosen) setVariant(variantFor(worldObj, posX, posZ));
     return super.onSpawnWithEgg(data);
   }
 
   @Override
   protected void jump() {
     super.jump();
-    motionY = .5D;
+    motionY = .42D;
+    double speed = Math.sqrt(motionX * motionX + motionZ * motionZ);
+    if (speed > .2D) {
+      motionX *= .2D / speed;
+      motionZ *= .2D / speed;
+    }
+    onGround = false;
+    velocityChanged = true;
     jumpTicks = 12;
+  }
+
+  @Override
+  public void moveEntityWithHeading(float strafe, float forward) {
+    if (tongueTicks > 0) {
+      stopTongueMovement();
+      strafe = forward = 0;
+    }
+    boolean airborneJump = !onGround && !isInWater() && jumpTicks > 0;
+    super.moveEntityWithHeading(airborneJump ? 0 : strafe, airborneJump ? 0 : forward);
   }
 
   @Override
@@ -194,19 +230,28 @@ public final class EntityMBOFrog extends EntityAnimal {
       }
     if (closest == null) return;
     if (nearest > 1.75D * 1.75D) getNavigator().tryMoveToEntityLiving(closest, .5D);
-    else {
-      prey = closest;
-      tongueTicks = 10;
-      getNavigator().clearPathEntity();
-      double dx = posX - prey.posX, dy = posY - prey.posY, dz = posZ - prey.posZ;
-      double distance = Math.max(.01D, Math.sqrt(dx * dx + dy * dy + dz * dz));
-      prey.motionX = dx / distance * .75D;
-      prey.motionY = dy / distance * .75D;
-      prey.motionZ = dz / distance * .75D;
-      rotationYaw = (float) (Math.atan2(-dz, -dx) * 180D / Math.PI) - 90F;
-      renderYawOffset = rotationYaw;
-      playSound("mbo:entity.frog.tongue", 2F, 1F);
-    }
+    else if (onGround && !isInWater()) beginTongueAttack(closest);
+  }
+
+  private void beginTongueAttack(EntitySlime target) {
+    prey = target;
+    tongueTicks = 10;
+    jumpTicks = 0;
+    stopTongueMovement();
+    getNavigator().clearPathEntity();
+    double dx = prey.posX - posX, dz = prey.posZ - posZ;
+    rotationYaw = (float) (Math.atan2(-dx, dz) * 180D / Math.PI);
+    renderYawOffset = rotationYaw;
+    rotationYawHead = rotationYaw;
+    playSound("mbo:entity.frog.tongue", 2F, 1F);
+  }
+
+  private void stopTongueMovement() {
+    getNavigator().clearPathEntity();
+    getMoveHelper().setMoveTo(posX, posY, posZ, 0);
+    moveForward = moveStrafing = 0;
+    setJumping(false);
+    motionX = motionZ = 0;
   }
 
   private void eat(EntitySlime slime) {
@@ -283,7 +328,8 @@ public final class EntityMBOFrog extends EntityAnimal {
   @Override
   public void readEntityFromNBT(NBTTagCompound data) {
     super.readEntityFromNBT(data);
-    setVariant(data.getInteger("Variant"));
+    if (data.hasKey("Variant")) setVariant(data.getInteger("Variant"));
+    else if (worldObj != null) setVariant(variantFor(worldObj, posX, posZ));
     setPregnant(data.getBoolean("Pregnant"));
   }
 

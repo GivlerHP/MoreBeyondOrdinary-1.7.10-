@@ -360,6 +360,8 @@ public final class EntityMBOGoat extends EntityAnimal {
       target = null;
       getNavigator().clearPathEntity();
       dataWatcher.updateObject(21, Byte.valueOf((byte) 0));
+      motionX = motionZ = 0;
+      moveForward = moveStrafing = 0;
       resetRamCooldown();
     }
 
@@ -394,7 +396,9 @@ public final class EntityMBOGoat extends EntityAnimal {
         motionZ = dz * .6;
         rotationYaw = (float) (Math.atan2(-dx, dz) * 180 / Math.PI);
         List<EntityLivingBase> victims =
-            worldObj.getEntitiesWithinAABB(EntityLivingBase.class, boundingBox.expand(.25, 0, .25));
+            worldObj.getEntitiesWithinAABB(
+                EntityLivingBase.class,
+                boundingBox.addCoord(dx * .6, 0, dz * .6).expand(.1, 0, .1));
         for (EntityLivingBase victim : victims)
           if (victim != EntityMBOGoat.this
               && !(victim instanceof EntityMBOGoat)

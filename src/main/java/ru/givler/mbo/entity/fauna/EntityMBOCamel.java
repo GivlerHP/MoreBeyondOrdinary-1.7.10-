@@ -218,9 +218,9 @@ public final class EntityMBOCamel extends EntityHorse {
       return;
     float power = charge >= 90 ? 1F : .4F + .4F * MathHelper.clamp_int(charge, 0, 90) / 90F;
     double angle = rotationYaw * Math.PI / 180;
-    motionX -= Math.sin(angle) * 2 * power;
-    motionZ += Math.cos(angle) * 2 * power;
-    motionY = .6 * power;
+    motionX = -Math.sin(angle) * 1.0 * power;
+    motionZ = Math.cos(angle) * 1.0 * power;
+    motionY = .42 * power;
     onGround = false;
     setHorseJumping(true);
     beginDash();

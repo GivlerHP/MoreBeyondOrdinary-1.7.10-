@@ -22,6 +22,14 @@ import ru.givler.mbo.config.FaunaConfig;
 import ru.givler.mbo.registry.ItemRegistry;
 
 public final class EntityMBOAxolotl extends EntityAnimal implements IBucketableCreature {
+  private final AquaticMovement.ClientTurn clientTurn = new AquaticMovement.ClientTurn();
+
+  @Override
+  public boolean handleWaterMovement() {
+    inWater = AquaticMovement.updateWaterContact(this);
+    return inWater;
+  }
+
   public static final String[] VARIANTS = {"lucy", "wild", "gold", "cyan", "blue"};
   private int moisture = 6000, huntCooldown, attackCooldown;
   private double goalX, goalY, goalZ;
@@ -168,6 +176,12 @@ public final class EntityMBOAxolotl extends EntityAnimal implements IBucketableC
   }
 
   @Override
+  public void onUpdate() {
+    super.onUpdate();
+    clientTurn.update(this);
+  }
+
+  @Override
   public void onLivingUpdate() {
     if (!worldObj.isRemote) {
       if (isWet()) moisture = 6000;
@@ -261,10 +275,8 @@ public final class EntityMBOAxolotl extends EntityAnimal implements IBucketableC
             dz = goalZ - posZ,
             len = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (len > .5) {
-          motionX += dx / len * .02;
+          AquaticMovement.swim(this, dx, dz, .02 * Math.sqrt(dx * dx + dz * dz) / len, 3F);
           motionY += dy / len * .02;
-          motionZ += dz / len * .02;
-          AquaticMovement.face(this, motionX, motionZ, 10F);
         }
       } else if (ticksExisted % 40 == 0) {
         for (int i = 0; i < 24; i++) {

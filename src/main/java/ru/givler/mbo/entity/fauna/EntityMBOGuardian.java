@@ -17,6 +17,14 @@ import ru.givler.mbo.registry.ItemRegistry;
 
 /** Aquatic hostile mob: charged line-of-sight beam and retractable defensive spikes. */
 public class EntityMBOGuardian extends EntityMob {
+  private final AquaticMovement.ClientTurn clientTurn = new AquaticMovement.ClientTurn();
+
+  @Override
+  public boolean handleWaterMovement() {
+    inWater = AquaticMovement.updateWaterContact(this);
+    return inWater;
+  }
+
   private int beamTicks, attackDelay;
   private double goalX, goalY, goalZ;
 
@@ -78,6 +86,12 @@ public class EntityMBOGuardian extends EntityMob {
   }
 
   @Override
+  public void onUpdate() {
+    super.onUpdate();
+    clientTurn.update(this);
+  }
+
+  @Override
   public void onLivingUpdate() {
     if (!worldObj.isRemote) {
       if (attackDelay > 0) attackDelay--;
@@ -114,7 +128,7 @@ public class EntityMBOGuardian extends EntityMob {
         motionY *= .7;
         motionZ *= .7;
         getLookHelper().setLookPositionWithEntity(target, 90, 90);
-        AquaticMovement.face(this, target.posX - posX, target.posZ - posZ, 20F);
+        AquaticMovement.face(this, target.posX - posX, target.posZ - posZ, 8F);
         if (!getEntitySenses().canSee(target) || getDistanceSqToEntity(target) <= 9) {
           setAttackTarget(null);
           resetBeam();
@@ -163,10 +177,8 @@ public class EntityMBOGuardian extends EntityMob {
               len = Math.sqrt(dx * dx + dy * dy + dz * dz);
           dataWatcher.updateObject(22, Byte.valueOf((byte) (len > 1 ? 1 : 0)));
           if (len > 1) {
-            motionX += dx / len * .025;
+            AquaticMovement.swim(this, dx, dz, .025 * Math.sqrt(dx * dx + dz * dz) / len, 3F);
             motionY += dy / len * .025;
-            motionZ += dz / len * .025;
-            AquaticMovement.face(this, motionX, motionZ, 10F);
           }
         } else if (onGround) {
           motionY = .5;

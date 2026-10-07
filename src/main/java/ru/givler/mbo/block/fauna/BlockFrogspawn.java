@@ -31,6 +31,12 @@ public final class BlockFrogspawn extends BlockBase {
   }
 
   @Override
+  public int getRenderType() {
+    // Vanilla lily-pad mesh: a double-sided horizontal plane without textured side walls.
+    return 23;
+  }
+
+  @Override
   public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
     return null;
   }

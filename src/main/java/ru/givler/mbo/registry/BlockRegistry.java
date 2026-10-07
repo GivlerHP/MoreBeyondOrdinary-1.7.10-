@@ -24,6 +24,7 @@ import ru.givler.mbo.block.special.*;
 import ru.givler.mbo.item.ItemLeafLitter;
 import ru.givler.mbo.item.ItemBlockMetadata;
 import ru.givler.mbo.item.fauna.ItemTurtleEgg;
+import ru.givler.mbo.item.fauna.ItemFrogspawn;
 import ru.givler.mbo.movingplatform.BlockPlatformStation;
 
 public class BlockRegistry {
@@ -39,7 +40,7 @@ public class BlockRegistry {
         powderSnow = new BlockPowderSnow();
         GameRegistry.registerBlock(powderSnow, "powder_snow");
         frogspawn = new BlockFrogspawn();
-        GameRegistry.registerBlock(frogspawn, "frogspawn");
+        GameRegistry.registerBlock(frogspawn, ItemFrogspawn.class, "frogspawn");
         froglight = new BlockFroglight();
         GameRegistry.registerBlock(froglight, ItemBlockMetadata.class, "froglight");
     }

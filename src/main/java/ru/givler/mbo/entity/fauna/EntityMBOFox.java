@@ -192,6 +192,16 @@ public final class EntityMBOFox extends EntityAnimal {
   }
 
   @Override
+  protected void fall(float distance) {
+    super.fall(Math.max(0F, distance - 3F));
+  }
+
+  @Override
+  public void moveEntityWithHeading(float strafe, float forward) {
+    super.moveEntityWithHeading(state() == 3 ? 0 : strafe, state() == 3 ? 0 : forward);
+  }
+
+  @Override
   public void onLivingUpdate() {
     super.onLivingUpdate();
     previousCrouch = crouch;
@@ -531,27 +541,35 @@ public final class EntityMBOFox extends EntityAnimal {
         }
         stalkTicks++;
         if (stalkTicks >= 15) {
-          double dx = target.posX - posX,
-              dz = target.posZ - posZ,
-              len = Math.sqrt(dx * dx + dz * dz);
-          boolean clear = true;
-          for (int i = 1; i <= 6; i++) {
-            double f = i / 6D;
-            AxisAlignedBB box =
-                boundingBox.copy().offset(dx * f, Math.sin(f * Math.PI) * 2, dz * f);
+          int flightTicks = 14;
+          double dx = target.posX - posX, dz = target.posZ - posZ;
+          double rise = target.boundingBox.minY - boundingBox.minY;
+          double factor = (1 - Math.pow(.91, flightTicks)) / .09;
+          double vx = dx / factor, vz = dz / factor;
+          double vy = EntityMBOGoat.jumpVelocity(rise, flightTicks);
+          boolean clear = target.onGround && Math.abs(rise) <= 1 && vy > 0 && vy <= .7;
+          double px = 0, py = 0, pz = 0, sx = vx, sy = vy, sz = vz;
+          for (int i = 0; clear && i < flightTicks; i++) {
+            px += sx;
+            py += sy;
+            pz += sz;
+            AxisAlignedBB box = boundingBox.copy().offset(px, py + .02, pz);
             if (!worldObj.blockExists(
                     MathHelper.floor_double(box.minX),
                     MathHelper.floor_double(box.minY),
                     MathHelper.floor_double(box.minZ))
-                || !worldObj.getCollidingBoundingBoxes(EntityMBOFox.this, box).isEmpty()) {
+                || !worldObj.getCollidingBoundingBoxes(EntityMBOFox.this, box).isEmpty())
               clear = false;
-              break;
-            }
+            sx *= .91;
+            sz *= .91;
+            sy = (sy - .08) * .98;
           }
           if (clear) {
-            motionX = dx / Math.max(.01, len) * .8;
-            motionZ = dz / Math.max(.01, len) * .8;
-            motionY = .9;
+            getNavigator().clearPathEntity();
+            moveForward = moveStrafing = 0;
+            motionX = vx;
+            motionZ = vz;
+            motionY = vy;
             onGround = false;
             velocityChanged = true;
             state(3, 0);

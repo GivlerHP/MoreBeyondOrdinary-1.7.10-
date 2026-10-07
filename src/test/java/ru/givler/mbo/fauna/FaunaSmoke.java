@@ -1,20 +1,33 @@
 package ru.givler.mbo.fauna;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntitySlime;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.profiler.Profiler;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.WorldServer;
 import ru.givler.mbo.client.model.fauna.*;
 import ru.givler.mbo.config.FaunaConfig;
 import ru.givler.mbo.entity.fauna.*;
+import ru.givler.mbo.integration.minefantasy2.FaunaItemRendering;
 import sun.misc.Unsafe;
 
 public final class FaunaSmoke {
@@ -28,7 +41,42 @@ public final class FaunaSmoke {
     side.setAccessible(true);
     side.set(null, cpw.mods.fml.relauncher.Side.SERVER);
     FaunaConfig.load(new File("build/fauna-smoke-config"));
+    BufferedImage haft = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+    for (int i = 0; i < 5; i++) haft.setRGB(6 + i, 12 - i, 0xffffffff);
+    float[] grip = FaunaItemRendering.gripFromImage(haft);
+    if (Math.abs(grip[0] - 8.5 / 16) > .000001
+        || Math.abs(grip[1] - 5.5 / 16) > .000001
+        || Math.abs(grip[2] + 45) > .001)
+      throw new AssertionError("MF2 mouth grip must follow the real haft pixels and diagonal");
+    double angle = grip[2] * Math.PI / 180;
+    if (Math.abs(Math.sin(angle) + Math.cos(angle)) > .000001)
+      throw new AssertionError("Haft axis must lie across the mouth after rotation");
+    final IIcon baseLayer = new TextureAtlasSprite("test:head") {};
+    final IIcon haftLayer = new TextureAtlasSprite("test:haft") {};
+    Item layeredTool =
+        new Item() {
+          @Override
+          public boolean requiresMultipleRenderPasses() {
+            return true;
+          }
+
+          @Override
+          public IIcon getIcon(ItemStack stack, int pass) {
+            return pass == 1 ? haftLayer : baseLayer;
+          }
+
+          @Override
+          public IIcon getIconFromDamageForRenderPass(int damage, int pass) {
+            return baseLayer;
+          }
+        };
+    ItemStack layeredStack = new ItemStack(layeredTool);
+    if (FaunaItemRendering.spriteIcon(layeredStack, 1) != haftLayer)
+      throw new AssertionError("Fox mouth must select the real stack-dependent haft layer");
     EntityMBOTropicalFish source = new EntityMBOTropicalFish(null);
+    if (source.getItemIcon(layeredStack, 1) != baseLayer)
+      throw new AssertionError(
+          "Regression fixture must reproduce vanilla's incorrect layer selection");
     source.setVariant(1 | 5 << 8 | 14 << 16 | 3 << 24);
     source.setHealth(1.5F);
     source.setCustomNameTag("Named fish");
@@ -126,8 +174,18 @@ public final class FaunaSmoke {
     frog.writeEntityToNBT(roundTrip);
     if (frog.variant() != 2 || !frog.pregnant())
       throw new AssertionError("Frog variant/pregnancy lost");
+    for (int variant = 0; variant < 3; variant++) {
+      saved.setInteger("Variant", variant);
+      frog.readEntityFromNBT(saved);
+      frog.onSpawnWithEgg(null);
+      if (frog.variant() != variant)
+        throw new AssertionError("Explicit frog variant must survive spawn initialization");
+    }
     frog.setGrowingAge(-24000);
     if (frog.isChild()) throw new AssertionError("Frog must develop through a tadpole");
+    for (int count = 1; count <= 4; count++)
+      if (ru.givler.mbo.client.render.fauna.RenderTurtleEgg.modelEggCount(count) != count)
+        throw new AssertionError("Turtle egg model must contain the matching original cuboids");
     ModelMBOFrog frogModel = new ModelMBOFrog(false);
     new ModelMBOFrog(true);
     if (frogModel.animationCount() != 6)
@@ -163,6 +221,20 @@ public final class FaunaSmoke {
         if (Math.abs(height - rise) > .000001)
           throw new AssertionError("Jump solver missed landing height");
       }
+    for (double distance : new double[] {2, 4, 5.9}) {
+      int ticks = 14;
+      double horizontal = distance / ((1 - Math.pow(.91, ticks)) / .09);
+      double vertical = EntityMBOGoat.jumpVelocity(0, ticks), x = 0, y = 0, apex = 0;
+      for (int tick = 0; tick < ticks; tick++) {
+        x += horizontal;
+        y += vertical;
+        apex = Math.max(apex, y);
+        horizontal *= .91;
+        vertical = (vertical - .08) * .98;
+      }
+      if (Math.abs(x - distance) > .000001 || Math.abs(y) > .000001 || apex > 2)
+        throw new AssertionError("Fox pounce must land near prey without an excessive arc");
+    }
     for (int main = 0; main < 7; main++)
       for (int hidden = 0; hidden < 7; hidden++) {
         EntityMBOPanda panda = new EntityMBOPanda(null);
@@ -262,6 +334,37 @@ public final class FaunaSmoke {
     EntityMBOCamel camel = new EntityMBOCamel(camelWorld);
     if (camel.getMaxHealth() != 32 || camel.getHorseJumpStrength() != .42 || !camel.isTame())
       throw new AssertionError("Camel attributes/taming incorrect");
+    camel.setHorseSaddled(true);
+    camel.onGround = true;
+    camel.rotationYaw = 0;
+    camel.motionZ = .5;
+    camelWorld.isRemote = false;
+    camel.setJumpPower(90);
+    camelWorld.isRemote = true;
+    if (Math.abs(camel.motionZ - 1.0) > .000001 || Math.abs(camel.motionY - .42) > .000001)
+      throw new AssertionError("Camel dash must not stack onto existing forward speed");
+    camel.getDataWatcher().updateObject(28, Integer.valueOf(0));
+    frog.worldObj = camelWorld;
+    frog.setPosition(0, 3, 0);
+    frog.motionX = .2;
+    frog.motionZ = -.2;
+    net.minecraft.entity.monster.EntitySlime tonguePrey =
+        new net.minecraft.entity.monster.EntitySlime(null);
+    tonguePrey.setPosition(1, 3, 0);
+    tonguePrey.motionX = .03;
+    tonguePrey.motionY = .04;
+    Method tongueAttack =
+        EntityMBOFrog.class.getDeclaredMethod("beginTongueAttack", EntitySlime.class);
+    tongueAttack.setAccessible(true);
+    tongueAttack.invoke(frog, tonguePrey);
+    if (frog.posX != 0
+        || frog.posY != 3
+        || frog.posZ != 0
+        || frog.motionX != 0
+        || frog.motionZ != 0)
+      throw new AssertionError("Tongue attack must keep the frog stationary");
+    if (tonguePrey.motionX != .03 || tonguePrey.motionY != .04 || tonguePrey.motionZ != 0)
+      throw new AssertionError("Tongue attack must not launch prey into the frog");
     camel.setSitting(true);
     camel.setHorseSaddled(true);
     saved = new NBTTagCompound();
@@ -340,7 +443,173 @@ public final class FaunaSmoke {
           || animal.motionZ != .3)
         throw new AssertionError("Client water physics must not run over tracked interpolation");
     }
+    AquaticWorld ramWorld =
+        (AquaticWorld) ((Unsafe) unsafeField.get(null)).allocateInstance(AquaticWorld.class);
+    ramWorld.isRemote = true;
+    ramWorld.rand = new Random(2);
+    provider.set(ramWorld, new WorldProviderSurface());
+    listeners.set(ramWorld, new ArrayList<Object>());
+    goat.worldObj = ramWorld;
+    goat.setPosition(0, 3, 0);
+    RamVictim victim = new RamVictim();
+    victim.setPosition(1.2, 3, 0);
+    ramWorld.ramVictim = victim;
+    Field ramField = EntityMBOGoat.class.getDeclaredField("ram");
+    ramField.setAccessible(true);
+    Object ram = ramField.get(goat);
+    for (String fieldName : new String[] {"target", "stage", "dx", "dz"}) {
+      Field field = ram.getClass().getDeclaredField(fieldName);
+      field.setAccessible(true);
+      if (fieldName.equals("target")) field.set(ram, victim);
+      else if (fieldName.equals("stage")) field.setInt(ram, 2);
+      else field.setDouble(ram, fieldName.equals("dx") ? 1 : 0);
+    }
+    Method ramUpdate = ram.getClass().getDeclaredMethod("updateTask");
+    ramUpdate.setAccessible(true);
+    ramUpdate.invoke(ram);
+    if (!victim.hit || victim.motionX < 2 || victim.motionY <= 0 || !victim.velocityChanged)
+      throw new AssertionError("Goat ram must hit and push a victim along the next movement step");
+    AquaticWorld waterWorld =
+        (AquaticWorld) ((Unsafe) unsafeField.get(null)).allocateInstance(AquaticWorld.class);
+    waterWorld.isRemote = true;
+    provider.set(waterWorld, new WorldProviderSurface());
+    waterWorld.waterPresent = true;
+    for (EntityLivingBase animal :
+        new EntityLivingBase[] {source, axolotl, guardian, squid, turtle}) {
+      animal.worldObj = waterWorld;
+      animal.fallDistance = 4;
+      for (int tick = 0; tick < 20; tick++)
+        if (!animal.handleWaterMovement() || !animal.isInWater())
+          throw new AssertionError("Small aquatic mob incorrectly left the water");
+      if (animal.fallDistance != 0) throw new AssertionError("Water must reset falling distance");
+    }
+    if (waterWorld.particles != 0)
+      throw new AssertionError("Repeated water checks must not spawn splash/bubble bursts");
+    for (double height : new double[] {.175, .2, .3, .4, .42, .8, .85}) {
+      AxisAlignedBB box =
+          AquaticMovement.waterBox(AxisAlignedBB.getBoundingBox(0, 4, 0, .5, 4 + height, .5));
+      if (box.minY >= box.maxY || Math.abs((box.maxY - box.minY) - (height - .002)) > .000001)
+        throw new AssertionError("Water probe inverted a small hitbox");
+    }
+    waterWorld.waterPresent = false;
+    if (source.handleWaterMovement() || source.isInWater())
+      throw new AssertionError("Dry fish must clear its water state");
+    source.rotationYaw = 0;
+    source.motionX = 0;
+    source.motionZ = .1;
+    for (int tick = 0; tick < 70; tick++) {
+      float previousYaw = source.rotationYaw;
+      AquaticMovement.swim(source, 0, -1, .012, 3F);
+      double radians = source.rotationYaw * Math.PI / 180;
+      double forward = -Math.sin(radians) * source.motionX + Math.cos(radians) * source.motionZ;
+      double sideways = Math.cos(radians) * source.motionX + Math.sin(radians) * source.motionZ;
+      if (forward < -.000001 || Math.abs(sideways) > .000001)
+        throw new AssertionError("Aquatic steering must not propel backwards or sideways");
+      if (Math.abs(source.rotationYaw - previousYaw) > 3.001)
+        throw new AssertionError("Changing the swim goal must not snap the body");
+      source.motionX *= .9;
+      source.motionZ *= .9;
+    }
+    if (Math.abs(Math.abs(source.rotationYaw) - 180) > .001 || source.motionZ >= 0)
+      throw new AssertionError("Aquatic mob must complete a reverse turn and resume swimming");
+    waterWorld.waterPresent = true;
+    waterWorld.obstacle = AxisAlignedBB.getBoundingBox(1, 3, 0, 2, 4, 2);
+    source.setPosition(.8, 3.2, .8);
+    Method recover = EntityMBOFish.class.getDeclaredMethod("recoverFromObstacle");
+    recover.setAccessible(true);
+    recover.invoke(source);
+    Field escapeGoal = EntityMBOFish.class.getDeclaredField("goalX");
+    escapeGoal.setAccessible(true);
+    if (escapeGoal.getDouble(source) >= source.posX)
+      throw new AssertionError("Blocked fish must choose clear water away from the bank");
+    Field escapeTimer = EntityMBOFish.class.getDeclaredField("escapeTicks");
+    escapeTimer.setAccessible(true);
+    if (escapeTimer.getInt(source) != 40)
+      throw new AssertionError("Escape goal must persist while the fish turns away");
+    waterWorld.obstacle = null;
+    AquaticMovement.ClientTurn turn = new AquaticMovement.ClientTurn();
+    source.rotationYaw = 179;
+    turn.update(source);
+    source.rotationYaw = -179;
+    source.renderYawOffset = 0;
+    turn.update(source);
+    if (Math.abs(source.renderYawOffset - 181) > .001
+        || Math.abs(source.prevRenderYawOffset - 179) > .001)
+      throw new AssertionError("Client body must interpolate across angle wrapping");
+    source.rotationYaw = 90;
+    for (int tick = 0; tick < 40; tick++) {
+      source.renderYawOffset = -90; // Simulate vanilla's body helper changing the visual angle.
+      turn.update(source);
+      if (Math.abs(source.renderYawOffset - source.prevRenderYawOffset) > 3.001)
+        throw new AssertionError("Client aquatic body snapped during a turn");
+    }
+    if (Math.abs(source.renderYawOffset - 90) > .001)
+      throw new AssertionError("Client body failed to reach its final angle");
     System.out.println(
         "Fauna persistence, bucket data, camel poses, panda genetics, goat jump trajectories and reference models passed.");
+  }
+
+  public static final class RamVictim extends EntitySlime {
+    boolean hit;
+
+    public RamVictim() {
+      super(null);
+    }
+
+    @Override
+    public boolean attackEntityFrom(DamageSource source, float amount) {
+      hit = true;
+      return true;
+    }
+  }
+
+  public static final class AquaticWorld extends WorldServer {
+    private static final Block TEST_AIR = new Block(Material.air) {};
+    private static final Block TEST_WATER = new Block(Material.water) {};
+    boolean waterPresent;
+    int particles;
+    EntityLivingBase ramVictim;
+    AxisAlignedBB obstacle;
+
+    public AquaticWorld() {
+      super(null, null, "fauna-test", 0, null, new Profiler());
+    }
+
+    @Override
+    public List getEntitiesWithinAABB(Class type, AxisAlignedBB box) {
+      List<EntityLivingBase> result = new ArrayList<EntityLivingBase>();
+      if (ramVictim != null && box.intersectsWith(ramVictim.boundingBox)) result.add(ramVictim);
+      return result;
+    }
+
+    @Override
+    public Block getBlock(int x, int y, int z) {
+      return waterPresent ? TEST_WATER : TEST_AIR;
+    }
+
+    @Override
+    public List getCollidingBoundingBoxes(Entity entity, AxisAlignedBB box) {
+      List<AxisAlignedBB> result = new ArrayList<AxisAlignedBB>();
+      if (obstacle != null && obstacle.intersectsWith(box)) result.add(obstacle);
+      return result;
+    }
+
+    @Override
+    public boolean blockExists(int x, int y, int z) {
+      return true;
+    }
+
+    @Override
+    public boolean handleMaterialAcceleration(AxisAlignedBB box, Material material, Entity animal) {
+      if (box.minX >= box.maxX || box.minY >= box.maxY || box.minZ >= box.maxZ)
+        throw new AssertionError("Inverted water probe");
+      return waterPresent;
+    }
+
+    @Override
+    public void spawnParticle(
+        String name, double x, double y, double z, double mx, double my, double mz) {
+      particles++;
+    }
   }
 }

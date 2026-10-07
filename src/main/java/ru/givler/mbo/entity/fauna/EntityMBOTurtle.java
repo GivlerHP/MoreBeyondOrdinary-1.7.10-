@@ -22,6 +22,14 @@ import ru.givler.mbo.registry.ItemRegistry;
 
 /** Egg-carrying amphibious animal. The beach is persistent, not recalculated on chunk load. */
 public final class EntityMBOTurtle extends EntityAnimal {
+  private final AquaticMovement.ClientTurn clientTurn = new AquaticMovement.ClientTurn();
+
+  @Override
+  public boolean handleWaterMovement() {
+    inWater = AquaticMovement.updateWaterContact(this);
+    return inWater;
+  }
+
   private int homeX, homeY, homeZ, layTicks, searchTicks;
   private int panicTicks;
   private double panicX, panicZ;
@@ -127,6 +135,12 @@ public final class EntityMBOTurtle extends EntityAnimal {
   }
 
   @Override
+  public void onUpdate() {
+    super.onUpdate();
+    clientTurn.update(this);
+  }
+
+  @Override
   public void onLivingUpdate() {
     boolean child = isChild();
     super.onLivingUpdate();
@@ -179,11 +193,9 @@ public final class EntityMBOTurtle extends EntityAnimal {
           dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
       if (dist > .4) {
         double speed = isChild() ? .004D : .008D;
-        motionX += dx / dist * speed;
+        AquaticMovement.swim(this, dx, dz, speed * Math.sqrt(dx * dx + dz * dz) / dist, 2F);
         motionY += dy / dist * speed;
-        motionZ += dz / dist * speed;
       }
-      AquaticMovement.face(this, motionX, motionZ, 5F);
       if (hasEgg() && getDistanceSq(homeX, homeY, homeZ) < 256D) motionY += .006D;
     }
   }

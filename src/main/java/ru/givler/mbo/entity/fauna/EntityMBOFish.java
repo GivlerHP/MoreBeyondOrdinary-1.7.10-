@@ -17,9 +17,17 @@ import ru.givler.mbo.registry.ItemRegistry;
 
 /** Water steering, schools, dry-land flopping and bucket persistence shared by vanilla fish. */
 public abstract class EntityMBOFish extends EntityWaterMob implements IBucketableCreature {
+  private final AquaticMovement.ClientTurn clientTurn = new AquaticMovement.ClientTurn();
+
+  @Override
+  public boolean handleWaterMovement() {
+    inWater = AquaticMovement.updateWaterContact(this);
+    return inWater;
+  }
+
   private EntityMBOFish leader;
   private double goalX, goalY, goalZ;
-  private int inflate, deflate;
+  private int inflate, deflate, blockedTicks, escapeTicks;
 
   protected EntityMBOFish(World world) {
     super(world);
@@ -122,6 +130,12 @@ public abstract class EntityMBOFish extends EntityWaterMob implements IBucketabl
   }
 
   @Override
+  public void onUpdate() {
+    super.onUpdate();
+    clientTurn.update(this);
+  }
+
+  @Override
   public void onLivingUpdate() {
     float size =
         foodMeta() == 3
@@ -133,10 +147,11 @@ public abstract class EntityMBOFish extends EntityWaterMob implements IBucketabl
       setSize(size, foodMeta() == 1 ? size * (.4F / .7F) : foodMeta() == 3 ? size : bodyHeight());
     if (!worldObj.isRemote && isEntityAlive()) {
       if (isInWater()) {
-        if (ticksExisted % 20 == 0 || ticksExisted == 1) pickGoal();
+        if (escapeTicks > 0) escapeTicks--;
+        else if (ticksExisted % 20 == 0 || ticksExisted == 1) pickGoal();
         if (leader != null && (!leader.isEntityAlive() || getDistanceSqToEntity(leader) > 121D))
           leader = null;
-        if (leader != null) {
+        if (leader != null && escapeTicks == 0) {
           goalX = leader.posX;
           goalY = leader.posY;
           goalZ = leader.posZ;
@@ -146,11 +161,9 @@ public abstract class EntityMBOFish extends EntityWaterMob implements IBucketabl
             dz = goalZ - posZ,
             distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (distance > .3D) {
-          motionX += dx / distance * .012D;
+          AquaticMovement.swim(this, dx, dz, .012D * Math.sqrt(dx * dx + dz * dz) / distance, 3F);
           motionY += dy / distance * .012D;
-          motionZ += dz / distance * .012D;
         }
-        AquaticMovement.face(this, motionX, motionZ, 10F);
       } else if (onGround) {
         motionX += (rand.nextFloat() * 2F - 1F) * .05D;
         motionZ += (rand.nextFloat() * 2F - 1F) * .05D;
@@ -191,8 +204,7 @@ public abstract class EntityMBOFish extends EntityWaterMob implements IBucketabl
       double x = posX + rand.nextInt(11) - 5,
           y = posY + rand.nextInt(5) - 2,
           z = posZ + rand.nextInt(11) - 5;
-      if (water(
-          MathHelper.floor_double(x), MathHelper.floor_double(y), MathHelper.floor_double(z))) {
+      if (canSwimTo(x, y, z)) {
         goalX = x;
         goalY = y;
         goalZ = z;
@@ -214,16 +226,63 @@ public abstract class EntityMBOFish extends EntityWaterMob implements IBucketabl
   public void moveEntityWithHeading(float strafe, float forward) {
     if (isInWater()) {
       if (!worldObj.isRemote) {
+        double attemptedY = motionY;
         moveEntity(motionX, motionY, motionZ);
         motionX *= .9D;
         motionY *= .9D;
         motionZ *= .9D;
-        if (isCollidedHorizontally) {
-          goalX = posX - motionX * 30;
-          goalZ = posZ - motionZ * 30;
-        }
+        if (isCollidedHorizontally || isCollidedVertically && Math.abs(attemptedY) > .001) {
+          if (++blockedTicks >= 4) recoverFromObstacle();
+        } else blockedTicks = 0;
       }
     } else super.moveEntityWithHeading(strafe, forward);
+  }
+
+  private boolean canSwimTo(double x, double y, double z) {
+    AxisAlignedBB box = boundingBox.copy().offset(x - posX, y - posY, z - posZ);
+    return worldObj.blockExists(
+            MathHelper.floor_double(box.minX),
+            MathHelper.floor_double(box.minY),
+            MathHelper.floor_double(box.minZ))
+        && worldObj.blockExists(
+            MathHelper.floor_double(box.maxX),
+            MathHelper.floor_double(box.maxY),
+            MathHelper.floor_double(box.maxZ))
+        && water(
+            MathHelper.floor_double(x),
+            MathHelper.floor_double(box.minY + .01),
+            MathHelper.floor_double(z))
+        && water(
+            MathHelper.floor_double(x),
+            MathHelper.floor_double(box.maxY - .01),
+            MathHelper.floor_double(z))
+        && worldObj.getCollidingBoundingBoxes(this, box).isEmpty();
+  }
+
+  private void recoverFromObstacle() {
+    blockedTicks = 0;
+    leader = null;
+    double best = Double.MAX_VALUE;
+    boolean found = false;
+    int cx = MathHelper.floor_double(posX),
+        cy = MathHelper.floor_double(posY),
+        cz = MathHelper.floor_double(posZ);
+    for (int dx = -2; dx <= 2; dx++)
+      for (int dy = -1; dy <= 1; dy++)
+        for (int dz = -2; dz <= 2; dz++) {
+          double x = cx + dx + .5, y = cy + dy + .2, z = cz + dz + .5;
+          double distance = getDistanceSq(x, y, z);
+          if (distance < .16 || distance >= best || !canSwimTo(x, y, z)) continue;
+          best = distance;
+          found = true;
+          goalX = x;
+          goalY = y;
+          goalZ = z;
+        }
+    if (found) {
+      escapeTicks = 40;
+      motionX = motionZ = 0;
+    }
   }
 
   private void updatePuff() {

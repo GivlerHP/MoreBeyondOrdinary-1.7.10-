@@ -12,6 +12,19 @@ import ru.givler.mbo.config.FaunaConfig;
 import ru.givler.mbo.registry.ItemRegistry;
 
 public final class EntityMBOGlowSquid extends EntitySquid {
+  private final AquaticMovement.ClientTurn clientTurn = new AquaticMovement.ClientTurn();
+
+  @Override
+  public boolean handleWaterMovement() {
+    inWater = AquaticMovement.updateWaterContact(this);
+    return inWater;
+  }
+
+  @Override
+  public boolean isInWater() {
+    return inWater;
+  }
+
   public EntityMBOGlowSquid(World world) {
     super(world);
   }
@@ -37,12 +50,18 @@ public final class EntityMBOGlowSquid extends EntitySquid {
   }
 
   @Override
+  public void onUpdate() {
+    super.onUpdate();
+    clientTurn.update(this);
+  }
+
+  @Override
   public void onLivingUpdate() {
     float oldYaw = rotationYaw;
     super.onLivingUpdate();
-    if (isInWater()) {
+    if (!worldObj.isRemote && isInWater()) {
       rotationYaw = oldYaw;
-      AquaticMovement.face(this, motionX, motionZ, 10F);
+      AquaticMovement.face(this, motionX, motionZ, 4F);
     }
     setSize(baby() ? .4F : .8F, baby() ? .4F : .8F);
     if (worldObj.isRemote) {
