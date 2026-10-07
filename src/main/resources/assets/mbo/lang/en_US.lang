@@ -1498,3 +1498,5 @@ tile.mbo.powder_snow.name=Powder Snow
 item.mbo.powder_snow_bucket.name=Powder Snow Bucket
 death.attack.mbo.freeze=%1$s froze to death
 entity.MBOCamel.name=Camel
+
+entity.MBOElderGuardian.name=Elder Guardian

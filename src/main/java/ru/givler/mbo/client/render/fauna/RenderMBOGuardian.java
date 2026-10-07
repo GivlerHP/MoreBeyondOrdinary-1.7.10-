@@ -5,9 +5,11 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.client.model.fauna.ModelMBOGuardian;
+import ru.givler.mbo.entity.fauna.EntityMBOElderGuardian;
 import ru.givler.mbo.entity.fauna.EntityMBOGuardian;
 
 public final class RenderMBOGuardian extends RenderLiving {
@@ -17,7 +19,15 @@ public final class RenderMBOGuardian extends RenderLiving {
 
   @Override
   protected ResourceLocation getEntityTexture(Entity entity) {
-    return new ResourceLocation("mbo", "textures/entity/guardian/guardian.png");
+    return new ResourceLocation(
+        "mbo",
+        "textures/entity/guardian/"
+            + (entity instanceof EntityMBOElderGuardian ? "guardian_elder.png" : "guardian.png"));
+  }
+
+  @Override
+  protected void preRenderCallback(EntityLivingBase entity, float partial) {
+    if (entity instanceof EntityMBOElderGuardian) GL11.glScalef(2.35F, 2.35F, 2.35F);
   }
 
   @Override

@@ -61,12 +61,32 @@ public class EntityMBOGuardian extends EntityMob {
     return true;
   }
 
+  protected int getWanderInterval() {
+    return 60;
+  }
+
+  protected double getSwimAcceleration() {
+    return .025;
+  }
+
+  protected boolean avoidsCloseTargets() {
+    return true;
+  }
+
+  public int getAttackDuration() {
+    return 80;
+  }
+
+  protected String getFlopSound() {
+    return "mbo:entity.guardian.flop";
+  }
+
   public int beamTarget() {
     return dataWatcher.getWatchableObjectInt(20);
   }
 
   public float beamCharge() {
-    return dataWatcher.getWatchableObjectInt(21) / 80F;
+    return dataWatcher.getWatchableObjectInt(21) / (float) getAttackDuration();
   }
 
   public boolean swimming() {
@@ -114,7 +134,7 @@ public class EntityMBOGuardian extends EntityMob {
                   || entity instanceof EntitySquid
                   || entity instanceof EntityMBOAxolotl)
               && entity.isEntityAlive()
-              && getDistanceSqToEntity(entity) > 9
+              && (!avoidsCloseTargets() || getDistanceSqToEntity(entity) > 9)
               && getDistanceSqToEntity(entity) < nearest
               && getEntitySenses().canSee(entity)) {
             nearest = getDistanceSqToEntity(entity);
@@ -129,7 +149,8 @@ public class EntityMBOGuardian extends EntityMob {
         motionZ *= .7;
         getLookHelper().setLookPositionWithEntity(target, 90, 90);
         AquaticMovement.face(this, target.posX - posX, target.posZ - posZ, 8F);
-        if (!getEntitySenses().canSee(target) || getDistanceSqToEntity(target) <= 9) {
+        if (!getEntitySenses().canSee(target)
+            || avoidsCloseTargets() && getDistanceSqToEntity(target) <= 9) {
           setAttackTarget(null);
           resetBeam();
         } else {
@@ -139,10 +160,13 @@ public class EntityMBOGuardian extends EntityMob {
             worldObj.setEntityState(this, (byte) 21);
           }
           dataWatcher.updateObject(21, Integer.valueOf(Math.max(0, beamTicks - 10)));
-          if (beamTicks >= 90) {
+          if (beamTicks >= getAttackDuration() + 10) {
             float magic = worldObj.difficultySetting.getDifficultyId() == 3 ? 3 : 1;
             target.attackEntityFrom(DamageSource.causeIndirectMagicDamage(this, this), magic);
-            target.attackEntityFrom(DamageSource.causeMobDamage(this), 6);
+            target.attackEntityFrom(
+                DamageSource.causeMobDamage(this),
+                (float)
+                    getEntityAttribute(SharedMonsterAttributes.attackDamage).getAttributeValue());
             setAttackTarget(null);
             attackDelay = 20;
             resetBeam();
@@ -151,7 +175,7 @@ public class EntityMBOGuardian extends EntityMob {
       } else {
         resetBeam();
         if (isInWater()) {
-          if (ticksExisted % 60 == 0 || ticksExisted == 1) {
+          if (ticksExisted % getWanderInterval() == 0 || ticksExisted == 1) {
             goalX = posX + rand.nextInt(13) - 6;
             goalY = posY + rand.nextInt(7) - 3;
             goalZ = posZ + rand.nextInt(13) - 6;
@@ -177,15 +201,16 @@ public class EntityMBOGuardian extends EntityMob {
               len = Math.sqrt(dx * dx + dy * dy + dz * dz);
           dataWatcher.updateObject(22, Byte.valueOf((byte) (len > 1 ? 1 : 0)));
           if (len > 1) {
-            AquaticMovement.swim(this, dx, dz, .025 * Math.sqrt(dx * dx + dz * dz) / len, 3F);
-            motionY += dy / len * .025;
+            AquaticMovement.swim(
+                this, dx, dz, getSwimAcceleration() * Math.sqrt(dx * dx + dz * dz) / len, 3F);
+            motionY += dy / len * getSwimAcceleration();
           }
         } else if (onGround) {
           motionY = .5;
           motionX += (rand.nextDouble() - .5) * .8;
           motionZ += (rand.nextDouble() - .5) * .8;
           onGround = false;
-          playSound("mbo:entity.guardian.flop", 1, 1);
+          playSound(getFlopSound(), 1, 1);
         }
       }
     }

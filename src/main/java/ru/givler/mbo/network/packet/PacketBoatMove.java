@@ -67,6 +67,10 @@ public class PacketBoatMove implements IMessage {
       if (world == null) return;
       Entity boat = world.getEntityByID(message.entityId);
       if (!(boat instanceof EntityMBOBoat) || boat.riddenByEntity != player) return;
+      if (((EntityMBOBoat) boat).isGuardianLocked()) {
+        handler.sendPacket(new S18PacketEntityTeleport(boat));
+        return;
+      }
       double dx = message.x - boat.posX, dy = message.y - boat.posY, dz = message.z - boat.posZ;
       double allowed =
           Math.max(

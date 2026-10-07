@@ -14,6 +14,7 @@ import ru.givler.mbo.network.packet.PacketApplyLockTemplate;
 import ru.givler.mbo.network.packet.PacketAreaEditorInteract;
 import ru.givler.mbo.network.packet.PacketBoatMove;
 import ru.givler.mbo.network.packet.PacketCamelDash;
+import ru.givler.mbo.network.packet.PacketElderGuardianCurse;
 import ru.givler.mbo.network.packet.PacketDungeonAreaDelete;
 import ru.givler.mbo.network.packet.PacketDungeonAreaOpenRequest;
 import ru.givler.mbo.network.packet.PacketDungeonAreaSync;
@@ -149,6 +150,7 @@ public class PacketManager {
   }
 
   public static void registerClientPackets() {
+    INSTANCE.registerMessage(PacketElderGuardianCurse.Handler.class, PacketElderGuardianCurse.class, nextID++, Side.CLIENT);
     INSTANCE.registerMessage(
         PacketLightningArc.Handler.class, PacketLightningArc.class, nextID++, Side.CLIENT);
     INSTANCE.registerMessage(
@@ -223,6 +225,7 @@ public class PacketManager {
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static void registerClientPacketTypesForServer() {
     Class[] messages = {
+      PacketElderGuardianCurse.class,
       PacketLightningArc.class,
       PacketMagicBurst.class,
       PacketPotionEffectSync.class,

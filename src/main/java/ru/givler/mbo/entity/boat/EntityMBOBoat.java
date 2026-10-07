@@ -16,6 +16,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 import ru.givler.mbo.network.PacketManager;
+import ru.givler.mbo.entity.fauna.EntityMBOElderGuardian;
 import ru.givler.mbo.network.packet.PacketBoatMove;
 import ru.givler.mbo.registry.BoatRegistry;
 
@@ -26,6 +27,7 @@ public class EntityMBOBoat extends Entity {
     return onGround || status == Status.ON_LAND ? 0F : VISUAL_Y_OFFSET;
   }
   private static final int HIT = 17, FORWARD = 18, DAMAGE = 19, TYPE = 21;
+  private static final int GUARDIAN_LOCK = 26;
   private static final int[] PADDLES = {24, 25};
   private final float[] paddlePositions = new float[2];
   private float momentum, deltaRotation, outOfControlTicks;
@@ -52,6 +54,7 @@ public class EntityMBOBoat extends Entity {
   }
 
   protected void entityInit() {
+    dataWatcher.addObject(GUARDIAN_LOCK, Byte.valueOf((byte) 0));
     dataWatcher.addObject(HIT, Integer.valueOf(0));
     dataWatcher.addObject(FORWARD, Integer.valueOf(1));
     dataWatcher.addObject(DAMAGE, Float.valueOf(0));
@@ -167,7 +170,8 @@ public class EntityMBOBoat extends Entity {
     super.onUpdate();
     tickLerp();
 
-    boolean localDriver = !worldObj.isRemote || riddenByEntity instanceof EntityClientPlayerMP;
+    if (!worldObj.isRemote && ticksExisted % 5 == 0) refreshGuardianLock();
+    boolean localDriver = !worldObj.isRemote || riddenByEntity instanceof EntityClientPlayerMP && !isGuardianLocked();
     if (localDriver) {
       updateMotion();
       if (riddenByEntity instanceof EntityPlayer) {
@@ -190,7 +194,7 @@ public class EntityMBOBoat extends Entity {
 
     spawnWakeParticles();
     func_145775_I();
-    if (worldObj.isRemote && riddenByEntity instanceof EntityClientPlayerMP)
+    if (worldObj.isRemote && riddenByEntity instanceof EntityClientPlayerMP && !isGuardianLocked())
       PacketManager.INSTANCE.sendToServer(new PacketBoatMove(this));
   }
 
@@ -220,7 +224,7 @@ public class EntityMBOBoat extends Entity {
   }
 
   private void tickLerp() {
-    if (worldObj.isRemote && lerpSteps > 0 && !(riddenByEntity instanceof EntityClientPlayerMP)) {
+    if (worldObj.isRemote && lerpSteps > 0 && (!(riddenByEntity instanceof EntityClientPlayerMP) || isGuardianLocked())) {
       posX += (lerpX - posX) / lerpSteps;
       posY += (lerpY - posY) / lerpSteps;
       posZ += (lerpZ - posZ) / lerpSteps;
@@ -249,7 +253,23 @@ public class EntityMBOBoat extends Entity {
     backInput = back;
   }
 
+  public boolean isGuardianLocked() { return dataWatcher.getWatchableObjectByte(GUARDIAN_LOCK) != 0; }
+
+  public void refreshGuardianLock() {
+    if (worldObj.isRemote) return;
+    boolean locked = false;
+    for (Object entry : worldObj.getEntitiesWithinAABB(EntityMBOElderGuardian.class, boundingBox.expand(50, 50, 50))) {
+      EntityMBOElderGuardian elder = (EntityMBOElderGuardian) entry;
+      if (elder.blocksBoat(this)) { locked = true; break; }
+    }
+    dataWatcher.updateObject(GUARDIAN_LOCK, Byte.valueOf((byte) (locked ? 1 : 0)));
+  }
+
   private void controlBoat() {
+    if (isGuardianLocked()) {
+      motionX = motionZ = 0; deltaRotation = 0;
+      setPaddleState(false, false); return;
+    }
     if (riddenByEntity == null) {
       setPaddleState(false, false);
       return;
@@ -389,8 +409,8 @@ public class EntityMBOBoat extends Entity {
   }
 
   /**
-   * Точка сущности находится ниже ватерлинии, поэтому стандартный Entity берёт подводное освещение.
-   * Для модели лодки свет нужно измерять над поверхностью корпуса.
+   * РўРѕС‡РєР° СЃСѓС‰РЅРѕСЃС‚Рё РЅР°С…РѕРґРёС‚СЃСЏ РЅРёР¶Рµ РІР°С‚РµСЂР»РёРЅРёРё, РїРѕСЌС‚РѕРјСѓ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ Entity Р±РµСЂС‘С‚ РїРѕРґРІРѕРґРЅРѕРµ РѕСЃРІРµС‰РµРЅРёРµ.
+   * Р”Р»СЏ РјРѕРґРµР»Рё Р»РѕРґРєРё СЃРІРµС‚ РЅСѓР¶РЅРѕ РёР·РјРµСЂСЏС‚СЊ РЅР°Рґ РїРѕРІРµСЂС…РЅРѕСЃС‚СЊСЋ РєРѕСЂРїСѓСЃР°.
    */
   @Override
   @SideOnly(Side.CLIENT)

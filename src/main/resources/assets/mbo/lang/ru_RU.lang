@@ -1787,3 +1787,5 @@ tile.mbo.powder_snow.name=Рыхлый снег
 item.mbo.powder_snow_bucket.name=Ведро с рыхлым снегом
 death.attack.mbo.freeze=%1$s замёрз насмерть
 entity.MBOCamel.name=Верблюд
+
+entity.MBOElderGuardian.name=Древний страж

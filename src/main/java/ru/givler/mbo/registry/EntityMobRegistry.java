@@ -42,6 +42,7 @@ public class EntityMobRegistry {
         registerEntity(EntityMBOAxolotl.class,"MBOAxolotl",0xfbc1e3,0xa62d6b,3);
         registerEntity(EntityMBOGlowSquid.class,"MBOGlowSquid",0x095656,0x85f1bc,3);
         registerEntity(EntityMBOGuardian.class,"MBOGuardian",0x5a8272,0xf17d30,3);
+        registerEntity(EntityMBOElderGuardian.class,"MBOElderGuardian",0xceccba,0x747693,3);
         registerEntity(EntityMBOCamel.class,"MBOCamel",0xc09e7d,0x8d694a,3);
         EntityRegistry.registerModEntity(EntityMBOCamelSeat.class,"CamelSeat",ModEntityIds.next(),MoreBeyondOrdinary.instance,64,1,false);
 

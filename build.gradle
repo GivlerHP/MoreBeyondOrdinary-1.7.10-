@@ -26,6 +26,7 @@ spotless {
                 'src/main/java/ru/givler/mbo/handler/FaunaEvents.java',
                 'src/main/java/ru/givler/mbo/integration/**/Fauna*.java',
                 'src/main/java/ru/givler/mbo/network/packet/PacketCamelDash.java',
+                'src/main/java/ru/givler/mbo/network/packet/PacketElderGuardianCurse.java',
                 'src/test/java/ru/givler/mbo/fauna/**/*.java'
         googleJavaFormat('1.19.2')
         custom 'compact model parts', { source ->

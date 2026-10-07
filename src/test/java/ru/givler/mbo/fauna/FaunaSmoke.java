@@ -319,6 +319,46 @@ public final class FaunaSmoke {
     EntityMBOGuardian guardian = new EntityMBOGuardian(null);
     if (guardian.getMaxHealth() != 30 || guardian.beamTarget() != 0 || guardian.beamCharge() != 0)
       throw new AssertionError("Guardian attributes/beam initialization incorrect");
+    EntityMBOElderGuardian elder = new EntityMBOElderGuardian(null);
+    ru.givler.mbo.entity.boat.EntityMBOBoat sealedBoat =
+        new ru.givler.mbo.entity.boat.EntityMBOBoat(null);
+    if (elder.getMaxHealth() != 80 || elder.getAttackDuration() != 60 || elder.width < 1.99F)
+      throw new AssertionError("Elder attributes/size/beam duration incorrect");
+    elder.setPosition(0, 0, 0);
+    sealedBoat.setPosition(10, 0, 0);
+    if (elder.blocksBoat(sealedBoat)) throw new AssertionError("Seal starts before apparition");
+    Field seal = EntityMBOElderGuardian.class.getDeclaredField("boatSealActive");
+    seal.setAccessible(true);
+    Field countdown = EntityMBOElderGuardian.class.getDeclaredField("sealCountdown");
+    countdown.setAccessible(true);
+    countdown.setInt(elder, EntityMBOElderGuardian.APPARITION_TICKS);
+    Method advanceSeal = EntityMBOElderGuardian.class.getDeclaredMethod("advanceBoatSeal");
+    advanceSeal.setAccessible(true);
+    for (int i = 0; i < EntityMBOElderGuardian.APPARITION_TICKS - 1; i++) advanceSeal.invoke(elder);
+    if (elder.blocksBoat(sealedBoat)) throw new AssertionError("Seal precedes end of apparition");
+    advanceSeal.invoke(elder);
+    if (!elder.blocksBoat(sealedBoat))
+      throw new AssertionError("Active elder must seal nearby boats");
+    sealedBoat.setPosition(50.01, 0, 0);
+    if (elder.blocksBoat(sealedBoat)) throw new AssertionError("Boat outside sphere must be free");
+    saved = new NBTTagCompound();
+    elder.writeEntityToNBT(saved);
+    EntityMBOElderGuardian loadedElder = new EntityMBOElderGuardian(null);
+    loadedElder.readEntityFromNBT(saved);
+    sealedBoat.setPosition(10, 0, 0);
+    if (!loadedElder.blocksBoat(sealedBoat)) throw new AssertionError("Reload lost active seal");
+    loadedElder.setHealth(0);
+    if (loadedElder.blocksBoat(sealedBoat))
+      throw new AssertionError("Dead elder still seals boats");
+    sealedBoat.getDataWatcher().updateObject(26, Byte.valueOf((byte) 1));
+    sealedBoat.motionX = 1;
+    sealedBoat.motionY = .2;
+    sealedBoat.motionZ = 1;
+    Method boatControl = sealedBoat.getClass().getDeclaredMethod("controlBoat");
+    boatControl.setAccessible(true);
+    boatControl.invoke(sealedBoat);
+    if (sealedBoat.motionX != 0 || sealedBoat.motionZ != 0 || sealedBoat.motionY != .2)
+      throw new AssertionError("Seal must stop horizontal movement while preserving buoyancy");
     Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
     unsafeField.setAccessible(true);
     WorldServer camelWorld =

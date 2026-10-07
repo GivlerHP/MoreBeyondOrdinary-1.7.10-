@@ -69,6 +69,7 @@ import ru.givler.mbo.entity.fauna.EntityMBOFox;
 import ru.givler.mbo.entity.fauna.EntityMBOAxolotl;
 import ru.givler.mbo.entity.fauna.EntityMBOGlowSquid;
 import ru.givler.mbo.entity.fauna.EntityMBOGuardian;
+import ru.givler.mbo.entity.fauna.EntityMBOElderGuardian;
 import ru.givler.mbo.client.render.fauna.RenderMBOAxolotl;
 import ru.givler.mbo.client.render.fauna.RenderMBOGlowSquid;
 import ru.givler.mbo.client.render.fauna.RenderMBOGuardian;
@@ -442,6 +443,7 @@ public class ClientProxy extends CommonProxy {
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOAxolotl.class,new RenderMBOAxolotl());
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOGlowSquid.class,new RenderMBOGlowSquid());
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOGuardian.class,new RenderMBOGuardian());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOElderGuardian.class,new RenderMBOGuardian());
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOCamel.class,new RenderMBOCamel());
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOCamelSeat.class,new RenderMBOBoatSeat());
     int seagrassRender=RenderingRegistry.getNextAvailableRenderId();
