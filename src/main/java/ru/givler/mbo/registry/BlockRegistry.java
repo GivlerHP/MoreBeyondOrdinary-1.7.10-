@@ -6,19 +6,44 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 import ru.givler.mbo.block.*;
 import ru.givler.mbo.block.craft.BlockArcanum;
+import ru.givler.mbo.block.fauna.BlockPowderSnow;
+import ru.givler.mbo.block.fauna.BlockSeagrass;
+import ru.givler.mbo.block.fauna.BlockTurtleEgg;
+import ru.givler.mbo.block.fauna.BlockFrogspawn;
+import ru.givler.mbo.block.fauna.BlockFroglight;
 import ru.givler.mbo.block.magic.BlockMagicSnare;
 import ru.givler.mbo.block.magic.BlockPetrifiedStatue;
 import ru.givler.mbo.block.magic.BlockTemporaryMagic;
-import ru.givler.mbo.block.special.*;
 import ru.givler.mbo.block.model.BlockModelCollision;
-import ru.givler.mbo.movingplatform.BlockPlatformStation;
+import ru.givler.mbo.block.special.*;
 import ru.givler.mbo.item.ItemLeafLitter;
+import ru.givler.mbo.item.ItemBlockMetadata;
+import ru.givler.mbo.item.fauna.ItemTurtleEgg;
+import ru.givler.mbo.movingplatform.BlockPlatformStation;
 
 public class BlockRegistry {
+    public static Block powderSnow, turtleEgg;
+    public static Block frogspawn, froglight;
+    public static BlockSeagrass seagrassBlock;
+
+    private static void registerFaunaBlocks() {
+        seagrassBlock = new BlockSeagrass();
+        GameRegistry.registerBlock(seagrassBlock, "seagrass");
+        turtleEgg = new BlockTurtleEgg();
+        GameRegistry.registerBlock(turtleEgg, ItemTurtleEgg.class, "turtle_egg");
+        powderSnow = new BlockPowderSnow();
+        GameRegistry.registerBlock(powderSnow, "powder_snow");
+        frogspawn = new BlockFrogspawn();
+        GameRegistry.registerBlock(frogspawn, "frogspawn");
+        froglight = new BlockFroglight();
+        GameRegistry.registerBlock(froglight, ItemBlockMetadata.class, "froglight");
+    }
+
     //переменные для блоков
     public static Block BlockGreyStone, BlockFogWhite, BlockFogGrey, RoofStandart, RoofUnfired, RoofLaminated, RoofSheet, RoofFlake, BlockGreyCobblestone,
             BlockSandstone, BlockStonebrick, BlockEndbrick, BlockGreyCobblesMossy,  BlockImperialBrick, BlockHeneizenBrick, BlockIrgadBrick,
@@ -78,6 +103,7 @@ public class BlockRegistry {
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
+        registerFaunaBlocks();
         // Keep vanilla attenuation so grass cannot spread beneath water.
         Blocks.water.setLightOpacity(3);
         Blocks.flowing_water.setLightOpacity(3);
@@ -394,8 +420,8 @@ public class BlockRegistry {
         BlockBasicSlab.addStandardRecipes(SlabDirt,           Blocks.dirt);
 
         GameRegistry.addRecipe(new ItemStack(SlimeBlock),
-                new Object[]{"SSS", "SSS", "SSS", 'S', net.minecraft.init.Items.slime_ball});
-        GameRegistry.addShapelessRecipe(new ItemStack(net.minecraft.init.Items.slime_ball, 9), SlimeBlock);
+                new Object[]{"SSS", "SSS", "SSS", 'S', Items.slime_ball});
+        GameRegistry.addShapelessRecipe(new ItemStack(Items.slime_ball, 9), SlimeBlock);
 
         FenceVanilla.addStandardRecipes();
 

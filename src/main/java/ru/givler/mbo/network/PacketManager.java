@@ -13,6 +13,7 @@ import ru.givler.mbo.network.packet.PacketColoredBurning;
 import ru.givler.mbo.network.packet.PacketApplyLockTemplate;
 import ru.givler.mbo.network.packet.PacketAreaEditorInteract;
 import ru.givler.mbo.network.packet.PacketBoatMove;
+import ru.givler.mbo.network.packet.PacketCamelDash;
 import ru.givler.mbo.network.packet.PacketDungeonAreaDelete;
 import ru.givler.mbo.network.packet.PacketDungeonAreaOpenRequest;
 import ru.givler.mbo.network.packet.PacketDungeonAreaSync;
@@ -63,6 +64,7 @@ public class PacketManager {
   public static int nextID = 0;
 
   public static void registerCommonPackets() {
+    INSTANCE.registerMessage(PacketCamelDash.Handler.class,PacketCamelDash.class,nextID++,Side.SERVER);
     INSTANCE.registerMessage(
         PacketAdminFireColor.Handler.class, PacketAdminFireColor.class, nextID++, Side.SERVER);
     INSTANCE.registerMessage(

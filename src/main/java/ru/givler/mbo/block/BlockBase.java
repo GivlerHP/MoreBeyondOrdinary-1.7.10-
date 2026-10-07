@@ -9,6 +9,10 @@ import ru.givler.mbo.registry.CreativeTabRegistry;
 public class BlockBase extends Block {
 
         public BlockBase(Material material, String name, String texture) {
+            this(material, name, texture, true);
+        }
+
+        public BlockBase(Material material, String name, String texture, boolean register) {
             super(material);
 
             this.setBlockName(name);   // Устанавливаем внутреннее (регистрационное) имя блока
@@ -20,7 +24,7 @@ public class BlockBase extends Block {
             this.setHarvestLevel("pick_axe", 1);  // Устанавливаем инструмент, необходимый для добычи блока
             this.setStepSound(soundTypeStone);              // Устанавливаем звук при размещении/разрушении блока
             this.setBlockTextureName(MoreBeyondOrdinary.MODID + ":" + texture); // Задаём текстуру блока
-            GameRegistry.registerBlock(this, name);        // Регистрируем блок в системе Minecraft, используя уникальное имя
+            if (register) GameRegistry.registerBlock(this, name);
         }
 
     }

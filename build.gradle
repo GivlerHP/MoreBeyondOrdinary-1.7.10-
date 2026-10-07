@@ -14,6 +14,32 @@ apply plugin: 'forge'
 apply plugin: 'idea'
 apply plugin: 'com.diffplug.spotless'
 
+spotless {
+    enforceCheck = false
+    java {
+        target 'src/main/java/ru/givler/mbo/entity/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/item/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/block/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/client/model/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/client/render/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/config/FaunaConfig.java',
+                'src/main/java/ru/givler/mbo/handler/FaunaEvents.java',
+                'src/main/java/ru/givler/mbo/integration/**/Fauna*.java',
+                'src/main/java/ru/givler/mbo/network/packet/PacketCamelDash.java',
+                'src/test/java/ru/givler/mbo/fauna/**/*.java'
+        googleJavaFormat('1.19.2')
+        custom 'compact model parts', { source ->
+            source.replaceAll(/(?ms)^([ \t]*)part\(\s*(".*?)\);/) { full, indent, arguments ->
+                def values = arguments.split(',').collect { it.trim() }
+                if (values.size() != 17) return full
+                return indent + 'part(' + values[0..3].join(', ') + ',\n' +
+                        indent + '    ' + values[4..9].join(', ') + ',\n' +
+                        indent + '    ' + values[10..16].join(', ') + ');'
+            }
+        }
+    }
+}
+
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
@@ -92,6 +118,16 @@ task verifyWaterloggedStorage(type: JavaExec, dependsOn: testClasses) {
 task verifyBoatRiderRender(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.core.BoatRiderRenderSmoke'
+}
+
+task verifyFauna(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.fauna.FaunaSmoke'
+}
+
+task verifyPowderSnow(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.fauna.PowderSnowSmoke'
 }
 
 tasks.check.dependsOn('verifyWaterloggedStorage')

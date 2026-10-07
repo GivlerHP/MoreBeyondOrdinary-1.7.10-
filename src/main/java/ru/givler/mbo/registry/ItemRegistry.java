@@ -1,31 +1,68 @@
 package ru.givler.mbo.registry;
 
-import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
-import ru.givler.mbo.block.DoorBase;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraft.init.Items;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.oredict.OreDictionary;
 import ru.givler.mbo.MoreBeyondOrdinary;
+import ru.givler.mbo.block.DoorBase;
 import ru.givler.mbo.item.*;
 import ru.givler.mbo.item.amulets.*;
 import ru.givler.mbo.item.belt.ItemFallBelt;
 import ru.givler.mbo.item.belt.ItemFertilityBelt;
 import ru.givler.mbo.item.belt.ItemMinerBelt;
-import ru.givler.mbo.item.ring.*;
+import ru.givler.mbo.item.fauna.ItemCreatureBucket;
+import ru.givler.mbo.entity.fauna.EntityMBOAxolotl;
+import ru.givler.mbo.entity.fauna.EntityMBOFish;
+import ru.givler.mbo.item.fauna.ItemGoatHorn;
+import ru.givler.mbo.item.fauna.ItemPowderSnowBucket;
 import ru.givler.mbo.item.glyph.*;
-
 import ru.givler.mbo.item.glyph.ItemGlyphWeapon;
+import ru.givler.mbo.item.magic.ItemSpectralWeapon;
+import ru.givler.mbo.item.ring.*;
 import ru.givler.mbo.item.wand.ItemWandWizard;
 import ru.givler.mbo.item.weapon.*;
-import ru.givler.mbo.item.magic.ItemSpectralWeapon;
 import ru.givler.mbo.magic.item.SpectralEffects;
 
 
 public class ItemRegistry {
+    public static Item seagrass, turtleScute, powderSnowBucket, goatHorn;
+    public static Item axolotlBucket,prismarineShard,prismarineCrystal;
+    public static final Item[] fishBuckets = new Item[5];
+    private static final String[] FISH = {"cod", "salmon", "tropical_fish", "pufferfish", "tadpole"};
+
+    private static void registerFaunaItems() {
+        axolotlBucket = new ItemCreatureBucket<EntityMBOAxolotl>("mbo.axolotl_bucket", "fauna/axolotl_bucket",
+                EntityMBOAxolotl::new, .1F, "mbo:entity.axolotl.splash");
+        GameRegistry.registerItem(axolotlBucket, "axolotl_bucket");
+        prismarineShard=new ItemBase("mbo.prismarine_shard","fauna/prismarine_shard",64,false);GameRegistry.registerItem(prismarineShard,"prismarine_shard");
+        prismarineCrystal=new ItemBase("mbo.prismarine_crystals","fauna/prismarine_crystals",64,false);GameRegistry.registerItem(prismarineCrystal,"prismarine_crystals");
+        GameRegistry.addRecipe(new ItemStack(BlockRegistry.BlockPrismarine,1,0),"SS","SS",'S',prismarineShard);
+        GameRegistry.addRecipe(new ItemStack(BlockRegistry.BlockPrismarine,1,1),"SSS","SSS","SSS",'S',prismarineShard);
+        GameRegistry.addRecipe(new ItemStack(BlockRegistry.BlockPrismarine,1,2),"SSS","SIS","SSS",'S',prismarineShard,'I',new ItemStack(Items.dye,1,0));
+        GameRegistry.addRecipe(new ItemStack(BlockRegistry.BlockSeaLantern),"SCS","CCC","SCS",'S',prismarineShard,'C',prismarineCrystal);
+        goatHorn = new ItemGoatHorn();
+        GameRegistry.registerItem(goatHorn, "goat_horn");
+        seagrass = Item.getItemFromBlock(BlockRegistry.seagrassBlock);
+        turtleScute = new ItemBase("mbo.turtle_scute", "fauna/turtle_scute", 64, false);
+        GameRegistry.registerItem(turtleScute, "turtle_scute");
+        powderSnowBucket = new ItemPowderSnowBucket();
+        GameRegistry.registerItem(powderSnowBucket, "powder_snow_bucket");
+        for (int i = 0; i < FISH.length; i++) {
+            final int type = i;
+            fishBuckets[i] = new ItemCreatureBucket<EntityMBOFish>("mbo." + FISH[i] + "_bucket",
+                    "fauna/" + FISH[i] + "_bucket", world -> EntityMobRegistry.createFish(world, type),
+                    .25F, "game.neutral.swim");
+            GameRegistry.registerItem(fishBuckets[i], FISH[i] + "_bucket");
+        }
+    }
+
     //переменные  предметов тотемов
     public static Item GlyphAmphibian, GlyphDragon, GlyphHawk, GlyphMiner, GlyphOwl, GlyphWeapon, GlyphCleansing, GlyphHealing, BrokenStaffHealing;
     // переменные оружия ближнего боя
@@ -34,7 +71,7 @@ public class ItemRegistry {
     // переменные призрачного оружия
     public static ItemSpectralWeapon WeaponRapier;
     // переменные луков
-    public static net.minecraft.item.ItemBow BrokenBowHunting ;
+    public static ItemBow BrokenBowHunting ;
     // переменные материалов
     public static Item Metal, SapphireHeart, SapphireEye, Crystall, GlyphVoid, Drop, TooltipDemo;
     public static Item CopperIngot, Honeycomb;
@@ -57,6 +94,7 @@ public class ItemRegistry {
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
+        registerFaunaItems();
         CopperIngot = new ItemBase("CopperIngot", "copper/copper_ingot", 64);
         OreDictionary.registerOre("ingotCopper", new ItemStack(CopperIngot));
         Honeycomb = new ItemBase("Honeycomb", "copper/honeycomb", 64);

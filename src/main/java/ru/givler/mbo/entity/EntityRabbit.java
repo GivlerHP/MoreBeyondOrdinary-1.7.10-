@@ -41,7 +41,7 @@ public class EntityRabbit extends EntityAnimal {
 		Block ground = worldObj.getBlock(x, y - 1, z);
 		// EntityAnimal's grass-only check prevents the desert and snowy variants spawning.
 		return (ground == Blocks.grass || ground == Blocks.sand || ground == Blocks.snow)
-				&& worldObj.getFullBlockLightValue(x, y, z) > 8
+				&& ru.givler.mbo.config.FaunaConfig.allowsPosition("rabbit", worldObj, x, y, z)
 				&& worldObj.checkNoEntityCollision(boundingBox)
 				&& worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty()
 				&& !worldObj.isAnyLiquid(boundingBox);

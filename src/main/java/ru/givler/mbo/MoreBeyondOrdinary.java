@@ -1,26 +1,35 @@
 package ru.givler.mbo;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import net.minecraftforge.common.MinecraftForge;
 import ru.givler.mbo.command.CommandEffectExtended;
 import ru.givler.mbo.command.CommandGameModeExtended;
 import ru.givler.mbo.command.CommandSpeed;
+import ru.givler.mbo.command.CommandTick;
 import ru.givler.mbo.command.SpeedEventHandler;
-import ru.givler.mbo.config.IntegrationConfig;
+import ru.givler.mbo.command.TickRateEvents;
+import ru.givler.mbo.config.FaunaConfig;
 import ru.givler.mbo.config.GameplayConfig;
+import ru.givler.mbo.config.IntegrationConfig;
 import ru.givler.mbo.config.LockSecurityConfig;
 import ru.givler.mbo.config.TooltipFrameConfig;
+import ru.givler.mbo.core.TickRateHooks;
 import ru.givler.mbo.gui.MboGuiHandler;
+import ru.givler.mbo.handler.FaunaEvents;
+import ru.givler.mbo.integration.minefantasy2.FaunaMineFantasy;
+import ru.givler.mbo.integration.biomesoplenty.FaunaBiomesOPlenty;
 import ru.givler.mbo.integration.bukkit.BukkitSpectatorCommandBridge;
+import ru.givler.mbo.integration.bukkit.BukkitSpeedCommandBridge;
 import ru.givler.mbo.proxy.CommonProxy;
 import ru.givler.mbo.registry.EntityMobRegistry;
 import ru.givler.mbo.registry.MagicEntityRegistry;
@@ -51,7 +60,7 @@ public class MoreBeyondOrdinary {
 
   @Mod.EventHandler
   public void preLoad(FMLPreInitializationEvent event) {
-    FMLCommonHandler.instance().bus().register(new ru.givler.mbo.command.TickRateEvents());
+    FMLCommonHandler.instance().bus().register(new TickRateEvents());
     FMLInterModComms.sendMessage(
         "Waila",
         "register",
@@ -61,9 +70,11 @@ public class MoreBeyondOrdinary {
     proxy.preInit(event);
     proxy.initPackets();
     EntityMobRegistry.registerEntities();
+    MinecraftForge.EVENT_BUS.register(new FaunaEvents());
     MagicEntityRegistry.registerEntities();
     IntegrationConfig.load(event.getModConfigurationDirectory());
     GameplayConfig.load(event.getModConfigurationDirectory());
+    FaunaConfig.load(event.getModConfigurationDirectory());
     TooltipFrameConfig.load(event.getModConfigurationDirectory());
     LockSecurityConfig.load(event.getModConfigurationDirectory());
   }
@@ -78,12 +89,15 @@ public class MoreBeyondOrdinary {
   @Mod.EventHandler
   public void postInit(FMLPostInitializationEvent event) {
     proxy.postInit(event);
+    FaunaBiomesOPlenty.init();
+    FaunaMineFantasy.init();
+    EntityMobRegistry.registerConfiguredSpawns();
   }
 
   @Mod.EventHandler
   public void serverStarting(FMLServerStartingEvent event) {
-    ru.givler.mbo.core.TickRateHooks.setServerRate(20);
-    event.registerServerCommand(new ru.givler.mbo.command.CommandTick());
+    TickRateHooks.setServerRate(20);
+    event.registerServerCommand(new CommandTick());
     // Registering commands with vanilla names replaces their command-map entries.
     // Both implementations delegate all unchanged syntax to the vanilla commands.
     event.registerServerCommand(new CommandEffectExtended());
@@ -95,11 +109,11 @@ public class MoreBeyondOrdinary {
   @Mod.EventHandler
   public void serverStarted(FMLServerStartedEvent event) {
     BukkitSpectatorCommandBridge.install();
-    ru.givler.mbo.integration.bukkit.BukkitSpeedCommandBridge.install();
+    BukkitSpeedCommandBridge.install();
   }
 
   @Mod.EventHandler
   public void serverStopped(FMLServerStoppedEvent event) {
-    ru.givler.mbo.core.TickRateHooks.setServerRate(20);
+    TickRateHooks.setServerRate(20);
   }
 }

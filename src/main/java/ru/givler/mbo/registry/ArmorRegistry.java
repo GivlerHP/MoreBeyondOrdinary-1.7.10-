@@ -2,10 +2,14 @@ package ru.givler.mbo.registry;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
 import ru.givler.mbo.item.ItemCustomArmor;
+import ru.givler.mbo.item.fauna.ItemTurtleHelmet;
 
 public class ArmorRegistry {
+    public static ItemTurtleHelmet turtleHelmet;
     public static ItemArmor.ArmorMaterial RustyKnight, RustyMercenary, RustyWanderer, RustyWizard;
     public static ItemCustomArmor KnightHelmet, KnightChest, KnightLegs, KnightBoots;
     public static ItemCustomArmor MercenaryHelmet, MercenaryChest, MercenaryLegs, MercenaryBoots;
@@ -55,6 +59,10 @@ public class ArmorRegistry {
     }
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
+        turtleHelmet = new ItemTurtleHelmet();
+        GameRegistry.registerItem(turtleHelmet, "turtle_helmet");
+        GameRegistry.addRecipe(new ItemStack(turtleHelmet),
+                "SSS", "S S", 'S', ItemRegistry.turtleScute);
         KnightHelmet.register();
         KnightChest.register();
         KnightLegs.register();

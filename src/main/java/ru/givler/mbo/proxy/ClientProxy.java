@@ -9,8 +9,10 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityFX;
+import net.minecraft.client.renderer.entity.RenderArrow;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
@@ -20,24 +22,34 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntitySign;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Keyboard;
 import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.fauna.BlockTurtleEgg;
 import ru.givler.mbo.block.special.BlockDestructibleLootContainer;
 import ru.givler.mbo.client.font.ModernFontSupport;
 import ru.givler.mbo.client.gamemode.GamemodeSwitcherInputHandler;
 import ru.givler.mbo.client.gui.GuiAdminFireColor;
+import ru.givler.mbo.client.handler.AreaEditorMouseEvents;
 import ru.givler.mbo.client.handler.BarrierVisibilityEvents;
 import ru.givler.mbo.client.handler.ClientKeyEvents;
-import ru.givler.mbo.client.handler.AreaEditorMouseEvents;
+import ru.givler.mbo.client.handler.DenseFogRenderEvents;
 import ru.givler.mbo.client.handler.MovingPlatformClientEvents;
 import ru.givler.mbo.client.handler.PotionRenderEvents;
-import ru.givler.mbo.client.handler.DenseFogRenderEvents;
 import ru.givler.mbo.client.handler.SignGuiEvents;
+import ru.givler.mbo.client.handler.SwimmingInputHandler;
 import ru.givler.mbo.client.handler.TooltipEvents;
+import ru.givler.mbo.client.model.decormodels.DecorBlockModel;
+import ru.givler.mbo.client.particle.FallingLeavesHandler;
 import ru.givler.mbo.client.render.*;
+import ru.givler.mbo.client.render.OpeningJsonRenderer;
+import ru.givler.mbo.client.render.PlatformTechnicalRenderer;
+import ru.givler.mbo.client.render.RenderPetrifiedStatue;
+import ru.givler.mbo.client.render.SmoothOpeningRenderer;
+import ru.givler.mbo.client.render.WaterSurfaceColor;
 import ru.givler.mbo.client.render.banner.RenderBanner;
 import ru.givler.mbo.client.render.banner.RenderBannerItem;
 import ru.givler.mbo.client.render.boat.RenderMBOBoat;
@@ -46,83 +58,113 @@ import ru.givler.mbo.client.render.decormodels.RenderLootContainerItem;
 import ru.givler.mbo.client.render.decormodels.RenderLootContainerTile;
 import ru.givler.mbo.client.render.decormodels.TemplateItemModelRenderer;
 import ru.givler.mbo.client.render.decormodels.TemplateModelRenderer;
-import ru.givler.mbo.client.render.magic.RenderMagicMissile;
-import ru.givler.mbo.client.render.magic.RenderSpectralItem;
-import ru.givler.mbo.client.render.magic.RenderBillboardProjectile;
-import ru.givler.mbo.client.render.magic.RenderIceShard;
-import ru.givler.mbo.client.render.magic.RenderInvisibleProjectile;
+import ru.givler.mbo.client.render.fauna.RenderMBOFish;
+import ru.givler.mbo.client.render.fauna.RenderMBOPolarBear;
+import ru.givler.mbo.client.render.fauna.RenderMBOTurtle;
+import ru.givler.mbo.client.render.fauna.RenderMBOFrog;
+import ru.givler.mbo.client.render.fauna.RenderMBOLandAnimal;
+import ru.givler.mbo.entity.fauna.EntityMBOGoat;
+import ru.givler.mbo.entity.fauna.EntityMBOPanda;
+import ru.givler.mbo.entity.fauna.EntityMBOFox;
+import ru.givler.mbo.entity.fauna.EntityMBOAxolotl;
+import ru.givler.mbo.entity.fauna.EntityMBOGlowSquid;
+import ru.givler.mbo.entity.fauna.EntityMBOGuardian;
+import ru.givler.mbo.client.render.fauna.RenderMBOAxolotl;
+import ru.givler.mbo.client.render.fauna.RenderMBOGlowSquid;
+import ru.givler.mbo.client.render.fauna.RenderMBOGuardian;
+import ru.givler.mbo.client.render.fauna.RenderMBOCamel;
+import ru.givler.mbo.entity.fauna.EntityMBOCamel;
+import ru.givler.mbo.entity.fauna.EntityMBOCamelSeat;
+import ru.givler.mbo.entity.fauna.EntityMBOFrog;
+import ru.givler.mbo.entity.fauna.EntityMBOTadpole;
+import ru.givler.mbo.client.render.fauna.RenderSeagrass;
+import ru.givler.mbo.client.render.fauna.RenderTurtleEgg;
 import ru.givler.mbo.client.render.magic.RenderArcaneArrow;
-import ru.givler.mbo.client.render.magic.RenderMagicBomb;
-import ru.givler.mbo.client.render.magic.RenderSeekingLightning;
-import ru.givler.mbo.client.render.magic.RenderMagicSigil;
-import ru.givler.mbo.client.render.magic.RenderLightningArc;
+import ru.givler.mbo.client.render.magic.RenderBillboardProjectile;
 import ru.givler.mbo.client.render.magic.RenderBlackHole;
 import ru.givler.mbo.client.render.magic.RenderGroundMagicEffect;
-import ru.givler.mbo.client.render.magic.RenderMagicBubble;
-import ru.givler.mbo.client.render.magic.RenderMagicShield;
-import ru.givler.mbo.core.CauldronHooks;
-import ru.givler.mbo.config.PlayerPingConfig;
-import ru.givler.mbo.config.GameplayConfig;
-import ru.givler.mbo.entity.boat.EntityMBOBoat;
-import ru.givler.mbo.entity.EntityRabbit;
-import ru.givler.mbo.entity.boat.EntityMBOBoatSeat;
-import ru.givler.mbo.entity.boat.EntityMBOChestBoat;
-import ru.givler.mbo.entity.magic.EntityMagicMissile;
-import ru.givler.mbo.entity.magic.EntitySpectralArrow;
-import ru.givler.mbo.entity.magic.EntityFirebolt;
-import ru.givler.mbo.entity.magic.EntityIceShard;
-import ru.givler.mbo.entity.magic.EntityThunderbolt;
-import ru.givler.mbo.entity.magic.EntityForceOrb;
-import ru.givler.mbo.entity.magic.EntityIceCharge;
-import ru.givler.mbo.entity.magic.EntityFireOrb;
-import ru.givler.mbo.entity.magic.EntityArcaneArrow;
-import ru.givler.mbo.entity.magic.EntityMagicBomb;
-import ru.givler.mbo.entity.magic.EntitySeekingLightning;
-import ru.givler.mbo.entity.magic.EntityMagicSigil;
-import ru.givler.mbo.entity.magic.EntityLightningArc;
-import ru.givler.mbo.entity.magic.EntityBlackHole;
-import ru.givler.mbo.entity.magic.EntityGroundMagicEffect;
-import ru.givler.mbo.entity.magic.EntityMagicBubble;
-import ru.givler.mbo.entity.magic.EntityMagicShield;
-import ru.givler.mbo.entity.magic.EntityMagicStorm;
-import ru.givler.mbo.entity.magic.EntityIceSpike;
+import ru.givler.mbo.client.render.magic.RenderIceShard;
 import ru.givler.mbo.client.render.magic.RenderIceSpike;
-import ru.givler.mbo.entity.magic.EntityMagicAura;
+import ru.givler.mbo.client.render.magic.RenderInvisibleProjectile;
+import ru.givler.mbo.client.render.magic.RenderLightningArc;
 import ru.givler.mbo.client.render.magic.RenderMagicAura;
-import ru.givler.mbo.entity.magic.EntityMeteor;
-import ru.givler.mbo.client.render.magic.RenderMeteor;
-import ru.givler.mbo.entity.magic.EntityMagicConstruct;
+import ru.givler.mbo.client.render.magic.RenderMagicBomb;
+import ru.givler.mbo.client.render.magic.RenderMagicBubble;
 import ru.givler.mbo.client.render.magic.RenderMagicConstruct;
-import ru.givler.mbo.client.sound.MovingSoundEntity;
-import ru.givler.mbo.entity.magic.EntityMagicDecoy;
-import ru.givler.mbo.entity.magic.EntitySpiritHorse;
-import ru.givler.mbo.client.render.magic.RenderSpiritHorse;
 import ru.givler.mbo.client.render.magic.RenderMagicDecoy;
 import ru.givler.mbo.client.render.magic.RenderMagicLight;
-import net.minecraft.client.renderer.entity.RenderArrow;
-import ru.givler.mbo.registry.MagicItemRegistry;
+import ru.givler.mbo.client.render.magic.RenderMagicMissile;
+import ru.givler.mbo.client.render.magic.RenderMagicShield;
+import ru.givler.mbo.client.render.magic.RenderMagicSigil;
+import ru.givler.mbo.client.render.magic.RenderMeteor;
+import ru.givler.mbo.client.render.magic.RenderSeekingLightning;
+import ru.givler.mbo.client.render.magic.RenderSpectralItem;
+import ru.givler.mbo.client.render.magic.RenderSpiritHorse;
+import ru.givler.mbo.client.sound.MovingSoundEntity;
+import ru.givler.mbo.config.GameplayConfig;
+import ru.givler.mbo.config.PlayerPingConfig;
+import ru.givler.mbo.core.CauldronHooks;
+import ru.givler.mbo.core.LadderHooks;
+import ru.givler.mbo.core.RailHooks;
+import ru.givler.mbo.entity.EntityRabbit;
+import ru.givler.mbo.entity.boat.EntityMBOBoat;
+import ru.givler.mbo.entity.boat.EntityMBOBoatSeat;
+import ru.givler.mbo.entity.boat.EntityMBOChestBoat;
+import ru.givler.mbo.entity.fauna.EntityMBOCod;
+import ru.givler.mbo.entity.fauna.EntityMBOPolarBear;
+import ru.givler.mbo.entity.fauna.EntityMBOPufferfish;
+import ru.givler.mbo.entity.fauna.EntityMBOSalmon;
+import ru.givler.mbo.entity.fauna.EntityMBOTropicalFish;
+import ru.givler.mbo.entity.fauna.EntityMBOTurtle;
+import ru.givler.mbo.entity.magic.EntityArcaneArrow;
+import ru.givler.mbo.entity.magic.EntityBlackHole;
+import ru.givler.mbo.entity.magic.EntityFireOrb;
+import ru.givler.mbo.entity.magic.EntityFirebolt;
+import ru.givler.mbo.entity.magic.EntityForceOrb;
+import ru.givler.mbo.entity.magic.EntityGroundMagicEffect;
+import ru.givler.mbo.entity.magic.EntityIceCharge;
+import ru.givler.mbo.entity.magic.EntityIceShard;
+import ru.givler.mbo.entity.magic.EntityIceSpike;
+import ru.givler.mbo.entity.magic.EntityLightningArc;
+import ru.givler.mbo.entity.magic.EntityMagicAura;
+import ru.givler.mbo.entity.magic.EntityMagicBomb;
+import ru.givler.mbo.entity.magic.EntityMagicBubble;
+import ru.givler.mbo.entity.magic.EntityMagicConstruct;
+import ru.givler.mbo.entity.magic.EntityMagicDecoy;
+import ru.givler.mbo.entity.magic.EntityMagicMissile;
+import ru.givler.mbo.entity.magic.EntityMagicShield;
+import ru.givler.mbo.entity.magic.EntityMagicSigil;
+import ru.givler.mbo.entity.magic.EntityMagicStorm;
+import ru.givler.mbo.entity.magic.EntityMeteor;
+import ru.givler.mbo.entity.magic.EntitySeekingLightning;
+import ru.givler.mbo.entity.magic.EntitySpectralArrow;
+import ru.givler.mbo.entity.magic.EntitySpiritHorse;
+import ru.givler.mbo.entity.magic.EntityThunderbolt;
 import ru.givler.mbo.movingplatform.EntityMovingPlatform;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.particles.EnumParticleType;
-import ru.givler.mbo.particles.ParticleDarkMagic;
-import ru.givler.mbo.particles.ParticleSparkle;
-import ru.givler.mbo.particles.ParticleWhiteMagic;
-import ru.givler.mbo.particles.ParticleSettings;
-import ru.givler.mbo.particles.ParticleSpell;
 import ru.givler.mbo.particles.ParticleBlizzard;
-import ru.givler.mbo.particles.ParticleTextured;
 import ru.givler.mbo.particles.ParticleCampfireSmoke;
-import ru.givler.mbo.particles.ParticleTornado;
+import ru.givler.mbo.particles.ParticleDarkMagic;
 import ru.givler.mbo.particles.ParticlePath;
+import ru.givler.mbo.particles.ParticleSettings;
+import ru.givler.mbo.particles.ParticleSparkle;
+import ru.givler.mbo.particles.ParticleSpell;
+import ru.givler.mbo.particles.ParticleTextured;
+import ru.givler.mbo.particles.ParticleTornado;
+import ru.givler.mbo.particles.ParticleWhiteMagic;
 import ru.givler.mbo.registry.BannerRegistry;
 import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.registry.ItemRegistry;
+import ru.givler.mbo.registry.MagicItemRegistry;
 import ru.givler.mbo.registry.StonecutterRegistry;
 import ru.givler.mbo.spectator.SpectatorClientHandler;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.tileentity.TileEntityBanner;
 import ru.givler.mbo.tileentity.TileEntityCampfire;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
+import ru.givler.mbo.tileentity.TileEntityPetrifiedStatue;
+import ru.givler.mbo.tileentity.TileEntityTemporaryMagicBlock;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 
@@ -197,17 +239,17 @@ public class ClientProxy extends CommonProxy {
     CauldronHooks.setRenderType(cauldronRenderId);
     RenderingRegistry.registerBlockHandler(new RenderConnectedCauldron(cauldronRenderId));
     int ladderRenderId = RenderingRegistry.getNextAvailableRenderId();
-    ru.givler.mbo.core.LadderHooks.setRenderType(ladderRenderId);
+    LadderHooks.setRenderType(ladderRenderId);
     RenderLadderBlock ladderRenderer = new RenderLadderBlock(ladderRenderId);
     RenderingRegistry.registerBlockHandler(ladderRenderer);
     MinecraftForge.EVENT_BUS.register(ladderRenderer);
     int railRenderId = RenderingRegistry.getNextAvailableRenderId();
-    ru.givler.mbo.core.RailHooks.setRenderType(railRenderId);
+    RailHooks.setRenderType(railRenderId);
     RenderRailBlock railRenderer = new RenderRailBlock(railRenderId);
     RenderingRegistry.registerBlockHandler(railRenderer);
     MinecraftForge.EVENT_BUS.register(railRenderer);
-    ru.givler.mbo.client.particle.FallingLeavesHandler fallingLeaves =
-        new ru.givler.mbo.client.particle.FallingLeavesHandler();
+    FallingLeavesHandler fallingLeaves =
+        new FallingLeavesHandler();
     FMLCommonHandler.instance().bus().register(fallingLeaves);
     MinecraftForge.EVENT_BUS.register(fallingLeaves);
     RenderBanner bannerRenderer = new RenderBanner();
@@ -231,18 +273,18 @@ public class ClientProxy extends CommonProxy {
     RenderingRegistry.registerEntityRenderingHandler(EntitySpectralArrow.class, new RenderArrow());
     RenderingRegistry.registerEntityRenderingHandler(EntityFirebolt.class,
         new RenderBillboardProjectile(
-            new net.minecraft.util.ResourceLocation("mbo", "textures/entity/magic/firebolt.png"), 0.2F));
+            new ResourceLocation("mbo", "textures/entity/magic/firebolt.png"), 0.2F));
     RenderingRegistry.registerEntityRenderingHandler(EntityIceShard.class, new RenderIceShard());
     RenderingRegistry.registerEntityRenderingHandler(EntityThunderbolt.class, new RenderInvisibleProjectile());
     RenderingRegistry.registerEntityRenderingHandler(EntityForceOrb.class,
         new RenderBillboardProjectile(
-            new net.minecraft.util.ResourceLocation("mbo", "textures/entity/magic/force_orb.png"), 0.7F));
+            new ResourceLocation("mbo", "textures/entity/magic/force_orb.png"), 0.7F));
     RenderingRegistry.registerEntityRenderingHandler(EntityIceCharge.class,
         new RenderBillboardProjectile(
-            new net.minecraft.util.ResourceLocation("mbo", "textures/entity/magic/ice_charge.png"), 0.6F));
+            new ResourceLocation("mbo", "textures/entity/magic/ice_charge.png"), 0.6F));
     RenderingRegistry.registerEntityRenderingHandler(EntityFireOrb.class,
         new RenderBillboardProjectile(
-            new net.minecraft.util.ResourceLocation("mbo", "textures/entity/magic/firebolt.png"), 0.55F));
+            new ResourceLocation("mbo", "textures/entity/magic/firebolt.png"), 0.55F));
     RenderingRegistry.registerEntityRenderingHandler(EntityArcaneArrow.class, new RenderArcaneArrow());
     RenderingRegistry.registerEntityRenderingHandler(EntityMagicBomb.class, new RenderMagicBomb());
     RenderingRegistry.registerEntityRenderingHandler(EntitySeekingLightning.class, new RenderSeekingLightning());
@@ -265,34 +307,34 @@ public class ClientProxy extends CommonProxy {
     ClientRegistry.bindTileEntitySpecialRenderer(
         TileEntitySign.class, new RenderSign());
     ClientRegistry.bindTileEntitySpecialRenderer(
-        ru.givler.mbo.tileentity.TileEntityPetrifiedStatue.class,
-        new ru.givler.mbo.client.render.RenderPetrifiedStatue());
+        TileEntityPetrifiedStatue.class,
+        new RenderPetrifiedStatue());
     ClientRegistry.bindTileEntitySpecialRenderer(
-        ru.givler.mbo.tileentity.TileEntityTemporaryMagicBlock.class,
+        TileEntityTemporaryMagicBlock.class,
         new RenderMagicLight());
     MinecraftForge.EVENT_BUS.register(new SignGuiEvents());
     MinecraftForge.EVENT_BUS.register(new DungeonAreaWorldRenderer());
     MinecraftForge.EVENT_BUS.register(new WaterloggedBlockRenderer());
-    MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.client.render.WaterSurfaceColor());
-    MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.client.render.PlatformTechnicalRenderer());
+    MinecraftForge.EVENT_BUS.register(new WaterSurfaceColor());
+    MinecraftForge.EVENT_BUS.register(new PlatformTechnicalRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaSelectionRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaEditorMouseEvents());
     FMLCommonHandler.instance().bus().register(new MovingPlatformClientEvents());
     activateAmuletKey = new KeyBinding("key.mbo.amulet.desc", Keyboard.KEY_R, "MoreBeyondOrdinary");
     ClientRegistry.registerKeyBinding(activateAmuletKey);
     FMLCommonHandler.instance().bus().register(new ClientKeyEvents());
-      ru.givler.mbo.client.handler.SwimmingInputHandler swimmingInput =
-          new ru.givler.mbo.client.handler.SwimmingInputHandler();
+      SwimmingInputHandler swimmingInput =
+          new SwimmingInputHandler();
       FMLCommonHandler.instance().bus().register(swimmingInput);
       MinecraftForge.EVENT_BUS.register(swimmingInput);
     FMLCommonHandler.instance().bus().register(new GamemodeSwitcherInputHandler());
     FMLCommonHandler.instance().bus().register(new BarrierVisibilityEvents());
-    ru.givler.mbo.client.render.SmoothOpeningRenderer.configureIntegrations();
-    ru.givler.mbo.client.render.SmoothOpeningRenderer smoothOpeningRenderer =
-        new ru.givler.mbo.client.render.SmoothOpeningRenderer();
+    SmoothOpeningRenderer.configureIntegrations();
+    SmoothOpeningRenderer smoothOpeningRenderer =
+        new SmoothOpeningRenderer();
     FMLCommonHandler.instance().bus().register(smoothOpeningRenderer);
     MinecraftForge.EVENT_BUS.register(smoothOpeningRenderer);
-    MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.render.OpeningJsonRenderer.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(OpeningJsonRenderer.INSTANCE);
     F3AOcclusionFix.register();
 
     if (Loader.isModLoaded("NotEnoughItems")) {
@@ -310,7 +352,7 @@ public class ClientProxy extends CommonProxy {
         (AnimationController.ModelFetcher<ModelTileBase>)
             animatable -> {
               if (animatable instanceof ModelTileBase) {
-                return new ru.givler.mbo.client.model.decormodels.DecorBlockModel();
+                return new DecorBlockModel();
               }
               return null;
             });
@@ -386,6 +428,28 @@ public class ClientProxy extends CommonProxy {
     MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenBowHunting, new RenderCrossbow());
     RenderStoneGolem.register();
     RenderingRegistry.registerEntityRenderingHandler(EntityRabbit.class, new RenderRabbit());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOCod.class, new RenderMBOFish());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOSalmon.class, new RenderMBOFish());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOTropicalFish.class, new RenderMBOFish());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOPufferfish.class, new RenderMBOFish());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOPolarBear.class, new RenderMBOPolarBear());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOTurtle.class, new RenderMBOTurtle());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOFrog.class, new RenderMBOFrog(false));
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOTadpole.class, new RenderMBOFrog(true));
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOGoat.class, new RenderMBOLandAnimal("goat"));
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOPanda.class, new RenderMBOLandAnimal("panda"));
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOFox.class, new RenderMBOLandAnimal("fox"));
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOAxolotl.class,new RenderMBOAxolotl());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOGlowSquid.class,new RenderMBOGlowSquid());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOGuardian.class,new RenderMBOGuardian());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOCamel.class,new RenderMBOCamel());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOCamelSeat.class,new RenderMBOBoatSeat());
+    int seagrassRender=RenderingRegistry.getNextAvailableRenderId();
+    BlockRegistry.seagrassBlock.setRenderType(seagrassRender);
+    RenderingRegistry.registerBlockHandler(new RenderSeagrass(seagrassRender));
+    int turtleEggRender=RenderingRegistry.getNextAvailableRenderId();
+    ((BlockTurtleEgg)BlockRegistry.turtleEgg).setRenderType(turtleEggRender);
+    RenderingRegistry.registerBlockHandler(new RenderTurtleEgg(turtleEggRender));
   }
 
   private static void invokeOptional(String className, String method) {
@@ -530,7 +594,7 @@ public class ClientProxy extends CommonProxy {
 
   @Override
   public void spawnTornadoParticle(World world, double centreX, double y, double centreZ,
-      double velocityX, double velocityZ, double radius, net.minecraft.block.Block block,
+      double velocityX, double velocityZ, double radius, Block block,
       int metadata) {
     Minecraft.getMinecraft().effectRenderer.addEffect(new ParticleTornado(world, 48,
         centreX, centreZ, radius, y, velocityX, velocityZ, block, metadata));

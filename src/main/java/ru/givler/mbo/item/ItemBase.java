@@ -9,11 +9,15 @@ import ru.givler.mbo.registry.CreativeTabRegistry;
 public class ItemBase extends Item {
 
     public ItemBase(String name, String texture, int maxStackSize) {
+        this(name, texture, maxStackSize, true);
+    }
+
+    public ItemBase(String name, String texture, int maxStackSize, boolean register) {
         this.canRepair = false;
         this.setUnlocalizedName(name);
         this.setTextureName(MoreBeyondOrdinary.MODID + ":" + texture);
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.maxStackSize = maxStackSize;
-        GameRegistry.registerItem(this, name);
+        if (register) GameRegistry.registerItem(this, name);
     }
 }
