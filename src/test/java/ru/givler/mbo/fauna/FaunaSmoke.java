@@ -24,6 +24,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.biome.BiomeGenBase;
 import ru.givler.mbo.client.model.fauna.*;
 import ru.givler.mbo.config.FaunaConfig;
 import ru.givler.mbo.entity.fauna.*;
@@ -513,6 +514,8 @@ public final class FaunaSmoke {
         (AquaticWorld) ((Unsafe) unsafeField.get(null)).allocateInstance(AquaticWorld.class);
     waterWorld.isRemote = true;
     provider.set(waterWorld, new WorldProviderSurface());
+    FaunaHabitatSmoke.check(waterWorld);
+    FaunaSpawnSmoke.check(waterWorld);
     waterWorld.waterPresent = true;
     for (EntityLivingBase animal :
         new EntityLivingBase[] {source, axolotl, guardian, squid, turtle}) {
@@ -607,6 +610,30 @@ public final class FaunaSmoke {
     private static final Block TEST_AIR = new Block(Material.air) {};
     private static final Block TEST_WATER = new Block(Material.water) {};
     boolean waterPresent;
+    boolean habitatFixture;
+    @Override
+    public int getHeightValue(int x, int z) {
+      return 63;
+    }
+
+    List<Entity> spawnedFauna;
+
+    @Override
+    public boolean checkNoEntityCollision(AxisAlignedBB box) {
+      return true;
+    }
+
+    @Override
+    public boolean spawnEntityInWorld(Entity entity) {
+      if (spawnedFauna == null) return false;
+      spawnedFauna.add(entity);
+      return true;
+    }
+
+    int roofY = -1000, floorY = -60, habitatLight;
+    BiomeGenBase habitatBiome;
+    private static final Block TEST_ROCK = new Block(Material.rock) {};
+    private static final Block TEST_GROUND = new Block(Material.ground) {};
     int particles;
     EntityLivingBase ramVictim;
     AxisAlignedBB obstacle;
@@ -624,7 +651,32 @@ public final class FaunaSmoke {
 
     @Override
     public Block getBlock(int x, int y, int z) {
+      if (habitatFixture) {
+        if (y == roofY) return TEST_ROCK;
+        if (y <= floorY) return TEST_GROUND;
+        return y >= 63 ? TEST_AIR : TEST_WATER;
+      }
       return waterPresent ? TEST_WATER : TEST_AIR;
+    }
+
+    @Override
+    public int getFullBlockLightValue(int x, int y, int z) {
+      return habitatLight;
+    }
+
+    @Override
+    public int getBlockMetadata(int x, int y, int z) {
+      return 0;
+    }
+
+    @Override
+    public boolean isAirBlock(int x, int y, int z) {
+      return getBlock(x, y, z).getMaterial() == Material.air;
+    }
+
+    @Override
+    public BiomeGenBase getBiomeGenForCoords(int x, int z) {
+      return habitatBiome;
     }
 
     @Override

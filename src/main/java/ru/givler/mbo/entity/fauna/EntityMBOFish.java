@@ -3,6 +3,7 @@ package ru.givler.mbo.entity.fauna;
 import java.util.List;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.*;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.passive.EntityWaterMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -17,6 +18,11 @@ import ru.givler.mbo.registry.ItemRegistry;
 
 /** Water steering, schools, dry-land flopping and bucket persistence shared by vanilla fish. */
 public abstract class EntityMBOFish extends EntityWaterMob implements IBucketableCreature {
+  @Override
+  public boolean isCreatureType(EnumCreatureType type, boolean forSpawnCount) {
+    return false;
+  }
+
   private final AquaticMovement.ClientTurn clientTurn = new AquaticMovement.ClientTurn();
 
   @Override

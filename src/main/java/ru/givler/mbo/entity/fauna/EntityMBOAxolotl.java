@@ -4,6 +4,7 @@ import java.util.List;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.*;
@@ -22,6 +23,11 @@ import ru.givler.mbo.config.FaunaConfig;
 import ru.givler.mbo.registry.ItemRegistry;
 
 public final class EntityMBOAxolotl extends EntityAnimal implements IBucketableCreature {
+  @Override
+  public boolean isCreatureType(EnumCreatureType type, boolean forSpawnCount) {
+    return false;
+  }
+
   private final AquaticMovement.ClientTurn clientTurn = new AquaticMovement.ClientTurn();
 
   @Override

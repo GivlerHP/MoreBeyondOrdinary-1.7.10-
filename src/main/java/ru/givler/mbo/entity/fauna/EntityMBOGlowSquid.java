@@ -1,6 +1,7 @@
 package ru.givler.mbo.entity.fauna;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.item.ItemStack;
@@ -12,6 +13,11 @@ import ru.givler.mbo.config.FaunaConfig;
 import ru.givler.mbo.registry.ItemRegistry;
 
 public final class EntityMBOGlowSquid extends EntitySquid {
+  @Override
+  public boolean isCreatureType(EnumCreatureType type, boolean forSpawnCount) {
+    return false;
+  }
+
   private final AquaticMovement.ClientTurn clientTurn = new AquaticMovement.ClientTurn();
 
   @Override

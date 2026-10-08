@@ -73,22 +73,12 @@ public class EntityMobRegistry {
     }
     public static void registerConfiguredSpawns() {
         FaunaConfig.register("rabbit", EntityRabbit.class, EnumCreatureType.creature);
-        FaunaConfig.register("cod", EntityMBOCod.class, EnumCreatureType.waterCreature);
-        FaunaConfig.register("salmon", EntityMBOSalmon.class, EnumCreatureType.waterCreature);
-        FaunaConfig.register("tropical_fish", EntityMBOTropicalFish.class, EnumCreatureType.waterCreature);
-        FaunaConfig.register("pufferfish", EntityMBOPufferfish.class, EnumCreatureType.waterCreature);
         FaunaConfig.register("polar_bear", EntityMBOPolarBear.class, EnumCreatureType.creature);
         FaunaConfig.register("turtle", EntityMBOTurtle.class, EnumCreatureType.creature);
         FaunaConfig.register("frog", EntityMBOFrog.class, EnumCreatureType.creature);
-        FaunaConfig.register("tadpole", EntityMBOTadpole.class, EnumCreatureType.waterCreature);
         FaunaConfig.register("goat", EntityMBOGoat.class, EnumCreatureType.creature);
         FaunaConfig.register("panda", EntityMBOPanda.class, EnumCreatureType.creature);
         FaunaConfig.register("fox", EntityMBOFox.class, EnumCreatureType.creature);
-        FaunaConfig.register("axolotl",EntityMBOAxolotl.class,EnumCreatureType.waterCreature);
-        FaunaConfig.register("glow_squid",EntityMBOGlowSquid.class,EnumCreatureType.waterCreature);
-        // 1.7's monster placement rejects liquid before getCanSpawnHere is called.
-        // The water placement category allows underwater spawning; EntityMob retains hostility/Peaceful removal.
-        FaunaConfig.register("guardian",EntityMBOGuardian.class,EnumCreatureType.waterCreature);
         FaunaConfig.register("camel",EntityMBOCamel.class,EnumCreatureType.creature);
     }
 

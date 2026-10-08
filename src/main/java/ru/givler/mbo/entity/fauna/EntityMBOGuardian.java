@@ -248,7 +248,6 @@ public class EntityMBOGuardian extends EntityMob {
         && FaunaConfig.allowsPosition("guardian", worldObj, x, y, z)
         && worldObj.getBlock(x, y, z).getMaterial() == Material.water
         && worldObj.getBlock(x, y - 1, z).getMaterial() == Material.water
-        && (rand.nextFloat() < .05 || !worldObj.canBlockSeeTheSky(x, y, z))
         && worldObj.checkNoEntityCollision(boundingBox)
         && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty();
   }

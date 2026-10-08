@@ -19,6 +19,7 @@ import ru.givler.mbo.command.CommandTick;
 import ru.givler.mbo.command.SpeedEventHandler;
 import ru.givler.mbo.command.TickRateEvents;
 import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.integration.caveabyss.FaunaCaveAbyss;
 import ru.givler.mbo.config.GameplayConfig;
 import ru.givler.mbo.config.IntegrationConfig;
 import ru.givler.mbo.config.LockSecurityConfig;
@@ -26,6 +27,7 @@ import ru.givler.mbo.config.TooltipFrameConfig;
 import ru.givler.mbo.core.TickRateHooks;
 import ru.givler.mbo.gui.MboGuiHandler;
 import ru.givler.mbo.handler.FaunaEvents;
+import ru.givler.mbo.handler.FaunaAquaticSpawner;
 import ru.givler.mbo.integration.minefantasy2.FaunaMineFantasy;
 import ru.givler.mbo.integration.biomesoplenty.FaunaBiomesOPlenty;
 import ru.givler.mbo.integration.bukkit.BukkitSpectatorCommandBridge;
@@ -75,6 +77,8 @@ public class MoreBeyondOrdinary {
     IntegrationConfig.load(event.getModConfigurationDirectory());
     GameplayConfig.load(event.getModConfigurationDirectory());
     FaunaConfig.load(event.getModConfigurationDirectory());
+    FaunaCaveAbyss.init();
+    FMLCommonHandler.instance().bus().register(new FaunaAquaticSpawner());
     TooltipFrameConfig.load(event.getModConfigurationDirectory());
     LockSecurityConfig.load(event.getModConfigurationDirectory());
   }

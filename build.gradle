@@ -22,8 +22,8 @@ spotless {
                 'src/main/java/ru/givler/mbo/block/fauna/**/*.java',
                 'src/main/java/ru/givler/mbo/client/model/fauna/**/*.java',
                 'src/main/java/ru/givler/mbo/client/render/fauna/**/*.java',
-                'src/main/java/ru/givler/mbo/config/FaunaConfig.java',
-                'src/main/java/ru/givler/mbo/handler/FaunaEvents.java',
+                'src/main/java/ru/givler/mbo/config/Fauna*.java',
+                'src/main/java/ru/givler/mbo/handler/Fauna*.java',
                 'src/main/java/ru/givler/mbo/integration/**/Fauna*.java',
                 'src/main/java/ru/givler/mbo/network/packet/PacketCamelDash.java',
                 'src/main/java/ru/givler/mbo/network/packet/PacketElderGuardianCurse.java',
@@ -124,12 +124,20 @@ task verifyBoatRiderRender(type: JavaExec, dependsOn: testClasses) {
 task verifyFauna(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.fauna.FaunaSmoke'
+    if (project.hasProperty('faunaCaveJar')) classpath += files(project.property('faunaCaveJar'))
 }
 
 task verifyPowderSnow(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.fauna.PowderSnowSmoke'
 }
+
+task verifyTessellatorEmptyBuffer(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.TessellatorEmptyBufferSmoke'
+}
+
+tasks.check.dependsOn('verifyTessellatorEmptyBuffer')
 
 tasks.check.dependsOn('verifyWaterloggedStorage')
 

@@ -13,6 +13,7 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
@@ -59,8 +60,8 @@ public final class EntityMBOPanda extends EntityAnimal {
           }
         });
     tasks.addTask(4, new EntityAIFollowParent(this, 1.25D));
-    if (FaunaBiomesOPlenty.bambooItem() != null)
-      tasks.addTask(4, new EntityAITempt(this, 1D, FaunaBiomesOPlenty.bambooItem(), false));
+    for (Item bambooFood : FaunaBiomesOPlenty.bambooItems())
+      tasks.addTask(4, new EntityAITempt(this, 1D, bambooFood, false));
     tasks.addTask(5, new EntityAIWander(this, 1D));
     tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 6F));
     tasks.addTask(7, new EntityAILookIdle(this));
