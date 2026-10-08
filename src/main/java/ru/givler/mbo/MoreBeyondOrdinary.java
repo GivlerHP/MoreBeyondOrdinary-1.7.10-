@@ -27,6 +27,7 @@ import ru.givler.mbo.config.TooltipFrameConfig;
 import ru.givler.mbo.core.TickRateHooks;
 import ru.givler.mbo.gui.MboGuiHandler;
 import ru.givler.mbo.handler.FaunaEvents;
+import ru.givler.mbo.handler.SkeletonCombatEvents;
 import ru.givler.mbo.handler.FaunaAquaticSpawner;
 import ru.givler.mbo.integration.minefantasy2.FaunaMineFantasy;
 import ru.givler.mbo.integration.biomesoplenty.FaunaBiomesOPlenty;
@@ -73,6 +74,7 @@ public class MoreBeyondOrdinary {
     proxy.initPackets();
     EntityMobRegistry.registerEntities();
     MinecraftForge.EVENT_BUS.register(new FaunaEvents());
+    MinecraftForge.EVENT_BUS.register(new SkeletonCombatEvents());
     MagicEntityRegistry.registerEntities();
     IntegrationConfig.load(event.getModConfigurationDirectory());
     GameplayConfig.load(event.getModConfigurationDirectory());

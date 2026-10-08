@@ -18,6 +18,11 @@ spotless {
     enforceCheck = false
     java {
         target 'src/main/java/ru/givler/mbo/entity/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/entity/ai/*Skeleton*.java',
+                'src/main/java/ru/givler/mbo/handler/SkeletonCombatEvents.java',
+                'src/main/java/ru/givler/mbo/core/Skeleton*Transformer.java',
+                'src/main/java/ru/givler/mbo/client/render/SkeletonRenderHooks.java',
+                'src/test/java/ru/givler/mbo/entity/ai/SkeletonCombatSmoke.java',
                 'src/main/java/ru/givler/mbo/item/fauna/**/*.java',
                 'src/main/java/ru/givler/mbo/block/fauna/**/*.java',
                 'src/main/java/ru/givler/mbo/client/model/fauna/**/*.java',
@@ -131,6 +136,13 @@ task verifyPowderSnow(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.fauna.PowderSnowSmoke'
 }
+
+task verifySkeletonCombat(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.entity.ai.SkeletonCombatSmoke'
+}
+
+tasks.check.dependsOn('verifySkeletonCombat')
 
 task verifyTessellatorEmptyBuffer(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
