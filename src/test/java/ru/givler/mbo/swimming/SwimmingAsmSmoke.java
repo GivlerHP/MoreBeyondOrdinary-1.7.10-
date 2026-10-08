@@ -38,6 +38,7 @@ public final class SwimmingAsmSmoke {
     verify("net.minecraft.entity.EntityLivingBase", "waterDrag", 2);
     verify("net.minecraft.entity.EntityLivingBase", "swimGravity", 1);
     verify("net.minecraft.client.entity.EntityPlayerSP", "collisionStopsSprint", 1);
+    verify("net.minecraft.client.entity.EntityPlayerSP", "itemUseSlowsMovement", 3);
     verify("net.minecraft.client.model.ModelBiped", "animate", 1);
     verify("net.minecraft.client.renderer.entity.RenderPlayer", "rotate", 1);
     verify("net.minecraft.client.renderer.EntityRenderer", "cameraEyeHeight", 1);

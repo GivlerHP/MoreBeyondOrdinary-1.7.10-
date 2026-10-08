@@ -44,7 +44,10 @@ public class EntityMobRegistry {
         registerEntity(EntityMBOGuardian.class,"MBOGuardian",0x5a8272,0xf17d30,3);
         registerEntity(EntityMBOElderGuardian.class,"MBOElderGuardian",0xceccba,0x747693,3);
         registerEntity(EntityMBOCamel.class,"MBOCamel",0xc09e7d,0x8d694a,3);
+        registerEntity(EntityMBOCamelHusk.class,"MBOCamelHusk",0x6b6447,0xa39b76,3);
         EntityRegistry.registerModEntity(EntityMBOCamelSeat.class,"CamelSeat",ModEntityIds.next(),MoreBeyondOrdinary.instance,64,1,false);
+        registerEntity(EntityMBOZombieHorse.class, "MBOZombieHorse", 0x315234, 0x97c284, 3);
+        registerEntity(EntityMBOSkeletonHorse.class, "MBOSkeletonHorse", 0x68684f, 0xe5e5d8, 3);
 
         registerBiomeSpawns(EntityStoneGolem.class,
                 STONE_GOLEM_SPAWN_WEIGHT, STONE_GOLEM_MIN_GROUP, STONE_GOLEM_MAX_GROUP);

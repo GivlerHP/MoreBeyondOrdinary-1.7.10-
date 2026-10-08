@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.entity.RenderArrow;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -75,6 +76,7 @@ import ru.givler.mbo.client.render.fauna.RenderMBOGlowSquid;
 import ru.givler.mbo.client.render.fauna.RenderMBOGuardian;
 import ru.givler.mbo.client.render.fauna.RenderMBOCamel;
 import ru.givler.mbo.entity.fauna.EntityMBOCamel;
+import ru.givler.mbo.entity.fauna.EntityMBOCamelHusk;
 import ru.givler.mbo.entity.fauna.EntityMBOCamelSeat;
 import ru.givler.mbo.entity.fauna.EntityMBOFrog;
 import ru.givler.mbo.entity.fauna.EntityMBOTadpole;
@@ -170,6 +172,21 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.renderers.geo.RenderBlockItem;
 
 public class ClientProxy extends CommonProxy {
+    @Override
+    public float camelForwardInput(EntityPlayer player) {
+        Minecraft mc = Minecraft.getMinecraft();
+        if (player != mc.thePlayer) return super.camelForwardInput(player);
+        return ((mc.gameSettings.keyBindForward.getIsKeyPressed() ? 1F : 0F)
+            - (mc.gameSettings.keyBindBack.getIsKeyPressed() ? 1F : 0F)) * .98F;
+    }
+
+    @Override
+    public boolean camelSprintInput(EntityPlayer player) {
+        Minecraft mc = Minecraft.getMinecraft();
+        if (player != mc.thePlayer) return super.camelSprintInput(player);
+        return player.isSprinting() || (mc.gameSettings.keyBindSprint.getIsKeyPressed()
+            && mc.gameSettings.keyBindForward.getIsKeyPressed());
+    }
 
   @Override
   public void initPackets() {
@@ -445,6 +462,7 @@ public class ClientProxy extends CommonProxy {
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOGuardian.class,new RenderMBOGuardian());
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOElderGuardian.class,new RenderMBOGuardian());
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOCamel.class,new RenderMBOCamel());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOCamelHusk.class,new RenderMBOCamel());
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOCamelSeat.class,new RenderMBOBoatSeat());
     int seagrassRender=RenderingRegistry.getNextAvailableRenderId();
     BlockRegistry.seagrassBlock.setRenderType(seagrassRender);

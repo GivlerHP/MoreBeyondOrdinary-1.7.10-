@@ -41,8 +41,10 @@ public final class PacketCamelDash implements IMessage {
               Entity animal = player.worldObj.getEntityByID(packet.id);
               if (animal instanceof EntityMBOCamel && animal.riddenByEntity == player) {
                 EntityMBOCamel camel = (EntityMBOCamel) animal;
-                if (camel.isHorseSaddled() && !camel.sitting() && !camel.transitioning())
-                  camel.beginDash();
+                if (camel.isTame()
+                    && camel.isHorseSaddled()
+                    && !camel.sitting()
+                    && !camel.transitioning()) camel.beginDash();
               }
             }
           });

@@ -48,6 +48,9 @@ public final class EntityMBOCamelSeat extends Entity {
     }
     if (riddenByEntity != null && riddenByEntity.isDead) riddenByEntity.mountEntity(null);
     setPosition(camel.posX, camel.posY, camel.posZ);
+    motionX = camel.motionX;
+    motionY = camel.motionY;
+    motionZ = camel.motionZ;
     updateRiderPosition();
   }
 

@@ -1789,3 +1789,8 @@ death.attack.mbo.freeze=%1$s замёрз насмерть
 entity.MBOCamel.name=Верблюд
 
 entity.MBOElderGuardian.name=Древний страж
+
+entity.MBOCamelHusk.name=Верблюд-кадавр
+
+entity.MBOZombieHorse.name=Лошадь-зомби
+entity.MBOSkeletonHorse.name=Лошадь-скелет

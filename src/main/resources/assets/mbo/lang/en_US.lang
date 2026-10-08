@@ -1500,3 +1500,8 @@ death.attack.mbo.freeze=%1$s froze to death
 entity.MBOCamel.name=Camel
 
 entity.MBOElderGuardian.name=Elder Guardian
+
+entity.MBOCamelHusk.name=Camel Husk
+
+entity.MBOZombieHorse.name=Zombie Horse
+entity.MBOSkeletonHorse.name=Skeleton Horse

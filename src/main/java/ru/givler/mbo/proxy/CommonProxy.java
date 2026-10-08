@@ -9,6 +9,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -47,6 +48,13 @@ import ru.givler.mbo.tileentity.TileEntityTemporaryMagicBlock;
 import ru.givler.mbo.waterlogging.WaterloggingEventHandler;
 
 public class CommonProxy {
+    public float camelForwardInput(EntityPlayer player) {
+        return player.moveForward;
+    }
+
+    public boolean camelSprintInput(EntityPlayer player) {
+        return player.isSprinting();
+    }
 
   public void initPackets() {
     PacketManager.registerCommonPackets();

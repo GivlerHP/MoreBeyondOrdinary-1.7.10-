@@ -66,6 +66,22 @@ public final class SwimmingTransformer implements IClassTransformer, Opcodes {
         changed |= patchWaterMovement(method);
       } else if (clientPlayer && "()V".equals(desc)
           && named(method.name, mapped, "onLivingUpdate", "func_70636_d")) {
+        for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; ) {
+          AbstractInsnNode next = insn.getNext();
+          if (insn instanceof MethodInsnNode) {
+            MethodInsnNode call = (MethodInsnNode) insn;
+            String mappedCall = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(
+                call.owner, call.name, call.desc);
+            if (call.getOpcode() == INVOKEVIRTUAL && "()Z".equals(call.desc)
+                && named(call.name, mappedCall, "isUsingItem", "func_71039_bw")) {
+              method.instructions.set(insn, new MethodInsnNode(INVOKESTATIC,
+                  "ru/givler/mbo/entity/fauna/CamelRiderInput", "itemUseSlowsMovement",
+                  "(Lnet/minecraft/entity/player/EntityPlayer;)Z", false));
+              changed = true;
+            }
+          }
+          insn = next;
+        }
         for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext()) {
           if (!(insn instanceof FieldInsnNode) || insn.getOpcode() != GETFIELD) continue;
           FieldInsnNode field = (FieldInsnNode) insn;

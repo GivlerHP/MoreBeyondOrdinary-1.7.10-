@@ -372,11 +372,112 @@ public final class FaunaSmoke {
     Field listeners = World.class.getDeclaredField("worldAccesses");
     listeners.setAccessible(true);
     listeners.set(camelWorld, new ArrayList<Object>());
+    UndeadHorseSmoke.check();
+    EntityMBOZombieHorse zombieHorse = new EntityMBOZombieHorse(camelWorld);
+    EntityMBOSkeletonHorse skeletonHorse = new EntityMBOSkeletonHorse(camelWorld);
+    zombieHorse.onSpawnWithEgg(null);
+    skeletonHorse.onSpawnWithEgg(null);
+    if (zombieHorse.getHorseType() != 3 || skeletonHorse.getHorseType() != 4)
+      throw new AssertionError("Undead horse eggs must preserve their variant after spawn");
+    NBTTagCompound zombieHorseTag = new NBTTagCompound();
+    NBTTagCompound skeletonHorseTag = new NBTTagCompound();
+    zombieHorse.writeEntityToNBT(zombieHorseTag);
+    skeletonHorse.writeEntityToNBT(skeletonHorseTag);
+    zombieHorse.readEntityFromNBT(zombieHorseTag);
+    skeletonHorse.readEntityFromNBT(skeletonHorseTag);
+    if (zombieHorse.getHorseType() != 3 || skeletonHorse.getHorseType() != 4)
+      throw new AssertionError("Undead horse variants must survive reload");
     EntityMBOCamel camel = new EntityMBOCamel(camelWorld);
-    if (camel.getMaxHealth() != 32 || camel.getHorseJumpStrength() != .42 || !camel.isTame())
+    EntityMBOCamelSeat combatSeat = new EntityMBOCamelSeat(camelWorld, camel);
+    camel.motionX = .2;
+    camel.motionZ = .3;
+    combatSeat.onUpdate();
+    if (combatSeat.motionX != camel.motionX || combatSeat.motionZ != camel.motionZ)
+      throw new AssertionError("Camel passenger combat speed must follow the animal");
+    camel.motionX = camel.motionZ = 0;
+    EntityMBOCamelHusk eggHusk = new EntityMBOCamelHusk(camelWorld);
+    eggHusk.onSpawnWithEgg(null);
+    if (!eggHusk.isCamelHusk() || eggHusk.isTame())
+      throw new AssertionError("Camel husk egg must spawn a wild undead camel");
+    NBTTagCompound eggHuskData = new NBTTagCompound();
+    eggHusk.writeEntityToNBT(eggHuskData);
+    EntityMBOCamelHusk reloadedEggHusk = new EntityMBOCamelHusk(camelWorld);
+    reloadedEggHusk.readEntityFromNBT(eggHuskData);
+    if (!reloadedEggHusk.isCamelHusk())
+      throw new AssertionError("Egg-spawned camel husk must retain its variant on reload");
+    EntityMBOCamel huskCamel = new EntityMBOCamel(camelWorld);
+    huskCamel.setHorseType(3);
+    if (!huskCamel.isCamelHusk() || !huskCamel.isEntityUndead())
+      throw new AssertionError("Camel husk must use the undead horse variant");
+    NBTTagCompound huskData = new NBTTagCompound();
+    huskCamel.writeEntityToNBT(huskData);
+    EntityMBOCamel restoredHusk = new EntityMBOCamel(camelWorld);
+    restoredHusk.readEntityFromNBT(huskData);
+    if (!restoredHusk.isCamelHusk()) throw new AssertionError("Camel husk variant lost on reload");
+    double originalMaximumSpeed = camel.getCamelMaximumSpeed();
+    camel.updateCamelWalkingSpeed(false);
+    if (Math.abs(
+                camel
+                        .getEntityAttribute(
+                            net.minecraft.entity.SharedMonsterAttributes.movementSpeed)
+                        .getAttributeValue()
+                    - .09)
+            > .000001
+        || camel.getCamelMaximumSpeed() != originalMaximumSpeed)
+      throw new AssertionError("Camel walking must not overwrite its maximum speed");
+    camel.updateCamelWalkingSpeed(true);
+    if (camel
+            .getEntityAttribute(net.minecraft.entity.SharedMonsterAttributes.movementSpeed)
+            .getAttributeValue()
+        != originalMaximumSpeed)
+      throw new AssertionError("Camel sprint must restore its individual maximum speed");
+    EntityMBOCamel firstCamel = null;
+    boolean differentHealth = false, differentSpeed = false, differentDash = false;
+    for (int sample = 0; sample < 32; sample++) {
+      EntityMBOCamel individual = new EntityMBOCamel(camelWorld);
+      individual.onSpawnWithEgg(null);
+      if (individual.getMaxHealth() < 28
+          || individual.getMaxHealth() > 40
+          || individual.getCamelMaximumSpeed() < .16
+          || individual.getCamelMaximumSpeed() > .22
+          || individual.getCamelDashSpeed() < .85F
+          || individual.getCamelDashSpeed() > 1.15F)
+        throw new AssertionError("Camel traits outside their spawn bounds");
+      if (firstCamel == null) firstCamel = individual;
+      else {
+        differentHealth |= individual.getMaxHealth() != firstCamel.getMaxHealth();
+        differentSpeed |= individual.getCamelMaximumSpeed() != firstCamel.getCamelMaximumSpeed();
+        differentDash |= individual.getCamelDashDistance() != firstCamel.getCamelDashDistance();
+      }
+      NBTTagCompound traits = new NBTTagCompound();
+      camelWorld.isRemote = false;
+      individual.writeEntityToNBT(traits);
+      EntityMBOCamel restored = new EntityMBOCamel(camelWorld);
+      restored.readEntityFromNBT(traits);
+      camelWorld.isRemote = true;
+      if (restored.getMaxHealth() != individual.getMaxHealth()
+          || restored.getCamelMaximumSpeed() != individual.getCamelMaximumSpeed()
+          || restored.getCamelDashSpeed() != individual.getCamelDashSpeed())
+        throw new AssertionError("Individual camel traits were lost on reload");
+    }
+    if (!differentHealth || !differentSpeed || !differentDash)
+      throw new AssertionError(
+          "Camels must have different health, maximum speed and dash distance");
+    EntityMBOCamel childCamel = (EntityMBOCamel) camel.createChild(firstCamel);
+    if (childCamel.isTame()
+        || childCamel.getMaxHealth() < 28
+        || childCamel.getMaxHealth() > 40
+        || childCamel.getCamelMaximumSpeed() < .16
+        || childCamel.getCamelMaximumSpeed() > .22)
+      throw new AssertionError("Camel child must inherit valid wild traits");
+    if (camel.getMaxHealth() != 32 || camel.getHorseJumpStrength() != .42 || camel.isTame())
       throw new AssertionError("Camel attributes/taming incorrect");
     camel.setHorseSaddled(true);
     camel.onGround = true;
+    camel.setJumpPower(90);
+    if (camel.motionY != 0 || camel.dashCooldown() != 0)
+      throw new AssertionError("Untamed camels must not dash");
+    camel.setHorseTamed(true);
     camel.rotationYaw = 0;
     camel.motionZ = .5;
     camelWorld.isRemote = false;
@@ -412,6 +513,21 @@ public final class FaunaSmoke {
     camel.writeEntityToNBT(saved);
     EntityMBOCamel loadedCamel = new EntityMBOCamel(camelWorld);
     loadedCamel.readEntityFromNBT(saved);
+    if (!loadedCamel.isTame()) throw new AssertionError("Camel taming was lost on reload");
+    NBTTagCompound legacyCamel = (NBTTagCompound) saved.copy();
+    legacyCamel.removeTag("CamelTamingVersion");
+    legacyCamel.removeTag("OwnerUUID");
+    EntityMBOCamel legacyWild = new EntityMBOCamel(camelWorld);
+    legacyWild.readEntityFromNBT(legacyCamel);
+    if (legacyWild.isTame() || !legacyWild.isHorseSaddled())
+      throw new AssertionError("Legacy auto-taming must be removed without losing its saddle");
+    legacyCamel.setString("OwnerUUID", "00000000-0000-0000-0000-000000000123");
+    legacyWild.readEntityFromNBT(legacyCamel);
+    if (!legacyWild.isTame()) throw new AssertionError("Owned legacy camel must remain tame");
+    if (camel.func_110259_cr()
+        || camel.getCamelDashDistance() < 6
+        || camel.getCamelDashDistance() > 8)
+      throw new AssertionError("Camel armor restriction or level-ground dash distance incorrect");
     if (!loadedCamel.sitting()
         || !loadedCamel.isHorseSaddled()
         || loadedCamel.poseTicks() != 0
@@ -611,6 +727,7 @@ public final class FaunaSmoke {
     private static final Block TEST_WATER = new Block(Material.water) {};
     boolean waterPresent;
     boolean habitatFixture;
+
     @Override
     public int getHeightValue(int x, int z) {
       return 63;

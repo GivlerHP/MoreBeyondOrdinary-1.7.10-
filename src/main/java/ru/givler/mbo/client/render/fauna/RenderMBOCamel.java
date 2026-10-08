@@ -28,6 +28,8 @@ public final class RenderMBOCamel extends RenderLiving {
 
   @Override
   protected ResourceLocation getEntityTexture(Entity entity) {
+    if (((EntityMBOCamel) entity).isCamelHusk())
+      return new ResourceLocation("mbo", "textures/entity/camel/camel_husk.png");
     return new ResourceLocation(
         "mbo",
         "textures/entity/camel/camel"
