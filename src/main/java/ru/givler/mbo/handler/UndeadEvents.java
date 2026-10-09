@@ -16,6 +16,7 @@ import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -26,6 +27,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import ru.givler.mbo.block.fauna.BlockPowderSnow;
 import ru.givler.mbo.entity.fauna.EntityMBOCamelHusk;
+import ru.givler.mbo.entity.fauna.EntityMBOCamelSeat;
 import ru.givler.mbo.entity.monster.*;
 import ru.givler.mbo.integration.minefantasy2.UndeadMineFantasy;
 import ru.givler.mbo.item.weapon.ItemEffectArrow;
@@ -40,7 +42,7 @@ public final class UndeadEvents {
 
   public static void createCamelJockey(EntityMBOHusk rider) {
     World world = rider.worldObj;
-    if (world.isRemote || !rider.isEntityAlive()) return;
+    if (world.isRemote || !rider.isEntityAlive() || !Loader.isModLoaded("minefantasy2")) return;
     EntityMBOCamelHusk camel = new EntityMBOCamelHusk(world);
     camel.getEntityData().setBoolean("MBOHostileCamel", true);
     camel.setLocationAndAngles(rider.posX, rider.posY, rider.posZ, rider.rotationYaw, 0);
@@ -51,15 +53,20 @@ public final class UndeadEvents {
     EntityMBOParched passenger = new EntityMBOParched(world);
     passenger.setLocationAndAngles(rider.posX, rider.posY, rider.posZ, rider.rotationYaw, 0);
     passenger.onSpawnWithEgg(null);
+    passenger.getEntityData().setString("MBOCamelJockeyRole", "archer");
+    passenger.getEntityData().setBoolean("giveMFWeapon", true);
+    passenger.setCanPickUpLoot(false);
+    clearJockeyArmor(passenger);
+    passenger.setCurrentItemOrArmor(0, new ItemStack(Items.bow));
     if (!world.spawnEntityInWorld(passenger)) {
       camel.setDead();
       return;
     }
-    rider.setCurrentItemOrArmor(
-        0,
-        Loader.isModLoaded("minefantasy2")
-            ? UndeadMineFantasy.jockeySpear()
-            : new ItemStack(Items.iron_sword));
+    rider.getEntityData().setString("MBOCamelJockeyRole", "spearman");
+    rider.getEntityData().setBoolean("giveMFWeapon", true);
+    rider.setCanPickUpLoot(false);
+    clearJockeyArmor(rider);
+    rider.setCurrentItemOrArmor(0, UndeadMineFantasy.jockeySpear());
     rider.mountEntity(camel);
     if (!camel.attachSecondPassenger(passenger)) {
       rider.mountEntity(null);
@@ -68,6 +75,37 @@ public final class UndeadEvents {
       return;
     }
     passenger.getEntityData().setString("MBOJockeyCamel", camel.getUniqueID().toString());
+  }
+
+  private static void clearJockeyArmor(EntityLivingBase rider) {
+    for (int slot = 1; slot <= 4; slot++)
+      if (rider.getEquipmentInSlot(slot) != null) rider.setCurrentItemOrArmor(slot, null);
+  }
+
+  @SubscribeEvent(priority = EventPriority.HIGHEST)
+  public void jockeyEquipment(LivingUpdateEvent event) {
+    if (event.entityLiving.worldObj.isRemote) return;
+    EntityLivingBase living = event.entityLiving;
+    boolean spearman =
+        living instanceof EntityMBOHusk
+            && living.ridingEntity instanceof EntityMBOCamelHusk
+            && living.ridingEntity.getEntityData().getBoolean("MBOHostileCamel");
+    boolean archer =
+        living instanceof EntityMBOParched
+            && (living.ridingEntity instanceof EntityMBOCamelSeat
+                || living.getEntityData().hasKey("MBOJockeyCamel"));
+    if (!spearman && !archer) return;
+    living.getEntityData().setBoolean("giveMFWeapon", true);
+    living.getEntityData().setString("MBOCamelJockeyRole", spearman ? "spearman" : "archer");
+    ((EntityLiving) living).setCanPickUpLoot(false);
+    clearJockeyArmor(living);
+    if (spearman
+        && Loader.isModLoaded("minefantasy2")
+        && !UndeadMineFantasy.isJockeySpear(living.getHeldItem()))
+      living.setCurrentItemOrArmor(0, UndeadMineFantasy.jockeySpear());
+    if (archer
+        && (living.getHeldItem() == null || !(living.getHeldItem().getItem() instanceof ItemBow)))
+      living.setCurrentItemOrArmor(0, new ItemStack(Items.bow));
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -155,6 +193,16 @@ public final class UndeadEvents {
   }
 
   public static boolean arrowHit(Entity target, DamageSource source, float damage) {
+    Entity shooter = source.getEntity();
+    if (source.getSourceOfDamage() instanceof EntityArrow
+        && shooter != null
+        && shooter.ridingEntity instanceof EntityMBOCamelSeat) {
+      EntityMBOCamelSeat seat = (EntityMBOCamelSeat) shooter.ridingEntity;
+      if (seat.getCamel() != null
+          && (target == seat.getCamel()
+              || target == seat.getCamel().riddenByEntity
+              || target == seat)) return false;
+    }
     boolean hit = target.attackEntityFrom(source, damage);
     Entity arrow = source.getSourceOfDamage();
     if (hit

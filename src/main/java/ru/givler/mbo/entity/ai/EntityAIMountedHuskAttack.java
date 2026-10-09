@@ -28,8 +28,14 @@ public final class EntityAIMountedHuskAttack extends EntityAIBase {
     if (target == null) return;
     rider.getLookHelper().setLookPositionWithEntity(target, 30F, 30F);
     if (cooldown > 0) cooldown--;
-    double reach = rider.width * 2D;
+    EntityMBOCamelHusk camel = (EntityMBOCamelHusk) rider.ridingEntity;
+    double reach = camel.dashCooldown() > 35 ? 3D : 2D;
+    double angle = camel.rotationYaw * Math.PI / 180D;
+    double forward =
+        -(target.posX - camel.posX) * Math.sin(angle)
+            + (target.posZ - camel.posZ) * Math.cos(angle);
     if (cooldown == 0
+        && forward > 0D
         && rider.getDistanceSq(target.posX, target.boundingBox.maxY, target.posZ)
             <= reach * reach + target.width
         && rider.getEntitySenses().canSee(target)) {

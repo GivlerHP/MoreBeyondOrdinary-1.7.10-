@@ -20,6 +20,8 @@ import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.entity.player.EntityPlayer;
@@ -419,11 +421,12 @@ public class EntityMBOCamel extends EntityHorse {
   @Override
   public void onLivingUpdate() {
     updateCamelWalkingSpeed(
-        riddenByEntity instanceof EntityPlayer
-            && (MoreBeyondOrdinary.proxy == null
-                ? riddenByEntity.isSprinting()
-                : MoreBeyondOrdinary.proxy.camelSprintInput((EntityPlayer) riddenByEntity))
-            && dashCooldown() == 0);
+        riddenByEntity instanceof EntityZombie && isSprinting()
+            || riddenByEntity instanceof EntityPlayer
+                && (MoreBeyondOrdinary.proxy == null
+                    ? riddenByEntity.isSprinting()
+                    : MoreBeyondOrdinary.proxy.camelSprintInput((EntityPlayer) riddenByEntity))
+                && dashCooldown() == 0);
     super.onLivingUpdate();
     if (!worldObj.isRemote) {
       if (poseTicks() < 52) dataWatcher.updateObject(27, Integer.valueOf(poseTicks() + 1));
@@ -460,6 +463,10 @@ public class EntityMBOCamel extends EntityHorse {
   @Override
   public void updateRiderPosition() {
     if (riddenByEntity != null) positionPassenger(riddenByEntity, true);
+    if (secondSeat != null && !secondSeat.isDead) {
+      positionPassenger(secondSeat, false);
+      secondSeat.updateRiderPosition();
+    }
   }
 
   @Override
@@ -473,9 +480,14 @@ public class EntityMBOCamel extends EntityHorse {
     double drop = sitting() ? 1.43 : 0;
     if (transitioning())
       drop = sitting() ? 1.43 * Math.min(1, poseTicks() / 40D) : 1.43 * (1 - poseTicks() / 52D);
+    // Biped mobs have no player's built-in seated Y offset.
+    double riderOffset =
+        (rider instanceof EntityZombie || rider instanceof EntitySkeleton)
+            ? -.35D
+            : rider.getYOffset();
     rider.setPosition(
         posX - Math.sin(angle) * offset,
-        posY + 2 - drop + rider.getYOffset(),
+        posY + 2 - drop + riderOffset,
         posZ + Math.cos(angle) * offset);
   }
 

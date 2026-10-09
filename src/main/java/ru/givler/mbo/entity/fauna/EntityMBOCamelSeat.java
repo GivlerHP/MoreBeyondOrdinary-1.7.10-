@@ -1,6 +1,8 @@
 package ru.givler.mbo.entity.fauna;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
@@ -21,6 +23,7 @@ public final class EntityMBOCamelSeat extends Entity {
     camel = animal;
     dataWatcher.updateObject(17, Integer.valueOf(animal.getEntityId()));
     animal.setSecondSeat(this);
+    animal.positionPassenger(this, false);
   }
 
   @Override
@@ -47,7 +50,7 @@ public final class EntityMBOCamelSeat extends Entity {
       return;
     }
     if (riddenByEntity != null && riddenByEntity.isDead) riddenByEntity.mountEntity(null);
-    setPosition(camel.posX, camel.posY, camel.posZ);
+    camel.positionPassenger(this, false);
     motionX = camel.motionX;
     motionY = camel.motionY;
     motionZ = camel.motionZ;
@@ -56,7 +59,27 @@ public final class EntityMBOCamelSeat extends Entity {
 
   @Override
   public void updateRiderPosition() {
-    if (camel != null && riddenByEntity != null) camel.positionPassenger(riddenByEntity, false);
+    if (riddenByEntity == null) return;
+    if (camel != null) camel.positionPassenger(riddenByEntity, false);
+    else super.updateRiderPosition();
+  }
+
+  public EntityMBOCamel getCamel() {
+    return camel;
+  }
+
+  @Override
+  public void setPositionAndRotation2(
+      double x, double y, double z, float yaw, float pitch, int ticks) {
+    if (camel == null) super.setPositionAndRotation2(x, y, z, yaw, pitch, ticks);
+    else camel.positionPassenger(this, false);
+  }
+
+  @Override
+  public double getMountedYOffset() {
+    if (riddenByEntity instanceof EntityZombie || riddenByEntity instanceof EntitySkeleton)
+      return -.35D - riddenByEntity.getYOffset();
+    return 0D;
   }
 
   @Override

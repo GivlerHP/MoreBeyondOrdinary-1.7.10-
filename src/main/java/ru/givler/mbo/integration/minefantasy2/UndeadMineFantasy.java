@@ -20,6 +20,10 @@ public final class UndeadMineFantasy {
         : arrow.shootingEntity;
   }
 
+  public static boolean isJockeySpear(ItemStack stack) {
+    return stack != null && stack.getItem() == CustomToolListMF.standard_spear;
+  }
+
   public static ItemStack jockeySpear() {
     return CustomToolListMF.standard_spear.construct("Iron", "OakWood");
   }

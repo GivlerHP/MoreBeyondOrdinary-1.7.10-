@@ -11,23 +11,30 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.profiler.Profiler;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderSurface;
@@ -42,6 +49,8 @@ import ru.givler.mbo.client.model.monster.ModelMBOHusk;
 import ru.givler.mbo.client.model.monster.ModelMBOVariantSkeleton;
 import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.core.UndeadMechanicsTransformer;
+import ru.givler.mbo.entity.fauna.EntityMBOCamelHusk;
+import ru.givler.mbo.entity.fauna.EntityMBOCamelSeat;
 import ru.givler.mbo.entity.monster.*;
 import ru.givler.mbo.handler.FaunaEvents;
 import ru.givler.mbo.handler.UndeadEvents;
@@ -251,6 +260,95 @@ public final class UndeadVariantsSmoke {
     check(
         !UndeadEvents.convert(canceled, new EntityZombie(world)) && !canceled.isDead,
         "cancelled spawn preserves old entity");
+    EntityMBOCamelHusk mount = new EntityMBOCamelHusk(world);
+    mount.setPosition(10, 3, 10);
+    mount.rotationYaw = 0;
+    mount.getEntityData().setBoolean("MBOHostileCamel", true);
+    EntityMBOHusk mountedHusk = new EntityMBOHusk(world);
+    mountedHusk.mountEntity(mount);
+    mount.updateRiderPosition();
+    check(
+        !mount.isHorseSaddled() && Math.abs(mountedHusk.posY - 4.65D) < .00001,
+        "unsaddled camel seats humanoid riders at the same visual height as players");
+    EntityMBOParched archer = new EntityMBOParched(world);
+    EntityMBOCamelSeat rearSeat = new EntityMBOCamelSeat(world, mount);
+    archer.mountEntity(rearSeat);
+    rearSeat.updateRiderPosition();
+    EntityArrow friendlyArrow = new EntityArrow(world);
+    float riderHealth = mountedHusk.getHealth();
+    check(
+        !UndeadEvents.arrowHit(
+                mountedHusk, DamageSource.causeArrowDamage(friendlyArrow, archer), 5F)
+            && mountedHusk.getHealth() == riderHealth,
+        "rear archer must not damage the front rider");
+    float mountHealth = mount.getHealth();
+    check(
+        !UndeadEvents.arrowHit(mount, DamageSource.causeArrowDamage(friendlyArrow, archer), 5F)
+            && mount.getHealth() == mountHealth,
+        "rear archer must not damage its camel");
+    archer.setPositionAndRotation2(100, 100, 100, 30, 0, 3);
+    check(
+        Math.abs(archer.posZ - 9.3D) < .00001 && Math.abs(archer.posY - 4.65D) < .00001,
+        "network rider coordinates must not override the rear seat");
+    ItemBow bow = new ItemBow();
+    archer.setCurrentItemOrArmor(0, new ItemStack(bow));
+    archer.getEntityData().setString("MBOJockeyCamel", mount.getUniqueID().toString());
+    for (int slot = 1; slot <= 4; slot++) archer.setCurrentItemOrArmor(slot, new ItemStack(tool));
+    events.jockeyEquipment(new LivingUpdateEvent(archer));
+    check(
+        archer.getHeldItem().getItem() == bow
+            && archer.getEntityData().getBoolean("giveMFWeapon")
+            && !archer.canPickUpLoot(),
+        "rear rider preserves its bow and cannot switch to melee gear");
+    for (int slot = 1; slot <= 4; slot++)
+      check(
+          archer.getEquipmentInSlot(slot) == null, "camel jockeys must have no armor in any slot");
+    EntityAIUndeadCamelRider charge = new EntityAIUndeadCamelRider(mount);
+    world.chargeGround = true;
+    check(charge.clearChargePath(0, 1), "clear level ground permits a forward charge");
+    world.chargeWall = true;
+    check(!charge.clearChargePath(0, 1), "charging must reject a wall in the swept body volume");
+    world.chargeWall = false;
+    world.chargeCliff = true;
+    check(!charge.clearChargePath(0, 1), "charging must reject a drop along the running path");
+    world.chargeCliff = false;
+    mount.onGround = true;
+    mount.updateCamelWalkingSpeed(false);
+    double walking =
+        mount.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
+    mount.setSprinting(true);
+    mount.updateCamelWalkingSpeed(true);
+    check(
+        mount.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue()
+            > walking * 2,
+        "combat sprint removes the player's slow walking restriction");
+    TestTarget chargeTarget = new TestTarget(world);
+    chargeTarget.setPosition(10, 3, 15);
+    check(
+        charge.tryCharge(chargeTarget)
+            && mount.motionZ > .5D
+            && mount.motionY == .25D
+            && mount.dashCooldown() == 55
+            && mount.velocityChanged,
+        "hostile charge applies a synchronized forward impulse and the ordinary camel dash cooldown");
+    check(!charge.tryCharge(chargeTarget), "a charge cannot repeat during its cooldown");
+    charge.resetTask();
+    check(!mount.isSprinting(), "mount stops sprinting when its combat goal ends");
+    world.chargeGround = false;
+    EntityMBOCamelSeat unresolvedSeat = new EntityMBOCamelSeat(world);
+    unresolvedSeat.setPosition(10, 5, 9.3);
+    archer.mountEntity(unresolvedSeat);
+    unresolvedSeat.updateRiderPosition();
+    check(
+        Math.abs(archer.posY - 4.65D) < .00001,
+        "client seat fallback must retain the real riding height before its camel resolves: "
+            + archer.posY
+            + ", seat="
+            + unresolvedSeat.posY
+            + ", offset="
+            + unresolvedSeat.getMountedYOffset()
+            + ", rider="
+            + archer.getYOffset());
     verifySpawns(world);
     verifyAsm();
     System.out.println(
@@ -335,6 +433,8 @@ public final class UndeadVariantsSmoke {
     Entity spawned;
     boolean cancelSpawn, snow, sky;
     BiomeGenBase biome;
+    boolean chargeGround, chargeWall, chargeCliff;
+    private static final Block CHARGE_GROUND = new Block(Material.rock) {};
     private static final Block AIR = new Block(Material.air) {};
 
     private TestWorld() {
@@ -360,7 +460,20 @@ public final class UndeadVariantsSmoke {
 
     @Override
     public Block getBlock(int x, int y, int z) {
+      if (chargeGround && y <= 2 && !(chargeCliff && z >= 13)) return CHARGE_GROUND;
       return snow && y == 0 ? BlockRegistry.powderSnow : AIR;
+    }
+
+    @Override
+    public List getCollidingBoundingBoxes(Entity entity, AxisAlignedBB box) {
+      return chargeWall && box.maxZ >= 13D
+          ? Collections.singletonList(AxisAlignedBB.getBoundingBox(9, 3, 13, 12, 7, 14))
+          : Collections.emptyList();
+    }
+
+    @Override
+    public MovingObjectPosition rayTraceBlocks(Vec3 start, Vec3 end) {
+      return null;
     }
 
     @Override

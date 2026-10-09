@@ -389,6 +389,12 @@ public final class FaunaSmoke {
       throw new AssertionError("Undead horse variants must survive reload");
     EntityMBOCamel camel = new EntityMBOCamel(camelWorld);
     EntityMBOCamelSeat combatSeat = new EntityMBOCamelSeat(camelWorld, camel);
+    camel.setPosition(10, 3, 10);
+    camel.rotationYaw = 0;
+    combatSeat.onUpdate();
+    if (Math.abs(combatSeat.posY - 5D) > .00001 || Math.abs(combatSeat.posZ - 9.3D) > .00001)
+      throw new AssertionError(
+          "Rear seat entity must occupy the actual attachment point without a saddle");
     camel.motionX = .2;
     camel.motionZ = .3;
     combatSeat.onUpdate();
