@@ -9,6 +9,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -59,10 +61,10 @@ public class ItemBowMBO extends net.minecraft.item.ItemBow {
         charge = (charge * charge + charge * 2.0F) / 3.0F;
         charge *= this.drawSpeed;
 
-        // Ограничим максимум, как в onPlayerStoppedUsing
+        // РћРіСЂР°РЅРёС‡РёРј РјР°РєСЃРёРјСѓРј, РєР°Рє РІ onPlayerStoppedUsing
         if (charge > 1.0F) charge = 1.0F;
 
-        // Анимационные пороги можно задать как доли натяжения
+        // РђРЅРёРјР°С†РёРѕРЅРЅС‹Рµ РїРѕСЂРѕРіРё РјРѕР¶РЅРѕ Р·Р°РґР°С‚СЊ РєР°Рє РґРѕР»Рё РЅР°С‚СЏР¶РµРЅРёСЏ
         if (charge > 0.9F) return icons[3];
         if (charge > 0.65F) return icons[2];
         if (charge > 0.25F) return icons[1];
@@ -72,21 +74,23 @@ public class ItemBowMBO extends net.minecraft.item.ItemBow {
 
     @Override
     public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int timeLeft) {
+        ArrowLooseEvent event = new ArrowLooseEvent(player, stack, getMaxItemUseDuration(stack) - timeLeft);
+        if (MinecraftForge.EVENT_BUS.post(event)) return;
         boolean hasInfinite = player.capabilities.isCreativeMode ||
                 EnchantmentHelper.getEnchantmentLevel(Enchantment.infinity.effectId, stack) > 0;
 
-        // Проверяем наличие стрел
+        // РџСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ СЃС‚СЂРµР»
         if (hasInfinite || player.inventory.hasItem(Items.arrow)) {
-            // Вычисляем силу натяжения
-            int drawTime = this.getMaxItemUseDuration(stack) - timeLeft;
+            // Р’С‹С‡РёСЃР»СЏРµРј СЃРёР»Сѓ РЅР°С‚СЏР¶РµРЅРёСЏ
+            int drawTime = event.charge;
             float charge = drawTime / 20.0F;
             charge = (charge * charge + charge * 2.0F) / 3.0F;
 
-            // Применяем скорость натяжения
+            // РџСЂРёРјРµРЅСЏРµРј СЃРєРѕСЂРѕСЃС‚СЊ РЅР°С‚СЏР¶РµРЅРёСЏ
             charge *= drawSpeed;
 
             if (charge < 0.1F) {
-                return; // Слишком слабое натяжение
+                return; // РЎР»РёС€РєРѕРј СЃР»Р°Р±РѕРµ РЅР°С‚СЏР¶РµРЅРёРµ
             }
 
             if (charge > 1.0F) {

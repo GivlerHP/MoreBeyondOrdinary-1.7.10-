@@ -34,7 +34,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import ru.givler.mbo.MoreBeyondOrdinary;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.network.packet.PacketCamelDash;
 
@@ -483,6 +483,21 @@ public class EntityMBOCamel extends EntityHorse {
     secondSeat = seat;
   }
 
+  public boolean attachSecondPassenger(Entity passenger) {
+    if (worldObj.isRemote || passenger.ridingEntity != null || riddenByEntity == null) return false;
+    if (secondSeat == null || secondSeat.isDead) {
+      EntityMBOCamelSeat seat = new EntityMBOCamelSeat(worldObj, this);
+      if (!worldObj.spawnEntityInWorld(seat)) {
+        secondSeat = null;
+        return false;
+      }
+      secondSeat = seat;
+    }
+    if (secondSeat.riddenByEntity != null) return false;
+    passenger.mountEntity(secondSeat);
+    return true;
+  }
+
   @Override
   public boolean attackEntityFrom(DamageSource source, float damage) {
     if (!worldObj.isRemote && sitting() && canStand()) setSitting(false);
@@ -539,7 +554,7 @@ public class EntityMBOCamel extends EntityHorse {
         y = MathHelper.floor_double(boundingBox.minY),
         z = MathHelper.floor_double(posZ);
     return worldObj.getBlock(x, y - 1, z) == Blocks.sand
-        && FaunaConfig.allowsPosition("camel", worldObj, x, y, z)
+        && MobSpawnConfig.allowsPosition("camel", worldObj, x, y, z)
         && worldObj.checkNoEntityCollision(boundingBox)
         && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty()
         && !worldObj.isAnyLiquid(boundingBox);

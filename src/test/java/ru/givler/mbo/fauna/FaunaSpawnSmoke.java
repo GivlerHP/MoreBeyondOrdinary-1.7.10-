@@ -6,7 +6,7 @@ import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraftforge.common.config.Configuration;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.entity.fauna.*;
 import ru.givler.mbo.handler.FaunaAquaticSpawner;
 import ru.givler.mbo.handler.FaunaAquaticSpawner.Group;
@@ -15,8 +15,9 @@ import ru.givler.mbo.handler.FaunaAquaticSpawner.Group;
 public final class FaunaSpawnSmoke {
   public static void check(FaunaSmoke.AquaticWorld world) throws Exception {
     File directory = new File("build/fauna-balance-config-" + UUID.randomUUID());
-    FaunaConfig.load(directory);
-    Configuration config = new Configuration(new File(directory, "MoreBeyondOrdinary/fauna.cfg"));
+    MobSpawnConfig.load(directory);
+    Configuration config =
+        new Configuration(new File(directory, "MoreBeyondOrdinary/mob_spawning.cfg"));
     config.load();
     if (config.getCategory("panda").get("weight").getInt() != 10
         || config.getCategory("turtle").get("maxGroup").getInt() != 5
@@ -28,7 +29,7 @@ public final class FaunaSpawnSmoke {
     config.getCategory("fox").get("weight").set(37);
     config.getCategory("fox").get("biomeBlacklist").set(new String[] {"Taiga"});
     config.save();
-    FaunaConfig.load(directory);
+    MobSpawnConfig.load(directory);
     config.load();
     if (config.getCategory("cod").get("weight").getInt() != 10
         || config.getCategory("cod").get("maxGroup").getInt() != 6
@@ -40,14 +41,14 @@ public final class FaunaSpawnSmoke {
     config.get("general", "balanceVersion", 2).set(1);
     config.getCategory("panda").get("weight").set(80);
     config.save();
-    FaunaConfig.load(directory);
+    MobSpawnConfig.load(directory);
     config.load();
     if (config.getCategory("panda").get("weight").getInt() != 10)
       throw new AssertionError("Previous panda default was not reduced");
     config.get("general", "balanceVersion", 2).set(1);
     config.getCategory("panda").get("weight").set(7);
     config.save();
-    FaunaConfig.load(directory);
+    MobSpawnConfig.load(directory);
     config.load();
     if (config.getCategory("panda").get("weight").getInt() != 7)
       throw new AssertionError("Custom panda weight was overwritten");
@@ -67,9 +68,9 @@ public final class FaunaSpawnSmoke {
         originalHabitats
             .replace("Deep Ocean", "Configured Ocean")
             .getBytes(java.nio.charset.StandardCharsets.UTF_8));
-    FaunaConfig.load(directory);
+    MobSpawnConfig.load(directory);
     world.habitatBiome.biomeName = "Configured Ocean";
-    if (!FaunaConfig.allowsPosition("tropical_fish", world, 0, 50, 0))
+    if (!MobSpawnConfig.allowsPosition("tropical_fish", world, 0, 50, 0))
       throw new AssertionError("External JSON edits do not control actual spawn profiles");
     if (!new String(
             java.nio.file.Files.readAllBytes(habitats), java.nio.charset.StandardCharsets.UTF_8)
@@ -77,7 +78,7 @@ public final class FaunaSpawnSmoke {
       throw new AssertionError("External habitat file was overwritten");
     java.nio.file.Files.write(
         habitats, originalHabitats.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-    FaunaConfig.load(directory);
+    MobSpawnConfig.load(directory);
     world.habitatBiome.biomeName = "Deep Ocean";
     world.playerEntities = new ArrayList();
     java.lang.reflect.Field random = net.minecraft.world.World.class.getField("rand");
@@ -85,7 +86,7 @@ public final class FaunaSpawnSmoke {
     random.set(world, new java.util.Random(42));
     for (int sample = 0; sample < 100; sample++) {
       int y = FaunaAquaticSpawner.fishSpawnY(world, 0, 0, 15, 255);
-      if (y < 15 || y > 61 || !FaunaConfig.allowsPosition("tropical_fish", world, 0, y, 0))
+      if (y < 15 || y > 61 || !MobSpawnConfig.allowsPosition("tropical_fish", world, 0, y, 0))
         throw new AssertionError("Fish search selected air or an invalid water depth: " + y);
     }
     if (FaunaAquaticSpawner.fishSpawnY(world, 0, 0, 70, 255) != 69
@@ -129,7 +130,7 @@ public final class FaunaSpawnSmoke {
       throw new AssertionError("Spawn area quota scaling incorrect");
     world.spawnedFauna = null;
     world.habitatFixture = false;
-    FaunaConfig.load(new File("build/fauna-smoke-config"));
+    MobSpawnConfig.load(new File("build/fauna-smoke-config"));
     System.out.println("Aquatic groups, separate quotas and spawn balance migration passed");
   }
 }

@@ -19,7 +19,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.integration.biomesoplenty.FaunaBiomesOPlenty;
 
 /** Two inherited genes, recessive brown/weak variants and character-dependent activities. */
@@ -360,7 +360,7 @@ public final class EntityMBOPanda extends EntityAnimal {
     int x = MathHelper.floor_double(posX),
         y = MathHelper.floor_double(boundingBox.minY),
         z = MathHelper.floor_double(posZ);
-    return FaunaConfig.allowsPosition("panda", worldObj, x, y, z)
+    return MobSpawnConfig.allowsPosition("panda", worldObj, x, y, z)
         && worldObj.getBlock(x, y - 1, z) == Blocks.grass
         && worldObj.checkNoEntityCollision(boundingBox)
         && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty()

@@ -4,7 +4,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.ai.EntityAITargetNonTamed;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import ru.givler.mbo.entity.EntityRabbit;
+import ru.givler.mbo.entity.fauna.EntityRabbit;
 
 /** Adds the rabbit prey target to wild wolves. */
 public final class RabbitEvents {

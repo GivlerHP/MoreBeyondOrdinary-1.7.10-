@@ -17,7 +17,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.registry.BlockRegistry;
 
 public final class EntityMBOFrog extends EntityAnimal {
@@ -294,7 +294,7 @@ public final class EntityMBOFrog extends EntityAnimal {
     int x = MathHelper.floor_double(posX),
         y = MathHelper.floor_double(boundingBox.minY),
         z = MathHelper.floor_double(posZ);
-    return FaunaConfig.allowsPosition("frog", worldObj, x, y, z)
+    return MobSpawnConfig.allowsPosition("frog", worldObj, x, y, z)
         && worldObj.getBlock(x, y - 1, z).getMaterial().isSolid()
         && worldObj.checkNoEntityCollision(boundingBox)
         && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty();

@@ -13,7 +13,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.registry.ItemRegistry;
 
 /** Water steering, schools, dry-land flopping and bucket persistence shared by vanilla fish. */
@@ -120,7 +120,7 @@ public abstract class EntityMBOFish extends EntityWaterMob implements IBucketabl
     int x = MathHelper.floor_double(posX),
         y = MathHelper.floor_double(boundingBox.minY),
         z = MathHelper.floor_double(posZ);
-    return FaunaConfig.allowsPosition(species(), worldObj, x, y, z)
+    return MobSpawnConfig.allowsPosition(species(), worldObj, x, y, z)
         && water(x, y, z)
         && water(x, y + 1, z)
         && worldObj.checkNoEntityCollision(boundingBox)

@@ -19,8 +19,21 @@ spotless {
     java {
         target 'src/main/java/ru/givler/mbo/entity/fauna/**/*.java',
                 'src/main/java/ru/givler/mbo/entity/ai/*Skeleton*.java',
+                'src/main/java/ru/givler/mbo/entity/ai/EntityAIUndeadCamelRider.java',
+                'src/main/java/ru/givler/mbo/entity/ai/EntityAIMountedHuskAttack.java',
                 'src/main/java/ru/givler/mbo/handler/SkeletonCombatEvents.java',
-                'src/main/java/ru/givler/mbo/core/Skeleton*Transformer.java',
+                 'src/main/java/ru/givler/mbo/core/Skeleton*Transformer.java',
+                'src/main/java/ru/givler/mbo/core/UndeadMechanicsTransformer.java',
+                'src/main/java/ru/givler/mbo/entity/monster/**/*.java',
+                'src/main/java/ru/givler/mbo/client/model/monster/**/*.java',
+                'src/main/java/ru/givler/mbo/client/render/monster/**/*.java',
+                'src/main/java/ru/givler/mbo/item/weapon/ItemEffectArrow.java',
+                'src/main/java/ru/givler/mbo/handler/UndeadEvents.java',
+                'src/main/java/ru/givler/mbo/handler/EffectArrowEvents.java',
+                'src/main/java/ru/givler/mbo/config/MobSpawnConfig.java',
+                'src/main/java/ru/givler/mbo/config/MobBiomeConfig.java',
+                'src/main/java/ru/givler/mbo/integration/minefantasy2/UndeadMineFantasy.java',
+                'src/test/java/ru/givler/mbo/entity/ai/UndeadVariantsSmoke.java',
                 'src/main/java/ru/givler/mbo/client/render/SkeletonRenderHooks.java',
                 'src/test/java/ru/givler/mbo/entity/ai/SkeletonCombatSmoke.java',
                 'src/main/java/ru/givler/mbo/item/fauna/**/*.java',
@@ -189,3 +202,9 @@ afterEvaluate {
         jvmArgs '-noverify'
     }
 }
+
+task verifyUndeadVariants(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.entity.ai.UndeadVariantsSmoke'
+}
+tasks.check.dependsOn('verifyUndeadVariants')

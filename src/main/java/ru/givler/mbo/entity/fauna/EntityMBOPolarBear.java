@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 
 /** Neutral adult, protective parent and fleeing cub; anger survives saving the world. */
 public final class EntityMBOPolarBear extends EntityAnimal {
@@ -166,7 +166,7 @@ public final class EntityMBOPolarBear extends EntityAnimal {
         y = MathHelper.floor_double(boundingBox.minY),
         z = MathHelper.floor_double(posZ);
     Block ground = worldObj.getBlock(x, y - 1, z);
-    return FaunaConfig.allowsPosition("polar_bear", worldObj, x, y, z)
+    return MobSpawnConfig.allowsPosition("polar_bear", worldObj, x, y, z)
         && (ground == Blocks.grass
             || ground == Blocks.snow
             || ground == Blocks.ice

@@ -4469,5 +4469,276 @@
         "name": "mbo:mob/guardian/guardian_hit4"
       }
     ]
+  },
+  "entity.stray.step": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/stray/step1"
+      },
+      {
+        "name": "mbo:mob/stray/step2"
+      },
+      {
+        "name": "mbo:mob/stray/step3"
+      },
+      {
+        "name": "mbo:mob/stray/step4"
+      }
+    ]
+  },
+  "entity.stray.hurt": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/stray/hurt1"
+      },
+      {
+        "name": "mbo:mob/stray/hurt2"
+      },
+      {
+        "name": "mbo:mob/stray/hurt3"
+      },
+      {
+        "name": "mbo:mob/stray/hurt4"
+      }
+    ]
+  },
+  "entity.stray.death": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/stray/death1"
+      },
+      {
+        "name": "mbo:mob/stray/death2"
+      }
+    ]
+  },
+  "entity.stray.ambient": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/stray/idle1"
+      },
+      {
+        "name": "mbo:mob/stray/idle2"
+      },
+      {
+        "name": "mbo:mob/stray/idle3"
+      },
+      {
+        "name": "mbo:mob/stray/idle4"
+      }
+    ]
+  },
+  "entity.parched.step": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/parched/step1"
+      },
+      {
+        "name": "mbo:mob/parched/step2"
+      },
+      {
+        "name": "mbo:mob/parched/step3"
+      },
+      {
+        "name": "mbo:mob/parched/step4"
+      }
+    ]
+  },
+  "entity.parched.hurt": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/parched/hurt1"
+      },
+      {
+        "name": "mbo:mob/parched/hurt2"
+      },
+      {
+        "name": "mbo:mob/parched/hurt3"
+      },
+      {
+        "name": "mbo:mob/parched/hurt4"
+      }
+    ]
+  },
+  "entity.parched.death": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/parched/death"
+      }
+    ]
+  },
+  "entity.parched.ambient": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/parched/ambient1"
+      },
+      {
+        "name": "mbo:mob/parched/ambient2"
+      },
+      {
+        "name": "mbo:mob/parched/ambient3"
+      },
+      {
+        "name": "mbo:mob/parched/ambient4"
+      }
+    ]
+  },
+  "entity.husk.step": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/husk/step1"
+      },
+      {
+        "name": "mbo:mob/husk/step2"
+      },
+      {
+        "name": "mbo:mob/husk/step3"
+      },
+      {
+        "name": "mbo:mob/husk/step4"
+      },
+      {
+        "name": "mbo:mob/husk/step5"
+      }
+    ]
+  },
+  "entity.husk.hurt": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/husk/hurt1"
+      },
+      {
+        "name": "mbo:mob/husk/hurt2"
+      }
+    ]
+  },
+  "entity.husk.death": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/husk/death1"
+      },
+      {
+        "name": "mbo:mob/husk/death2"
+      }
+    ]
+  },
+  "entity.husk.converted_to_zombie": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/husk/convert1",
+        "volume": 0.8
+      },
+      {
+        "name": "mbo:mob/husk/convert2",
+        "volume": 0.8
+      }
+    ]
+  },
+  "entity.husk.ambient": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/husk/idle1"
+      },
+      {
+        "name": "mbo:mob/husk/idle2"
+      },
+      {
+        "name": "mbo:mob/husk/idle3"
+      }
+    ]
+  },
+  "entity.bogged.step": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/bogged/step1"
+      },
+      {
+        "name": "mbo:mob/bogged/step2"
+      },
+      {
+        "name": "mbo:mob/bogged/step3"
+      },
+      {
+        "name": "mbo:mob/bogged/step4"
+      }
+    ]
+  },
+  "entity.bogged.shear": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/sheep/shear"
+      }
+    ]
+  },
+  "entity.bogged.hurt": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/bogged/hurt1"
+      },
+      {
+        "name": "mbo:mob/bogged/hurt2"
+      },
+      {
+        "name": "mbo:mob/bogged/hurt3"
+      },
+      {
+        "name": "mbo:mob/bogged/hurt4"
+      }
+    ]
+  },
+  "entity.bogged.death": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/bogged/death"
+      }
+    ]
+  },
+  "entity.bogged.ambient": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/bogged/ambient1"
+      },
+      {
+        "name": "mbo:mob/bogged/ambient2"
+      },
+      {
+        "name": "mbo:mob/bogged/ambient3"
+      },
+      {
+        "name": "mbo:mob/bogged/ambient4"
+      }
+    ]
+  },
+  "entity.skeleton.converted_to_stray": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "mbo:mob/stray/convert1"
+      },
+      {
+        "name": "mbo:mob/stray/convert2"
+      },
+      {
+        "name": "mbo:mob/stray/convert3"
+      }
+    ]
   }
 }

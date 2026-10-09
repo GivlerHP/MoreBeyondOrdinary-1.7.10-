@@ -9,7 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.registry.ItemRegistry;
 
 public final class EntityMBOGlowSquid extends EntitySquid {
@@ -128,7 +128,7 @@ public final class EntityMBOGlowSquid extends EntitySquid {
     int x = MathHelper.floor_double(posX),
         y = MathHelper.floor_double(posY),
         z = MathHelper.floor_double(posZ);
-    return FaunaConfig.allowsPosition("glow_squid", worldObj, x, y, z)
+    return MobSpawnConfig.allowsPosition("glow_squid", worldObj, x, y, z)
         && y <= 30
         && worldObj.getFullBlockLightValue(x, y, z) == 0
         && worldObj.getBlock(x, y, z).getMaterial() == Material.water

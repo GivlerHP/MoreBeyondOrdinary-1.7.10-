@@ -26,7 +26,7 @@ import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.BiomeGenBase;
 import ru.givler.mbo.client.model.fauna.*;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.entity.fauna.*;
 import ru.givler.mbo.integration.minefantasy2.FaunaItemRendering;
 import sun.misc.Unsafe;
@@ -41,7 +41,7 @@ public final class FaunaSmoke {
         cpw.mods.fml.relauncher.FMLRelaunchLog.class.getDeclaredField("side");
     side.setAccessible(true);
     side.set(null, cpw.mods.fml.relauncher.Side.SERVER);
-    FaunaConfig.load(new File("build/fauna-smoke-config"));
+    MobSpawnConfig.load(new File("build/fauna-smoke-config"));
     BufferedImage haft = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
     for (int i = 0; i < 5; i++) haft.setRGB(6 + i, 12 - i, 0xffffffff);
     float[] grip = FaunaItemRendering.gripFromImage(haft);

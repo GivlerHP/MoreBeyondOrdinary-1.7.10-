@@ -5,11 +5,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
 import ru.givler.mbo.MoreBeyondOrdinary;
-import ru.givler.mbo.config.FaunaConfig;
-import ru.givler.mbo.entity.EntityRabbit;
-import ru.givler.mbo.entity.EntityStoneGolem;
+import ru.givler.mbo.config.MobSpawnConfig;
+import ru.givler.mbo.entity.monster.*;
+import ru.givler.mbo.entity.fauna.EntityRabbit;
+import ru.givler.mbo.entity.monster.EntityStoneGolem;
 import ru.givler.mbo.entity.fauna.*;
 import ru.givler.mbo.movingplatform.EntityMovingPlatform;
 
@@ -18,9 +18,6 @@ public class EntityMobRegistry {
     private static final int STONE_GOLEM_EGG_PRIMARY = 0x444444;
     private static final int STONE_GOLEM_EGG_SECONDARY = 0x4169E1;
 
-    private static final int STONE_GOLEM_SPAWN_WEIGHT = 20;
-    private static final int STONE_GOLEM_MIN_GROUP = 1;
-    private static final int STONE_GOLEM_MAX_GROUP = 1;
 
     public static void registerEntities() {
         EntityRegistry.registerModEntity(EntityMovingPlatform.class, "MovingPlatform",
@@ -49,8 +46,12 @@ public class EntityMobRegistry {
         registerEntity(EntityMBOZombieHorse.class, "MBOZombieHorse", 0x315234, 0x97c284, 3);
         registerEntity(EntityMBOSkeletonHorse.class, "MBOSkeletonHorse", 0x68684f, 0xe5e5d8, 3);
 
-        registerBiomeSpawns(EntityStoneGolem.class,
-                STONE_GOLEM_SPAWN_WEIGHT, STONE_GOLEM_MIN_GROUP, STONE_GOLEM_MAX_GROUP);
+        registerEntity(EntityMBOHusk.class, "MBOHusk", 0x797061, 0xe6cc94, 3);
+        registerEntity(EntityMBOParched.class, "MBOParched", 0xc7af86, 0x765e3f, 3);
+        registerEntity(EntityMBOStray.class, "MBOStray", 0x617677, 0xddeaea, 3);
+        registerEntity(EntityMBOBogged.class, "MBOBogged", 0x8a9c72, 0x314d30, 3);
+
+
     }
 
     private static void registerEntity(Class<? extends Entity> entityClass,
@@ -66,23 +67,17 @@ public class EntityMobRegistry {
         EntityRegistry.registerModEntity(entityClass, name, modId, MoreBeyondOrdinary.instance, 64, updateFrequency, true);
     }
 
-    private static void registerBiomeSpawns(Class<? extends EntityLiving> entityClass,
-                                            int weight, int min, int max) {
-        for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
-            if (biome != null) {
-                EntityRegistry.addSpawn(entityClass, weight, min, max, EnumCreatureType.monster, biome);
-            }
-        }
-    }
     public static void registerConfiguredSpawns() {
-        FaunaConfig.register("rabbit", EntityRabbit.class, EnumCreatureType.creature);
-        FaunaConfig.register("polar_bear", EntityMBOPolarBear.class, EnumCreatureType.creature);
-        FaunaConfig.register("turtle", EntityMBOTurtle.class, EnumCreatureType.creature);
-        FaunaConfig.register("frog", EntityMBOFrog.class, EnumCreatureType.creature);
-        FaunaConfig.register("goat", EntityMBOGoat.class, EnumCreatureType.creature);
-        FaunaConfig.register("panda", EntityMBOPanda.class, EnumCreatureType.creature);
-        FaunaConfig.register("fox", EntityMBOFox.class, EnumCreatureType.creature);
-        FaunaConfig.register("camel",EntityMBOCamel.class,EnumCreatureType.creature);
+        MobSpawnConfig.registerUndeadSpawns();
+        MobSpawnConfig.register("stone_golem", EntityStoneGolem.class, EnumCreatureType.monster);
+        MobSpawnConfig.register("rabbit", EntityRabbit.class, EnumCreatureType.creature);
+        MobSpawnConfig.register("polar_bear", EntityMBOPolarBear.class, EnumCreatureType.creature);
+        MobSpawnConfig.register("turtle", EntityMBOTurtle.class, EnumCreatureType.creature);
+        MobSpawnConfig.register("frog", EntityMBOFrog.class, EnumCreatureType.creature);
+        MobSpawnConfig.register("goat", EntityMBOGoat.class, EnumCreatureType.creature);
+        MobSpawnConfig.register("panda", EntityMBOPanda.class, EnumCreatureType.creature);
+        MobSpawnConfig.register("fox", EntityMBOFox.class, EnumCreatureType.creature);
+        MobSpawnConfig.register("camel",EntityMBOCamel.class,EnumCreatureType.creature);
     }
 
     public static EntityMBOFish createFish(World world, int type) {

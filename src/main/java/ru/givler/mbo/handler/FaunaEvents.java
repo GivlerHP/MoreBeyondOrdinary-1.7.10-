@@ -7,6 +7,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.monster.EntityBlaze;
 import net.minecraft.entity.monster.EntityMagmaCube;
+import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntitySnowman;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -16,16 +17,18 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.MathHelper;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import ru.givler.mbo.block.fauna.BlockPowderSnow;
 import ru.givler.mbo.entity.fauna.EntityMBOAxolotl;
 import ru.givler.mbo.entity.fauna.EntityMBOPolarBear;
+import ru.givler.mbo.entity.monster.EntityMBOStray;
 import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.registry.ItemRegistry;
+import ru.givler.mbo.registry.PotionRegistry;
 
 public final class FaunaEvents {
   @SubscribeEvent
@@ -79,6 +82,9 @@ public final class FaunaEvents {
   }
 
   public static boolean freezeImmune(EntityLivingBase entity) {
+    if (entity instanceof EntityMBOStray
+        || entity.getClass() == EntitySkeleton.class
+            && ((EntitySkeleton) entity).getSkeletonType() == 0) return true;
     if (entity instanceof EntityMBOPolarBear
         || entity instanceof EntitySnowman
         || entity instanceof EntityWither) return true;
@@ -98,17 +104,12 @@ public final class FaunaEvents {
     if (entity.worldObj.isRemote) return;
     NBTTagCompound data = entity.getEntityData();
     int frozen = data.getInteger("MBOFrozenTicks");
-    int x = MathHelper.floor_double(entity.posX),
-        y = MathHelper.floor_double(entity.boundingBox.minY),
-        z = MathHelper.floor_double(entity.posZ);
-    boolean inside =
-        entity.worldObj.getBlock(x, y, z) == BlockRegistry.powderSnow
-            || entity.worldObj.getBlock(
-                    x, MathHelper.floor_double(entity.posY + entity.getEyeHeight()), z)
-                == BlockRegistry.powderSnow;
+    boolean inside = BlockPowderSnow.contains(entity);
     frozen = inside && !freezeImmune(entity) ? Math.min(140, frozen + 1) : Math.max(0, frozen - 2);
     if (frozen > 0) data.setInteger("MBOFrozenTicks", frozen);
     else data.removeTag("MBOFrozenTicks");
+    if (inside && frozen == 140 && entity.ticksExisted % 20 == 0 && PotionRegistry.Frost != null)
+      entity.addPotionEffect(new PotionEffect(PotionRegistry.Frost.id, 40, 0));
     if (frozen == 140
         && entity.ticksExisted % 40 == 0
         && entity.worldObj.getGameRules().getGameRuleBooleanValue("doFreezeDamage"))

@@ -20,7 +20,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.registry.ItemRegistry;
 
@@ -211,7 +211,7 @@ public final class EntityMBOGoat extends EntityAnimal {
         y = MathHelper.floor_double(boundingBox.minY),
         z = MathHelper.floor_double(posZ);
     Block ground = worldObj.getBlock(x, y - 1, z);
-    return FaunaConfig.allowsPosition("goat", worldObj, x, y, z)
+    return MobSpawnConfig.allowsPosition("goat", worldObj, x, y, z)
         && (ground == Blocks.grass
             || ground == Blocks.stone
             || ground == Blocks.snow

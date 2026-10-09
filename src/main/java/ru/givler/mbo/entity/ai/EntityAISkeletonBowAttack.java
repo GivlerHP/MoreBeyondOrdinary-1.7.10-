@@ -7,6 +7,7 @@ import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBow;
 import net.minecraft.world.EnumDifficulty;
+import ru.givler.mbo.entity.monster.EntityMBOVariantSkeleton;
 
 /** 26.3 bow-goal timing and strafing, adapted to the 1.7.10 movement controls. */
 public final class EntityAISkeletonBowAttack extends EntityAIArrowAttack {
@@ -129,7 +130,11 @@ public final class EntityAISkeletonBowAttack extends EntityAIArrowAttack {
         drawTime = -1;
         // Keep vanilla/Forge/MF2 enchantments, projectile creation and champion damage hooks.
         skeleton.attackEntityWithRangedAttack(target, 1F);
-        attackTime = skeleton.worldObj.difficultySetting == EnumDifficulty.HARD ? 20 : 40;
+        boolean hard = skeleton.worldObj.difficultySetting == EnumDifficulty.HARD;
+        attackTime =
+            skeleton instanceof EntityMBOVariantSkeleton
+                ? ((EntityMBOVariantSkeleton) skeleton).bowCooldown(hard)
+                : hard ? 20 : 40;
       }
     } else if (--attackTime <= 0 && seeTime >= -60) drawTime = 0;
   }

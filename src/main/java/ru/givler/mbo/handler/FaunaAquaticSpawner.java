@@ -18,7 +18,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.ForgeEventFactory;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.entity.fauna.*;
 
 /** Separate modern aquatic quotas, using Forge spawn events and existing habitat checks. */
@@ -41,7 +41,7 @@ public final class FaunaAquaticSpawner {
         || event.world.isRemote
         || !(event.world instanceof WorldServer)) return;
     WorldServer world = (WorldServer) event.world;
-    if (world.getTotalWorldTime() % FaunaConfig.aquaticInterval() != 0
+    if (world.getTotalWorldTime() % MobSpawnConfig.aquaticInterval() != 0
         || !world.getGameRules().getGameRuleBooleanValue("doMobSpawning")
         || world.playerEntities.isEmpty()) return;
     List<Long> chunks = eligibleChunks(world);
@@ -56,12 +56,12 @@ public final class FaunaAquaticSpawner {
     for (Group group : Group.values()) {
       if (group == Group.GUARDIANS && world.difficultySetting.getDifficultyId() == 0) continue;
       if (group != Group.GUARDIANS && !world.func_73046_m().getCanSpawnAnimals()) continue;
-      int cap = scaledCap(FaunaConfig.aquaticCap(group), chunks.size());
+      int cap = scaledCap(MobSpawnConfig.aquaticCap(group), chunks.size());
       int budget =
           group == Group.FISH
-              ? fishAttemptBudget(FaunaConfig.aquaticAttempts(), chunks.size())
-              : FaunaConfig.aquaticAttempts();
-      int minimum = FaunaConfig.minimumY(group), maximum = FaunaConfig.maximumY(group);
+              ? fishAttemptBudget(MobSpawnConfig.aquaticAttempts(), chunks.size())
+              : MobSpawnConfig.aquaticAttempts();
+      int minimum = MobSpawnConfig.minimumY(group), maximum = MobSpawnConfig.maximumY(group);
       if (maximum < minimum) continue;
       for (int attempt = 0; attempt < budget && counts[group.ordinal()] < cap; attempt++) {
         long chunk = chunks.get(world.rand.nextInt(chunks.size()));
@@ -149,13 +149,13 @@ public final class FaunaAquaticSpawner {
   private static String chooseSpecies(Group group, World world, int x, int y, int z) {
     int total = 0;
     for (String id : group.species)
-      if (FaunaConfig.allowsPosition(id, world, x, y, z))
-        total += FaunaConfig.spawnWeight(id, world.getBiomeGenForCoords(x, z));
+      if (MobSpawnConfig.allowsPosition(id, world, x, y, z))
+        total += MobSpawnConfig.spawnWeight(id, world.getBiomeGenForCoords(x, z));
     if (total == 0) return null;
     int selected = world.rand.nextInt(total);
     for (String id : group.species)
-      if (FaunaConfig.allowsPosition(id, world, x, y, z)) {
-        selected -= FaunaConfig.spawnWeight(id, world.getBiomeGenForCoords(x, z));
+      if (MobSpawnConfig.allowsPosition(id, world, x, y, z)) {
+        selected -= MobSpawnConfig.spawnWeight(id, world.getBiomeGenForCoords(x, z));
         if (selected < 0) return id;
       }
     return null;
@@ -163,15 +163,15 @@ public final class FaunaAquaticSpawner {
 
   /** Preserve the original group range, even when the final group slightly exceeds the cap. */
   public static int spawnGroup(World world, String species, int x, int y, int z) {
-    int minimum = FaunaConfig.minGroup(species, world.getBiomeGenForCoords(x, z));
-    int maximum = FaunaConfig.maxGroup(species, world.getBiomeGenForCoords(x, z));
+    int minimum = MobSpawnConfig.minGroup(species, world.getBiomeGenForCoords(x, z));
+    int maximum = MobSpawnConfig.maxGroup(species, world.getBiomeGenForCoords(x, z));
     int size = minimum + world.rand.nextInt(maximum - minimum + 1), spawned = 0;
     IEntityLivingData data = null;
     for (int member = 0; member < size; member++) {
       for (int attempt = 0; attempt < 4; attempt++) {
         int sx = x + world.rand.nextInt(5) - 2, sz = z + world.rand.nextInt(5) - 2;
-        if (!world.blockExists(sx, y, sz) || !FaunaConfig.allowsPosition(species, world, sx, y, sz))
-          continue;
+        if (!world.blockExists(sx, y, sz)
+            || !MobSpawnConfig.allowsPosition(species, world, sx, y, sz)) continue;
         EntityLiving animal = create(species, world);
         animal.setLocationAndAngles(sx + .5, y, sz + .5, world.rand.nextFloat() * 360, 0);
         // Player/spawn-distance restrictions apply to every member, not just the group centre.

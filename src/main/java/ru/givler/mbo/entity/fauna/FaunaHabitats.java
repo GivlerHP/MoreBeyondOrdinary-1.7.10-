@@ -12,6 +12,7 @@ public final class FaunaHabitats {
 
   public static boolean allows(
       String id, World world, int x, int y, int z, boolean surfaceBiome, boolean caveBiome) {
+    if (id.equals("stone_golem")) return caveBiome || surfaceBiome;
     if (y < 0 && !FaunaCaveAbyss.hasLowerLayer()) return false;
     if (id.equals("guardian") && !FaunaCaveAbyss.isOceanCave(world, x, y, z)) return false;
     if (id.equals("guardian") || id.equals("glow_squid") || id.equals("axolotl")) {

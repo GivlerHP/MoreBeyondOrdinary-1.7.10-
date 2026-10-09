@@ -13,6 +13,9 @@ import net.minecraftforge.oredict.OreDictionary;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.block.DoorBase;
 import ru.givler.mbo.item.*;
+import ru.givler.mbo.item.weapon.ItemEffectArrow;
+import ru.givler.mbo.recipes.RecipeEffectArrows;
+import ru.givler.mbo.integration.minefantasy2.UndeadMineFantasy;
 import ru.givler.mbo.item.amulets.*;
 import ru.givler.mbo.item.belt.ItemFallBelt;
 import ru.givler.mbo.item.belt.ItemFertilityBelt;
@@ -32,10 +35,17 @@ import ru.givler.mbo.magic.item.SpectralEffects;
 
 
 public class ItemRegistry {
+    public static Item effectArrow;
     public static Item seagrass, turtleScute, powderSnowBucket, goatHorn;
     public static Item axolotlBucket,prismarineShard,prismarineCrystal;
     public static final Item[] fishBuckets = new Item[5];
     private static final String[] FISH = {"cod", "salmon", "tropical_fish", "pufferfish", "tadpole"};
+
+    private static void registerEffectArrows() {
+        effectArrow = Loader.isModLoaded("minefantasy2") ? UndeadMineFantasy.createArrow() : new ItemEffectArrow();
+        GameRegistry.registerItem(effectArrow, "effect_arrow");
+        ItemEffectArrow.registerDispenser(effectArrow);
+    }
 
     private static void registerFaunaItems() {
         axolotlBucket = new ItemCreatureBucket<EntityMBOAxolotl>("mbo.axolotl_bucket", "fauna/axolotl_bucket",
@@ -63,37 +73,38 @@ public class ItemRegistry {
         }
     }
 
-    //переменные  предметов тотемов
+    //РїРµСЂРµРјРµРЅРЅС‹Рµ  РїСЂРµРґРјРµС‚РѕРІ С‚РѕС‚РµРјРѕРІ
     public static Item GlyphAmphibian, GlyphDragon, GlyphHawk, GlyphMiner, GlyphOwl, GlyphWeapon, GlyphCleansing, GlyphHealing, BrokenStaffHealing;
-    // переменные оружия ближнего боя
+    // РїРµСЂРµРјРµРЅРЅС‹Рµ РѕСЂСѓР¶РёСЏ Р±Р»РёР¶РЅРµРіРѕ Р±РѕСЏ
     public static ItemWeaponBase BrokenLongsword, BrokenSword, BrokenRapier, BrokenMace, BrokenAxe, BrokenDagger, BrokenCudgel, Uchigatana,
             DragonSlayer, TorchMat;
-    // переменные призрачного оружия
+    // РїРµСЂРµРјРµРЅРЅС‹Рµ РїСЂРёР·СЂР°С‡РЅРѕРіРѕ РѕСЂСѓР¶РёСЏ
     public static ItemSpectralWeapon WeaponRapier;
-    // переменные луков
+    // РїРµСЂРµРјРµРЅРЅС‹Рµ Р»СѓРєРѕРІ
     public static ItemBow BrokenBowHunting ;
-    // переменные материалов
+    // РїРµСЂРµРјРµРЅРЅС‹Рµ РјР°С‚РµСЂРёР°Р»РѕРІ
     public static Item Metal, SapphireHeart, SapphireEye, Crystall, GlyphVoid, Drop, TooltipDemo;
     public static Item CopperIngot, Honeycomb;
     public static Item RabbitHide, RabbitFoot;
     public static DoorItemBase[] CopperDoorItems;
-    // переменные амулетов
+    // РїРµСЂРµРјРµРЅРЅС‹Рµ Р°РјСѓР»РµС‚РѕРІ
     public static Item HealingAmulet, VampirismAmulet, CleansingAmulet, PhoenixAmulet, CowardAmulet, DragonAmulet, StaminaAmulet, VeilAmulet,
         ThornsAmulet, StrengthAmulet, MercenaryAmulet, GoblinAmulet, GoldBasicAmulet, SilverBasicAmulet;
-    // переменные колец
+    // РїРµСЂРµРјРµРЅРЅС‹Рµ РєРѕР»РµС†
     public static Item LifeRing, StaminaRing, DamageRing, SpeedRing, LifeSmallRing, StaminaSmallRing, DamageSmallRing, SpeedSmallRing,
         SmallBasicRing, BasicRing, MushroomRing, StrengthAttributeRing, DexterityAttributeRing,
         EnduranceAttributeRing, SpiritAttributeRing;
-    // переменные пояса
+    // РїРµСЂРµРјРµРЅРЅС‹Рµ РїРѕСЏСЃР°
     public static Item FertilityBelt, FallBelt, MinerBelt, WaterminerBelt, KnightBelt;
-    //магические посохи
+    //РјР°РіРёС‡РµСЃРєРёРµ РїРѕСЃРѕС…Рё
     public static ItemWandBase BrokenWandWizard, BrokenWandPyromancer;
-    // Призрачного оружия
+    // РџСЂРёР·СЂР°С‡РЅРѕРіРѕ РѕСЂСѓР¶РёСЏ
     public static ItemSpectralWeapon TorchWeapon;
     public static Item Lockpick, AdminKey, AdminLighter, PlatformEditor, DungeonEditor, LockableDoorItem;
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
+        registerEffectArrows();
         registerFaunaItems();
         CopperIngot = new ItemBase("CopperIngot", "copper/copper_ingot", 64);
         OreDictionary.registerOre("ingotCopper", new ItemStack(CopperIngot));
@@ -129,7 +140,7 @@ public class ItemRegistry {
         LockableDoorItem = new DoorItemBase(BlockRegistry.LockableDoor, "LockableDoorItem", "minecraft:door_wood");
         BlockRegistry.LockableDoor.setDropItem(LockableDoorItem);
 
-        // Материалы и оружие
+        // РњР°С‚РµСЂРёР°Р»С‹ Рё РѕСЂСѓР¶РёРµ
         Item.ToolMaterial BrokenLongswordMat = ItemWeaponBase.createMaterial("BrokenLongswordMat", 0, 800, 0.0F, 1.5F, 30);
         Item.ToolMaterial BrokenSwordMat = ItemWeaponBase.createMaterial("BrokenSwordMat", 0, 800, 0.0F, 0.0F, 30);
         Item.ToolMaterial BrokenRapierMat = ItemWeaponBase.createMaterial("BrokenRapierMat", 0, 800, 0.0F, -1.0F, 30);
@@ -158,7 +169,7 @@ public class ItemRegistry {
                 .setEnchantedAppearance(false)
                 .setDescription("item.TorchWeapon.desc", EnumChatFormatting.RED);
 
-        //глифы
+        //РіР»РёС„С‹
         GlyphAmphibian = new ItemGlyphAmphibian("GlyphAmphibian", "glyph_amphibian", 1);
         GlyphDragon = new ItemGlyphDragon("GlyphDragon", "glyph_dragon", 1);
         GlyphHawk = new ItemGlyphHawk("GlyphHawk", "glyph_hawk", 1);
@@ -170,7 +181,7 @@ public class ItemRegistry {
         BrokenStaffHealing = new ItemStaffHealing("BrokenStaffHealing", "staff", 1)
                 .setDescription("item.BrokenStaffHealing.desc", EnumChatFormatting.RED);
 
-        //материлаы
+        //РјР°С‚РµСЂРёР»Р°С‹
         Metal = new ItemMeta("Metal", "material/metal", 64, 1);
         Drop = new ItemMeta("Drop", "material/drop", 64, 3);
         SapphireHeart = new ItemBase("SapphireHeart", "material/sapphire_heart", 64);
@@ -179,7 +190,7 @@ public class ItemRegistry {
         GlyphVoid = new ItemBase("GlyphVoid", "glyph/glyph_void", 1);
         TooltipDemo = new ItemTooltipDemo();
 
-        //бижютерия
+        //Р±РёР¶СЋС‚РµСЂРёСЏ
         GoldBasicAmulet = new ItemVoidAmulet("GoldBasicAmulet", "bijouterie/amulet_basic_gold");
         SilverBasicAmulet = new ItemVoidAmulet("SilverBasicAmulet", "bijouterie/amulet_basic_silver");
 

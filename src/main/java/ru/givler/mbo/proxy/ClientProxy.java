@@ -1,5 +1,8 @@
 package ru.givler.mbo.proxy;
 
+import ru.givler.mbo.client.render.fauna.RenderRabbit;
+import ru.givler.mbo.client.render.monster.RenderStoneGolem;
+
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -46,6 +49,9 @@ import ru.givler.mbo.client.handler.TooltipEvents;
 import ru.givler.mbo.client.model.decormodels.DecorBlockModel;
 import ru.givler.mbo.client.particle.FallingLeavesHandler;
 import ru.givler.mbo.client.render.*;
+import ru.givler.mbo.client.render.monster.RenderMBOHusk;
+import ru.givler.mbo.client.render.monster.RenderMBOVariantSkeleton;
+import ru.givler.mbo.entity.monster.*;
 import ru.givler.mbo.client.render.OpeningJsonRenderer;
 import ru.givler.mbo.client.render.PlatformTechnicalRenderer;
 import ru.givler.mbo.client.render.RenderPetrifiedStatue;
@@ -109,7 +115,7 @@ import ru.givler.mbo.config.PlayerPingConfig;
 import ru.givler.mbo.core.CauldronHooks;
 import ru.givler.mbo.core.LadderHooks;
 import ru.givler.mbo.core.RailHooks;
-import ru.givler.mbo.entity.EntityRabbit;
+import ru.givler.mbo.entity.fauna.EntityRabbit;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
 import ru.givler.mbo.entity.boat.EntityMBOBoatSeat;
 import ru.givler.mbo.entity.boat.EntityMBOChestBoat;
@@ -445,6 +451,10 @@ public class ClientProxy extends CommonProxy {
         ItemRegistry.DragonSlayer, new RenderWeapon(1.8F, -0.68F, -0.10F, 0.01F));
     MinecraftForgeClient.registerItemRenderer(ItemRegistry.BrokenBowHunting, new RenderCrossbow());
     RenderStoneGolem.register();
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOHusk.class, new RenderMBOHusk());
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOParched.class, new RenderMBOVariantSkeleton("parched"));
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOStray.class, new RenderMBOVariantSkeleton("stray"));
+    RenderingRegistry.registerEntityRenderingHandler(EntityMBOBogged.class, new RenderMBOVariantSkeleton("bogged"));
     RenderingRegistry.registerEntityRenderingHandler(EntityRabbit.class, new RenderRabbit());
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOCod.class, new RenderMBOFish());
     RenderingRegistry.registerEntityRenderingHandler(EntityMBOSalmon.class, new RenderMBOFish());

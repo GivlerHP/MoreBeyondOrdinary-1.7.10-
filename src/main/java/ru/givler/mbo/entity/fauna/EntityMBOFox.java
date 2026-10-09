@@ -24,8 +24,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import ru.givler.mbo.config.FaunaConfig;
-import ru.givler.mbo.entity.EntityRabbit;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.integration.minefantasy2.FaunaMineFantasy;
 import ru.givler.mbo.registry.ItemRegistry;
 
@@ -387,7 +386,7 @@ public final class EntityMBOFox extends EntityAnimal {
         y = MathHelper.floor_double(boundingBox.minY),
         z = MathHelper.floor_double(posZ);
     Block floor = worldObj.getBlock(x, y - 1, z);
-    return FaunaConfig.allowsPosition("fox", worldObj, x, y, z)
+    return MobSpawnConfig.allowsPosition("fox", worldObj, x, y, z)
         && (floor == Blocks.grass || floor == Blocks.snow || floor == Blocks.dirt)
         && worldObj.checkNoEntityCollision(boundingBox)
         && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty()

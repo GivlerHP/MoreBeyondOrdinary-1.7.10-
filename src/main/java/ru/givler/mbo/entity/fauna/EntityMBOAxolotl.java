@@ -19,7 +19,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.registry.ItemRegistry;
 
 public final class EntityMBOAxolotl extends EntityAnimal implements IBucketableCreature {
@@ -374,7 +374,7 @@ public final class EntityMBOAxolotl extends EntityAnimal implements IBucketableC
     int x = MathHelper.floor_double(posX),
         y = MathHelper.floor_double(posY),
         z = MathHelper.floor_double(posZ);
-    return FaunaConfig.allowsPosition("axolotl", worldObj, x, y, z)
+    return MobSpawnConfig.allowsPosition("axolotl", worldObj, x, y, z)
         && worldObj.getBlock(x, y, z).getMaterial() == Material.water
         && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty()
         && worldObj.checkNoEntityCollision(boundingBox);

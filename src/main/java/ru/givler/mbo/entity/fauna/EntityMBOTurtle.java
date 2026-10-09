@@ -16,7 +16,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.registry.ItemRegistry;
 
@@ -128,7 +128,7 @@ public final class EntityMBOTurtle extends EntityAnimal {
         y = MathHelper.floor_double(boundingBox.minY),
         z = MathHelper.floor_double(posZ);
     return worldObj.getBlock(x, y - 1, z) == Blocks.sand
-        && FaunaConfig.allowsPosition("turtle", worldObj, x, y, z)
+        && MobSpawnConfig.allowsPosition("turtle", worldObj, x, y, z)
         && worldObj.checkNoEntityCollision(boundingBox)
         && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty()
         && !worldObj.isAnyLiquid(boundingBox);

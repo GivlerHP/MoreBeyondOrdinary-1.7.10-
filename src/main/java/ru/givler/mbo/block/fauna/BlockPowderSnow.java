@@ -12,9 +12,11 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import ru.givler.mbo.block.BlockBase;
-import ru.givler.mbo.entity.EntityRabbit;
+import ru.givler.mbo.entity.fauna.EntityRabbit;
+import ru.givler.mbo.registry.BlockRegistry;
 
 /** Sinking snow with entity-dependent support; ordinary snow is unchanged. */
 public final class BlockPowderSnow extends BlockBase {
@@ -25,6 +27,35 @@ public final class BlockPowderSnow extends BlockBase {
     setLightOpacity(255);
     setHardness(.25F);
     setStepSound(soundTypeSnow);
+  }
+
+  @Override
+  public boolean isOpaqueCube() {
+    // Neighbour faces must stay visible when the camera sinks into this block.
+    return false;
+  }
+
+  @Override
+  public boolean renderAsNormalBlock() {
+    return false;
+  }
+
+  /** Actual body contact, including the edges of the entity rather than just its centre. */
+  public static boolean contains(Entity entity) {
+    if (BlockRegistry.powderSnow == null) return false;
+    AxisAlignedBB box = entity.boundingBox;
+    int minX = MathHelper.floor_double(box.minX + .000001D);
+    int minY = MathHelper.floor_double(box.minY + .000001D);
+    int minZ = MathHelper.floor_double(box.minZ + .000001D);
+    int maxX = MathHelper.floor_double(box.maxX - .000001D);
+    int maxY = MathHelper.floor_double(box.maxY - .000001D);
+    int maxZ = MathHelper.floor_double(box.maxZ - .000001D);
+    for (int x = minX; x <= maxX; x++)
+      for (int y = minY; y <= maxY; y++)
+        for (int z = minZ; z <= maxZ; z++)
+          if (entity.worldObj.blockExists(x, y, z)
+              && entity.worldObj.getBlock(x, y, z) == BlockRegistry.powderSnow) return true;
+    return false;
   }
 
   public static boolean canWalk(Entity entity) {

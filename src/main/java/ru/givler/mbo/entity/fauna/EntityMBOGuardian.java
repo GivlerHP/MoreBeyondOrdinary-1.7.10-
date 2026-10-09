@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import ru.givler.mbo.config.FaunaConfig;
+import ru.givler.mbo.config.MobSpawnConfig;
 import ru.givler.mbo.registry.ItemRegistry;
 
 /** Aquatic hostile mob: charged line-of-sight beam and retractable defensive spikes. */
@@ -245,7 +245,7 @@ public class EntityMBOGuardian extends EntityMob {
         y = MathHelper.floor_double(posY),
         z = MathHelper.floor_double(posZ);
     return worldObj.difficultySetting.getDifficultyId() > 0
-        && FaunaConfig.allowsPosition("guardian", worldObj, x, y, z)
+        && MobSpawnConfig.allowsPosition("guardian", worldObj, x, y, z)
         && worldObj.getBlock(x, y, z).getMaterial() == Material.water
         && worldObj.getBlock(x, y - 1, z).getMaterial() == Material.water
         && worldObj.checkNoEntityCollision(boundingBox)
