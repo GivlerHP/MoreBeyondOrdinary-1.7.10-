@@ -50,21 +50,28 @@ public class TileEntityModelCollision extends TileEntity {
         : null;
   }
 
-  @Override
-  public void updateEntity() {
-    if (!worldObj.isRemote && ticksExisted() % 20 == 0) {
+  @Override public boolean canUpdate() { return false; }
+
+  @Override public void validate() {
+    super.validate();
+    if(worldObj!=null && !worldObj.isRemote)
+      worldObj.scheduleBlockUpdate(xCoord,yCoord,zCoord,
+          ru.givler.mbo.registry.BlockRegistry.ModelCollisionPart,1);
+  }
+
+  public void checkOwner() {
+    if(worldObj!=null && !worldObj.isRemote) {
+      if(!worldObj.blockExists(ownerX,ownerY,ownerZ)) {
+        worldObj.scheduleBlockUpdate(xCoord,yCoord,zCoord,
+            ru.givler.mbo.registry.BlockRegistry.ModelCollisionPart,20);
+        return;
+      }
       BlockModels owner=getOwnerBlock();
       // Older saves still contain the corpse's removed upper helper block.
       if(owner==null || owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureHangedCorpse
           || (owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureSuspendedCorpse && yCoord>=ownerY+2))
         worldObj.setBlockToAir(xCoord, yCoord, zCoord);
     }
-  }
-
-  private int ticks;
-
-  private int ticksExisted() {
-    return ++ticks;
   }
 
   @Override

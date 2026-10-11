@@ -23,9 +23,9 @@ public class DecorBlockModel extends AnimatedGeoModel<ModelTileBase> {
             } else {
                 model="instruments_of_torture/"+(decoration==RopeConnections.NOOSE?"rope_around_the_neck":"rope_5");
             }
-            return new ResourceLocation(MoreBeyondOrdinary.MODID,DecorResourcePaths.geometry(model));
+            return DecorResources.model(model);
 		}
-		return new ResourceLocation(MoreBeyondOrdinary.MODID, DecorResourcePaths.geometry(tileBase.modelName));
+		return DecorResources.model(tileBase.getModelName());
 	}
 
 	@Override
@@ -34,21 +34,19 @@ public class DecorBlockModel extends AnimatedGeoModel<ModelTileBase> {
 			int decoration = RopeConnections.decoration(tileBase.getBlockMetadata());
             String texture=decoration==RopeConnections.NONE?"rope_6"
                 :decoration==RopeConnections.NOOSE?"rope_around_the_neck":"rope_5";
-            return new ResourceLocation(MoreBeyondOrdinary.MODID,
-                DecorResourcePaths.texture("instruments_of_torture/"+texture,""));
+            return DecorResources.texture("instruments_of_torture/"+texture,"");
 		}
-		if (tileBase.frameCount > 1) {
-			int speed = Math.max(1, tileBase.frameSpeed);
-			int frame = (int) ((System.currentTimeMillis() / speed) % tileBase.frameCount);
-			return new ResourceLocation(MoreBeyondOrdinary.MODID,
-					DecorResourcePaths.texture(tileBase.textureName, "_" + frame));
+		if (tileBase.getFrameCount() > 1) {
+			int speed = Math.max(1, tileBase.getFrameSpeed());
+			int frame = (int) ((System.currentTimeMillis() / speed) % tileBase.getFrameCount());
+			return DecorResources.texture(tileBase.getTextureName(), "_" + frame);
 		}
-		return new ResourceLocation(MoreBeyondOrdinary.MODID, DecorResourcePaths.texture(tileBase.textureName, ""));
+		return DecorResources.texture(tileBase.getTextureName(), "");
 	}
 
 	@Override
 	public ResourceLocation getAnimationFileLocation(ModelTileBase tileBase) {
-		return new ResourceLocation(MoreBeyondOrdinary.MODID,
-				"animations/" + tileBase.modelName + ".animation.json");
+		return DecorResources.get(
+				"animations/" + tileBase.getModelName() + ".animation.json");
 	}
 }

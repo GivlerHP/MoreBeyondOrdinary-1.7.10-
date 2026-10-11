@@ -359,6 +359,12 @@ public class ClientProxy extends CommonProxy {
     FMLCommonHandler.instance().bus().register(smoothOpeningRenderer);
     MinecraftForge.EVENT_BUS.register(smoothOpeningRenderer);
     MinecraftForge.EVENT_BUS.register(OpeningJsonRenderer.INSTANCE);
+    BlockModels.decorChunkRenderId = RenderingRegistry.getNextAvailableRenderId();
+    RenderingRegistry.registerBlockHandler(ru.givler.mbo.client.render.decormodels.ChunkDecorRenderer.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.render.decormodels.ChunkDecorRenderer.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.render.decormodels.InstancedDecorRenderer.INSTANCE);
+    ((net.minecraft.client.resources.IReloadableResourceManager)Minecraft.getMinecraft().getResourceManager())
+        .registerReloadListener(ru.givler.mbo.client.render.decormodels.InstancedDecorRenderer.INSTANCE);
     F3AOcclusionFix.register();
 
     if (Loader.isModLoaded("NotEnoughItems")) {
@@ -371,6 +377,12 @@ public class ClientProxy extends CommonProxy {
         bindDefaultRender(model);
       }
     }
+    ((net.minecraft.client.resources.IReloadableResourceManager)Minecraft.getMinecraft().getResourceManager())
+        .registerReloadListener(ru.givler.mbo.client.render.decormodels.StaticDecorRenderCache.INSTANCE);
+    net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(
+        ru.givler.mbo.client.render.decormodels.DecorRenderDiagnostics.INSTANCE);
+    FMLCommonHandler.instance().bus().register(
+        ru.givler.mbo.client.render.decormodels.DecorRenderDiagnostics.INSTANCE);
 
     AnimationController.addModelFetcher(
         (AnimationController.ModelFetcher<ModelTileBase>)

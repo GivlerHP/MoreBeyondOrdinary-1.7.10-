@@ -62,6 +62,43 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   private boolean loopAnimation = true;
   private int textureFrameCount = 1;
   private int textureFrameSpeed = 100;
+  private boolean dynamicModelRender;
+  private boolean modelLogicTicks;
+  // Assigned only by the client after atlas/geometry validation. Never persisted in worlds.
+  public static int decorChunkRenderId = -1;
+  public static boolean decorChunkRendering = true;
+  public static boolean decorInstancedRendering;
+  private boolean decorChunkReady;
+  private boolean cameraSensitiveDecor() {
+    return modelName!=null && (modelName.endsWith("/hook") || modelName.endsWith("/hanged_corpse")
+        || modelName.endsWith("/suspended_corpse") || modelName.endsWith("/rope_around_the_neck"));
+  }
+  @Override public void onBlockAdded(World world,int x,int y,int z) {
+    super.onBlockAdded(world,x,y,z);
+    if(cameraSensitiveDecor())world.markBlockRangeForRenderUpdate(x-3,y-3,z-3,x+3,y+3,z+3);
+  }
+  public void setDecorChunkReady(boolean ready) { decorChunkReady = ready; }
+  public boolean isDecorChunkReady() { return decorChunkReady && !usesDynamicModelRender(); }
+  public boolean usesDecorChunkRendering() {
+    return decorChunkRendering && !decorInstancedRendering && isDecorChunkReady();
+  }
+
+  /** Visual animation and gameplay ticks are independent capabilities. */
+  public boolean usesDynamicModelRender() {
+    return dynamicModelRender || (animationName != null && !animationName.isEmpty()) || textureFrameCount > 1;
+  }
+
+  public boolean needsModelLogicTicks() {
+    return modelLogicTicks || this instanceof ru.givler.mbo.block.model.BlockModelFood;
+  }
+
+  /** Optional capability for future renderers that change geometry continuously. */
+  public BlockModels withDynamicModelRender() { dynamicModelRender = true; return this; }
+  public BlockModels withModelLogicTicks() { modelLogicTicks = true; return this; }
+  public String getModelAnimationName() { return animationName; }
+  public boolean isModelAnimationLooped() { return loopAnimation; }
+  public int getModelFrameCount() { return textureFrameCount; }
+  public int getModelFrameSpeed() { return textureFrameSpeed; }
   private Item dropItem = null;
   private int dropMeta = 0;
   private Item pickupItem = null;
@@ -366,6 +403,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   public BlockModels withAnimation(String animation, boolean loop) {
     this.animationName = animation;
     this.loopAnimation = loop;
+    if(animation!=null && !animation.isEmpty()) dynamicModelRender=true;
     return this;
   }
 
@@ -379,6 +417,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     if (frameSpeedMs < 1) throw new IllegalArgumentException("frameSpeedMs must be >= 1");
     this.textureFrameCount = frameCount;
     this.textureFrameSpeed = frameSpeedMs;
+    if(frameCount>1) dynamicModelRender=true;
     return this;
   }
 
@@ -399,7 +438,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 
   @Override
   public int getRenderType() {
-    return -1;
+    return usesDecorChunkRendering() ? decorChunkRenderId : -1;
   }
 
   @Override
@@ -416,10 +455,8 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   @Override
   @SideOnly(Side.CLIENT)
   public void registerBlockIcons(IIconRegister iconRegister) {
-    modelParticleIcon =
-        iconRegister.registerIcon(
-            MoreBeyondOrdinary.MODID + ":models/decor/"
-                + ru.givler.mbo.client.model.decormodels.DecorResourcePaths.localName(particleTextureName));
+    modelParticleIcon = ru.givler.mbo.client.render.decormodels.DecorAtlasSprite.registerParticles(iconRegister,
+        ru.givler.mbo.client.model.decormodels.DecorResources.texture(particleTextureName, ""));
   }
 
   @Override
@@ -496,6 +533,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     int z = target.blockZ;
     int side = target.sideHit;
     int meta = world.getBlockMetadata(x, y, z);
+    setBlockBoundsBasedOnState(world,x,y,z);
     float inset = 0.1F;
 
     double px =
@@ -684,6 +722,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
       }
     }
     super.breakBlock(world, x, y, z, block, meta);
+    if(cameraSensitiveDecor())world.markBlockRangeForRenderUpdate(x-3,y-3,z-3,x+3,y+3,z+3);
   }
 
   @Override

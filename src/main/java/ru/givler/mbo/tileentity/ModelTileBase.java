@@ -21,7 +21,34 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     protected boolean loopAnimation = true;
     public int frameCount = 1;
     public int frameSpeed = 100;
-    private final AnimationFactory factory = new AnimationFactory(this);
+    private AnimationFactory factory;
+
+    private ru.givler.mbo.block.BlockModels registeredModel() {
+        if(getClass()!=ModelTileBase.class || (worldObj==null && blockType==null)) return null;
+        net.minecraft.block.Block block=getBlockType();
+        return block instanceof ru.givler.mbo.block.BlockModels ? (ru.givler.mbo.block.BlockModels)block : null;
+    }
+
+    @Override public boolean canUpdate() {
+        if(getClass()!=ModelTileBase.class) return true;
+        ru.givler.mbo.block.BlockModels block=registeredModel();
+        return block!=null ? block.needsModelLogicTicks() : eatTimer>0;
+    }
+
+    public boolean usesDynamicRender() {
+        if(getClass()!=ModelTileBase.class) return true;
+        ru.givler.mbo.block.BlockModels block=registeredModel();
+        return block!=null ? block.usesDynamicModelRender() : isAnimated() || getFrameCount()>1;
+    }
+
+    public int getFrameCount() {
+        ru.givler.mbo.block.BlockModels block=registeredModel();
+        return block==null ? frameCount : block.getModelFrameCount();
+    }
+    public int getFrameSpeed() {
+        ru.givler.mbo.block.BlockModels block=registeredModel();
+        return block==null ? frameSpeed : block.getModelFrameSpeed();
+    }
     private int eatSoundInterval = 0; // через сколько тиков повторять звук
 
     public ModelTileBase(String textureName, String modelName) {
@@ -46,7 +73,11 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     @Override public void onDataPacket(net.minecraft.network.NetworkManager manager,
             net.minecraft.network.play.server.S35PacketUpdateTileEntity packet) {
         readFromNBT(packet.func_148857_g());
-        if(worldObj!=null) worldObj.markBlockRangeForRenderUpdate(xCoord-1,yCoord-1,zCoord-1,xCoord+1,yCoord+1,zCoord+1);
+        if(worldObj!=null) {
+            int radius=getBlockType() instanceof ru.givler.mbo.block.model.BlockConnectedRope?3:1;
+            worldObj.markBlockRangeForRenderUpdate(xCoord-radius,yCoord-radius,zCoord-radius,
+                xCoord+radius,yCoord+radius,zCoord+radius);
+        }
     }
 
     @Override
@@ -95,16 +126,21 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     }
 
     public String getModelName() {
-        return modelName;
+        ru.givler.mbo.block.BlockModels block=registeredModel();
+        return block==null ? modelName : block.getModelName();
     }
 
     public String getTextureName() {
-        return textureName;
+        ru.givler.mbo.block.BlockModels block=registeredModel();
+        return block==null ? textureName : block.getTextureName();
     }
 
-    public String getAnimationName() { return animationName; }
+    public String getAnimationName() {
+        ru.givler.mbo.block.BlockModels block=registeredModel();
+        return block==null ? animationName : block.getModelAnimationName();
+    }
 
-    public boolean isAnimated() { return animationName != null && !animationName.isEmpty(); }
+    public boolean isAnimated() { String animation=getAnimationName(); return animation!=null && !animation.isEmpty(); }
 
     @Override
     public void registerControllers(AnimationData data) {
@@ -113,15 +149,20 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     }
 
     private <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
-        AnimationBuilder builder = loopAnimation
-            ? new AnimationBuilder().loop(animationName)
-            : new AnimationBuilder().playOnce(animationName);
+        ru.givler.mbo.block.BlockModels block=registeredModel();
+        boolean loop=block==null ? loopAnimation : block.isModelAnimationLooped();
+        AnimationBuilder builder = loop
+            ? new AnimationBuilder().loop(getAnimationName())
+            : new AnimationBuilder().playOnce(getAnimationName());
         event.getController().setAnimation(builder);
         return PlayState.CONTINUE;
     }
 
     @Override
-    public AnimationFactory getFactory() { return factory; }
+    public AnimationFactory getFactory() {
+        if(factory==null) factory=new AnimationFactory(this);
+        return factory;
+    }
 
     @Override
     public net.minecraft.util.AxisAlignedBB getRenderBoundingBox() {

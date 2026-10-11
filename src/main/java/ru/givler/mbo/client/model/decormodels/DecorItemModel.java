@@ -10,15 +10,13 @@ public class DecorItemModel extends GeoModelProvider<ModelTileBase> {
 
     @Override
     public ResourceLocation getModelLocation(ModelTileBase tile) {
-        return new ResourceLocation(MoreBeyondOrdinary.MODID,
-                DecorResourcePaths.geometry(tile.getModelName()));
+        return DecorResources.model(tile.getModelName());
     }
 
     @Override
     public ResourceLocation getTextureLocation(ModelTileBase tile) {
         // The old item renderer deliberately displayed the first texture frame.
-        String frameSuffix = tile.frameCount > 1 ? "_0" : "";
-        return new ResourceLocation(MoreBeyondOrdinary.MODID,
-                DecorResourcePaths.texture(tile.getTextureName(), frameSuffix));
+        String frameSuffix = tile.getFrameCount() > 1 ? "_0" : "";
+        return DecorResources.texture(tile.getTextureName(), frameSuffix);
     }
 }

@@ -19,12 +19,48 @@ import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.tileentity.TileEntityModelCollision;
 
 public class BlockModelCollision extends Block implements ITileEntityProvider {
+  // A break packet can arrive after the helper TileEntity was removed locally.
+  // Keep only recent client selection data; worlds are weak keys and each cache is bounded.
+  private static final java.util.WeakHashMap<World,java.util.LinkedHashMap<String,ParticleSource>> particleSources=new java.util.WeakHashMap<>();
+  private static final class ParticleSource {
+    BlockModels owner;int x,y,z,meta;float[] bounds;long time;
+  }
+  private ParticleSource particleSource(World world,int x,int y,int z) {
+    String key=x+","+y+","+z;
+    java.util.LinkedHashMap<String,ParticleSource> cache=particleSources.get(world);
+    TileEntityModelCollision part=tile(world,x,y,z);
+    BlockModels owner=part==null?null:part.getOwnerBlock();
+    if(owner!=null) {
+      ParticleSource source=new ParticleSource();source.owner=owner;
+      source.x=part.getOwnerX();source.y=part.getOwnerY();source.z=part.getOwnerZ();
+      source.meta=world.getBlockMetadata(source.x,source.y,source.z);source.bounds=part.getBounds().clone();source.time=System.nanoTime();
+      if(world.isRemote) {
+        if(cache==null){cache=new java.util.LinkedHashMap<>();particleSources.put(world,cache);}
+        cache.remove(key);cache.put(key,source);if(cache.size()>256)cache.remove(cache.keySet().iterator().next());
+      }
+      return source;
+    }
+    ParticleSource source=cache==null?null:cache.get(key);
+    if(source!=null && System.nanoTime()-source.time>5_000_000_000L){cache.remove(key);return null;}
+    return source;
+  }
+  @Override public void onBlockAdded(World world,int x,int y,int z) {
+    if(!world.isRemote) world.scheduleBlockUpdate(x,y,z,this,1);
+  }
+  @Override public void onNeighborBlockChange(World world,int x,int y,int z,Block changed) {
+    if(!world.isRemote) world.scheduleBlockUpdate(x,y,z,this,1);
+  }
+  @Override public void updateTick(World world,int x,int y,int z,java.util.Random random) {
+    TileEntityModelCollision part=tile(world,x,y,z);
+    if(part!=null) part.checkOwner();
+  }
   @Override
   public MovingObjectPosition collisionRayTrace(World world, int x, int y, int z,
       net.minecraft.util.Vec3 start, net.minecraft.util.Vec3 end) {
     if (ru.givler.mbo.core.HangingCameraContext.ignore(world, x, y, z)) return null;
     TileEntityModelCollision part=tile(world,x,y,z);
     if(part!=null) {
+      if(world.isRemote)particleSource(world,x,y,z);
       MovingObjectPosition closest=null;
       for(float[] b:part.getBoxes()) {
         setBlockBounds(b[0],b[1],b[2],b[3],b[4],b[5]);
@@ -134,9 +170,9 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
   @SideOnly(Side.CLIENT)
   @Override
   public boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer renderer) {
-    TileEntityModelCollision collision = tile(world, target.blockX, target.blockY, target.blockZ);
-    if (collision == null || collision.getOwnerBlock() == null) return true;
-    setBlockBoundsBasedOnState(world, target.blockX, target.blockY, target.blockZ);
+    ParticleSource collision = particleSource(world, target.blockX, target.blockY, target.blockZ);
+    if (collision == null) return true;
+    float[] b=collision.bounds;setBlockBounds(b[0],b[1],b[2],b[3],b[4],b[5]);
     double px =
         target.blockX
             + getBlockBoundsMinX()
@@ -149,6 +185,11 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
         target.blockZ
             + getBlockBoundsMinZ()
             + world.rand.nextDouble() * (getBlockBoundsMaxZ() - getBlockBoundsMinZ());
+    // Keep hit particles outside the contacted face instead of inside the model.
+    if(target.hitVec!=null){px=target.hitVec.xCoord;py=target.hitVec.yCoord;pz=target.hitVec.zCoord;}
+    if(target.sideHit==0)py-=.01;else if(target.sideHit==1)py+=.01;
+    else if(target.sideHit==2)pz-=.01;else if(target.sideHit==3)pz+=.01;
+    else if(target.sideHit==4)px-=.01;else if(target.sideHit==5)px+=.01;
     addOwnerParticle(world, collision, renderer, px, py, pz, 0.0D, 0.0D, 0.0D, true);
     return true;
   }
@@ -157,9 +198,9 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
   @Override
   public boolean addDestroyEffects(
       World world, int x, int y, int z, int meta, EffectRenderer renderer) {
-    TileEntityModelCollision collision = tile(world, x, y, z);
-    if (collision == null || collision.getOwnerBlock() == null) return true;
-    setBlockBoundsBasedOnState(world, x, y, z);
+    ParticleSource collision = particleSource(world, x, y, z);
+    if (collision == null) return true;
+    float[] b=collision.bounds;setBlockBounds(b[0],b[1],b[2],b[3],b[4],b[5]);
     for (int ix = 0; ix < 4; ix++)
       for (int iy = 0; iy < 4; iy++)
         for (int iz = 0; iz < 4; iz++) {
@@ -193,7 +234,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
   @SideOnly(Side.CLIENT)
   private void addOwnerParticle(
       World world,
-      TileEntityModelCollision collision,
+      ParticleSource collision,
       EffectRenderer renderer,
       double x,
       double y,
@@ -202,12 +243,11 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
       double my,
       double mz,
       boolean hitParticle) {
-    BlockModels owner = collision.getOwnerBlock();
-    int meta =
-        world.getBlockMetadata(collision.getOwnerX(), collision.getOwnerY(), collision.getOwnerZ());
+    BlockModels owner = collision.owner;
+    int meta = collision.meta;
     EntityDiggingFX particle = new EntityDiggingFX(world, x, y, z, mx, my, mz, owner, meta);
     particle.applyColourMultiplier(
-        collision.getOwnerX(), collision.getOwnerY(), collision.getOwnerZ());
+        collision.x, collision.y, collision.z);
     if (hitParticle) particle.multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F);
     renderer.addEffect(particle);
   }
@@ -260,8 +300,17 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
       World world, EntityPlayer player, int x, int y, int z, boolean willHarvest) {
     TileEntityModelCollision tile = tile(world, x, y, z);
     if (tile != null && tile.getOwnerBlock() != null) {
-      world.func_147480_a(tile.getOwnerX(), tile.getOwnerY(), tile.getOwnerZ(), true);
-      return true;
+      BlockModels owner=tile.getOwnerBlock();
+      int ox=tile.getOwnerX(),oy=tile.getOwnerY(),oz=tile.getOwnerZ();
+      int meta=world.getBlockMetadata(ox,oy,oz);
+      // The player controller already emits the break effect at the clicked part.
+      // destroyBlock would emit a second effect at the owner and always drop it,
+      // including for creative players. Remove the owner silently instead.
+      if(!world.isRemote && !player.capabilities.isCreativeMode)
+        owner.dropBlockAsItem(world,ox,oy,oz,meta,0);
+      boolean removed=world.setBlockToAir(ox,oy,oz);
+      if(removed && world.getBlock(x,y,z)==this)world.setBlockToAir(x,y,z);
+      return removed;
     }
     return super.removedByPlayer(world, player, x, y, z, willHarvest);
   }

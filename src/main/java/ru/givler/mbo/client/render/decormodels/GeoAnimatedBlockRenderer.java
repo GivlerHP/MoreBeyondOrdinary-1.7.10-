@@ -43,7 +43,14 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
     }
 
     public void render(T tile, double x, double y, double z, float partialTicks) {
+        if(tile.getWorldObj()!=null && getClass()==TemplateModelRenderer.class
+                && tile instanceof ru.givler.mbo.tileentity.ModelTileBase
+                && InstancedDecorRenderer.INSTANCE.renders((ru.givler.mbo.tileentity.ModelTileBase)tile))return;
+        if (tile.getWorldObj()!=null && getClass()==TemplateModelRenderer.class
+                && tile instanceof ru.givler.mbo.tileentity.ModelTileBase
+                && ChunkDecorRenderer.renders((ru.givler.mbo.tileentity.ModelTileBase)tile)) return;
         if (ru.givler.mbo.client.handler.HangingClientEvents.hideAttachment(tile)) return;
+        long diagnosticStart=tile.getWorldObj()==null?0:DecorRenderDiagnostics.beginModel();
         boolean itemRender = tile.getWorldObj() == null;
         GeoModelProvider<T> activeProvider = itemRender ? itemModelProvider : modelProvider;
         ResourceLocation modelLocation = activeProvider.getModelLocation(tile);
@@ -84,11 +91,22 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
             if (texture == null) return;
             Minecraft.getMinecraft().renderEngine.bindTexture(texture);
             Color renderColor = this.getRenderColor(tile, partialTicks);
-            this.render(model, tile, partialTicks,
-                    (float) renderColor.getRed() / 255.0F,
-                    (float) renderColor.getGreen() / 255.0F,
-                    (float) renderColor.getBlue() / 255.0F,
-                    (float) renderColor.getAlpha() / 255.0F);
+            float red=(float)renderColor.getRed()/255.0F;
+            float green=(float)renderColor.getGreen()/255.0F;
+            float blue=(float)renderColor.getBlue()/255.0F;
+            float alpha=(float)renderColor.getAlpha()/255.0F;
+            boolean cached=false;
+            if(!itemRender && tile instanceof ru.givler.mbo.tileentity.ModelTileBase
+                    && !((ru.givler.mbo.tileentity.ModelTileBase)tile).usesDynamicRender()
+                    && getClass()==TemplateModelRenderer.class) {
+                @SuppressWarnings("unchecked")
+                GeoAnimatedBlockRenderer<ru.givler.mbo.tileentity.ModelTileBase> renderer=
+                    (GeoAnimatedBlockRenderer<ru.givler.mbo.tileentity.ModelTileBase>)(GeoAnimatedBlockRenderer<?>)this;
+                cached=StaticDecorRenderCache.INSTANCE.render(renderer,
+                    (ru.givler.mbo.tileentity.ModelTileBase)tile,modelLocation,red,green,blue,alpha);
+            }
+            if(!cached) this.render(model,tile,partialTicks,red,green,blue,alpha);
+            DecorRenderDiagnostics.endModel(diagnosticStart,cached);
         } finally {
             GlStateManager.popMatrix();
         }

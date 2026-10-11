@@ -138,7 +138,8 @@ public class TrapDoorBase extends BlockTrapDoor {
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister register) {
         this.blockIcon = register.registerIcon(textureName.indexOf(':') >= 0
-                ? textureName : MoreBeyondOrdinary.MODID + ":trapdoor/" + textureName);
+                ? textureName : MoreBeyondOrdinary.MODID + ":trapdoor/"
+                    + (textureName.startsWith("door_") ? "trapdoor_"+textureName.substring(5) : textureName));
     }
 
     @Override

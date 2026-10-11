@@ -179,7 +179,12 @@ public class BlockConnectedRope extends BlockModels {
 
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block neighbor) {
-        world.markBlockRangeForRenderUpdate(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1);
+        world.markBlockRangeForRenderUpdate(x - 3, y - 3, z - 3, x + 3, y + 3, z + 3);
+    }
+
+    @Override public void breakBlock(World world,int x,int y,int z,Block block,int meta) {
+        super.breakBlock(world,x,y,z,block,meta);
+        world.markBlockRangeForRenderUpdate(x-3,y-3,z-3,x+3,y+3,z+3);
     }
 
     @Override

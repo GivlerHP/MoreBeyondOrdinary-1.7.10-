@@ -200,6 +200,9 @@ processResources {
 afterEvaluate {
     tasks.matching { it.name == 'runClient' || it.name == 'run' }.all {
         jvmArgs '-noverify'
+        if (project.hasProperty('memoryProfile')) {
+            jvmArgs '-XX:NativeMemoryTracking=summary'
+        }
     }
 }
 
