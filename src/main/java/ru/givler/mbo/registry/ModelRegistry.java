@@ -7,6 +7,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.model.BlockConnectedRope;
 import ru.givler.mbo.block.special.BlockDestructibleLootContainer;
 import ru.givler.mbo.block.model.BlockModelFood;
 
@@ -54,6 +55,55 @@ public class ModelRegistry {
     //склеп
     public static BlockModels ModelAltar, ModelStonePedestal, ModelStoneCoffin, ModelStatue, ModelGraveyardPlate0,
             ModelGraveyardPlate1, ModelGraveyardPlate2, ModelGraveyardPlate3;
+
+    // Instruments of torture
+    public static BlockModels ModelTortureCorpseTruck;
+    public static BlockModels ModelTortureBag;
+    public static BlockModels ModelTortureBedOnChains;
+    public static BlockModels ModelTortureBeheading;
+    public static BlockModels ModelTortureBench;
+    public static BlockModels ModelTortureBundleOfKeys;
+    public static BlockModels ModelTortureBagsOnTheFeet;
+    public static BlockModels ModelTortureDeathHorse;
+    public static BlockModels ModelTortureEmbalmedCorpse;
+    public static BlockModels ModelTortureGrave;
+    public static BlockModels ModelTortureGuillotine;
+    public static BlockModels ModelTortureHandcuffs;
+    public static BlockModels ModelTortureHangedCorpse;
+    public static BlockModels ModelTortureHook;
+    public static BlockModels ModelTortureHourglass;
+    public static BlockModels ModelTortureIronBall;
+    public static BlockModels ModelTortureIronCage;
+    public static BlockModels ModelTortureIronCollar;
+    public static BlockModels ModelTortureIronMaiden;
+    public static BlockModels ModelTortureKeys;
+    public static BlockModels ModelTorturePileOfRottingCorpses;
+    public static BlockModels ModelTorturePlaceOfSleep;
+    public static BlockModels ModelTorturePrisonWagon;
+    public static BlockModels ModelTortureRope;
+    public static BlockModels ModelTortureRope1;
+    public static BlockModels ModelTortureRope2;
+    public static BlockModels ModelTortureRope3;
+    public static BlockModels ModelTortureRope4;
+    public static BlockModels ModelTortureRope5;
+    public static BlockModels ModelTortureRopeAroundTheNeck;
+    public static BlockModels ModelTortureRopeCore;
+    public static BlockModels ModelTortureSharpenedInThePads;
+    public static BlockModels ModelTortureStoneGrave;
+    public static BlockModels ModelTortureStretchingTable;
+    public static BlockModels ModelTortureSuspendedCorpse;
+    public static BlockModels ModelTortureToolsForOversupply;
+    public static BlockModels ModelTortureToolsForOversupply1;
+    public static BlockModels ModelTortureToolsForOversupply2;
+    public static BlockModels ModelTortureToolsForOversupply3;
+    public static BlockModels ModelTortureToolsForOversupply4;
+    public static BlockModels ModelTortureToolsForOversupply5;
+    public static BlockModels ModelTortureTortureTable;
+    public static BlockModels ModelTortureTortureTable1;
+    public static BlockModels ModelTortureTortureWithCoals;
+    public static BlockModels ModelTortureWheeledCorpse;
+    public static BlockModels ModelTortureWheeling;
+    public static BlockModels ModelTortureWitchSChair;
 
     public static BlockModels LootContainer;
 
@@ -489,6 +539,178 @@ public class ModelRegistry {
         ModelStatue.withRotatingBounds(0.17F, 0.0F, 0.32F, 0.83F, 1.0F, 0.68F);
         ModelStatue.addVerticalCollisionUsingBaseBounds(1);
 
+        registerTortureModels();
+        ImportedDecorShapes.configure();
+    }
+
+    private static void registerTortureModels() {
+        ModelTortureCorpseTruck = new BlockModels(Material.wood, "ModelTortureCorpseTruck", "instruments_of_torture/corpse_truck", "instruments_of_torture/corpse_truck");
+        ModelTortureCorpseTruck.withMultipartBounds(-0.1250F, 0.0000F, -0.9375F, 1.2500F, 1.2500F, 1.3750F);
+
+        ModelTortureBag = new BlockModels(Material.cloth, "ModelTortureBag", "instruments_of_torture/bag", "instruments_of_torture/bag");
+        ModelTortureBag.withModelOffsetY(-0.1250F);
+        ModelTortureBag.withRotatingBounds(0.2500F, 0.0000F, 0.3750F, 0.7500F, 0.4375F, 0.7500F);
+        ModelTortureBag.setCollisionEnabled(false);
+
+        ModelTortureBedOnChains = new BlockModels(Material.wood, "ModelTortureBedOnChains", "instruments_of_torture/bed_on_chains", "instruments_of_torture/bed_on_chains");
+        ModelTortureBedOnChains.withModelOffsetY(0.2625F);
+        ModelTortureBedOnChains.withMultipartBounds(0.1250F, 0.0000F, 0.0000F, 1.8750F, 0.3875F, 0.8750F);
+
+        ModelTortureBeheading = new BlockModels(Material.wood, "ModelTortureBeheading", "instruments_of_torture/beheading", "instruments_of_torture/beheading");
+        ModelTortureBeheading.withMultipartBounds(-0.5000F, 0.0000F, 0.5000F, 1.0000F, 1.7500F, 1.7500F);
+
+        ModelTortureBench = new BlockModels(Material.wood, "ModelTortureBench", "instruments_of_torture/bench", "instruments_of_torture/bench");
+        ModelTortureBench.withMultipartBounds(-0.5000F, 0.0000F, 0.1250F, 1.5000F, 0.5000F, 0.8750F);
+
+        ModelTortureBundleOfKeys = new BlockModels(Material.iron, "ModelTortureBundleOfKeys", "instruments_of_torture/bundle_of_keys", "instruments_of_torture/bundle_of_keys");
+        ModelTortureBundleOfKeys.withRotatingBounds(0.3125F, 0.0000F, 0.0000F, 0.6875F, 0.8750F, 0.1875F);
+        ModelTortureBundleOfKeys.setCollisionEnabled(false);
+
+        ModelTortureBagsOnTheFeet = new BlockModels(Material.cloth, "ModelTortureBagsOnTheFeet", "instruments_of_torture/bags_on_the_feet", "instruments_of_torture/bags_on_the_feet");
+        ModelTortureBagsOnTheFeet.withRotatingBounds(0.3125F, 0.0000F, 0.3125F, 0.6875F, 0.5000F, 0.6875F);
+        ModelTortureBagsOnTheFeet.setCollisionEnabled(false);
+
+        ModelTortureDeathHorse = new BlockModels(Material.wood, "ModelTortureDeathHorse", "instruments_of_torture/death_horse", "instruments_of_torture/death_horse");
+        ModelTortureDeathHorse.withMultipartBounds(0.1875F, 0.0000F, 0.0000F, 0.8125F, 1.2500F, 1.5000F);
+
+        ModelTortureEmbalmedCorpse = new BlockModels(Material.cloth, "ModelTortureEmbalmedCorpse", "instruments_of_torture/embalmed_corpse", "instruments_of_torture/embalmed_corpse");
+        ModelTortureEmbalmedCorpse.withMultipartBounds(-0.1250F, 0.0000F, -1.0000F, 1.1250F, 0.3750F, 1.3750F);
+        ModelTortureEmbalmedCorpse.setCollisionEnabled(false);
+
+        ModelTortureGrave = new BlockModels(Material.rock, "ModelTortureGrave", "instruments_of_torture/grave", "instruments_of_torture/grave");
+        ModelTortureGrave.withMultipartBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 0.1250F, 2.0000F);
+
+        ModelTortureGuillotine = new BlockModels(Material.iron, "ModelTortureGuillotine", "instruments_of_torture/guillotine", "instruments_of_torture/guillotine");
+        ModelTortureGuillotine.withModelOffsetY(1.0000F);
+        ModelTortureGuillotine.withMultipartBounds(-0.3750F, 0.0000F, 0.0000F, 1.3125F, 3.0000F, 1.0000F);
+
+        ModelTortureHandcuffs = new BlockModels(Material.iron, "ModelTortureHandcuffs", "instruments_of_torture/handcuffs", "instruments_of_torture/handcuffs");
+        ModelTortureHandcuffs.withRotatingBounds(0.0000F, 0.1250F, 0.0000F, 1.0000F, 1.0000F, 0.1875F);
+        ModelTortureHandcuffs.setCollisionEnabled(false);
+
+        ModelTortureHangedCorpse = new BlockModels(Material.cloth, "ModelTortureHangedCorpse", "instruments_of_torture/hanged_corpse", "instruments_of_torture/hanged_corpse");
+        ModelTortureHangedCorpse.withModelOffsetY(1.0000F);
+        ModelTortureHangedCorpse.withRotatingBounds(0.0625F, 0.0000F, 0.2500F, 0.9375F, 1.0000F, 1.0000F);
+        ModelTortureHangedCorpse.setCollisionEnabled(false);
+
+        ModelTortureHook = new BlockModels(Material.iron, "ModelTortureHook", "instruments_of_torture/hook", "instruments_of_torture/hook");
+        ModelTortureHook.withRotatingBounds(0.4375F, 0.2500F, 0.3750F, 0.5625F, 1.0000F, 0.8750F);
+        ModelTortureHook.setCollisionEnabled(false);
+
+        ModelTortureHourglass = new BlockModels(Material.iron, "ModelTortureHourglass", "instruments_of_torture/hourglass", "instruments_of_torture/hourglass");
+        ModelTortureHourglass.withRotatingBounds(0.1875F, 0.0000F, 0.1875F, 0.8125F, 0.8750F, 0.8125F);
+
+        ModelTortureIronBall = new BlockModels(Material.iron, "ModelTortureIronBall", "instruments_of_torture/iron_ball", "instruments_of_torture/iron_ball");
+        ModelTortureIronBall.withMultipartBounds(0.4375F, 0.0000F, 0.3125F, 1.7500F, 0.3750F, 0.6875F);
+
+        ModelTortureIronCage = new BlockModels(Material.iron, "ModelTortureIronCage", "instruments_of_torture/iron_cage", "instruments_of_torture/iron_cage");
+        ModelTortureIronCage.withModelOffsetY(0.1875F);
+        ModelTortureIronCage.withMultipartBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 2.1875F, 1.0000F);
+
+        ModelTortureIronCollar = new BlockModels(Material.iron, "ModelTortureIronCollar", "instruments_of_torture/iron_collar", "instruments_of_torture/iron_collar");
+        ModelTortureIronCollar.withRotatingBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 1.0000F, 1.0000F);
+        ModelTortureIronCollar.setCollisionEnabled(false);
+
+        ModelTortureIronMaiden = new BlockModels(Material.iron, "ModelTortureIronMaiden", "instruments_of_torture/iron_maiden", "instruments_of_torture/iron_maiden");
+        ModelTortureIronMaiden.withModelOffsetY(0.8750F);
+        ModelTortureIronMaiden.withMultipartBounds(-0.8125F, 0.0000F, 0.0000F, 0.6875F, 2.8750F, 1.0000F);
+
+        ModelTortureKeys = new BlockModels(Material.iron, "ModelTortureKeys", "instruments_of_torture/keys", "instruments_of_torture/keys");
+        ModelTortureKeys.withRotatingBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 0.8750F, 0.1250F);
+        ModelTortureKeys.setCollisionEnabled(false);
+
+        ModelTorturePileOfRottingCorpses = new BlockModels(Material.cloth, "ModelTorturePileOfRottingCorpses", "instruments_of_torture/pile_of_rotting_corpses", "instruments_of_torture/pile_of_rotting_corpses");
+        ModelTorturePileOfRottingCorpses.withModelOffsetY(0.1875F);
+        ModelTorturePileOfRottingCorpses.withRotatingBounds(0.1250F, 0.0000F, 0.0000F, 1.0000F, 0.9375F, 1.0000F);
+        ModelTorturePileOfRottingCorpses.setCollisionEnabled(false);
+        ModelTorturePileOfRottingCorpses.withAnimatedTexture(6, 50);
+
+        ModelTorturePlaceOfSleep = new BlockModels(Material.wood, "ModelTorturePlaceOfSleep", "instruments_of_torture/place_of_sleep", "instruments_of_torture/place_of_sleep");
+        ModelTorturePlaceOfSleep.withMultipartBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 0.1250F, 2.0000F);
+
+        ModelTorturePrisonWagon = new BlockModels(Material.wood, "ModelTorturePrisonWagon", "instruments_of_torture/prison_wagon", "instruments_of_torture/prison_wagon");
+        ModelTorturePrisonWagon.withModelOffsetY(0.8750F);
+        ModelTorturePrisonWagon.withMultipartBounds(-0.3750F, 0.0000F, -1.0000F, 1.3750F, 2.5000F, 2.0000F);
+
+        ModelTortureRope = new BlockConnectedRope("ModelTortureRope", "instruments_of_torture/rope");
+
+        ModelTortureRope1 = new BlockConnectedRope("ModelTortureRope1", "instruments_of_torture/rope_1");
+
+        ModelTortureRope2 = new BlockConnectedRope("ModelTortureRope2", "instruments_of_torture/rope_2");
+
+        ModelTortureRope3 = new BlockConnectedRope("ModelTortureRope3", "instruments_of_torture/rope_3");
+
+        ModelTortureRope4 = new BlockConnectedRope("ModelTortureRope4", "instruments_of_torture/rope_4");
+
+        ModelTortureRope5 = new BlockConnectedRope("ModelTortureRope5", "instruments_of_torture/rope_5");
+
+        ModelTortureRopeAroundTheNeck = new BlockModels(Material.cloth, "ModelTortureRopeAroundTheNeck", "instruments_of_torture/rope_around_the_neck", "instruments_of_torture/rope_around_the_neck");
+        ModelTortureRopeAroundTheNeck.withRotatingBounds(0.2500F, 0.2500F, 0.3750F, 0.7500F, 1.0000F, 0.6250F);
+        ModelTortureRopeAroundTheNeck.setCollisionEnabled(true);
+
+        ModelTortureRopeCore = new BlockModels(Material.cloth, "ModelTortureRopeCore", "instruments_of_torture/rope_core", "instruments_of_torture/rope_core");
+        ModelTortureRopeCore.withRotatingBounds(0.1250F, 0.0000F, 0.1875F, 0.8750F, 0.5625F, 0.9375F);
+        ModelTortureRopeCore.setCollisionEnabled(true);
+
+        ModelTortureSharpenedInThePads = new BlockModels(Material.wood, "ModelTortureSharpenedInThePads", "instruments_of_torture/sharpened_in_the_pads", "instruments_of_torture/sharpened_in_the_pads");
+        ModelTortureSharpenedInThePads.withModelOffsetY(1.1875F);
+        ModelTortureSharpenedInThePads.withMultipartBounds(0.0000F, 0.0000F, -0.6875F, 1.5000F, 2.1875F, 1.3750F);
+
+        ModelTortureStoneGrave = new BlockModels(Material.rock, "ModelTortureStoneGrave", "instruments_of_torture/stone_grave", "instruments_of_torture/stone_grave");
+        ModelTortureStoneGrave.withMultipartBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 0.1250F, 2.0000F);
+
+        ModelTortureStretchingTable = new BlockModels(Material.wood, "ModelTortureStretchingTable", "instruments_of_torture/stretching_table", "instruments_of_torture/stretching_table");
+        ModelTortureStretchingTable.withMultipartBounds(-0.1250F, 0.0000F, -0.8750F, 1.1250F, 1.0000F, 1.8125F);
+
+        ModelTortureSuspendedCorpse = new BlockModels(Material.cloth, "ModelTortureSuspendedCorpse", "instruments_of_torture/suspended_corpse", "instruments_of_torture/suspended_corpse");
+        ModelTortureSuspendedCorpse.withModelOffsetY(0.1875F);
+        ModelTortureSuspendedCorpse.withMultipartBounds(0.0000F, 0.0000F, 0.1875F, 1.0000F, 2.0000F, 0.8750F);
+        ModelTortureSuspendedCorpse.setCollisionEnabled(false);
+
+        ModelTortureToolsForOversupply = new BlockModels(Material.iron, "ModelTortureToolsForOversupply", "instruments_of_torture/tools_for_oversupply", "instruments_of_torture/tools_for_oversupply");
+        ModelTortureToolsForOversupply.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.0625F, 0.9375F);
+        ModelTortureToolsForOversupply.setCollisionEnabled(false);
+
+        ModelTortureToolsForOversupply1 = new BlockModels(Material.iron, "ModelTortureToolsForOversupply1", "instruments_of_torture/tools_for_oversupply_1", "instruments_of_torture/tools_for_oversupply_1");
+        ModelTortureToolsForOversupply1.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.0625F, 0.9375F);
+        ModelTortureToolsForOversupply1.setCollisionEnabled(false);
+
+        ModelTortureToolsForOversupply2 = new BlockModels(Material.iron, "ModelTortureToolsForOversupply2", "instruments_of_torture/tools_for_oversupply_2", "instruments_of_torture/tools_for_oversupply_2");
+        ModelTortureToolsForOversupply2.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.1250F, 0.9375F);
+        ModelTortureToolsForOversupply2.setCollisionEnabled(false);
+
+        ModelTortureToolsForOversupply3 = new BlockModels(Material.iron, "ModelTortureToolsForOversupply3", "instruments_of_torture/tools_for_oversupply_3", "instruments_of_torture/tools_for_oversupply_3");
+        ModelTortureToolsForOversupply3.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.1250F, 0.9375F);
+        ModelTortureToolsForOversupply3.setCollisionEnabled(false);
+
+        ModelTortureToolsForOversupply4 = new BlockModels(Material.iron, "ModelTortureToolsForOversupply4", "instruments_of_torture/tools_for_oversupply_4", "instruments_of_torture/tools_for_oversupply_4");
+        ModelTortureToolsForOversupply4.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.1875F, 0.9375F);
+        ModelTortureToolsForOversupply4.setCollisionEnabled(false);
+
+        ModelTortureToolsForOversupply5 = new BlockModels(Material.iron, "ModelTortureToolsForOversupply5", "instruments_of_torture/tools_for_oversupply_5", "instruments_of_torture/tools_for_oversupply_5");
+        ModelTortureToolsForOversupply5.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.1250F, 0.9375F);
+        ModelTortureToolsForOversupply5.setCollisionEnabled(false);
+
+        ModelTortureTortureTable = new BlockModels(Material.wood, "ModelTortureTortureTable", "instruments_of_torture/torture_table", "instruments_of_torture/torture_table");
+        ModelTortureTortureTable.withMultipartBounds(-0.6250F, 0.0000F, -0.4375F, 1.6250F, 1.0000F, 1.8125F);
+
+        ModelTortureTortureTable1 = new BlockModels(Material.wood, "ModelTortureTortureTable1", "instruments_of_torture/torture_table_1", "instruments_of_torture/torture_table_1");
+        ModelTortureTortureTable1.withMultipartBounds(0.0000F, 0.0000F, -1.0000F, 1.0000F, 0.9375F, 1.2500F);
+
+        ModelTortureTortureWithCoals = new BlockModels(Material.iron, "ModelTortureTortureWithCoals", "instruments_of_torture/torture_with_coals", "instruments_of_torture/torture_with_coals");
+        ModelTortureTortureWithCoals.withRotatingBounds(0.1250F, 0.0000F, 0.1250F, 0.8750F, 1.0000F, 0.8750F);
+
+        ModelTortureWheeledCorpse = new BlockModels(Material.cloth, "ModelTortureWheeledCorpse", "instruments_of_torture/wheeled_corpse", "instruments_of_torture/wheeled_corpse");
+        ModelTortureWheeledCorpse.withModelOffsetY(0.3750F);
+        ModelTortureWheeledCorpse.withMultipartBounds(-0.1875F, 0.0000F, -0.5625F, 1.5000F, 1.2500F, 1.3125F);
+        ModelTortureWheeledCorpse.setCollisionEnabled(false);
+
+        ModelTortureWheeling = new BlockModels(Material.wood, "ModelTortureWheeling", "instruments_of_torture/wheeling", "instruments_of_torture/wheeling");
+        ModelTortureWheeling.withModelOffsetY(1.0000F);
+        ModelTortureWheeling.withMultipartBounds(0.0000F, 0.0000F, 0.1250F, 2.0000F, 2.6250F, 1.9375F);
+
+        ModelTortureWitchSChair = new BlockModels(Material.wood, "ModelTortureWitchSChair", "instruments_of_torture/witch_s_chair", "instruments_of_torture/witch_s_chair");
+        ModelTortureWitchSChair.withMultipartBounds(-0.8750F, 0.0000F, 0.0000F, 1.0000F, 1.6250F, 1.0000F);
 
     }
 

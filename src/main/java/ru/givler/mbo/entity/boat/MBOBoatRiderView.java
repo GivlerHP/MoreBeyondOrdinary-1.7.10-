@@ -8,6 +8,10 @@ public final class MBOBoatRiderView {
   private MBOBoatRiderView() {}
 
   public static void clampView(Entity rider) {
+    if (rider.ridingEntity instanceof ru.givler.mbo.entity.EntityHangingAnchor) {
+      ((ru.givler.mbo.entity.EntityHangingAnchor) rider.ridingEntity).clampView(rider);
+      return;
+    }
     if (!(rider.ridingEntity instanceof EntityMBOBoat)) return;
     EntityMBOBoat boat = (EntityMBOBoat) rider.ridingEntity;
     if (boat.riddenByEntity != rider) return;

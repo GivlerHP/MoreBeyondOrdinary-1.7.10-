@@ -606,6 +606,51 @@ public class CreativeTabRegistry {
           list.add(new ItemStack(LootContainer));
 
           list.add(new ItemStack(ModelWisp));
+
+          // Instruments of torture
+          list.add(new ItemStack(ModelTortureCorpseTruck));
+          list.add(new ItemStack(ModelTortureBag));
+          list.add(new ItemStack(ModelTortureBedOnChains));
+          list.add(new ItemStack(ModelTortureBeheading));
+          list.add(new ItemStack(ModelTortureBench));
+          list.add(new ItemStack(ModelTortureBundleOfKeys));
+          list.add(new ItemStack(ModelTortureBagsOnTheFeet));
+          list.add(new ItemStack(ModelTortureDeathHorse));
+          list.add(new ItemStack(ModelTortureEmbalmedCorpse));
+          list.add(new ItemStack(ModelTortureGrave));
+          list.add(new ItemStack(ModelTortureGuillotine));
+          list.add(new ItemStack(ModelTortureHandcuffs));
+          list.add(new ItemStack(ModelTortureHangedCorpse));
+          list.add(new ItemStack(ModelTortureHook));
+          list.add(new ItemStack(ModelTortureHourglass));
+          list.add(new ItemStack(ModelTortureIronBall));
+          list.add(new ItemStack(ModelTortureIronCage));
+          list.add(new ItemStack(ModelTortureIronCollar));
+          list.add(new ItemStack(ModelTortureIronMaiden));
+          list.add(new ItemStack(ModelTortureKeys));
+          list.add(new ItemStack(ModelTorturePileOfRottingCorpses));
+          list.add(new ItemStack(ModelTorturePlaceOfSleep));
+          list.add(new ItemStack(ModelTorturePrisonWagon));
+          list.add(new ItemStack(ModelTortureRope));
+          list.add(new ItemStack(ModelTortureRope3));
+          list.add(new ItemStack(ModelTortureRopeAroundTheNeck));
+          list.add(new ItemStack(ModelTortureRopeCore));
+          list.add(new ItemStack(ModelTortureSharpenedInThePads));
+          list.add(new ItemStack(ModelTortureStoneGrave));
+          list.add(new ItemStack(ModelTortureStretchingTable));
+          list.add(new ItemStack(ModelTortureSuspendedCorpse));
+          list.add(new ItemStack(ModelTortureToolsForOversupply));
+          list.add(new ItemStack(ModelTortureToolsForOversupply1));
+          list.add(new ItemStack(ModelTortureToolsForOversupply2));
+          list.add(new ItemStack(ModelTortureToolsForOversupply3));
+          list.add(new ItemStack(ModelTortureToolsForOversupply4));
+          list.add(new ItemStack(ModelTortureToolsForOversupply5));
+          list.add(new ItemStack(ModelTortureTortureTable));
+          list.add(new ItemStack(ModelTortureTortureTable1));
+          list.add(new ItemStack(ModelTortureTortureWithCoals));
+          list.add(new ItemStack(ModelTortureWheeledCorpse));
+          list.add(new ItemStack(ModelTortureWheeling));
+          list.add(new ItemStack(ModelTortureWitchSChair));
         }
       };
 

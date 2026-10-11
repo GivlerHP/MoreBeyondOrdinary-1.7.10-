@@ -80,6 +80,10 @@ public class MoreBeyondOrdinary {
     MinecraftForge.EVENT_BUS.register(new UndeadEvents());
     MinecraftForge.EVENT_BUS.register(new EffectArrowEvents());
     MagicEntityRegistry.registerEntities();
+    cpw.mods.fml.common.registry.EntityRegistry.registerModEntity(
+        ru.givler.mbo.entity.EntityHangingAnchor.class, "HangingAnchor",
+        ru.givler.mbo.registry.ModEntityIds.next(), instance, 64, 1, false);
+    FMLCommonHandler.instance().bus().register(new ru.givler.mbo.handler.HangingEvents());
     IntegrationConfig.load(event.getModConfigurationDirectory());
     GameplayConfig.load(event.getModConfigurationDirectory());
     MobSpawnConfig.load(event.getModConfigurationDirectory());

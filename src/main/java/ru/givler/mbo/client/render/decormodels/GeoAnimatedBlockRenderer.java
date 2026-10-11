@@ -43,6 +43,7 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
     }
 
     public void render(T tile, double x, double y, double z, float partialTicks) {
+        if (ru.givler.mbo.client.handler.HangingClientEvents.hideAttachment(tile)) return;
         boolean itemRender = tile.getWorldObj() == null;
         GeoModelProvider<T> activeProvider = itemRender ? itemModelProvider : modelProvider;
         ResourceLocation modelLocation = activeProvider.getModelLocation(tile);
@@ -78,7 +79,7 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
             GlStateManager.translate(x, y, z);
             GlStateManager.translate(0.0F, 0.01F, 0.0F);
             GlStateManager.translate(0.5, 0.0, 0.5);
-            this.rotateBlock(this.getFacing(tile));
+            this.applyModelTransform(tile);
             ResourceLocation texture = activeProvider.getTextureLocation(tile);
             if (texture == null) return;
             Minecraft.getMinecraft().renderEngine.bindTexture(texture);
@@ -114,6 +115,10 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
     @Override
     public GeoModelProvider<T> getGeoModelProvider() {
         return this.modelProvider;
+    }
+
+    protected void applyModelTransform(T tile) {
+        rotateBlock(getFacing(tile));
     }
 
     protected void rotateBlock(EnumFacing facing) {

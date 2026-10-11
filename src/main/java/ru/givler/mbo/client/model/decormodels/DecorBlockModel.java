@@ -4,23 +4,46 @@ import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
+import ru.givler.mbo.block.model.BlockConnectedRope;
+import ru.givler.mbo.block.model.RopeConnections;
 
 public class DecorBlockModel extends AnimatedGeoModel<ModelTileBase> {
 
 	@Override
 	public ResourceLocation getModelLocation(ModelTileBase tileBase) {
-		return new ResourceLocation(MoreBeyondOrdinary.MODID, "geo/"+tileBase.modelName+".geo.json");
+		if (tileBase.getWorldObj() != null && tileBase.getBlockType() instanceof BlockConnectedRope) {
+			int decoration = RopeConnections.decoration(tileBase.getBlockMetadata());
+			int visibleMask=((BlockConnectedRope)tileBase.getBlockType()).getConnectionMask(
+					 tileBase.getWorldObj(),tileBase.xCoord,tileBase.yCoord,tileBase.zCoord);
+            String model;
+            if(decoration==RopeConnections.NONE) {
+                model="instruments_of_torture/rope_connected/"+(tileBase.ropeFloor?"floor_":"center_")
+                    +(((BlockConnectedRope)tileBase.getBlockType()).hasConnector(tileBase.getWorldObj(),
+                        tileBase.xCoord,tileBase.yCoord,tileBase.zCoord)?"anchor_":"")+RopeConnections.canonicalMask(visibleMask);
+            } else {
+                model="instruments_of_torture/"+(decoration==RopeConnections.NOOSE?"rope_around_the_neck":"rope_5");
+            }
+            return new ResourceLocation(MoreBeyondOrdinary.MODID,DecorResourcePaths.geometry(model));
+		}
+		return new ResourceLocation(MoreBeyondOrdinary.MODID, DecorResourcePaths.geometry(tileBase.modelName));
 	}
 
 	@Override
 	public ResourceLocation getTextureLocation(ModelTileBase tileBase) {
+		if (tileBase.getWorldObj() != null && tileBase.getBlockType() instanceof BlockConnectedRope) {
+			int decoration = RopeConnections.decoration(tileBase.getBlockMetadata());
+            String texture=decoration==RopeConnections.NONE?"rope_6"
+                :decoration==RopeConnections.NOOSE?"rope_around_the_neck":"rope_5";
+            return new ResourceLocation(MoreBeyondOrdinary.MODID,
+                DecorResourcePaths.texture("instruments_of_torture/"+texture,""));
+		}
 		if (tileBase.frameCount > 1) {
 			int speed = Math.max(1, tileBase.frameSpeed);
 			int frame = (int) ((System.currentTimeMillis() / speed) % tileBase.frameCount);
 			return new ResourceLocation(MoreBeyondOrdinary.MODID,
-					"textures/models/decor/" + tileBase.textureName + "_" + frame + ".png");
+					DecorResourcePaths.texture(tileBase.textureName, "_" + frame));
 		}
-		return new ResourceLocation(MoreBeyondOrdinary.MODID, "textures/models/decor/" + tileBase.textureName + ".png");
+		return new ResourceLocation(MoreBeyondOrdinary.MODID, DecorResourcePaths.texture(tileBase.textureName, ""));
 	}
 
 	@Override

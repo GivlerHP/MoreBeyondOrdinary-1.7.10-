@@ -8,6 +8,7 @@ public final class AirHudHooks {
   private AirHudHooks() {}
 
   public static boolean shouldRender(Entity entity, Material material) {
-    return entity.isInsideOfMaterial(material) || entity.getAir() < 300;
+    return AirRefillHooks.isSuffocating(entity)
+        || entity.isInsideOfMaterial(material) || entity.getAir() < 300;
   }
 }

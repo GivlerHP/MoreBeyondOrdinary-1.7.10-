@@ -24,6 +24,7 @@ public final class AirRefillTransformer implements IClassTransformer, Opcodes {
     ClassNode node = new ClassNode();
     new ClassReader(bytes).accept(node, 0);
     int patched = 0;
+    int breathing = 0, draining = 0;
     for (MethodNode method : node.methods) {
       String mappedName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(
           node.name, method.name, method.desc);
@@ -33,6 +34,26 @@ public final class AirRefillTransformer implements IClassTransformer, Opcodes {
       }
       for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null;
           insn = insn.getNext()) {
+        if (insn instanceof MethodInsnNode) {
+          MethodInsnNode call = (MethodInsnNode) insn;
+          String mapped = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(call.owner, call.name, call.desc);
+          if ("isInsideOfMaterial".equals(call.name) || "func_70055_a".equals(call.name)
+              || "func_70055_a".equals(mapped)) {
+            call.setOpcode(INVOKESTATIC);
+            call.owner = HOOKS;
+            call.name = "needsAir";
+            call.desc = "(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/block/material/Material;)Z";
+            breathing++;
+          } else if ("decreaseAirSupply".equals(call.name) || "func_70682_h".equals(call.name)
+              || "func_70682_h".equals(mapped)) {
+            InsnList hook = new InsnList();
+            hook.add(new VarInsnNode(ALOAD, 0));
+            hook.add(new MethodInsnNode(INVOKESTATIC, HOOKS, "drain",
+                "(ILnet/minecraft/entity/EntityLivingBase;)I", false));
+            method.instructions.insert(insn, hook);
+            draining++;
+          }
+        }
         if (!(insn instanceof IntInsnNode) || insn.getOpcode() != SIPUSH
             || ((IntInsnNode) insn).operand != 300) continue;
         AbstractInsnNode next = insn.getNext();
@@ -49,8 +70,9 @@ public final class AirRefillTransformer implements IClassTransformer, Opcodes {
         patched++;
       }
     }
-    if (patched != 1) {
-      System.err.println("[MBO ASM] Air refill reset not found: " + patched);
+    if (patched != 1 || breathing != 1 || draining != 1) {
+      System.err.println("[MBO ASM] Air update anchors missing: refill=" + patched
+          + ", breathing=" + breathing + ", drain=" + draining);
       return bytes;
     }
     ClassWriter writer = SafeClassWriter.create();

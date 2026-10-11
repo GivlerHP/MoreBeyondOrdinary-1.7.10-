@@ -19,6 +19,43 @@ import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.tileentity.TileEntityModelCollision;
 
 public class BlockModelCollision extends Block implements ITileEntityProvider {
+  @Override
+  public MovingObjectPosition collisionRayTrace(World world, int x, int y, int z,
+      net.minecraft.util.Vec3 start, net.minecraft.util.Vec3 end) {
+    if (ru.givler.mbo.core.HangingCameraContext.ignore(world, x, y, z)) return null;
+    TileEntityModelCollision part=tile(world,x,y,z);
+    if(part!=null) {
+      MovingObjectPosition closest=null;
+      for(float[] b:part.getBoxes()) {
+        setBlockBounds(b[0],b[1],b[2],b[3],b[4],b[5]);
+        MovingObjectPosition raw=AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5]).calculateIntercept(start,end);
+        MovingObjectPosition hit=raw==null?null:new MovingObjectPosition(x,y,z,raw.sideHit,raw.hitVec);
+        if(hit!=null && (closest==null || start.squareDistanceTo(hit.hitVec)<start.squareDistanceTo(closest.hitVec))) closest=hit;
+      }
+      setBlockBoundsBasedOnState(world,x,y,z);
+      return closest;
+    }
+    return super.collisionRayTrace(world, x, y, z, start, end);
+  }
+  @Override
+  public void addCollisionBoxesToList(World world,int x,int y,int z,AxisAlignedBB query,
+      java.util.List list,net.minecraft.entity.Entity entity) {
+    TileEntityModelCollision part=tile(world,x,y,z);
+    if(part==null) return;
+    BlockModels owner=part.getOwnerBlock();
+    if(owner==null || !owner.isModelCollisionEnabled()) return;
+    for(float[] b:part.getBoxes()) {
+      AxisAlignedBB box=AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5]);
+      if(box.intersectsWith(query)) list.add(box);
+    }
+  }
+  @Override
+  public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
+      int side, float hitX, float hitY, float hitZ) {
+    TileEntityModelCollision part = tile(world, x, y, z);
+    return part != null && ru.givler.mbo.handler.HangingEvents.activate(world,
+        part.getOwnerX(), part.getOwnerY(), part.getOwnerZ(), player);
+  }
   public BlockModelCollision() {
     super(Material.rock);
     setBlockName("ModelCollisionPart");

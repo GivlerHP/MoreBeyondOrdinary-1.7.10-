@@ -42,6 +42,17 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   private String name;
   private String textureName;
   private String modelName;
+  private float modelOffsetY;
+
+  /** Vertical render offset from the placement block's lower face. */
+  public BlockModels withModelOffsetY(float offset) {
+    this.modelOffsetY = offset;
+    return this;
+  }
+
+  public float getModelOffsetY() {
+    return modelOffsetY;
+  }
 
   private boolean disableCollision = false;
   private int blockHeight = 1;
@@ -66,6 +77,35 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   private boolean requiresSupport = false;
   private Item unsupportedDropItem = null;
   private final List<ModelCollisionPart> collisionParts = new ArrayList<ModelCollisionPart>();
+  private float[][] collisionBoxes;
+
+  public BlockModels withMultipartCollisionBoxes(float[][] boxes) {
+    java.util.Map<String,float[][]> cells = ru.givler.mbo.block.model.CollisionShapeParts.cells(boxes);
+    collisionBoxes = cells.remove("0,0,0");
+    if (collisionBoxes == null) throw new IllegalArgumentException("shape misses placement cell: " + modelName);
+    collisionParts.clear();
+    blockHeight = 1;
+    float[] b = ru.givler.mbo.block.model.CollisionShapeParts.envelope(collisionBoxes);
+    withRotatingBounds(b[0],b[1],b[2],b[3],b[4],b[5]);
+    for (java.util.Map.Entry<String,float[][]> cell : cells.entrySet()) {
+      String[] xyz=cell.getKey().split(",");
+      collisionParts.add(new ModelCollisionPart(Integer.parseInt(xyz[0]),Integer.parseInt(xyz[1]),
+          Integer.parseInt(xyz[2]),cell.getValue()));
+    }
+    return this;
+  }
+
+  @Override
+  public void addCollisionBoxesToList(World world,int x,int y,int z,AxisAlignedBB query,
+      java.util.List list,net.minecraft.entity.Entity entity) {
+    if (collisionBoxes == null) { super.addCollisionBoxesToList(world,x,y,z,query,list,entity); return; }
+    if (disableCollision) return;
+    for(float[] box:collisionBoxes) {
+      float[] b=rotateBounds(box,world.getBlockMetadata(x,y,z)&3);
+      AxisAlignedBB a=AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5]);
+      if(a.intersectsWith(query)) list.add(a);
+    }
+  }
 
   private static final int TOP_META_OFFSET = 4;
 
@@ -164,6 +204,40 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     return !disableCollision;
   }
 
+  @Override
+  public net.minecraft.util.MovingObjectPosition collisionRayTrace(World world, int x, int y, int z,
+      net.minecraft.util.Vec3 start, net.minecraft.util.Vec3 end) {
+    if (ru.givler.mbo.core.HangingCameraContext.ignore(world, x, y, z)) return null;
+    if (collisionBoxes != null) {
+      MovingObjectPosition closest=null;
+      for(float[] box:collisionBoxes) {
+        float[] b=rotateBounds(box,world.getBlockMetadata(x,y,z)&3);
+        setBlockBounds(b[0],b[1],b[2],b[3],b[4],b[5]);
+        MovingObjectPosition raw=AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5]).calculateIntercept(start,end);
+        MovingObjectPosition hit=raw==null?null:new MovingObjectPosition(x,y,z,raw.sideHit,raw.hitVec);
+        if(hit!=null && (closest==null || start.squareDistanceTo(hit.hitVec)<start.squareDistanceTo(closest.hitVec))) closest=hit;
+      }
+      setBlockBoundsBasedOnState(world,x,y,z);
+      return closest;
+    }
+    return super.collisionRayTrace(world, x, y, z, start, end);
+  }
+
+  /** Divides a manually chosen model envelope into actual occupied blocks. */
+  public BlockModels withMultipartBounds(
+      float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
+    if (!collisionParts.isEmpty() || blockHeight != 1)
+      throw new IllegalStateException("multipart bounds require an unconfigured structure");
+    if (!(minX < maxX && minY < maxY && minZ < maxZ)
+        || minX >= 1 || maxX <= 0 || minY >= 1 || maxY <= 0 || minZ >= 1 || maxZ <= 0)
+      throw new IllegalArgumentException("bounds must intersect the owner block");
+    withRotatingBounds(Math.max(0, minX), Math.max(0, minY), Math.max(0, minZ),
+        Math.min(1, maxX), Math.min(1, maxY), Math.min(1, maxZ));
+    collisionParts.addAll(ModelCollisionPart.partition(
+        new float[] {minX, minY, minZ, maxX, maxY, maxZ}));
+    return this;
+  }
+
   public BlockModels addVerticalCollision(int offset) {
     return addVerticalCollision(offset, 0, 0, 0, 1, 1, 1);
   }
@@ -225,14 +299,16 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
         || minZ >= maxZ) {
       throw new IllegalArgumentException("collision bounds must be inside 0..1 and min < max");
     }
+    ModelCollisionPart part = new ModelCollisionPart(axis, offset,
+        new float[] {minX, minY, minZ, maxX, maxY, maxZ});
     for (ModelCollisionPart existing : collisionParts) {
-      if (existing.axis == axis && existing.offset == offset) {
+      if (existing.localX == part.localX && existing.localY == part.localY
+          && existing.localZ == part.localZ) {
         throw new IllegalArgumentException(
             "collision part already exists at " + axis + " " + offset);
       }
     }
-    collisionParts.add(
-        new ModelCollisionPart(axis, offset, new float[] {minX, minY, minZ, maxX, maxY, maxZ}));
+    collisionParts.add(part);
     return this;
   }
 
@@ -342,7 +418,8 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   public void registerBlockIcons(IIconRegister iconRegister) {
     modelParticleIcon =
         iconRegister.registerIcon(
-            MoreBeyondOrdinary.MODID + ":models/decor/" + particleTextureName);
+            MoreBeyondOrdinary.MODID + ":models/decor/"
+                + ru.givler.mbo.client.model.decormodels.DecorResourcePaths.localName(particleTextureName));
   }
 
   @Override
@@ -356,6 +433,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
       float hitX,
       float hitY,
       float hitZ) {
+    if (ru.givler.mbo.handler.HangingEvents.activate(world, x, y, z, player)) return true;
     if (pickupItem == null) return false;
     if (world.isRemote) return true;
     world.setBlockToAir(x, y, z);
@@ -514,16 +592,18 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
       world.setBlock(pos[0], pos[1], pos[2], BlockRegistry.ModelCollisionPart, 0, 3);
       TileEntity tile = world.getTileEntity(pos[0], pos[1], pos[2]);
       if (tile instanceof TileEntityModelCollision) {
-        ((TileEntityModelCollision) tile).configure(x, y, z, rotateBounds(part.bounds, facing));
+        float[][] boxes=new float[part.boxes.length][];
+        for(int i=0;i<boxes.length;i++) boxes[i]=rotateBounds(part.boxes[i],facing);
+        ((TileEntityModelCollision) tile).configure(x, y, z, boxes);
         world.markBlockForUpdate(pos[0], pos[1], pos[2]);
       }
     }
   }
 
   private int[] collisionPosition(int x, int y, int z, int facing, ModelCollisionPart part) {
-    int localX = part.axis == Axis.SIDE ? -part.offset : 0;
-    int localY = part.axis == Axis.VERTICAL ? part.offset : 0;
-    int localZ = part.axis == Axis.FORWARD ? part.offset : 0;
+    int localX = part.localX;
+    int localY = part.localY;
+    int localZ = part.localZ;
     int worldX;
     int worldZ;
     switch (facing & 3) {

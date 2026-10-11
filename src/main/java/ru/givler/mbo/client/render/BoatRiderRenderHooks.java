@@ -16,19 +16,26 @@ public final class BoatRiderRenderHooks {
   }
 
   public static float bodyYaw(EntityLivingBase rider, float original, float partial) {
+    if (rider.ridingEntity instanceof ru.givler.mbo.entity.EntityHangingAnchor)
+      return rider.ridingEntity.rotationYaw;
     EntityMBOBoat boat = driverBoat(rider);
     return boat == null ? original : boat.prevRotationYaw
         + MathHelper.wrapAngleTo180_float(boat.rotationYaw - boat.prevRotationYaw) * partial;
   }
 
   public static void pose(ModelBiped model, Entity rider) {
-    if (driverBoat(rider) == null) return;
+    boolean hanging = rider.ridingEntity instanceof ru.givler.mbo.entity.EntityHangingAnchor;
+    if (!hanging && driverBoat(rider) == null) return;
     // Keep vanilla head/aimed-arm animation, but remove attack swing's torso twist.
     float turn = model.bipedBody.rotateAngleY;
     float sin = MathHelper.sin(turn), cos = MathHelper.cos(turn);
     untwistPivot(model.bipedRightArm, sin, cos);
     untwistPivot(model.bipedLeftArm, sin, cos);
     model.bipedBody.rotateAngleY = 0F;
+    if (hanging && ((ru.givler.mbo.entity.EntityHangingAnchor) rider.ridingEntity).isSuffocating()) {
+      model.bipedHead.rotateAngleX = model.bipedHead.rotateAngleY = 0;
+      model.bipedHeadwear.rotateAngleX = model.bipedHeadwear.rotateAngleY = 0;
+    }
   }
 
   private static void untwistPivot(net.minecraft.client.model.ModelRenderer arm, float sin, float cos) {

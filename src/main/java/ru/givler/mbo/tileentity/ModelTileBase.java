@@ -12,6 +12,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 public class ModelTileBase extends TileEntity implements IAnimatable {
+    public boolean ropeFloor, ropeAnchor, ropeAnchorExtra;
     public String textureName;
     public String modelName;
 
@@ -37,11 +38,25 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     public ModelTileBase() {
     }
 
+    @Override public net.minecraft.network.Packet getDescriptionPacket() {
+        NBTTagCompound tag=new NBTTagCompound();
+        writeToNBT(tag);
+        return new net.minecraft.network.play.server.S35PacketUpdateTileEntity(xCoord,yCoord,zCoord,0,tag);
+    }
+    @Override public void onDataPacket(net.minecraft.network.NetworkManager manager,
+            net.minecraft.network.play.server.S35PacketUpdateTileEntity packet) {
+        readFromNBT(packet.func_148857_g());
+        if(worldObj!=null) worldObj.markBlockRangeForRenderUpdate(xCoord-1,yCoord-1,zCoord-1,xCoord+1,yCoord+1,zCoord+1);
+    }
+
     @Override
     public void writeToNBT(NBTTagCompound tag) {
         super.writeToNBT(tag);
         tag.setString("texture", textureName);
         tag.setString("model", modelName);
+        tag.setBoolean("ropeFloor", ropeFloor);
+        tag.setBoolean("ropeAnchor", ropeAnchor);
+        tag.setBoolean("ropeAnchorExtra", ropeAnchorExtra);
         tag.setInteger("eatTimer", eatTimer);
         tag.setInteger("eatSoundInterval", eatSoundInterval);
         if (animationName != null) tag.setString("animation", animationName);
@@ -55,6 +70,9 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
         super.readFromNBT(tag);
         textureName = tag.getString("texture");
         modelName = tag.getString("model");
+        ropeFloor = tag.getBoolean("ropeFloor");
+        ropeAnchor = tag.getBoolean("ropeAnchor");
+        ropeAnchorExtra = tag.getBoolean("ropeAnchorExtra");
         eatTimer = tag.hasKey("eatTimer") ? tag.getInteger("eatTimer") : -1;
         eatSoundInterval = tag.getInteger("eatSoundInterval");
         animationName = tag.hasKey("animation") ? tag.getString("animation") : null;
