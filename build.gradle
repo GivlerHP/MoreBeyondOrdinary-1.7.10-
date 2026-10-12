@@ -187,14 +187,7 @@ processResources {
         exclude 'mcmod.info'
     }
 
-    // Minecraft 1.7.10 resolves every block-atlas icon below
-    // textures/blocks/. Gecko model textures live outside that directory, so
-    // expose generated copies for BlockModels breaking particles without
-    // maintaining duplicate source assets by hand.
-    from('src/main/resources/assets/mbo/textures/models/decor') {
-        include '*.png'
-        into 'assets/mbo/textures/blocks/models/decor'
-    }
+    // DecorAtlasSprite loads model and particle textures directly from their shared folder.
 }
 
 afterEvaluate {
@@ -211,3 +204,5 @@ task verifyUndeadVariants(type: JavaExec, dependsOn: testClasses) {
     main = 'ru.givler.mbo.entity.ai.UndeadVariantsSmoke'
 }
 tasks.check.dependsOn('verifyUndeadVariants')
+
+apply from: "gradle/verifyNativeResources.gradle"

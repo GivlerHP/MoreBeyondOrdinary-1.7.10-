@@ -10,6 +10,7 @@ public class DecorItemModel extends GeoModelProvider<ModelTileBase> {
 
     @Override
     public ResourceLocation getModelLocation(ModelTileBase tile) {
+        if("instruments_of_torture/iron_cage".equals(tile.getModelName()))return DecorResources.model("instruments_of_torture/iron_cage_item");
         return DecorResources.model(tile.getModelName());
     }
 

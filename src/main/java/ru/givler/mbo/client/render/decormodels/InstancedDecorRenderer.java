@@ -213,8 +213,8 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
             FloatBuffer buffer=BufferUtils.createFloatBuffer(vertices*8);
             boolean hourglass=block.getModelName().endsWith("/hourglass");
             for(int i=0;i<raw.length;i+=8) {
-                buffer.put(Float.intBitsToFloat(raw[i])+(hourglass?1:0)).put(Float.intBitsToFloat(raw[i+1]))
-                    .put(Float.intBitsToFloat(raw[i+2])+(hourglass?1:0));
+                buffer.put(Float.intBitsToFloat(raw[i])-(hourglass?1:0)).put(Float.intBitsToFloat(raw[i+1]))
+                    .put(Float.intBitsToFloat(raw[i+2])-(hourglass?1:0));
                 buffer.put(Float.intBitsToFloat(raw[i+3])).put(Float.intBitsToFloat(raw[i+4]));
                 int normal=raw[i+6];buffer.put(Math.max(-1,(byte)normal/127F)).put(Math.max(-1,(byte)(normal>>8)/127F)).put(Math.max(-1,(byte)(normal>>16)/127F));
             }

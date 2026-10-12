@@ -54,12 +54,40 @@ public final class CollisionBreakSmoke {
   world.isRemote=true;world.live=true;
   Method source=BlockModelCollision.class.getDeclaredMethod("particleSource",World.class,int.class,int.class,int.class);source.setAccessible(true);
   check(source.invoke(world.helper,world,1,0,0)!=null,"selection data missing");
+  check(world.helper.getIcon(world,1,0,0,2)==owner.icon,"helper world icon must use owner texture");
   world.helper.removedByPlayer(world,player,1,0,0,true);check(owner.drops==1,"client spawned a drop");
+  check(world.helper.getIcon(world,1,0,0,2)==owner.icon,"removed helper lost cached owner texture");
   Effects effects=(Effects)unsafe.allocateInstance(Effects.class);
   world.helper.addDestroyEffects(world,1,0,0,0,effects);check(effects.count==64,"particles lost after helper removal");
+  Field particleIcon=EntityFX.class.getDeclaredField("particleIcon");particleIcon.setAccessible(true);
+  check(particleIcon.get(effects.last)==owner.icon,"destroy particle does not use owner atlas icon");
   world.live=true;
   world.helper.addHitEffects(world,new MovingObjectPosition(1,0,0,5,Vec3.createVectorHelper(2,.5,.5)),effects);
   check(effects.count==65&&effects.last.posX>2,"hit particle hidden inside model");
+  check(particleIcon.get(effects.last)==owner.icon,"hit particle does not use owner atlas icon");
+  EntityBlockDustFX dust=(EntityBlockDustFX)unsafe.allocateInstance(EntityBlockDustFX.class);dust.worldObj=world;
+  check(ru.givler.mbo.core.DecorParticleHooks.resolve(dust,"blockdust_123_0",1.5,1,.5)==dust&&particleIcon.get(dust)==owner.icon,"landing dust lost owner texture");
+  particleIcon.set(dust,null);
+  ru.givler.mbo.core.DecorParticleHooks.resolve(dust,"blockcrack_123_0",1.5,.1,.5);
+  check(particleIcon.get(dust)==owner.icon,"sprint dust lost owner texture");
+  particleIcon.set(dust,null);world.live=false;
+  ru.givler.mbo.core.DecorParticleHooks.resolve(dust,"blockdust_123_0",1.5,1,.5);
+  check(particleIcon.get(dust)==null,"ordinary block particle changed");
+  byte[] original;
+  try(java.io.InputStream input=net.minecraft.client.renderer.RenderGlobal.class.getResourceAsStream("RenderGlobal.class")) {
+   java.io.ByteArrayOutputStream output=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[8192];int count;
+   while((count=input.read(buffer))!=-1)output.write(buffer,0,count);original=output.toByteArray();
+  }
+  byte[] transformed=new ru.givler.mbo.core.DecorParticleTransformer().transform("net.minecraft.client.renderer.RenderGlobal","net.minecraft.client.renderer.RenderGlobal",original);
+  org.objectweb.asm.tree.ClassNode node=new org.objectweb.asm.tree.ClassNode();new org.objectweb.asm.ClassReader(transformed).accept(node,0);
+  int hooked=0;
+  for(org.objectweb.asm.tree.MethodNode method:node.methods)if(method.name.equals("doSpawnParticle")) {
+   new org.objectweb.asm.tree.analysis.Analyzer<>(new org.objectweb.asm.tree.analysis.BasicVerifier()).analyze(node.name,method);
+   for(org.objectweb.asm.tree.AbstractInsnNode ins:method.instructions.toArray())if(ins.getOpcode()==org.objectweb.asm.Opcodes.ARETURN) {
+    check(ins.getPrevious() instanceof org.objectweb.asm.tree.MethodInsnNode&&((org.objectweb.asm.tree.MethodInsnNode)ins.getPrevious()).owner.equals("ru/givler/mbo/core/DecorParticleHooks"),"particle return bypasses hook");hooked++;
+   }
+  }
+  check(hooked>0,"real vanilla landing particle bytecode not patched");
   System.out.println("PASS creative no drops, survival one drop, client no drops, silent owner removal, 64 particles after TE removal and hit particles outside face");
  }
 }

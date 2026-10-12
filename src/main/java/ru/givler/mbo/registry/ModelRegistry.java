@@ -554,13 +554,15 @@ public class ModelRegistry {
 
         ModelTortureBedOnChains = new BlockModels(Material.wood, "ModelTortureBedOnChains", "instruments_of_torture/bed_on_chains", "instruments_of_torture/bed_on_chains");
         ModelTortureBedOnChains.withModelOffsetY(0.2625F);
-        ModelTortureBedOnChains.withMultipartBounds(0.1250F, 0.0000F, 0.0000F, 1.8750F, 0.3875F, 0.8750F);
+        ModelTortureBedOnChains.withSleepingNoRespawn(0.3875F,1,.7F,.5625F);
+        ModelTortureBedOnChains.withMultipartBounds(0.1250F, 0.2625F, 0.0000F, 1.8750F, 0.3875F, 0.8750F);
 
         ModelTortureBeheading = new BlockModels(Material.wood, "ModelTortureBeheading", "instruments_of_torture/beheading", "instruments_of_torture/beheading");
         ModelTortureBeheading.withMultipartBounds(-0.5000F, 0.0000F, 0.5000F, 1.0000F, 1.7500F, 1.7500F);
 
         ModelTortureBench = new BlockModels(Material.wood, "ModelTortureBench", "instruments_of_torture/bench", "instruments_of_torture/bench");
         ModelTortureBench.withMultipartBounds(-0.5000F, 0.0000F, 0.1250F, 1.5000F, 0.5000F, 0.8750F);
+        ModelTortureBench.withSeats(new float[]{0F,.5F,.5F},new float[]{1F,.5F,.5F});
 
         ModelTortureBundleOfKeys = new BlockModels(Material.iron, "ModelTortureBundleOfKeys", "instruments_of_torture/bundle_of_keys", "instruments_of_torture/bundle_of_keys");
         ModelTortureBundleOfKeys.withRotatingBounds(0.3125F, 0.0000F, 0.0000F, 0.6875F, 0.8750F, 0.1875F);
@@ -603,9 +605,7 @@ public class ModelRegistry {
         ModelTortureIronBall = new BlockModels(Material.iron, "ModelTortureIronBall", "instruments_of_torture/iron_ball", "instruments_of_torture/iron_ball");
         ModelTortureIronBall.withMultipartBounds(0.4375F, 0.0000F, 0.3125F, 1.7500F, 0.3750F, 0.6875F);
 
-        ModelTortureIronCage = new BlockModels(Material.iron, "ModelTortureIronCage", "instruments_of_torture/iron_cage", "instruments_of_torture/iron_cage");
-        ModelTortureIronCage.withModelOffsetY(0.1875F);
-        ModelTortureIronCage.withMultipartBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 2.1875F, 1.0000F);
+        ModelTortureIronCage = new ru.givler.mbo.block.model.BlockDecorCage();
 
         ModelTortureIronCollar = new BlockModels(Material.iron, "ModelTortureIronCollar", "instruments_of_torture/iron_collar", "instruments_of_torture/iron_collar");
         ModelTortureIronCollar.withRotatingBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 1.0000F, 1.0000F);
@@ -627,6 +627,7 @@ public class ModelRegistry {
 
         ModelTorturePlaceOfSleep = new BlockModels(Material.wood, "ModelTorturePlaceOfSleep", "instruments_of_torture/place_of_sleep", "instruments_of_torture/place_of_sleep");
         ModelTorturePlaceOfSleep.withMultipartBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 0.1250F, 2.0000F);
+        ModelTorturePlaceOfSleep.withSleepingNoRespawn(.125F,2,.5F,.3125F);
 
         ModelTorturePrisonWagon = new BlockModels(Material.wood, "ModelTorturePrisonWagon", "instruments_of_torture/prison_wagon", "instruments_of_torture/prison_wagon");
         ModelTorturePrisonWagon.withModelOffsetY(0.8750F);

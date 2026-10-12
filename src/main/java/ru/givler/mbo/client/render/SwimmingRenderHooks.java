@@ -47,6 +47,11 @@ public final class SwimmingRenderHooks {
 
   public static void animate(ModelBiped model, Entity entity, float limbSwing, float age) {
     if (!(entity instanceof EntityPlayer)) return;
+    if (ru.givler.mbo.core.DecorSleepHooks.isDecorSleeping((EntityPlayer)entity)) {
+      model.bipedHead.rotateAngleX=model.bipedHead.rotateAngleY=model.bipedHead.rotateAngleZ=0;
+      model.bipedHeadwear.rotateAngleX=model.bipedHeadwear.rotateAngleY=model.bipedHeadwear.rotateAngleZ=0;
+      return;
+    }
     float amount = poseAmount((EntityPlayer) entity, age - entity.ticksExisted);
     if (amount <= 0.0F) return;
     float stroke = age % 26.0F;
@@ -142,6 +147,10 @@ public final class SwimmingRenderHooks {
   }
 
   private static float poseAmount(EntityPlayer player, float partialTicks) {
+    if (player.isPlayerSleeping() || player.isRiding()) {
+      POSES.remove(player);
+      return 0.0F;
+    }
     Pose pose = POSES.get(player);
     if (pose == null) {
       pose = new Pose();

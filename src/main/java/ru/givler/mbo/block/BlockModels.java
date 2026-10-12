@@ -41,6 +41,29 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 
   private String name;
   private String textureName;
+  private float sleepingHeight=-1;
+  private int sleepingDirectionOffset;
+  private float[] sleepingHeadPosition;
+  private float[][] seatingPositions;
+  public BlockModels withSleepingNoRespawn(float height,int directionOffset) {
+    sleepingHeight=height;sleepingDirectionOffset=directionOffset;return this;
+  }
+  public boolean isTemporaryBed(){return sleepingHeight>=0;}
+  public BlockModels withSleepingNoRespawn(float height,int directionOffset,float headX,float headZ) {
+    withSleepingNoRespawn(height,directionOffset);sleepingHeadPosition=new float[]{headX,headZ};return this;
+  }
+  public float[] getSleepingHeadPosition(){return sleepingHeadPosition;}
+  public float getSleepingHeight(){return sleepingHeight;}
+  public BlockModels withSeats(float[]... positions) {
+    for(float[] p:positions)if(p.length!=3)throw new IllegalArgumentException("seat needs x,y,z");
+    seatingPositions=positions;return this;
+  }
+  public float[][] getSeatingPositions(){return seatingPositions;}
+  public boolean includesModelCollisionBox(World world,int x,int y,int z,float[] rotatedBox){return true;}
+  @Override public boolean isBed(net.minecraft.world.IBlockAccess world,int x,int y,int z,net.minecraft.entity.EntityLivingBase player){return isTemporaryBed();}
+  @Override public boolean isBedFoot(net.minecraft.world.IBlockAccess world,int x,int y,int z){return false;}
+  @Override public int getBedDirection(net.minecraft.world.IBlockAccess world,int x,int y,int z){return (world.getBlockMetadata(x,y,z)+sleepingDirectionOffset)&3;}
+  @Override public net.minecraft.util.ChunkCoordinates getBedSpawnPosition(net.minecraft.world.IBlockAccess world,int x,int y,int z,EntityPlayer player){return new net.minecraft.util.ChunkCoordinates(x,y+1,z);}
   private String modelName;
   private float modelOffsetY;
 
@@ -139,6 +162,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     if (disableCollision) return;
     for(float[] box:collisionBoxes) {
       float[] b=rotateBounds(box,world.getBlockMetadata(x,y,z)&3);
+      if(!includesModelCollisionBox(world,x,y,z,b))continue;
       AxisAlignedBB a=AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5]);
       if(a.intersectsWith(query)) list.add(a);
     }
@@ -249,6 +273,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
       MovingObjectPosition closest=null;
       for(float[] box:collisionBoxes) {
         float[] b=rotateBounds(box,world.getBlockMetadata(x,y,z)&3);
+        if(!includesModelCollisionBox(world,x,y,z,b))continue;
         setBlockBounds(b[0],b[1],b[2],b[3],b[4],b[5]);
         MovingObjectPosition raw=AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5]).calculateIntercept(start,end);
         MovingObjectPosition hit=raw==null?null:new MovingObjectPosition(x,y,z,raw.sideHit,raw.hitVec);
@@ -471,6 +496,8 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
       float hitY,
       float hitZ) {
     if (ru.givler.mbo.handler.HangingEvents.activate(world, x, y, z, player)) return true;
+    if(isTemporaryBed())return ru.givler.mbo.handler.DecorInteractions.sleep(this,world,x,y,z,player);
+    if(seatingPositions!=null)return ru.givler.mbo.handler.DecorInteractions.sit(this,world,x,y,z,player,hitX,hitZ);
     if (pickupItem == null) return false;
     if (world.isRemote) return true;
     world.setBlockToAir(x, y, z);
@@ -666,7 +693,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     return new int[] {x + worldX, y + localY, z + worldZ};
   }
 
-  private float[] rotateBounds(float[] b, int facing) {
+  protected float[] rotateBounds(float[] b, int facing) {
     float minX = 1, minZ = 1, maxX = 0, maxZ = 0;
     float[] xs = {b[0], b[3]};
     float[] zs = {b[2], b[5]};

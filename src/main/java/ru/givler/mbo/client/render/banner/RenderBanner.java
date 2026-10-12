@@ -1,7 +1,7 @@
 package ru.givler.mbo.client.render.banner;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
@@ -15,12 +15,42 @@ import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.banner.BannerPattern;
 import ru.givler.mbo.tileentity.TileEntityBanner;
 
-public class RenderBanner extends TileEntitySpecialRenderer {
+public class RenderBanner extends TileEntitySpecialRenderer implements net.minecraft.client.resources.IResourceManagerReloadListener {
   private static final ResourceLocation BASE =
       new ResourceLocation("mbo", "textures/entity/banner_base.png");
   private static final Map<String, ResourceLocation> CACHE =
-      new HashMap<String, ResourceLocation>();
+      new LinkedHashMap<String, ResourceLocation>(64, .75F, true);
+  private static final int CACHE_LIMIT = 256;
   private final ModelBanner model = new ModelBanner();
+
+  public RenderBanner() {
+    net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(this);
+    ((net.minecraft.client.resources.IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
+        .registerReloadListener(this);
+  }
+
+  private static void releaseTexture(ResourceLocation location) {
+    net.minecraft.client.renderer.texture.TextureManager manager = Minecraft.getMinecraft().getTextureManager();
+    // deleteTexture alone leaves the object in TextureManager on 1.7.10.
+    Map objects = cpw.mods.fml.relauncher.ReflectionHelper.getPrivateValue(
+        net.minecraft.client.renderer.texture.TextureManager.class, manager, "mapTextureObjects", "field_110585_a");
+    Object texture = objects.remove(location);
+    if (texture instanceof net.minecraft.client.renderer.texture.AbstractTexture
+        && texture != net.minecraft.client.renderer.texture.TextureUtil.missingTexture)
+      ((net.minecraft.client.renderer.texture.AbstractTexture) texture).deleteGlTexture();
+  }
+
+  static void clearCache() {
+    for (ResourceLocation location : CACHE.values()) releaseTexture(location);
+    CACHE.clear();
+  }
+
+  @Override public void onResourceManagerReload(net.minecraft.client.resources.IResourceManager resources) { clearCache(); }
+
+  @cpw.mods.fml.common.eventhandler.SubscribeEvent
+  public void unload(net.minecraftforge.event.world.WorldEvent.Unload event) {
+    if (event.world.isRemote) clearCache();
+  }
 
   private ResourceLocation texture(TileEntityBanner banner) {
     StringBuilder key = new StringBuilder("mbo_banner_").append(banner.getBaseColor());
@@ -47,6 +77,10 @@ public class RenderBanner extends TileEntitySpecialRenderer {
           .getTextureManager()
           .loadTexture(location, new LayeredBannerTexture(BASE, layers, colors));
       CACHE.put(cacheKey, location);
+      if (CACHE.size() > CACHE_LIMIT) {
+        String oldest = CACHE.keySet().iterator().next();
+        releaseTexture(CACHE.remove(oldest));
+      }
     }
     return location;
   }

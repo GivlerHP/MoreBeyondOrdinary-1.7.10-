@@ -63,6 +63,8 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
       if(world.isRemote)particleSource(world,x,y,z);
       MovingObjectPosition closest=null;
       for(float[] b:part.getBoxes()) {
+        BlockModels owner=part.getOwnerBlock();
+        if(owner!=null&&!owner.includesModelCollisionBox(world,part.getOwnerX(),part.getOwnerY(),part.getOwnerZ(),b))continue;
         setBlockBounds(b[0],b[1],b[2],b[3],b[4],b[5]);
         MovingObjectPosition raw=AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5]).calculateIntercept(start,end);
         MovingObjectPosition hit=raw==null?null:new MovingObjectPosition(x,y,z,raw.sideHit,raw.hitVec);
@@ -81,6 +83,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
     BlockModels owner=part.getOwnerBlock();
     if(owner==null || !owner.isModelCollisionEnabled()) return;
     for(float[] b:part.getBoxes()) {
+      if(!owner.includesModelCollisionBox(world,part.getOwnerX(),part.getOwnerY(),part.getOwnerZ(),b))continue;
       AxisAlignedBB box=AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5]);
       if(box.intersectsWith(query)) list.add(box);
     }
@@ -89,8 +92,9 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
   public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player,
       int side, float hitX, float hitY, float hitZ) {
     TileEntityModelCollision part = tile(world, x, y, z);
-    return part != null && ru.givler.mbo.handler.HangingEvents.activate(world,
-        part.getOwnerX(), part.getOwnerY(), part.getOwnerZ(), player);
+    if(part==null||part.getOwnerBlock()==null)return false;
+    return part.getOwnerBlock().onBlockActivated(world,part.getOwnerX(),part.getOwnerY(),part.getOwnerZ(),player,
+        side,hitX+x-part.getOwnerX(),hitY+y-part.getOwnerY(),hitZ+z-part.getOwnerZ());
   }
   public BlockModelCollision() {
     super(Material.rock);
@@ -112,6 +116,26 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
   @Override
   public int getRenderType() {
     return -1;
+  }
+
+  @SideOnly(Side.CLIENT)
+  @Override
+  public net.minecraft.util.IIcon getIcon(IBlockAccess world,int x,int y,int z,int side) {
+    TileEntityModelCollision part=tile(world,x,y,z);
+    BlockModels owner=part==null?null:part.getOwnerBlock();
+    if(owner!=null)return owner.getIcon(side,world.getBlockMetadata(part.getOwnerX(),part.getOwnerY(),part.getOwnerZ()));
+    if(world instanceof World) {
+      ParticleSource source=particleSource((World)world,x,y,z);
+      if(source!=null)return source.owner.getIcon(side,source.meta);
+    }
+    return getIcon(side,0);
+  }
+
+  @SideOnly(Side.CLIENT)
+  @Override
+  public net.minecraft.util.IIcon getIcon(int side,int meta) {
+    // Position-free vanilla effects cannot resolve a helper's owner.
+    return net.minecraft.init.Blocks.stone.getIcon(side,0);
   }
 
   @Override
@@ -248,6 +272,9 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
     EntityDiggingFX particle = new EntityDiggingFX(world, x, y, z, mx, my, mz, owner, meta);
     particle.applyColourMultiplier(
         collision.x, collision.y, collision.z);
+    // Texture hooks may query the invisible helper at the effect position.
+    // Keep the owner's registered atlas icon on the final particle explicitly.
+    particle.setParticleIcon(owner.getIcon(0,meta));
     if (hitParticle) particle.multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F);
     renderer.addEffect(particle);
   }

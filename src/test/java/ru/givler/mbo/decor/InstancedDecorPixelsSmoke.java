@@ -130,7 +130,7 @@ public class InstancedDecorPixelsSmoke {
   Object benchmark=null;
   Object lifecycleMesh=null;BlockModels lifecycleBlock=null;
   for(String name:new String[]{"rope","prison_wagon","torture_table","witch_s_chair","tools_for_oversupply"}) {
-   ResourceLocation location=new ResourceLocation("mbo","geo/decor/"+name+".geo.json");
+   ResourceLocation location=new ResourceLocation("mbo","geo/"+name+".geo.json");
    GeoModel model=GeoModelLoader.getInstance().loadModel(Minecraft.getMinecraft().getResourceManager(),location);
    Tessellator t=new Tessellator();t.startDrawingQuads();
    for(GeoBone bone:model.topLevelBones)StaticDecorPixelsSmoke.RENDERER.renderRecursively(t,StaticDecorPixelsSmoke.TILE,bone,1,1,1,1);

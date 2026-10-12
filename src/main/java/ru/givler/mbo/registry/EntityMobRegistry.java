@@ -50,6 +50,7 @@ public class EntityMobRegistry {
         registerEntity(EntityMBOParched.class, "MBOParched", 0xc7af86, 0x765e3f, 3);
         registerEntity(EntityMBOStray.class, "MBOStray", 0x617677, 0xddeaea, 3);
         registerEntity(EntityMBOBogged.class, "MBOBogged", 0x8a9c72, 0x314d30, 3);
+        EntityRegistry.registerModEntity(ru.givler.mbo.entity.EntityDecorSeat.class,"DecorSeat",ModEntityIds.next(),MoreBeyondOrdinary.instance,64,1,false);
 
 
     }

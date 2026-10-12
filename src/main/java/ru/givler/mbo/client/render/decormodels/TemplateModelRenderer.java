@@ -11,6 +11,8 @@ import net.geckominecraft.client.renderer.GlStateManager;
 public class TemplateModelRenderer extends GeoAnimatedBlockRenderer<ModelTileBase> {
     public TemplateModelRenderer() {
         super(new DecorBlockModel(), new DecorItemModel());
+        software.bernie.geckolib3.core.controller.AnimationController.addModelFetcher((software.bernie.geckolib3.core.controller.AnimationController.ModelFetcher<ModelTileBase>)(animatable ->
+            animatable instanceof ModelTileBase ? (DecorBlockModel)getGeoModelProvider() : null));
     }
 
     @Override
@@ -38,8 +40,8 @@ public class TemplateModelRenderer extends GeoAnimatedBlockRenderer<ModelTileBas
             GlStateManager.rotate(180, 0, 1, 0);
         }
         if ("instruments_of_torture/hourglass".equals(tile.getModelName())) {
-            // The source was authored one block away from its placement origin.
-            GlStateManager.translate(1, 0, 1);
+            // Baked geometry is centred at (+1,+1); move it onto the placement origin.
+            GlStateManager.translate(-1, 0, -1);
         }
         if ("instruments_of_torture/hanged_corpse".equals(tile.getModelName())) {
             // The hanging rope occupies Z=0..2 in the source model; center it

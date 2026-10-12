@@ -27,9 +27,34 @@ public class TileEntityModelCollision extends TileEntity {
   }
 
   public float[] getBounds() {
+    if(getOwnerBlock() instanceof ru.givler.mbo.block.model.BlockDecorCage
+        || (getOwnerBlock()!=null&&getOwnerBlock()==ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains)) {
+      float[][] shape=getBoxes();
+      return shape.length==0?new float[]{0,0,0,0,0,0}:ru.givler.mbo.block.model.CollisionShapeParts.envelope(shape);
+    }
     return bounds;
   }
-  public float[][] getBoxes() { return boxes; }
+  public float[][] getBoxes() {
+    BlockModels owner=getOwnerBlock();
+    if(owner!=null&&owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains&&worldObj!=null) {
+      if(yCoord!=ownerY)return new float[0][];
+      float[] platform;
+      switch(worldObj.getBlockMetadata(ownerX,ownerY,ownerZ)&3) {
+        case 1:platform=new float[]{.125F,.2625F,.125F,1,.3875F,1.875F};break;
+        case 2:platform=new float[]{-.875F,.2625F,.125F,.875F,.3875F,1};break;
+        case 3:platform=new float[]{0,.2625F,-.875F,.875F,.3875F,.875F};break;
+        default:platform=new float[]{.125F,.2625F,0,1.875F,.3875F,.875F};
+      }
+      int dx=xCoord-ownerX,dz=zCoord-ownerZ;
+      float minX=Math.max(0,platform[0]-dx),minZ=Math.max(0,platform[2]-dz);
+      float maxX=Math.min(1,platform[3]-dx),maxZ=Math.min(1,platform[5]-dz);
+      if(minX>=maxX||minZ>=maxZ)return new float[0][];
+      return new float[][]{{minX,.2625F,minZ,maxX,.3875F,maxZ}};
+    }
+    if(owner instanceof ru.givler.mbo.block.model.BlockDecorCage&&worldObj!=null)
+      return xCoord!=ownerX||zCoord!=ownerZ?new float[0][]:((ru.givler.mbo.block.model.BlockDecorCage)owner).boxesForCell(yCoord-ownerY,worldObj.getBlockMetadata(ownerX,ownerY,ownerZ)&3);
+    return boxes;
+  }
 
   public int getOwnerX() {
     return ownerX;
@@ -67,8 +92,10 @@ public class TileEntityModelCollision extends TileEntity {
         return;
       }
       BlockModels owner=getOwnerBlock();
-      // Older saves still contain the corpse's removed upper helper block.
-      if(owner==null || owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureHangedCorpse
+      // Older saves may contain obsolete helpers above corpses or the cage roof.
+      if(owner==null || (owner instanceof ru.givler.mbo.block.model.BlockDecorCage && (xCoord!=ownerX||zCoord!=ownerZ||yCoord!=ownerY+1))
+          || owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureHangedCorpse
+          || (owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains && yCoord!=ownerY)
           || (owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureSuspendedCorpse && yCoord>=ownerY+2))
         worldObj.setBlockToAir(xCoord, yCoord, zCoord);
     }

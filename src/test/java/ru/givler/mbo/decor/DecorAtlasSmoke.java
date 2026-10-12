@@ -24,7 +24,7 @@ public final class DecorAtlasSmoke {
   Field entries=TextureMap.class.getDeclaredField("mapRegisteredSprites");entries.setAccessible(true);entries.set(atlas,new HashMap<>());
   int count=0,rectangles=0;
   Path assets=Paths.get("src/main/resources/assets/mbo");
-  for(String folder:new String[]{"textures/models/decor","textures/blocks/models/decor"})try(java.util.stream.Stream<Path> paths=Files.walk(assets.resolve(folder))) {
+  for(String folder:new String[]{"textures/models/decor"})try(java.util.stream.Stream<Path> paths=Files.walk(assets.resolve(folder))) {
    for(Path path:(Iterable<Path>)paths.filter(p->p.toString().endsWith(".png"))::iterator) {
     ResourceLocation source=new ResourceLocation("mbo",assets.relativize(path).toString().replace('\\','/'));
     DecorAtlasSprite icon=(DecorAtlasSprite)DecorAtlasSprite.register(atlas,source);

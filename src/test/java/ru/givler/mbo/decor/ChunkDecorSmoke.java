@@ -36,11 +36,11 @@ public class ChunkDecorSmoke {
   Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe unsafe=(Unsafe)f.get(null);
   f=BlockModels.class.getDeclaredField("ALL_MODELS");f.setAccessible(true);
   List<BlockModels> models=(List<BlockModels>)f.get(null);models.clear();
-  try(java.util.stream.Stream<Path> files=Files.list(Paths.get("src/main/resources/assets/mbo/geo/decor"))) {
+  try(java.util.stream.Stream<Path> files=Files.list(Paths.get("src/main/resources/assets/mbo/geo"))) {
    files.filter(p->p.toString().endsWith(".geo.json")).forEach(p->{
     try {
      String name=p.getFileName().toString().replace(".geo.json","");
-     Path png=Paths.get("src/main/resources/assets/mbo/textures/blocks/models/decor/"+name+".png");
+     Path png=Paths.get("src/main/resources/assets/mbo/textures/models/decor/"+name+".png");
      if(!Files.isRegularFile(png))return;
      BlockModels block=(BlockModels)unsafe.allocateInstance(BlockModels.class);
      set(block,"modelName","instruments_of_torture/"+name);set(block,"textureName","instruments_of_torture/"+name);
@@ -81,6 +81,11 @@ public class ChunkDecorSmoke {
     int[] data=(int[])raw.get(Tessellator.instance);int length=index.getInt(Tessellator.instance);
     check(fits ? length>0 && length%64==0 : length==0,"both windings or TESR fallback");
     if(fits)emitted++;
+    if(fits&&block.getModelName().endsWith("/hourglass")) {
+     double minX=Double.POSITIVE_INFINITY,maxX=Double.NEGATIVE_INFINITY,minZ=minX,maxZ=maxX;
+     for(int i=0;i<length;i+=8){double px=Float.intBitsToFloat(data[i]),pz=Float.intBitsToFloat(data[i+2]);minX=Math.min(minX,px);maxX=Math.max(maxX,px);minZ=Math.min(minZ,pz);maxZ=Math.max(maxZ,pz);}
+     check(Math.abs((minX+maxX)/2-8.5)<.0001&&Math.abs((minZ+maxZ)/2-8.5)<.0001,"hourglass must be centred on the placement block for facing "+meta);
+    }
     for(int i=0;i<length;i+=8) {
      float x=Float.intBitsToFloat(data[i]),y=Float.intBitsToFloat(data[i+1]),z=Float.intBitsToFloat(data[i+2]);
      check(x>=-6 && x<=22 && y>=10 && y<=38 && z>=-6 && z<=22,"vanilla section visibility containment");

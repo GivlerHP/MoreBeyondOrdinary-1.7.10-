@@ -13,6 +13,9 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 public class ModelTileBase extends TileEntity implements IAnimatable {
     public boolean ropeFloor, ropeAnchor, ropeAnchorExtra;
+    public boolean cageOpen;
+    private Boolean lastCageAnimationOpen;
+    private String cageAnimation;
     public String textureName;
     public String modelName;
 
@@ -86,6 +89,7 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
         tag.setString("texture", textureName);
         tag.setString("model", modelName);
         tag.setBoolean("ropeFloor", ropeFloor);
+        tag.setBoolean("cageOpen",cageOpen);
         tag.setBoolean("ropeAnchor", ropeAnchor);
         tag.setBoolean("ropeAnchorExtra", ropeAnchorExtra);
         tag.setInteger("eatTimer", eatTimer);
@@ -100,6 +104,7 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     public void readFromNBT(NBTTagCompound tag) {
         super.readFromNBT(tag);
         textureName = tag.getString("texture");
+        cageOpen=tag.getBoolean("cageOpen");
         modelName = tag.getString("model");
         ropeFloor = tag.getBoolean("ropeFloor");
         ropeAnchor = tag.getBoolean("ropeAnchor");
@@ -136,6 +141,7 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     }
 
     public String getAnimationName() {
+        if((worldObj!=null||blockType!=null)&&getBlockType() instanceof ru.givler.mbo.block.model.BlockDecorCage) return "animation.iron_cage.closed";
         ru.givler.mbo.block.BlockModels block=registeredModel();
         return block==null ? animationName : block.getModelAnimationName();
     }
@@ -149,6 +155,17 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     }
 
     private <E extends IAnimatable> PlayState animationPredicate(AnimationEvent<E> event) {
+        if(getBlockType() instanceof ru.givler.mbo.block.model.BlockDecorCage) {
+            if(lastCageAnimationOpen==null) {
+                cageAnimation=cageOpen?"animation.iron_cage.opened":"animation.iron_cage.closed";
+            } else if(lastCageAnimationOpen.booleanValue()!=cageOpen) {
+                cageAnimation=cageOpen?"animation.iron_cage.open":"animation.iron_cage.close";
+                event.getController().markNeedsReload();
+            }
+            lastCageAnimationOpen=cageOpen;
+            event.getController().setAnimation(new AnimationBuilder().playAndHold(cageAnimation));
+            return PlayState.CONTINUE;
+        }
         ru.givler.mbo.block.BlockModels block=registeredModel();
         boolean loop=block==null ? loopAnimation : block.isModelAnimationLooped();
         AnimationBuilder builder = loop

@@ -195,7 +195,7 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
 
     static double[] position(int[] raw, int i, BlockModels block, int meta) {
         double x=Float.intBitsToFloat(raw[i]), y=Float.intBitsToFloat(raw[i+1]), z=Float.intBitsToFloat(raw[i+2]);
-        if (block.getModelName().endsWith("/hourglass")) { x+=1; z+=1; }
+        if (block.getModelName().endsWith("/hourglass")) { x-=1; z-=1; }
         double rx=x, rz=z;
         switch (meta & 3) {
             case 0: rx=-x; rz=-z; break; // SOUTH

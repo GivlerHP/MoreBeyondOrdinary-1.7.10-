@@ -96,7 +96,7 @@ public class DecorRenderMicrobenchmark {
    result=time(()->{for(int id:stairLists)GL11.glCallList(id);});
    csv.append(String.format(Locale.ROOT,"mbo_stairs_render_path,2,%d,chunk_batch,%.6f,%.6f%n",count,result[0],result[1]));
    for(int id:stairLists)GLAllocation.deleteDisplayLists(id);
-   for(String name:new String[]{"geo/decor/rope.geo.json","geo/decor/prison_wagon.geo.json"}) {
+   for(String name:new String[]{"geo/rope.geo.json","geo/prison_wagon.geo.json"}) {
     final ResourceLocation location=new ResourceLocation("mbo",name);
     final GeoModel model=GeoModelLoader.getInstance().loadModel(Minecraft.getMinecraft().getResourceManager(),location);
     int cubes=0;List<GeoBone> todo=new ArrayList<>(model.topLevelBones);

@@ -26,7 +26,7 @@ public final class SwimmingHooks {
   private SwimmingHooks() {}
 
   public static boolean wantsToSwim(EntityPlayer player) {
-    if (player == null || !player.isEntityAlive() || player.isRiding()
+    if (player == null || player.isPlayerSleeping() || !player.isEntityAlive() || player.isRiding()
         || player.capabilities.isFlying || !player.isSprinting()) return false;
     boolean wet = waterForSwimming(player);
     return wet && (isSwimming(player) || player.isInsideOfMaterial(Material.water));
@@ -55,7 +55,8 @@ public final class SwimmingHooks {
   }
 
   public static boolean isSwimming(EntityPlayer player) {
-    return player != null && player.height < 1.0F;
+    return player != null && !player.isPlayerSleeping() && !player.isRiding()
+        && player.height >= 0.5F && player.height < 1.0F;
   }
 
   /** A one-block opening must not cancel sprint before the swim hitbox can enter it. */
@@ -126,7 +127,7 @@ public final class SwimmingHooks {
   }
 
   public static void updateSize(EntityPlayer player) {
-    if (player == null || player.worldObj == null) return;
+    if (player == null || player.worldObj == null || player.isPlayerSleeping()) return;
     boolean swim = wantsToSwim(player);
     if (swim) {
       if (!isSwimming(player)) setSize(player, 0.6F);

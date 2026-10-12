@@ -16,9 +16,10 @@ import ru.givler.mbo.dungeon.*;
 import ru.givler.mbo.movingplatform.PlatformBlock;
 import ru.givler.mbo.integration.thaumcraft.client.render.ThaumometerLens;
 
-public final class DungeonAreaWorldRenderer {
+public final class DungeonAreaWorldRenderer implements net.minecraft.client.resources.IResourceManagerReloadListener {
   private static DungeonAreaWorldRenderer instance;
   private boolean renderedBeforeTranslucent;
+  private long lightEpoch;
   private static final FloatBuffer DENSE_FOG_COLOR = denseFogColor();
   private static final FloatBuffer REVEAL_COLOR = revealColor();
   private final Map<UUID, Cache> cache = new HashMap<UUID, Cache>();
@@ -26,12 +27,32 @@ public final class DungeonAreaWorldRenderer {
   public DungeonAreaWorldRenderer() {
     instance = this;
     cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(this);
+    ((net.minecraft.client.resources.IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
+        .registerReloadListener(this);
   }
 
   @SubscribeEvent
   public void prepareLens(cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent event) {
+    if (event.phase == cpw.mods.fml.common.gameevent.TickEvent.Phase.END) {
+      ++lightEpoch;
+      if (!cache.isEmpty()) {
+        Set<UUID> live = new HashSet<UUID>();
+        for (DungeonAreaRecord area : ClientDungeonAreas.all()) live.add(area.getId());
+        pruneCache(live);
+      }
+    }
     if (event.phase == cpw.mods.fml.common.gameevent.TickEvent.Phase.START
         && holdingThaumometer(Minecraft.getMinecraft().thePlayer)) ThaumometerLens.prepare();
+  }
+
+  void pruneCache(Set<UUID> live) {
+    for (Iterator<Map.Entry<UUID, Cache>> it = cache.entrySet().iterator(); it.hasNext();) {
+      Map.Entry<UUID, Cache> entry = it.next();
+      if (!live.contains(entry.getKey())) {
+        GL11.glDeleteLists(entry.getValue().list, 1);
+        it.remove();
+      }
+    }
   }
 
   public static void renderBeforeTranslucent(float partialTicks) {
@@ -61,12 +82,20 @@ public final class DungeonAreaWorldRenderer {
             == cpw.mods.fml.common.registry.GameRegistry.findItem("Thaumcraft", "ItemThaumometer");
   }
 
+  private void clearCache() {
+    for (Cache c : cache.values()) GL11.glDeleteLists(c.list, 1);
+    cache.clear();
+    renderedBeforeTranslucent = false;
+  }
+
+  @Override public void onResourceManagerReload(net.minecraft.client.resources.IResourceManager resources) {
+    clearCache();
+  }
+
   @SubscribeEvent
   public void unload(WorldEvent.Unload e) {
     if (e.world.isRemote) {
-      for (Cache c : cache.values()) GL11.glDeleteLists(c.list, 1);
-      cache.clear();
-      renderedBeforeTranslucent = false;
+      clearCache();
       ClientDungeonAreas.clear();
     }
   }
@@ -218,13 +247,15 @@ public final class DungeonAreaWorldRenderer {
   }
 
   private Cache compiled(DungeonAreaRecord a, Minecraft mc) {
+    Cache old = cache.get(a.getId());
+    // Lighting changes on ticks; do not rescan the whole volume every frame.
+    if (old != null && old.checkedEpoch == lightEpoch) return old;
     int sig = currentLightSignature(a, mc);
     for (PlatformBlock b : a.getBlocks()) {
       sig = 31 * sig + net.minecraft.block.Block.getIdFromBlock(b.block);
       sig = 31 * sig + b.meta;
     }
-    Cache old = cache.get(a.getId());
-    if (old != null && old.sig == sig) return old;
+    if (old != null && old.sig == sig) { old.checkedEpoch = lightEpoch; return old; }
     if (old != null) GL11.glDeleteLists(old.list, 1);
     int list = GL11.glGenLists(1);
     GL11.glNewList(list, GL11.GL_COMPILE);
@@ -244,6 +275,7 @@ public final class DungeonAreaWorldRenderer {
     t.draw();
     GL11.glEndList();
     Cache made = new Cache(list, sig);
+    made.checkedEpoch = lightEpoch;
     cache.put(a.getId(), made);
     return made;
   }
@@ -262,6 +294,7 @@ public final class DungeonAreaWorldRenderer {
 
   private static final class Cache {
     final int list, sig;
+    long checkedEpoch = -1;
 
     Cache(int l, int s) {
       list = l;

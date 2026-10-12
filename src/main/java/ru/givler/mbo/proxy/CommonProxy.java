@@ -117,6 +117,7 @@ public class CommonProxy {
     MinecraftForge.EVENT_BUS.register(spectatorHandler);
     FMLCommonHandler.instance().bus().register(spectatorHandler);
     FMLCommonHandler.instance().bus().register(new SwimmingEvents());
+    FMLCommonHandler.instance().bus().register(new ru.givler.mbo.handler.DecorSleepEvents());
     FMLCommonHandler.instance().bus().register(new MovingPlatformTickHandler());
     FMLCommonHandler.instance().bus().register(new EditorNetworkTickHandler());
     MinecraftForge.EVENT_BUS.register(new AreaEditorInteractionHandler());
