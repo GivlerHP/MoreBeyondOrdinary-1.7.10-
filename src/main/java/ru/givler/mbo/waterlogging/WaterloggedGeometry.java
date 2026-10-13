@@ -84,7 +84,7 @@ public final class WaterloggedGeometry {
   public static boolean[] waterCellsForFlow(World world, int x, int y, int z) {
     boolean owned = beginScope(world);
     try {
-      String key = x+":"+y+":"+z;
+      long key = cellKey(x,y,z);
       boolean[] cached = SCOPE.get().cells.get(key);
       if (cached != null) return cached;
       boolean[] cells = paneCells(world,x,y,z);
@@ -94,27 +94,44 @@ public final class WaterloggedGeometry {
   }
 
   private static final ThreadLocal<Scope> SCOPE = new ThreadLocal<Scope>();
+  private static final ThreadLocal<java.util.ArrayDeque<Scope>> SPARES = new ThreadLocal<java.util.ArrayDeque<Scope>>() {
+    @Override protected java.util.ArrayDeque<Scope> initialValue() {return new java.util.ArrayDeque<Scope>();}
+  };
   private static final class Scope {
-    final World world;
-    final java.util.Map<String,boolean[]> cells = new java.util.HashMap<String,boolean[]>();
+    World world;
+    Scope previous;
+    boolean oversized;
+    final java.util.Map<Long,boolean[]> cells = new java.util.HashMap<Long,boolean[]>();
     final java.util.Map<String,Boolean> reachable = new java.util.HashMap<String,Boolean>();
     final java.util.Map<String,Boolean> supply = new java.util.HashMap<String,Boolean>();
-    Scope(World world) { this.world = world; }
+    boolean small() {return !oversized && cells.size()<=256 && reachable.size()<=256 && supply.size()<=256;}
+    void clear() {oversized |= !small();cells.clear();reachable.clear();supply.clear();}
   }
   public static boolean beginScope(World world) {
     Scope current = SCOPE.get();
     if (current != null && current.world == world) return false;
-    SCOPE.set(new Scope(world)); return true;
+    Scope next=SPARES.get().pollFirst();if(next==null)next=new Scope();
+    next.world=world;next.previous=current;
+    SCOPE.set(next); return true;
   }
-  public static void endScope() { SCOPE.remove(); }
+  public static void endScope() {
+    Scope current=SCOPE.get();if(current==null)return;
+    SCOPE.set(current.previous);current.previous=null;current.world=null;
+    // Keep only small scratch maps; a large flow traversal must not leave oversized tables.
+    if(current.small() && SPARES.get().size()<2) {current.clear();SPARES.get().addFirst(current);}
+  }
   public static void invalidate() {
     Scope current = SCOPE.get();
-    if (current != null) { current.cells.clear(); current.reachable.clear(); current.supply.clear(); }
+    if (current != null) current.clear();
   }
   static Boolean cachedSupply(String key) { return SCOPE.get().supply.get(key); }
   static void cacheSupply(String key,boolean value) { SCOPE.get().supply.put(key,value); }
   static void cacheCells(int x,int y,int z,boolean[] cells) {
-    SCOPE.get().cells.put(x+":"+y+":"+z,cells);
+    SCOPE.get().cells.put(cellKey(x,y,z),cells);
+  }
+  // Minecraft coordinates fit 26 bits horizontally; 12 vertical bits include neighbour queries.
+  private static long cellKey(int x,int y,int z) {
+    return ((long)x & 0x3ffffffL)<<38 | ((long)z & 0x3ffffffL)<<12 | (y & 0xfffL);
   }
 
   private static boolean[] paneCells(World world, int x, int y, int z) {

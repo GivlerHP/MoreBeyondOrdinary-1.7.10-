@@ -22,11 +22,14 @@ public final class DecorRenderDiagnostics extends CommandBase {
     private long totalDecor,totalModels,totalCached,totalDynamic;
     private int models,cached,dynamic;
     private long gpuNanos,totalGpu,gpuVisible,gpuDraws,totalGpuVisible,totalGpuDraws;
+    private long gpuAllocationStart=-1;
     private DecorRenderDiagnostics() {}
+    public static boolean isMeasuring(){return INSTANCE.frames!=null;}
 
     public static long beginModel() { return INSTANCE.frames==null?0:System.nanoTime(); }
-    public static long beginGpu() {return INSTANCE.frames==null?0:System.nanoTime();}
+    public static long beginGpu() {INSTANCE.gpuAllocationStart=ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.start();return INSTANCE.frames==null?0:System.nanoTime();}
     public static void endGpu(long start,int visible,int draws) {
+        ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.end(ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.GPU,INSTANCE.gpuAllocationStart);
         if(start==0)return;INSTANCE.gpuNanos+=System.nanoTime()-start;INSTANCE.gpuVisible+=visible;INSTANCE.gpuDraws+=draws;
     }
     public static void endModel(long start,boolean usedCache) {
@@ -76,6 +79,8 @@ public final class DecorRenderDiagnostics extends CommandBase {
             if(frames!=null) { reply("A sample is already running.");return; }
             int count=args.length==3?parseIntBounded(sender,args[2],60,10000):300;
             label=args[1].replaceAll("[^a-zA-Z0-9_.-]","_");
+            ru.givler.mbo.client.lighting.ColoredLightDiagnostics.reset();
+            ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.reset();
             frames=new long[count];index=0;previousStart=0;
             totalDecor=totalModels=totalCached=totalDynamic=0;
             totalGpu=totalGpuVisible=totalGpuDraws=0;
@@ -127,6 +132,8 @@ public final class DecorRenderDiagnostics extends CommandBase {
             }
             reply(String.format(Locale.ROOT,"%s: frame %.3f ms (%.1f FPS), p95 %.3f ms; decor CPU %.3f ms, %.1f models/frame. CSV: logs/mbo-decor-render.csv",
                 label,average,1000/average,p95,modelTime,totalModels/(double)frames.length));
+            reply(ru.givler.mbo.client.lighting.ColoredLightDiagnostics.finish(label,frames.length));
+            reply(ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.finish(label,frames.length));
             if(ru.givler.mbo.block.BlockModels.decorInstancedRendering)reply(String.format(Locale.ROOT,
                 "GPU instances: CPU %.3f ms, %.1f visible models/frame, %.1f draws/frame",
                 totalGpu/(double)frames.length/1e6,totalGpuVisible/(double)frames.length,totalGpuDraws/(double)frames.length));

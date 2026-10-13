@@ -75,6 +75,8 @@ public final class ColoredLightClient {
       if (cacheActive) { CACHE.clear(this::mark); cacheActive = false; }
       rebuild(mc); return;
     }
+    long diagnosticTick=ColoredLightDiagnostics.start();
+    long allocationTick=ColoredLightAllocationDiagnostics.start();
     try {
       int darkness = world.calculateSkylightSubtracted(1F);
       if (skyDarkness != darkness) { skyDarkness = darkness; CACHE.invalidateAll(this::mark); }
@@ -83,23 +85,37 @@ public final class ColoredLightClient {
       int sz = (int) Math.floor(mc.renderViewEntity.posZ) >> 4;
       if (sx != cx || sy != cy || sz != cz) {
         cx = sx; cy = sy; cz = sz; requestArea();
-        int retain = Math.max(4, inputRadius() + 1);
-        lighting.retain(cx, cy, cz, retain);
-        if (scanning != null && scanning.distance(cx, cy, cz) > retain) { waiting.remove(scanning); scanning = null; }
-        Iterator<Section> iterator = known.iterator();
-        while (iterator.hasNext()) { Section s = iterator.next(); if (s.distance(cx, cy, cz) > retain) iterator.remove(); }
+        // Discovery follows the player; existing inputs and RGB live with their loaded chunks.
+        // Chunk unload notifications, world changes and full disable own their removal.
       }
+      long diagnosticScan=ColoredLightDiagnostics.start();
+      long allocationScan=ColoredLightAllocationDiagnostics.start();
       scanInputs();
+      ColoredLightAllocationDiagnostics.end(ColoredLightAllocationDiagnostics.SCAN,allocationScan);
+      ColoredLightDiagnostics.scan(diagnosticScan);
       ColoredLightShaderBridge.tick(mc);
+      long diagnosticDynamic=ColoredLightDiagnostics.start();
+      long allocationDynamic=ColoredLightAllocationDiagnostics.start();
       ColoredDynamicLights.INSTANCE.tick(mc);
+      ColoredLightAllocationDiagnostics.end(ColoredLightAllocationDiagnostics.DYNAMIC,allocationDynamic);
+      ColoredLightDiagnostics.dynamic(diagnosticDynamic);
+      long diagnosticPropagation=ColoredLightDiagnostics.start();
+      long allocationPropagation=ColoredLightAllocationDiagnostics.start();
+      long processedBefore=lighting.processedCells();
       if (lighting.process(urgent ? ColoredLightConfig.urgentPropagationBudget : ColoredLightConfig.propagationBudget)) {
         lighting.publish(CACHE, this::mark); cacheActive = true; urgent = false;
       }
+      ColoredLightDiagnostics.propagation(diagnosticPropagation);
+      ColoredLightAllocationDiagnostics.end(ColoredLightAllocationDiagnostics.PROPAGATION,allocationPropagation);
+      ColoredLightAllocationDiagnostics.work(ColoredLightAllocationDiagnostics.PROPAGATION,lighting.processedCells()-processedBefore);
     } catch (RuntimeException error) {
       disabled = true; CACHE.clear(this::mark); cacheActive = false;
       System.err.println("[MBO] Colored lighting disabled for this world: " + error);
     }
+    int diagnosticDirty=dirty.size();
     rebuild(mc);
+    ColoredLightDiagnostics.end(diagnosticTick,diagnosticDirty);
+    ColoredLightAllocationDiagnostics.end(ColoredLightAllocationDiagnostics.TICK,allocationTick);
   }
 
   @SubscribeEvent public void renderTick(TickEvent.RenderTickEvent event) {
@@ -142,11 +158,16 @@ public final class ColoredLightClient {
           scanning = polls.removeFirst();
           if (!known.contains(scanning)) { scanning = null; continue; }
         }
-        cursor = 0; scanOpacity = new byte[4096]; scanEmission = new int[4096];
+        cursor = 0;
+        // install() copies values into the persistent section; scratch arrays can serve the next scan.
+        if(scanOpacity==null)scanOpacity=new byte[4096];
+        if(scanEmission==null)scanEmission=new int[4096];
       }
       int end = Math.min(4096, cursor + budget);
+      ColoredLightAllocationDiagnostics.work(ColoredLightAllocationDiagnostics.SCAN,end-cursor);
       for (; cursor < end; cursor++, budget--) {
         int x = scanning.x * 16 + (cursor & 15), y = scanning.y * 16 + (cursor >> 8), z = scanning.z * 16 + (cursor >> 4 & 15);
+        scanEmission[cursor]=0;
         if (!world.blockExists(x, y, z)) { scanOpacity[cursor] = 15; continue; }
         Block block = world.getBlock(x, y, z);
         scanOpacity[cursor] = (byte) Math.max(1, Math.min(15, block.getLightOpacity(world, x, y, z)));
@@ -180,8 +201,10 @@ public final class ColoredLightClient {
     int x = event.getChunk().xPosition, z = event.getChunk().zPosition;
     for (int y = 0; y < 16; y++) { lighting.remove(x, y, z); probe.x = x; probe.y = y; probe.z = z; known.remove(probe); waiting.remove(probe); }
     scans.removeIf(s -> s.x == x && s.z == z);
+    polls.removeIf(s -> s.x == x && s.z == z);
     if (scanning != null && scanning.x == x && scanning.z == z) scanning = null;
     urgent = true;
+    geometryVersion++;
     if (event instanceof ChunkEvent.Load && cx != Integer.MIN_VALUE) requestArea();
   }
 

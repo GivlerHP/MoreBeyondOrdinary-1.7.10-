@@ -5,11 +5,10 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
-/** Marks GuiContainer's call to the inherited ItemStack tooltip renderer. */
+/** Marks the tooltip method itself, preserving GuiContainer instruction patterns used by NEI. */
 public final class ItemTooltipContextTransformer implements IClassTransformer, Opcodes {
-  private static final String TARGET = "net.minecraft.client.gui.inventory.GuiContainer";
+  private static final String TARGET = "net.minecraft.client.gui.GuiScreen";
   private static final String HOOK = "ru/givler/mbo/core/TooltipFrameHooks";
-  private static final String DRAW_SCREEN_DESC = "(IIF)V";
   private static final String TOOLTIP_DESC =
       "(Lnet/minecraft/item/ItemStack;II)V";
 
@@ -20,23 +19,24 @@ public final class ItemTooltipContextTransformer implements IClassTransformer, O
     new ClassReader(bytes).accept(node, 0);
     boolean patched = false;
     for (MethodNode method : node.methods) {
-      if (!DRAW_SCREEN_DESC.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(method.desc)))
+      if (!TOOLTIP_DESC.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(method.desc)))
         continue;
-      for (AbstractInsnNode insn = method.instructions.getFirst();
-          insn != null;
-          insn = insn.getNext()) {
-        if (!(insn instanceof MethodInsnNode)) continue;
-        MethodInsnNode call = (MethodInsnNode) insn;
-        String callDesc = FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(call.desc);
-        if (!TOOLTIP_DESC.equals(callDesc)) continue;
-        method.instructions.insertBefore(
-            call, new MethodInsnNode(INVOKESTATIC, HOOK, "beginItemTooltip", "()V", false));
-        method.instructions.insert(
-            call, new MethodInsnNode(INVOKESTATIC, HOOK, "endItemTooltip", "()V", false));
-        patched = true;
-        break;
+      for(AbstractInsnNode insn:method.instructions.toArray()) {
+        if(insn instanceof MethodInsnNode && HOOK.equals(((MethodInsnNode)insn).owner)
+            && "beginItemTooltip".equals(((MethodInsnNode)insn).name))return bytes;
       }
-      if (patched) break;
+      LabelNode start=new LabelNode(),end=new LabelNode(),handler=new LabelNode();
+      InsnList entry=new InsnList();entry.add(new MethodInsnNode(INVOKESTATIC,HOOK,"beginItemTooltip","()V",false));entry.add(start);
+      method.instructions.insert(entry);
+      for(AbstractInsnNode insn:method.instructions.toArray())if(insn.getOpcode()==RETURN)
+        method.instructions.insertBefore(insn,new MethodInsnNode(INVOKESTATIC,HOOK,"endItemTooltip","()V",false));
+      int error=method.maxLocals++;
+      method.instructions.add(end);method.instructions.add(handler);
+      method.instructions.add(new VarInsnNode(ASTORE,error));
+      method.instructions.add(new MethodInsnNode(INVOKESTATIC,HOOK,"endItemTooltip","()V",false));
+      method.instructions.add(new VarInsnNode(ALOAD,error));method.instructions.add(new InsnNode(ATHROW));
+      method.tryCatchBlocks.add(new TryCatchBlockNode(start,end,handler,null));
+      patched=true;break;
     }
     if (!patched) {
       System.err.println("[MBO ASM] Item tooltip renderToolTip call was not found");

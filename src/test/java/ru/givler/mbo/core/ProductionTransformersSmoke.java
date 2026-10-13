@@ -151,6 +151,10 @@ public final class ProductionTransformersSmoke {
     b.values().removeIf(v -> v == 0); return b;
   }
   public static void main(String[] args) throws Exception {
+    byte[] container=resource("net/minecraft/client/gui/inventory/GuiContainer");
+    if(new ItemTooltipContextTransformer().transform("bex","net.minecraft.client.gui.inventory.GuiContainer",container)!=container)
+      throw new AssertionError("Item tooltip context changed GuiContainer and could break NEI instruction matching");
+    System.out.println("NEI compatibility: GuiContainer tooltip instruction sequence remains untouched");
     Path mappingDir = Paths.get(args[0]);
     Mapping toNotch = new Mapping(mappingDir.resolve("mcp-notch.srg"));
     productionNames = toNotch;

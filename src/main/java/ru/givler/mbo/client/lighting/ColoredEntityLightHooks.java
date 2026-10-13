@@ -16,6 +16,8 @@ public final class ColoredEntityLightHooks {
   public static int begin(Entity entity,float partial) {
     if(!ColoredLightConfig.enabled || !ColoredLightConfig.entityLighting || ColoredLightShaderBridge.active || entity==null || entity.worldObj==null
         || entity.worldObj!=Minecraft.getMinecraft().theWorld || entity instanceof ru.givler.mbo.movingplatform.EntityMovingPlatform)return 0;
+    long allocationStart=ColoredLightAllocationDiagnostics.start();
+    try {
     double x=entity.lastTickPosX+(entity.posX-entity.lastTickPosX)*partial;
     double y=entity.lastTickPosY+(entity.posY-entity.lastTickPosY)*partial-entity.yOffset;
     double z=entity.lastTickPosZ+(entity.posZ-entity.lastTickPosZ)*partial;
@@ -67,6 +69,7 @@ public final class ColoredEntityLightHooks {
       GL13.glActiveTexture(active);
       return ++state.depth;
     } catch(RuntimeException error) { GL11.glPopAttrib(); OpenGlHelper.lastBrightnessX=frame.x; OpenGlHelper.lastBrightnessY=frame.y; throw error; }
+    } finally {ColoredLightAllocationDiagnostics.end(ColoredLightAllocationDiagnostics.ENTITY,allocationStart);}
   }
   public static void end(int token) {
     if(token==0)return;

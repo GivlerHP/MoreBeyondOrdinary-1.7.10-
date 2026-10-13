@@ -51,6 +51,7 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
                 && ChunkDecorRenderer.renders((ru.givler.mbo.tileentity.ModelTileBase)tile)) return;
         if (ru.givler.mbo.client.handler.HangingClientEvents.hideAttachment(tile)) return;
         long diagnosticStart=tile.getWorldObj()==null?0:DecorRenderDiagnostics.beginModel();
+        long allocationStart=tile.getWorldObj()==null?-1:ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.start();
         boolean itemRender = tile.getWorldObj() == null;
         GeoModelProvider<T> activeProvider = itemRender ? itemModelProvider : modelProvider;
         ResourceLocation modelLocation = activeProvider.getModelLocation(tile);
@@ -120,6 +121,7 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
                 this.render(model,tile,partialTicks,red,green,blue,alpha);
             }
             DecorRenderDiagnostics.endModel(diagnosticStart,cached);
+            ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.end(ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.DECOR,allocationStart);
         } finally {
             GlStateManager.popMatrix();
         }

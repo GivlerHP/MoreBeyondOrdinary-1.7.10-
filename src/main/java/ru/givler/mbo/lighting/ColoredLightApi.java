@@ -89,12 +89,13 @@ public final class ColoredLightApi {
   public static int sample(Block block, IBlockAccess world, int x, int y, int z) {
     Provider provider = PROVIDERS.get(block);
     int packed = 0;
-    ColoredLightRule rule = ColoredLightSources.block(block, world.getBlockMetadata(x, y, z));
+    int metadata=world.getBlockMetadata(x,y,z);
+    ColoredLightRule rule = ColoredLightSources.block(block, metadata);
     if (rule != null) packed = rule.emission(rule.brightness < 0 ? block.getLightValue(world, x, y, z) : 0);
     else if (provider != null) packed = provider.getEmission(world, x, y, z);
     else if (block == BlockRegistry.ColourFire) {
-      packed = emission(BlockColourFire.COLORS[world.getBlockMetadata(x, y, z) & 15], 15);
-    } else if (block.hasTileEntity(world.getBlockMetadata(x, y, z))) {
+      packed = emission(BlockColourFire.COLORS[metadata & 15], 15);
+    } else if (block.hasTileEntity(metadata)) {
       TileEntity tile = world.getTileEntity(x, y, z);
       if (tile instanceof Emitter) packed = ((Emitter) tile).getColoredLightEmission();
     }

@@ -7,6 +7,10 @@ public final class ClientWaterloggedBlocks {
   private static int dimension = Integer.MIN_VALUE;
   private static final Set<Position> POSITIONS = new HashSet<Position>();
   private static final java.util.Map<Long, Set<Position>> CHUNKS = new java.util.HashMap<Long, Set<Position>>();
+  // Lookup keys are never inserted into either index and contain no world references.
+  private static final ThreadLocal<Lookup> LOOKUP = new ThreadLocal<Lookup>() {
+    @Override protected Lookup initialValue() {return new Lookup();}
+  };
 
   private static long chunkKey(int x,int z) { return ((long)(x >> 4) << 32) | ((z >> 4) & 0xffffffffL); }
 
@@ -65,11 +69,12 @@ public final class ClientWaterloggedBlocks {
   }
 
   public static boolean contains(int currentDimension, int x, int y, int z) {
-    return dimension == currentDimension && POSITIONS.contains(new Position(x, y, z));
+    return dimension == currentDimension && containsCurrent(x,y,z);
   }
 
   public static boolean containsCurrent(int x, int y, int z) {
-    return POSITIONS.contains(new Position(x, y, z));
+    Lookup key=LOOKUP.get();key.x=x;key.y=y;key.z=z;
+    return POSITIONS.contains(key);
   }
 
   public static Set<Position> all(int currentDimension) {
@@ -84,7 +89,22 @@ public final class ClientWaterloggedBlocks {
     CHUNKS.clear();
   }
 
-  public static final class Position {
+  private interface Coordinates {
+    int x();int y();int z();
+  }
+  private static boolean same(Coordinates value,Object other) {
+    if(!(other instanceof Coordinates))return false;
+    Coordinates position=(Coordinates)other;
+    return value.x()==position.x() && value.y()==position.y() && value.z()==position.z();
+  }
+  private static int hash(int x,int y,int z) {return (x*31+y)*31+z;}
+  private static final class Lookup implements Coordinates {
+    int x,y,z;
+    public int x(){return x;} public int y(){return y;} public int z(){return z;}
+    @Override public boolean equals(Object other){return same(this,other);}
+    @Override public int hashCode(){return hash(x,y,z);}
+  }
+  public static final class Position implements Coordinates {
     public final int x, y, z;
 
     public Position(int x, int y, int z) {
@@ -92,19 +112,16 @@ public final class ClientWaterloggedBlocks {
       this.y = y;
       this.z = z;
     }
+    public int x(){return x;} public int y(){return y;} public int z(){return z;}
 
     @Override
     public boolean equals(Object other) {
-      if (!(other instanceof Position)) return false;
-      Position position = (Position) other;
-      return x == position.x && y == position.y && z == position.z;
+      return same(this,other);
     }
 
     @Override
     public int hashCode() {
-      int result = x;
-      result = 31 * result + y;
-      return 31 * result + z;
+      return hash(x,y,z);
     }
   }
 }

@@ -9,20 +9,44 @@ public final class ColoredLightCache {
   private volatile Map<Key, int[]> sections = new HashMap<>();
   private volatile long version;
   public long version() { return version; }
-  private final ThreadLocal<Key> lookup = new ThreadLocal<Key>() {
-    @Override protected Key initialValue() { return new Key(0, 0, 0); }
+  private final ThreadLocal<Key> regionProbe = new ThreadLocal<Key>() {
+    @Override protected Key initialValue() {return new Key(0,0,0);}
+  };
+  /** Immutable section arrays change identity only when their published RGB changes. */
+  public int regionSignature(int minX,int minY,int minZ,int maxX,int maxY,int maxZ) {
+    Map<Key,int[]> snapshot=sections;Key key=regionProbe.get();int signature=1;
+    for(int y=minY>>4;y<=(maxY>>4);y++)for(int z=minZ>>4;z<=(maxZ>>4);z++)for(int x=minX>>4;x<=(maxX>>4);x++) {
+      key.x=x;key.y=y;key.z=z;
+      signature=31*signature+System.identityHashCode(snapshot.get(key));
+    }
+    return signature;
+  }
+  private final java.util.concurrent.ConcurrentLinkedQueue<java.lang.ref.WeakReference<Lookup>> lookups=new java.util.concurrent.ConcurrentLinkedQueue<>();
+  private final ThreadLocal<Lookup> lookup = new ThreadLocal<Lookup>() {
+    @Override protected Lookup initialValue() { Lookup value=new Lookup();lookups.add(new java.lang.ref.WeakReference<>(value));return value; }
   };
 
   public int sample(int x, int y, int z) {
-    Key key = lookup.get(); key.x = x >> 4; key.y = y >> 4; key.z = z >> 4;
-    int[] section = sections.get(key);
-    return section == null ? 0 : section[((y & 15) * 16 + (z & 15)) * 16 + (x & 15)];
+    Lookup value=lookup.get();int sx=x>>4,sy=y>>4,sz=z>>4;
+    for(;;) {
+      long snapshot=version;
+      int[] data=value.data;
+      if(value.version==snapshot && value.key.x==sx && value.key.y==sy && value.key.z==sz)
+        return data==null?0:data[((y&15)*16+(z&15))*16+(x&15)];
+      value.key.x=sx;value.key.y=sy;value.key.z=sz;
+      data=sections.get(value.key);value.data=data;value.version=snapshot;
+      if(version!=snapshot){value.data=null;value.version=-1;continue;}
+      return data==null?0:data[((y&15)*16+(z&15))*16+(x&15)];
+    }
   }
 
   public void clear(Dirty dirty) {
     invalidateAll(dirty);
     sections = new HashMap<>();
     version++;
+    for(java.util.Iterator<java.lang.ref.WeakReference<Lookup>> iterator=lookups.iterator();iterator.hasNext();) {
+      Lookup value=iterator.next().get();if(value==null)iterator.remove();else {value.data=null;value.version=-1;}
+    }
   }
 
   public Editor edit() { return new Editor(); }
@@ -95,6 +119,7 @@ public final class ColoredLightCache {
       }
     }
     sections = next;
+    version++;
   }
 
   private static final class Key {
@@ -106,4 +131,5 @@ public final class ColoredLightCache {
       Key key = (Key) other; return x == key.x && y == key.y && z == key.z;
     }
   }
+  private static final class Lookup {final Key key=new Key(0,0,0);volatile int[] data;volatile long version=-1;}
 }

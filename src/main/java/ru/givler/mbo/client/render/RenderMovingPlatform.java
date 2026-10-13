@@ -172,7 +172,7 @@ public class RenderMovingPlatform extends Render {
       signature = 31 * signature + b.z;
     }
     signature = 31 * signature + Arrays.hashCode(light);
-    signature=31*signature+rgbSignature(worldX,worldY,worldZ);
+    signature=31*signature+rgbSignature(worldX,worldY,worldZ,platform.getSizeX(),platform.getSizeY(),platform.getSizeZ());
     int cx = ox + platform.getSizeX() / 2, cz = oz + platform.getSizeZ() / 2;
     signature = 31 * signature + platform.worldObj.getBiomeGenForCoords(cx, cz).biomeID;
     if (old != null && old.signature == signature) { old.samples=samples; return old; }
@@ -208,11 +208,27 @@ public class RenderMovingPlatform extends Render {
     return interpolatedLightField(platform,worldX,worldY,worldZ,new LightSamples(platform,worldX,worldY,worldZ));
   }
   static int rgbSignature(double x,double y,double z) {
+    return rgbSignature(x,y,z,0,0,0);
+  }
+  static int rgbSignature(double x,double y,double z,int sizeX,int sizeY,int sizeZ) {
     int signature=ru.givler.mbo.config.ColoredLightConfig.enabled ? 1 : 0;
     if(signature==0)return 0;
-    long version=ru.givler.mbo.client.lighting.ColoredLightClient.CACHE.version();
-    signature=31*signature+(int)(version^(version>>>32));
-    signature=31*signature+ru.givler.mbo.client.lighting.ColoredDynamicLights.INSTANCE.sources().hashCode();
+    int minX=(int)Math.floor(x)-2,minY=(int)Math.floor(y)-2,minZ=(int)Math.floor(z)-2;
+    int maxX=(int)Math.floor(x)+sizeX+2,maxY=(int)Math.floor(y)+sizeY+2,maxZ=(int)Math.floor(z)+sizeZ+2;
+    signature=31*signature+ru.givler.mbo.client.lighting.ColoredLightClient.CACHE.regionSignature(minX,minY,minZ,maxX,maxY,maxZ);
+    // Sources outside the platform's sampling box cannot affect its baked vertices.
+    for(ru.givler.mbo.client.lighting.ColoredDynamicLights.Source source:ru.givler.mbo.client.lighting.ColoredDynamicLights.INSTANCE.sources()) {
+      if(source.x+source.radius<minX || source.x-source.radius>maxX
+          || source.y+source.radius<minY || source.y-source.radius>maxY
+          || source.z+source.radius<minZ || source.z-source.radius>maxZ)continue;
+      signature=31*signature+source.entity.getEntityId();signature=31*signature+source.packed;
+      signature=31*signature+Double.hashCode(source.x);
+      signature=31*signature+Double.hashCode(source.y);
+      signature=31*signature+Double.hashCode(source.z);
+      // Moving-light visibility also depends on obstacles along source-to-vertex rays.
+      long generation=ru.givler.mbo.client.lighting.ColoredDynamicLights.INSTANCE.generation();
+      signature=31*signature+(int)(generation^(generation>>>32));
+    }
     signature=31*signature+Float.floatToIntBits(ru.givler.mbo.config.ColoredLightConfig.strength);
     signature=31*signature+Float.floatToIntBits(ru.givler.mbo.config.ColoredLightConfig.brightnessGain);
     signature=31*signature+Float.floatToIntBits(ru.givler.mbo.config.ColoredLightConfig.colorFalloff);
@@ -226,6 +242,7 @@ public class RenderMovingPlatform extends Render {
 
   private static int[] interpolatedLightField(
       EntityMovingPlatform platform, double worldX, double worldY, double worldZ,LightSamples samples) {
+    long allocationStart=ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.start();
     int sizeX = platform.getSizeX(), sizeY = platform.getSizeY(), sizeZ = platform.getSizeZ();
     int sy = sizeY + 2, sz = sizeZ + 2;
     int[] result = new int[(sizeX + 2) * sy * sz];
@@ -234,6 +251,8 @@ public class RenderMovingPlatform extends Render {
       for (int y = -1; y <= sizeY; y++)
         for (int z = -1; z <= sizeZ; z++)
           result[index++] = interpolateLight(samples, worldX + x, worldY + y, worldZ + z);
+    ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.end(ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.PLATFORM,allocationStart);
+    ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.work(ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.PLATFORM,result.length);
     return result;
   }
 

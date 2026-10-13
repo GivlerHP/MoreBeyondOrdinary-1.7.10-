@@ -23,7 +23,7 @@ import org.lwjgl.opengl.GL20;
 /** Propagation, walls, mixing, native colors and real Forge/OptiFine bytecode regression checks. */
 public final class ColoredLightSmoke {
   public static void main(String[] args) throws Exception {
-    rules(); defaults(); burning(); mf2Bridge(); propagation(); color(); sectionTransitions(); incrementalSections(); vanillaBytecode(); customGeometry(); clientNightLighting();
+    rules(); defaults(); allocationCounters(); sparseSections(); cacheLookupTransitions(); burning(); mf2Bridge(); propagation(); color(); falloffEquivalence(); sectionTransitions(); incrementalSections(); vanillaBytecode(); customGeometry(); clientNightLighting();
     if (Boolean.getBoolean("mbo.lightPixels")) shaderPrograms();
     if (args.length == 3) optifineBytecode(args);
     System.out.println("Colored light smoke passed");
@@ -33,6 +33,93 @@ public final class ColoredLightSmoke {
     ColoredLightVolume v = new ColoredLightVolume(size, -size / 2, 0, -size / 2);
     for (int i = 0; i < v.cells(); i++) v.setCell(i, 0, 0);
     return v;
+  }
+  private static volatile Object allocationSink;
+  private static void sparseSections() throws Exception {
+    ColoredLightSections sections=new ColoredLightSections();
+    sections.install(0,0,0,new byte[4096],new int[4096]);settle(sections);
+    Field map=ColoredLightSections.class.getDeclaredField("sections");map.setAccessible(true);
+    Object section=((Map<?,?>)map.get(sections)).values().iterator().next();
+    Field emission=section.getClass().getDeclaredField("emission"),light=section.getClass().getDeclaredField("light");
+    emission.setAccessible(true);light.setAccessible(true);
+    check(emission.get(section)==null && light.get(section)==null,"Dark section allocated dense RGB arrays");
+    Field queue=section.getClass().getDeclaredField("queue");queue.setAccessible(true);
+    check(queue.get(section)==null,"Idle section retained scratch queue");
+    int[] sources=new int[4096];Arrays.fill(sources,0x35A7DF);
+    sections.install(0,0,0,new byte[4096],sources);settle(sections);
+    for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++)equal(0x35A7DF,sections.sample(x,y,z));
+    ColoredLightCache cache=new ColoredLightCache();sections.publish(cache,(x,y,z)->{});
+    equal(0x35A7DF,cache.sample(15,15,15));
+    Arrays.fill(sources,0);sections.install(0,0,0,new byte[4096],sources);settle(sections);
+    sections.publish(cache,(x,y,z)->{});equal(0,cache.sample(15,15,15));
+    check(emission.get(section)==null && light.get(section)==null,"Extinguished section retained RGB arrays");
+    check(queue.get(section)==null,"Extinguished section retained scratch queue");
+    sections.update(15,15,15,1,0xDC6721);settle(sections);equal(0xDC6721,sections.sample(15,15,15));
+    for(int sx=1;sx<24;sx++)sections.install(sx,0,0,new byte[4096],new int[4096]);
+    settle(sections);
+    for(Object value:((Map<?,?>)map.get(sections)).values())check(queue.get(value)==null,"Settled section retained work buffers");
+    Field pool=ColoredLightSections.class.getDeclaredField("spareQueues");pool.setAccessible(true);
+    check(((java.util.ArrayDeque<?>)pool.get(sections)).size()<=8,"Unbounded spare RGB queue pool");
+    System.out.println("Sparse RGB sections: dark arrays absent, full 4096-cell queue wraps, extinction frees arrays and reactivation restores exact colour");
+  }
+  private static void cacheLookupTransitions() throws Exception {
+    ColoredLightCache cache=new ColoredLightCache();equal(0,cache.sample(8,8,8));
+    int[] data=new int[4096];Arrays.fill(data,0xFF0000);
+    ColoredLightCache.Editor editor=cache.edit();editor.put(0,0,0,data,(x,y,z)->{});editor.commit();
+    equal(0xFF0000,cache.sample(8,8,8));equal(0xFF0000,cache.sample(9,8,8));equal(0,cache.sample(16,8,8));
+    Arrays.fill(data,0x0000FF);editor=cache.edit();editor.put(0,0,0,data,(x,y,z)->{});editor.commit();
+    equal(0x0000FF,cache.sample(8,8,8));
+    int local=cache.regionSignature(-2,0,-2,18,20,18);
+    editor=cache.edit();editor.put(100,0,100,data,(x,y,z)->{});editor.commit();
+    equal(local,cache.regionSignature(-2,0,-2,18,20,18));
+    Arrays.fill(data,0x00FF00);editor=cache.edit();editor.put(1,0,0,data,(x,y,z)->{});editor.commit();
+    check(local!=cache.regionSignature(-2,0,-2,18,20,18),"Platform region ignored adjacent section RGB");
+    local=cache.regionSignature(-2,0,-2,18,20,18);
+    editor=cache.edit();editor.remove(1,0,0,(x,y,z)->{});editor.commit();
+    check(local!=cache.regionSignature(-2,0,-2,18,20,18),"Platform region ignored section removal");
+    equal(0x0000FF,cache.sample(8,8,8));
+    cache.clear((x,y,z)->{});equal(0,cache.sample(8,8,8));
+    Field lookup=ColoredLightCache.class.getDeclaredField("lookup");lookup.setAccessible(true);
+    Object value=((ThreadLocal<?>)lookup.get(cache)).get();Field held=value.getClass().getDeclaredField("data");held.setAccessible(true);
+    check(held.get(value)==null,"Cleared RGB lookup retained a section array");
+    System.out.println("RGB last-section lookup: absent/new/replaced sections, boundaries and full cache clear passed");
+  }
+  private static void allocationCounters() throws Exception {
+    Class<?> meter=ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.class;
+    Field frames=ru.givler.mbo.client.render.decormodels.DecorRenderDiagnostics.class.getDeclaredField("frames");frames.setAccessible(true);
+    Object diagnostics=ru.givler.mbo.client.render.decormodels.DecorRenderDiagnostics.INSTANCE, previous=frames.get(diagnostics);
+    equal(-1,(int)ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.start());
+    try {
+      frames.set(diagnostics,new long[3]);ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.reset();
+      long start=ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.start();
+      if(start<0){System.out.println("JVM allocation counters unavailable; diagnostics gracefully disabled");return;}
+      allocationSink=new int[4096];
+      ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.end(1,start);
+      Field bytes=meter.getDeclaredField("bytes"),calls=meter.getDeclaredField("calls");bytes.setAccessible(true);calls.setAccessible(true);
+      check(((long[])bytes.get(null))[1]>=4096L*4,"Allocation meter missed escaped heap array");
+      equal(1,(int)((long[])calls.get(null))[1]);
+      System.out.println("Allocation diagnostics: real thread allocated-byte counter captures heap arrays; idle path disabled");
+    } finally {frames.set(diagnostics,previous);allocationSink=null;ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.reset();}
+  }
+  private static void falloffEquivalence() {
+    float previous=ru.givler.mbo.config.ColoredLightConfig.colorFalloff;
+    try {
+      for(float exponent:new float[]{.25F,.7F,1F,2F}) {
+        ru.givler.mbo.config.ColoredLightConfig.colorFalloff=exponent;
+        for(int level=0;level<256;level++)for(boolean little:new boolean[]{true,false})for(float strength:new float[]{.25F,.85F,1F}) {
+          int light=level<<16 | (level/2)<<8 | level/3, packed=0xA58D6B4C;
+          float weight=Math.min(1,strength)*(float)Math.pow(level/255F,exponent);
+          int rs=little?0:24, gs=little?8:16, bs=little?16:8;
+          int expected=packed;
+          if(level!=0)expected=packed&(little?0xFF000000:0xFF)
+              | Math.round((packed>>>rs&255)*(1-weight+weight*(light>>>16&255)/level))<<rs
+              | Math.round((packed>>>gs&255)*(1-weight+weight*(light>>8&255)/level))<<gs
+              | Math.round((packed>>>bs&255)*(1-weight+weight*(light&255)/level))<<bs;
+          equal(expected,ColoredLightRenderHooks.tintColor(packed,light,strength,little));
+        }
+      }
+    } finally {ru.givler.mbo.config.ColoredLightConfig.colorFalloff=previous;}
+    System.out.println("RGB falloff lookup: exact previous colors across 256 levels, four exponents, saturation and both byte orders");
   }
   private static void customGeometry() throws Exception {
     Field field=Unsafe.class.getDeclaredField("theUnsafe"); field.setAccessible(true); Unsafe unsafe=(Unsafe)field.get(null);
@@ -59,6 +146,16 @@ public final class ColoredLightSmoke {
     float old=ru.givler.mbo.config.ColoredLightConfig.strength; ru.givler.mbo.config.ColoredLightConfig.strength=.5F;
     check(before!=(Integer)signature.invoke(null,0D,8D,0D),"Platform cached previous RGB settings");
     ru.givler.mbo.config.ColoredLightConfig.strength=old; ColoredLightClient.volume=null;
+    Method region=ru.givler.mbo.client.render.RenderMovingPlatform.class.getDeclaredMethod("rgbSignature",double.class,double.class,double.class,int.class,int.class,int.class);region.setAccessible(true);
+    int initial=(Integer)region.invoke(null,0D,8D,0D,5,40,5);
+    int[] pixels=new int[4096];Arrays.fill(pixels,0xDC6721);
+    ColoredLightCache.Editor edit=ColoredLightClient.CACHE.edit();edit.put(100,2,100,pixels,(x,y,z)->{});edit.commit();
+    equal(initial,(Integer)region.invoke(null,0D,8D,0D,5,40,5));
+    edit=ColoredLightClient.CACHE.edit();edit.put(0,2,0,pixels,(x,y,z)->{});edit.commit();
+    check(initial!=(Integer)region.invoke(null,0D,8D,0D,5,40,5),"Tall platform ignored light near its upper blocks");
+    ColoredLightClient.CACHE.clear((x,y,z)->{});
+    equal(initial,(Integer)region.invoke(null,0D,8D,0D,5,40,5));
+    System.out.println("Platform local RGB signature: distant publication ignored, upper blocks refreshed, full clear restored");
     System.out.println("Custom RGB: World geometry, fractional platform coordinates, inventory isolation and cache settings passed");
   }
 
@@ -594,7 +691,7 @@ public final class ColoredLightSmoke {
     try {
       net.minecraft.client.Minecraft mc = (net.minecraft.client.Minecraft) unsafe.allocateInstance(net.minecraft.client.Minecraft.class);
       NightWorld world = (NightWorld) unsafe.allocateInstance(NightWorld.class);
-      world.present = true; world.metadata = 10;
+      world.present = true; world.metadata = 10; world.isRemote=true;
       world.fire = (ru.givler.mbo.block.BlockColourFire) unsafe.allocateInstance(ru.givler.mbo.block.BlockColourFire.class);
       world.air = (net.minecraft.block.BlockAir) unsafe.allocateInstance(net.minecraft.block.BlockAir.class);
       ru.givler.mbo.registry.BlockRegistry.ColourFire = (ru.givler.mbo.block.BlockColourFire) world.fire;
@@ -610,9 +707,34 @@ public final class ColoredLightSmoke {
       mc.renderViewEntity.posY = 65;
       singleton.set(null, mc);
       for (int i = 0; i < 100; i++) ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      Field scratch=ColoredLightClient.class.getDeclaredField("scanEmission");scratch.setAccessible(true);
+      Object originalScratch=scratch.get(ColoredLightClient.INSTANCE);
       equal(11, ColoredLightClient.skyDarkness);
       check(ColoredLightClient.cacheActive && ColoredLightClient.CACHE.sample(0, 64, 0) != 0, "Real client ticks must find colored admin fire");
       int stationaryColor = ColoredLightClient.CACHE.sample(0, 64, 0);
+      // Flight never evicts RGB belonging to a still-loaded chunk.
+      for(int destination : new int[]{160,0,-160,0}) {
+        mc.renderViewEntity.posX=destination;
+        for(int tick=0;tick<160;tick++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+        equal(stationaryColor,ColoredLightClient.CACHE.sample(0,64,0));
+      }
+      mc.renderViewEntity.posX=160;
+      world.present=false;world.observer.markBlockForUpdate(0,64,0);
+      for(int tick=0;tick<6;tick++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      equal(0,ColoredLightClient.CACHE.sample(0,64,0));
+      world.present=true;world.observer.markBlockForUpdate(0,64,0);
+      for(int tick=0;tick<6;tick++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      equal(stationaryColor,ColoredLightClient.CACHE.sample(0,64,0));
+      net.minecraft.world.chunk.Chunk chunk=(net.minecraft.world.chunk.Chunk)unsafe.allocateInstance(net.minecraft.world.chunk.Chunk.class);
+      Field chunkWorld=net.minecraft.world.chunk.Chunk.class.getDeclaredField("worldObj");chunkWorld.setAccessible(true);chunkWorld.set(chunk,world);
+      ColoredLightClient.INSTANCE.chunkUnloaded(new net.minecraftforge.event.world.ChunkEvent.Unload(chunk));
+      for(int tick=0;tick<6;tick++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      equal(0,ColoredLightClient.CACHE.sample(0,64,0));
+      mc.renderViewEntity.posX=0;
+      ColoredLightClient.INSTANCE.chunkLoaded(new net.minecraftforge.event.world.ChunkEvent.Load(chunk));
+      for(int tick=0;tick<160;tick++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      equal(stationaryColor,ColoredLightClient.CACHE.sample(0,64,0));
+      System.out.println("RGB chunk lifetime: flight preserves colour, distant source edits apply, unload clears and reload restores");
       world.blockReads = 0; mc.renderViewEntity.posX = 15;
       ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
       check(world.blockReads <= ru.givler.mbo.config.ColoredLightConfig.scanBudget, "Moving inside one chunk must not rebuild/re-read the whole field");
@@ -646,6 +768,13 @@ public final class ColoredLightSmoke {
       world.observer.markBlockForUpdate(0, 64, 0);
       for (int i = 0; i < 3; i++) ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
       check(ColoredLightClient.CACHE.sample(0, 64, 0) != 0, "New fire must bypass background scan delay");
+      check(originalScratch==scratch.get(ColoredLightClient.INSTANCE),"Scanner allocated a new array between sections");
+      world.missingSourceCell=true;world.present=false;
+      for(int i=0;i<2000;i++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      equal(0,ColoredLightClient.CACHE.sample(0,64,0));
+      world.missingSourceCell=false;world.present=true;world.observer.markBlockForUpdate(0,64,0);
+      for(int i=0;i<3;i++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      check(ColoredLightClient.CACHE.sample(0,64,0)!=0,"Reused scan array lost restored source");
       movingSources(mc, world, unsafe);
       if (Boolean.getBoolean("mbo.lightPixels")) shaderBridgeUpload();
       menuAndDisable(mc,world,unsafe);
@@ -665,13 +794,14 @@ public final class ColoredLightSmoke {
     net.minecraft.block.Block fire, air;
     boolean daylight;
     boolean present = true;
+    boolean missingSourceCell;
     int metadata = 10;
     int blockReads;
     boolean wall;
     net.minecraft.block.Block barrier;
     net.minecraft.world.IWorldAccess observer;
     private NightWorld() { super(null, null, 0, net.minecraft.world.EnumDifficulty.NORMAL, null); }
-    @Override public boolean blockExists(int x, int y, int z) { return true; }
+    @Override public boolean blockExists(int x, int y, int z) { return !(missingSourceCell && x==0 && y==64 && z==0); }
     @Override public void addWorldAccess(net.minecraft.world.IWorldAccess access) { observer = access; }
     @Override public void removeWorldAccess(net.minecraft.world.IWorldAccess access) { if (observer == access) observer = null; }
     @Override public net.minecraft.block.Block getBlock(int x, int y, int z) { blockReads++; if (wall && x == 1) return barrier; return present && x == 0 && y == 64 && z == 0 ? fire : air; }
@@ -754,6 +884,12 @@ public final class ColoredLightSmoke {
   }
 
   private static void menuAndDisable(net.minecraft.client.Minecraft mc,NightWorld world,Unsafe unsafe) throws Exception {
+    Method sliderValue=ru.givler.mbo.client.lighting.ColoredLightMenu.LightSlider.class.getDeclaredMethod("mouseValue",int.class,int.class,int.class,float.class);sliderValue.setAccessible(true);
+    for(float maximum:new float[]{1F,2F}) {
+      check((Float)sliderValue.invoke(null,-100,10,200,maximum)==0F,"RGB slider failed to clamp left edge");
+      check((Float)sliderValue.invoke(null,500,10,200,maximum)==maximum,"RGB slider failed to clamp right edge");
+      check((Float)sliderValue.invoke(null,110,10,200,maximum)==maximum/2,"RGB slider midpoint is incorrect");
+    }
     ru.givler.mbo.client.lighting.ColoredLightMenu menu = new ru.givler.mbo.client.lighting.ColoredLightMenu();
     for (int width : new int[]{320,427,854}) {
       net.minecraft.client.gui.GuiVideoSettings screen = (net.minecraft.client.gui.GuiVideoSettings) unsafe.allocateInstance(net.minecraft.client.gui.GuiVideoSettings.class);

@@ -36,6 +36,7 @@ public final class ColoredDynamicLights {
   };
   private ColoredDynamicLights() {}
   public List<Source> sources() { return sources; }
+  public long generation() {return generation;}
   public int cachedCells() {
     int cells = 0;
     for (java.lang.ref.WeakReference<Query> reference : allocatedQueries) { Query query = reference.get(); if (query != null) cells += query.values.size(); }
@@ -75,6 +76,7 @@ public final class ColoredDynamicLights {
       if (a.entity != b.entity || a.packed != b.packed || Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z) > 0.25) { changed = true; break; }
     }
     if (changed) {
+      ColoredLightDiagnostics.dynamicUpdate();
       // This fallback rebuilds only nearby sections, at a configurable cadence.
       if (!ColoredLightShaderBridge.active) {
         for (Source source : sources) mark(mc, source);

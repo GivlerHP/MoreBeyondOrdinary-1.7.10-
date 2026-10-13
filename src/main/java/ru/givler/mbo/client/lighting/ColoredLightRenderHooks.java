@@ -14,6 +14,16 @@ public final class ColoredLightRenderHooks {
     @Override protected State initialValue() { return new State(); }
   };
   private ColoredLightRenderHooks() {}
+  private static volatile FalloffTable falloffTable=new FalloffTable(ColoredLightConfig.colorFalloff);
+  private static final class FalloffTable {
+    final float exponent; final float[] weights=new float[256];
+    FalloffTable(float exponent) { this.exponent=exponent; for(int i=0;i<256;i++)weights[i]=(float)Math.pow(i/255F,exponent); }
+  }
+  private static float falloffWeight(int level) {
+    FalloffTable table=falloffTable; float exponent=ColoredLightConfig.colorFalloff;
+    if(table.exponent!=exponent)falloffTable=table=new FalloffTable(exponent);
+    return table.weights[level];
+  }
   public interface WorldCoordinates { double lightOriginX(); double lightOriginY(); double lightOriginZ(); }
 
   public static long begin(RenderBlocks renderer, double x, double y, double z, int face) {
@@ -83,7 +93,6 @@ public final class ColoredLightRenderHooks {
 
   private static int vertexRGB(Frame frame, double x, double y, double z) {
     x += frame.ox; y += frame.oy; z += frame.oz;
-    if (frame.face == 7) return worldRGB(x,y,z);
     // Crossed plants have no cube face. One cell lookup per plant also avoids random-offset seams.
     if (frame.face == 6) {
       if (!frame.cached) { frame.rgb = sample(frame.x,frame.y,frame.z); frame.cached = true; }
@@ -91,7 +100,7 @@ public final class ColoredLightRenderHooks {
     }
     if (frame.cached && frame.vx == x && frame.vy == y && frame.vz == z) return frame.rgb;
     frame.vx = x; frame.vy = y; frame.vz = z; frame.cached = true;
-    return frame.rgb = interpolateFace(frame, x, y, z);
+    return frame.rgb = frame.face==7 ? worldRGB(x,y,z) : interpolateFace(frame, x, y, z);
   }
 
   private static int interpolateFace(Frame frame, double x, double y, double z) {
@@ -122,7 +131,7 @@ public final class ColoredLightRenderHooks {
     int lr = light >>> 16 & 255, lg = light >>> 8 & 255, lb = light & 255;
     int max = Math.max(lr, Math.max(lg, lb));
     if (max == 0 || strength <= 0) return packed;
-    float weight = Math.min(1, strength) * (float) Math.pow(max / 255F, ColoredLightConfig.colorFalloff);
+    float weight = Math.min(1, strength) * falloffWeight(max);
     int rs = littleEndian ? 0 : 24, gs = littleEndian ? 8 : 16, bs = littleEndian ? 16 : 8;
     int r = Math.round((packed >>> rs & 255) * (1 - weight + weight * lr / max));
     int g = Math.round((packed >>> gs & 255) * (1 - weight + weight * lg / max));

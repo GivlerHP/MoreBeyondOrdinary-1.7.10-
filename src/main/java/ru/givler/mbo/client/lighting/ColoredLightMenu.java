@@ -47,14 +47,15 @@ public final class ColoredLightMenu {
     @Override public void initGui() {
       buttonList.clear();
       buttonList.add(new GuiButton(0,width/2-100,height/2-64,200,20,toggleLabel()));
-      buttonList.add(new GuiButton(1,width/2-100,height/2-38,200,20,valueLabel("mbo.light.saturation",ColoredLightConfig.strength)));
-      buttonList.add(new GuiButton(2,width/2-100,height/2-12,200,20,valueLabel("mbo.light.brightness",ColoredLightConfig.brightnessGain)));
+      buttonList.add(new LightSlider(1,width/2-100,height/2-38,1F,ColoredLightConfig.strength));
+      buttonList.add(new LightSlider(2,width/2-100,height/2-12,2F,ColoredLightConfig.brightnessGain));
       buttonList.add(new GuiButton(4,width/2-100,height/2+14,200,20,I18n.format("mbo.light.entities")+": "+I18n.format(ColoredLightConfig.entityLighting?"options.on":"options.off")));
       buttonList.add(new GuiButton(3,width/2-100,height/2+66,200,20,I18n.format("gui.done")));
     }
     private static String toggleLabel() { return I18n.format("mbo.light.enabled") + ": " + I18n.format(ColoredLightConfig.enabled ? "options.on" : "options.off"); }
     private static String valueLabel(String key,float value) { return I18n.format(key) + ": " + Math.round(value*100) + "%"; }
     @Override protected void actionPerformed(GuiButton button) {
+      if(button instanceof LightSlider)return;
       if (button.id == 3) { mc.displayGuiScreen(parent); return; }
       if (button.id == 4) {
         ColoredLightConfig.entityLighting=!ColoredLightConfig.entityLighting;
@@ -62,16 +63,52 @@ public final class ColoredLightMenu {
         ColoredLightConfig.saveUserOptions();initGui();return;
       }
       if (button.id == 0) ColoredLightConfig.enabled = !ColoredLightConfig.enabled;
-      if (button.id == 1) ColoredLightConfig.strength = next(ColoredLightConfig.strength,new float[]{0.25F,0.5F,0.75F,1F});
-      if (button.id == 2) ColoredLightConfig.brightnessGain = next(ColoredLightConfig.brightnessGain,new float[]{0.5F,1F,1.25F,1.5F,2F});
       ColoredLightConfig.saveUserOptions(); ColoredLightClient.INSTANCE.applyOptions(); initGui();
     }
-    private static float next(float value,float[] values) { for (float candidate : values) if (candidate > value + 0.001F) return candidate; return values[0]; }
+    @Override public void onGuiClosed() {
+      for(Object button:buttonList)if(button instanceof LightSlider)((LightSlider)button).commit();
+    }
     @Override protected void keyTyped(char letter,int key) { if (key == 1) mc.displayGuiScreen(parent); }
     @Override public void drawScreen(int mouseX,int mouseY,float partial) {
       drawDefaultBackground(); drawCenteredString(fontRendererObj,I18n.format("mbo.light.title"),width/2,28,0xFFFFFF);
       drawCenteredString(fontRendererObj,I18n.format("mbo.light.offHint"),width/2,height/2+44,0xAAAAAA);
       super.drawScreen(mouseX,mouseY,partial);
+    }
+  }
+  public static final class LightSlider extends GuiButton {
+    private final float maximum;
+    private float value;
+    private boolean dragging,changed;
+    LightSlider(int id,int x,int y,float maximum,float initial) {
+      super(id,x,y,200,20,"");this.maximum=maximum;value=Math.max(0,Math.min(maximum,initial));label();
+    }
+    static float mouseValue(int mouseX,int x,int width,float maximum) {
+      float fraction=Math.max(0,Math.min(1,(mouseX-x-4)/(float)(width-8)));
+      return Math.round(fraction*maximum*100)/100F;
+    }
+    private void label() {displayString=Options.valueLabel(id==1?"mbo.light.saturation":"mbo.light.brightness",value);}
+    private void update(int mouseX) {
+      float next=mouseValue(mouseX,xPosition,width,maximum);
+      if(next!=value){value=next;changed=true;label();}
+    }
+    @Override public int getHoverState(boolean hovered) {return 0;}
+    @Override public boolean mousePressed(Minecraft mc,int mouseX,int mouseY) {
+      if(!super.mousePressed(mc,mouseX,mouseY))return false;
+      dragging=true;update(mouseX);return true;
+    }
+    @Override protected void mouseDragged(Minecraft mc,int mouseX,int mouseY) {
+      if(!visible)return;
+      if(dragging)update(mouseX);
+      GL11.glColor4f(1,1,1,1);
+      int handle=xPosition+Math.round((width-8)*value/maximum);
+      drawTexturedModalRect(handle,yPosition,0,66,4,20);
+      drawTexturedModalRect(handle+4,yPosition,196,66,4,20);
+    }
+    @Override public void mouseReleased(int mouseX,int mouseY) {dragging=false;commit();}
+    private void commit() {
+      if(!changed)return;changed=false;
+      if(id==1)ColoredLightConfig.strength=value;else ColoredLightConfig.brightnessGain=value;
+      ColoredLightConfig.saveUserOptions();ColoredLightClient.INSTANCE.applyOptions();
     }
   }
 }

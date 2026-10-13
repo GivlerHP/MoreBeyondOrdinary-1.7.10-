@@ -116,8 +116,10 @@ public final class SmoothOpeningRenderer {
   public static void end() {
     int depth = DEPTH.get() - 1;
     if (depth <= 0) {
-      DEPTH.remove();
-      ACTIVE.remove();
+      // Keep the tiny per-thread slots, but drop the world/context reference.
+      // Removing them recreated two ThreadLocalMap.Entry objects on every rendered block.
+      DEPTH.set(0);
+      ACTIVE.set(null);
     } else DEPTH.set(depth);
   }
 

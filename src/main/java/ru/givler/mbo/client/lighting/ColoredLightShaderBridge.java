@@ -89,6 +89,8 @@ public final class ColoredLightShaderBridge {
       GL11.glBindTexture(GL12.GL_TEXTURE_3D, texture);
       long current = ColoredLightClient.CACHE.version() * 31 + ColoredLightClient.INSTANCE.geometryVersion();
       if (current != version || x != ox || y != oy || z != oz) {
+        long diagnosticUpload=ColoredLightDiagnostics.start();
+        long allocationUpload=ColoredLightAllocationDiagnostics.start();
         if (pixels == null) pixels = BufferUtils.createByteBuffer(SIZE * SIZE * SIZE * 4);
         pixels.clear();
         for (int bz = 0; bz < SIZE; bz++) for (int by = 0; by < SIZE; by++) for (int bx = 0; bx < SIZE; bx++) {
@@ -97,6 +99,9 @@ public final class ColoredLightShaderBridge {
           pixels.put((byte) (rgb >> 16)).put((byte) (rgb >> 8)).put((byte) rgb).put((byte) (opacity * 17));
         }
         pixels.flip(); GL12.glTexSubImage3D(GL12.GL_TEXTURE_3D, 0, 0, 0, 0, SIZE, SIZE, SIZE, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+        ColoredLightDiagnostics.upload(diagnosticUpload);
+        ColoredLightAllocationDiagnostics.end(ColoredLightAllocationDiagnostics.UPLOAD,allocationUpload);
+        ColoredLightAllocationDiagnostics.work(ColoredLightAllocationDiagnostics.UPLOAD,SIZE*SIZE*SIZE*4);
         version = current; ox = x; oy = y; oz = z;
       }
       GL20.glUniform1i(u.volume, UNIT);

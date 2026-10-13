@@ -187,10 +187,12 @@ public final class WaterloggedBlockRenderer {
   private static void renderWaterBody(World world, ClientWaterloggedBlocks.Position position) {
     boolean[] free =
         WaterloggedGeometry.waterCellsForRender(world, position.x, position.y, position.z);
+    // All subcells belong to the same block and use the same biome colour.
+    int color = Blocks.water.colorMultiplier(world, position.x, position.y, position.z);
     if (world.getBlock(position.x, position.y, position.z) instanceof BlockPane
-        && renderMergedPaneWater(world, position, free)) return;
+        && renderMergedPaneWater(world, position, free, color)) return;
     if (world.getBlock(position.x, position.y, position.z) instanceof BlockPane
-        && renderPaneColumns(world, position, free)) return;
+        && renderPaneColumns(world, position, free, color)) return;
     boolean[] mergedTop = new boolean[2];
     IIcon still = Blocks.water.getIcon(1, 0);
     for (int cellY = 0; cellY < 2; cellY++) {
@@ -205,7 +207,7 @@ public final class WaterloggedBlockRenderer {
       if (fullLayer && shouldRenderFace(world, position, 0, cellY, 0, 0, 1, 0)) {
         double minY = cellY == 0 ? 0.0D : 0.5D;
         double maxY = mergedHeight;
-        setFaceLighting(world, position, 1, Blocks.water.colorMultiplier(world, position.x, position.y, position.z));
+        setFaceLighting(world, position, 1, color);
         renderFace(position, 0.0D, minY, 0.0D, 1.0D, maxY, 1.0D, 1, still);
         mergedTop[cellY] = true;
       }
@@ -214,12 +216,12 @@ public final class WaterloggedBlockRenderer {
       for (int cellY = 0; cellY < 2; cellY++)
         for (int cellZ = 0; cellZ < 2; cellZ++) {
           if (!free[WaterloggedGeometry.index(cellX, cellY, cellZ)]) continue;
-          renderCell(world, position, cellX, cellY, cellZ, mergedTop[cellY]);
+          renderCell(world, position, cellX, cellY, cellZ, mergedTop[cellY], color);
         }
   }
 
   private static boolean renderMergedPaneWater(
-      World world, ClientWaterloggedBlocks.Position position, boolean[] wet) {
+      World world, ClientWaterloggedBlocks.Position position, boolean[] wet, int color) {
     int minX = 2, minZ = 2, maxX = -1, maxZ = -1;
     for (int x = 0; x < 2; ++x) for (int z = 0; z < 2; ++z) {
       if (wet[WaterloggedGeometry.index(x, 0, z)] != wet[WaterloggedGeometry.index(x, 1, z)]) return false;
@@ -248,7 +250,6 @@ public final class WaterloggedBlockRenderer {
     }
     double[] low = WaterloggedGeometry.paneWaterCellBounds(wet, minX, 0, minZ);
     double[] high = WaterloggedGeometry.paneWaterCellBounds(wet, maxX, 0, maxZ);
-    int color = Blocks.water.colorMultiplier(world, position.x, position.y, position.z);
     // One quad per face instead of independently sorted half-cell tiles. Stained
     // glass is translucent too; small tiles otherwise interleave with its large faces.
     for (int side = 0; side < 6; ++side) if (visible[side]) {
@@ -259,7 +260,7 @@ public final class WaterloggedBlockRenderer {
     return true;
   }
 
-  private static boolean renderPaneColumns(World world, ClientWaterloggedBlocks.Position position, boolean[] wet) {
+  private static boolean renderPaneColumns(World world, ClientWaterloggedBlocks.Position position, boolean[] wet, int color) {
     int[][] directions = {{0,-1,0},{0,1,0},{0,0,-1},{0,0,1},{-1,0,0},{1,0,0}};
     java.util.List<double[]> faces = new java.util.ArrayList<double[]>();
     for (int x = 0; x < 2; ++x) for (int z = 0; z < 2; ++z) {
@@ -294,7 +295,6 @@ public final class WaterloggedBlockRenderer {
         }
       }
     } while (changed);
-    int color = Blocks.water.colorMultiplier(world,position.x,position.y,position.z);
     for (double[] face : faces) {
       int side = (int)face[6];
       setFaceLighting(world,position,side,color);
@@ -310,7 +310,7 @@ public final class WaterloggedBlockRenderer {
       int cellX,
       int cellY,
       int cellZ,
-      boolean topAlreadyRendered) {
+      boolean topAlreadyRendered, int color) {
     double minX = cellX == 0 ? 0.0D : 0.5D;
     double minY = cellY == 0 ? 0.0D : 0.5D;
     double minZ = cellZ == 0 ? 0.0D : 0.5D;
@@ -323,7 +323,6 @@ public final class WaterloggedBlockRenderer {
           cellX, cellY, cellZ);
       minX = bounds[0]; maxX = bounds[1]; minZ = bounds[2]; maxZ = bounds[3];
     }
-    int color = Blocks.water.colorMultiplier(world, position.x, position.y, position.z);
     IIcon still = Blocks.water.getIcon(1, 0);
     IIcon flowing = Blocks.water.getIcon(2, 0);
     if (shouldRenderFace(world, position, cellX, cellY, cellZ, 0, -1, 0)) {
