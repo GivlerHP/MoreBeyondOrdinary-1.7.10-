@@ -1893,3 +1893,8 @@ mbo.platform.activationMode=Режим запуска
 mbo.platform.waitShort=Время
 
 mbo.platform.error.incompleteModel=Выделите модель целиком, включая её блоки коллизии.
+mbo.light.title=Цветное освещение
+mbo.light.enabled=Цветной свет
+mbo.light.saturation=Насыщенность
+mbo.light.brightness=Яркость
+mbo.light.offHint=При отключении данные света очищаются.

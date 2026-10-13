@@ -61,10 +61,17 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
 
         // Preserve RenderBlockItem's own lightmap exactly as the old static
         // renderer did. Only world TESRs calculate light from block position.
+        int rgb=0, worldLight=0;
         if (!itemRender) {
             int light=tile instanceof ru.givler.mbo.tileentity.ModelTileBase
                 ?((ru.givler.mbo.tileentity.ModelTileBase)tile).movingPlatformLight:-1;
             if(light<0)light=tile.getWorldObj().getLightBrightnessForSkyBlocks(tile.xCoord,tile.yCoord,tile.zCoord,0);
+            ru.givler.mbo.tileentity.ModelTileBase moving=tile instanceof ru.givler.mbo.tileentity.ModelTileBase ? (ru.givler.mbo.tileentity.ModelTileBase)tile : null;
+            boolean platform=moving!=null && !Double.isNaN(moving.movingPlatformLightX);
+            rgb=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldRGB(platform?moving.movingPlatformLightX:tile.xCoord+.5,
+                platform?moving.movingPlatformLightY:tile.yCoord+.5,platform?moving.movingPlatformLightZ:tile.zCoord+.5);
+            worldLight=light;
+            light=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldBrightness(light,rgb);
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit,
                     (float) (light % 65536), (float) (light / 65536));
         }
@@ -104,9 +111,14 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
                 GeoAnimatedBlockRenderer<ru.givler.mbo.tileentity.ModelTileBase> renderer=
                     (GeoAnimatedBlockRenderer<ru.givler.mbo.tileentity.ModelTileBase>)(GeoAnimatedBlockRenderer<?>)this;
                 cached=StaticDecorRenderCache.INSTANCE.render(renderer,
-                    (ru.givler.mbo.tileentity.ModelTileBase)tile,modelLocation,red,green,blue,alpha);
+                    (ru.givler.mbo.tileentity.ModelTileBase)tile,modelLocation,red,green,blue,alpha,rgb,worldLight);
             }
-            if(!cached) this.render(model,tile,partialTicks,red,green,blue,alpha);
+            if(!cached) {
+                int tint=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldTint(-1,worldLight,rgb);
+                boolean little=java.nio.ByteOrder.nativeOrder()==java.nio.ByteOrder.LITTLE_ENDIAN;
+                red*= (tint>>>(little?0:24)&255)/255F; green*= (tint>>>(little?8:16)&255)/255F; blue*= (tint>>>(little?16:8)&255)/255F;
+                this.render(model,tile,partialTicks,red,green,blue,alpha);
+            }
             DecorRenderDiagnostics.endModel(diagnosticStart,cached);
         } finally {
             GlStateManager.popMatrix();

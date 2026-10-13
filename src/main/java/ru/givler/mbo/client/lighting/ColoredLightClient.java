@@ -33,6 +33,23 @@ public final class ColoredLightClient {
   public long geometryVersion() { return geometryVersion; }
   public int opacity(int x, int y, int z) { return lighting.opacity(x, y, z); }
   public String statistics() { return "sections=" + lighting.sectionCount() + ", pending=" + scans.size() + ", ready=" + cacheActive; }
+  public void applyOptions() {
+    Minecraft mc = Minecraft.getMinecraft();
+    if (!ColoredLightConfig.enabled) release(mc);
+    else { CACHE.invalidateAll(this::mark); ColoredDynamicLights.INSTANCE.invalidate(); rebuild(mc); }
+  }
+  private void release(Minecraft mc) {
+    CACHE.invalidateAll(this::mark);
+    Set<Section> previous = new LinkedHashSet<>(dirty);
+    if (world != null) world.removeWorldAccess(observer);
+    world = null; reset(); dirty.addAll(previous);
+    ColoredDynamicLights.INSTANCE.clear(mc);
+    ColoredLightShaderBridge.release();
+    ColoredEntityLightHooks.release();
+    geometryVersion++; dirty.clear();
+    // Clear all baked vertex colors, including diagonal sampling and previously lit moving sources.
+    if (mc.theWorld != null && mc.renderGlobal != null) mc.renderGlobal.loadRenderers();
+  }
   public void reloadInputs() {
     CACHE.invalidateAll(this::mark);
     Set<Section> previous = new LinkedHashSet<>(dirty);
@@ -43,9 +60,13 @@ public final class ColoredLightClient {
   @SubscribeEvent public void tick(TickEvent.ClientTickEvent event) {
     if (event.phase != TickEvent.Phase.END) return;
     Minecraft mc = Minecraft.getMinecraft();
+    if (!ColoredLightConfig.enabled) {
+      if (world != null || cacheActive || volume != null) release(mc);
+      return;
+    }
     if (world != mc.theWorld) {
       if (world != null) world.removeWorldAccess(observer);
-      world = mc.theWorld; reset();
+      world = mc.theWorld; reset(); ColoredDynamicLights.INSTANCE.clear(mc); ColoredLightShaderBridge.release();
       if (world != null) world.addWorldAccess(observer);
     }
     if (world == null || mc.renderViewEntity == null || mc.isGamePaused()) return;
@@ -88,6 +109,7 @@ public final class ColoredLightClient {
     volume = null; cacheActive = false; CACHE.clear((x, y, z) -> {});
     lighting = new ColoredLightSections(); dirty.clear(); waiting.clear(); known.clear(); scans.clear(); polls.clear();
     scanning = null; cx = Integer.MIN_VALUE; disabled = false; urgent = true; pause = 0;
+    scanOpacity = null; scanEmission = null; cursor = 0;
   }
 
   private int inputRadius() { return (ColoredLightConfig.radius + 30) / 16; }

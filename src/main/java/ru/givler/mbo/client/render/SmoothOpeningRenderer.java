@@ -148,6 +148,7 @@ public final class SmoothOpeningRenderer {
     else rotateGate(out, c, delta);
     return out;
   }
+  public static boolean hasAnimationContext() { return ACTIVE.get()!=null; }
 
   private static boolean belongsToRenderedBlock(Context context, double x, double y, double z) {
     State state = context.state;

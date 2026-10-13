@@ -18,6 +18,7 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     public int movingPlatformRopeMask=-1;
     public boolean movingPlatformRopeConnector;
     public int movingPlatformLight=-1;
+    public double movingPlatformLightX=Double.NaN, movingPlatformLightY, movingPlatformLightZ;
     private Boolean lastCageAnimationOpen;
     private String cageAnimation;
     public String textureName;

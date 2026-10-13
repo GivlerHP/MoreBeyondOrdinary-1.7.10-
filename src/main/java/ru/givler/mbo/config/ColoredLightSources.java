@@ -16,6 +16,8 @@ public final class ColoredLightSources {
   private static volatile Map<Block, Rules> blocks = Collections.emptyMap();
   private static volatile Map<Item, Rules> items = Collections.emptyMap();
   private static volatile Map<String, ColoredLightRule> entities = Collections.emptyMap();
+  public static volatile boolean coloredBurning = true;
+  public static volatile int burningBrightness = 15;
   private static final class Rules {
     ColoredLightRule all;
     final Map<Integer, ColoredLightRule> meta = new HashMap<>();
@@ -23,22 +25,26 @@ public final class ColoredLightSources {
     void add(ColoredLightRule rule) { if (rule.metadata < 0) all = rule; else meta.put(rule.metadata, rule); }
   }
   private ColoredLightSources() {}
-  public static void configure(File directory) { file = new File(directory, "MoreBeyondOrdinary/colored-light-sources.json"); }
+  public static void configure(File directory) { ColoredLightConfig.configure(directory); file = ColoredLightConfig.file(); }
 
   public static boolean reload() {
     try {
-      if (!file.isFile()) {
-        Files.createDirectories(file.toPath().getParent());
-        JsonObject defaults = new JsonObject(), b = new JsonObject(), i = new JsonObject();
-        b.add("minecraft:torch", rule("#FFB86C")); b.add("minecraft:lit_furnace", rule("#FF9348"));
-        b.add("minecraft:lava", rule("#FF651C")); b.add("minecraft:flowing_lava", rule("#FF651C"));
-        i.add("minecraft:torch", rule("#FFB86C")); defaults.add("blocks", b); defaults.add("items", i); defaults.add("entities", new JsonObject());
-        try (Writer out = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) { new GsonBuilder().setPrettyPrinting().create().toJson(defaults, out); }
-      }
-      JsonObject root;
-      try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) { root = new JsonParser().parse(reader).getAsJsonObject(); }
+      JsonObject root = ColoredLightConfig.readOrCreate();
+      Runnable applyOptions = ColoredLightConfig.validate(root);
       Map<Block, Rules> nextBlocks = new IdentityHashMap<>(); Map<Item, Rules> nextItems = new IdentityHashMap<>();
       Map<String, ColoredLightRule> nextEntities = new HashMap<>();
+      boolean nextBurning = true; int nextBurningBrightness = 15;
+      if (root.has("effects") && root.getAsJsonObject("effects").has("colored_burning")) {
+        JsonObject effect = root.getAsJsonObject("effects").getAsJsonObject("colored_burning");
+        if (effect.has("enabled")) nextBurning = effect.get("enabled").getAsBoolean();
+        if (effect.has("color") && !effect.get("color").getAsString().equalsIgnoreCase("auto")) throw new IllegalArgumentException("Colored burning color must be auto; it follows MBO fire state");
+        if (effect.has("brightness")) {
+          String level = effect.get("brightness").getAsString();
+          if (!level.matches("[0-9]+")) throw new IllegalArgumentException("Burning brightness must be an integer 0..15");
+          nextBurningBrightness = Integer.parseInt(level);
+          if (nextBurningBrightness > 15) throw new IllegalArgumentException("Burning brightness must be 0..15");
+        }
+      }
       load(root, "blocks", (id, value) -> {
         ColoredLightRule rule = ColoredLightRule.parse(id, value, true);
         Block block = (Block) Block.blockRegistry.getObject(rule.name);
@@ -57,6 +63,8 @@ public final class ColoredLightSources {
         nextEntities.put(rule.name.toLowerCase(Locale.ROOT), rule);
       });
       blocks = nextBlocks; items = nextItems; entities = nextEntities;
+      coloredBurning = nextBurning; burningBrightness = nextBurningBrightness;
+      applyOptions.run();
       return true;
     } catch (IOException | RuntimeException error) {
       System.err.println("[MBO] Keeping previous colored-light rules: " + error); return false;
@@ -70,7 +78,6 @@ public final class ColoredLightSources {
       catch (RuntimeException error) { System.err.println("[MBO] Ignoring light rule " + category + "/" + entry.getKey() + ": " + error.getMessage()); }
     }
   }
-  private static JsonObject rule(String color) { JsonObject rule = new JsonObject(); rule.addProperty("color", color); return rule; }
   public static ColoredLightRule block(Block block, int meta) { Rules rules = blocks.get(block); return rules == null ? null : rules.get(meta); }
   public static ColoredLightRule item(ItemStack stack) { if (stack == null) return null; Rules rules = items.get(stack.getItem()); return rules == null ? null : rules.get(stack.getItemDamage()); }
   public static ColoredLightRule entity(String id) { return entities.get(id); }

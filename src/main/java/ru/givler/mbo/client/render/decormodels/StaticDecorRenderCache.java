@@ -39,6 +39,10 @@ public final class StaticDecorRenderCache implements IResourceManagerReloadListe
 
     public boolean render(GeoAnimatedBlockRenderer<ModelTileBase> renderer,ModelTileBase tile,
             ResourceLocation location,float red,float green,float blue,float alpha) {
+        return render(renderer,tile,location,red,green,blue,alpha,0,0);
+    }
+    public boolean render(GeoAnimatedBlockRenderer<ModelTileBase> renderer,ModelTileBase tile,
+            ResourceLocation location,float red,float green,float blue,float alpha,int rgb,int light) {
         if(!enabled) return false;
         Key key=new Key(location,red,green,blue,alpha);
         TesselatorVertexState mesh=meshes.get(key);
@@ -73,6 +77,11 @@ public final class StaticDecorRenderCache implements IResourceManagerReloadListe
             builder.startDrawingQuads();
             if(mesh.getVertexCount()>0) builder.setVertexState(mesh);
         }
+        // Tint only the Tessellator copy; shared immutable geometry remains reusable at any position.
+        if(rgb!=0) try {
+            int[] raw=(int[])RAW.get(builder); int length=INDEX.getInt(builder);
+            for(int i=5;i<length;i+=8) raw[i]=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldTint(raw[i],light,rgb);
+        } catch(IllegalAccessException error) { throw new IllegalStateException("Cannot tint decor vertices",error); }
         builder.draw();
         GlStateManager.disableBlend();
         GlStateManager.enableCull();

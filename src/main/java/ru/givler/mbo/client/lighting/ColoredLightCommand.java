@@ -25,11 +25,12 @@ public final class ColoredLightCommand extends CommandBase {
       return;
     }
     if (args.length == 1 && args[0].equals("reload")) {
-      ru.givler.mbo.config.ColoredLightConfig.load(ColoredLightSources.file().getParentFile().getParentFile());
       boolean loaded = ColoredLightSources.reload();
       if (loaded) { ColoredLightClient.INSTANCE.reloadInputs(); ColoredDynamicLights.INSTANCE.invalidate(); }
+      ColoredLightClient.INSTANCE.applyOptions();
       sender.addChatMessage(new ChatComponentText(loaded ? "MBO RGB rules reloaded: " + ColoredLightSources.file() : "MBO RGB rules rejected; previous rules retained. Check the log."));
     } else sender.addChatMessage(new ChatComponentText("MBO RGB: " + ColoredLightClient.INSTANCE.statistics()
-        + ", moving=" + ColoredDynamicLights.INSTANCE.sources().size() + ", shader=" + ColoredLightShaderBridge.active));
+        + ", moving=" + ColoredDynamicLights.INSTANCE.sources().size() + ", dynamicCells=" + ColoredDynamicLights.INSTANCE.cachedCells()
+        + ", shader=" + ColoredLightShaderBridge.active + ", gpuField=" + ColoredLightShaderBridge.retainsField()));
   }
 }

@@ -240,6 +240,7 @@ public class ClientProxy extends CommonProxy {
     net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.lighting.ColoredLightCommand());
     FMLCommonHandler.instance().bus().register(ru.givler.mbo.client.lighting.ColoredLightClient.INSTANCE);
     MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.lighting.ColoredLightClient.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.client.lighting.ColoredLightMenu());
     registerFenceRenderer();
     registerBarrierRenderer();
     int adminFireRenderId = RenderingRegistry.getNextAvailableRenderId();

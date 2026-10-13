@@ -126,6 +126,7 @@ public class RenderMovingPlatform extends Render {
       tile.xCoord=(int)Math.floor(platform.posX)+b.x;tile.yCoord=(int)Math.floor(platform.posY)+b.y;tile.zCoord=(int)Math.floor(platform.posZ)+b.z;
       tile.cageOpen=b.tileData.getBoolean("cageOpen");
       tile.movingPlatformLight=interpolateLight(samples,wx+b.x,wy+b.y,wz+b.z);
+      tile.movingPlatformLightX=wx+b.x+.5; tile.movingPlatformLightY=wy+b.y+.5; tile.movingPlatformLightZ=wz+b.z+.5;
       decorRenderer.renderTileEntityAt(tile,b.x,b.y,b.z,partial);
     }
     } finally {
@@ -144,6 +145,7 @@ public class RenderMovingPlatform extends Render {
                 platform.getSizeZ(), platform.worldObj, (int) Math.floor(worldX),
                 (int) Math.floor(worldY), (int) Math.floor(worldZ)));
     renderer.renderAllFaces = true;
+    ((PlatformBlockAccess)renderer.blockAccess).setLightOrigin(worldX,worldY,worldZ);
     Tessellator tessellator = Tessellator.instance;
     tessellator.startDrawingQuads();
     for (PlatformBlock block : platform.getBlocks())
@@ -170,6 +172,7 @@ public class RenderMovingPlatform extends Render {
       signature = 31 * signature + b.z;
     }
     signature = 31 * signature + Arrays.hashCode(light);
+    signature=31*signature+rgbSignature(worldX,worldY,worldZ);
     int cx = ox + platform.getSizeX() / 2, cz = oz + platform.getSizeZ() / 2;
     signature = 31 * signature + platform.worldObj.getBiomeGenForCoords(cx, cz).biomeID;
     if (old != null && old.signature == signature) { old.samples=samples; return old; }
@@ -182,6 +185,7 @@ public class RenderMovingPlatform extends Render {
                 platform.getBlocks(), light, platform.getSizeX(), platform.getSizeY(),
                 platform.getSizeZ(), platform.worldObj, ox, oy, oz));
     renderer.renderAllFaces = true;
+    ((PlatformBlockAccess)renderer.blockAccess).setLightOrigin(worldX,worldY,worldZ);
     Tessellator tessellator = Tessellator.instance;
     tessellator.startDrawingQuads();
     for (PlatformBlock b : platform.getBlocks()) {
@@ -202,6 +206,22 @@ public class RenderMovingPlatform extends Render {
   private static int[] interpolatedLightField(
       EntityMovingPlatform platform, double worldX, double worldY, double worldZ) {
     return interpolatedLightField(platform,worldX,worldY,worldZ,new LightSamples(platform,worldX,worldY,worldZ));
+  }
+  static int rgbSignature(double x,double y,double z) {
+    int signature=ru.givler.mbo.config.ColoredLightConfig.enabled ? 1 : 0;
+    if(signature==0)return 0;
+    long version=ru.givler.mbo.client.lighting.ColoredLightClient.CACHE.version();
+    signature=31*signature+(int)(version^(version>>>32));
+    signature=31*signature+ru.givler.mbo.client.lighting.ColoredDynamicLights.INSTANCE.sources().hashCode();
+    signature=31*signature+Float.floatToIntBits(ru.givler.mbo.config.ColoredLightConfig.strength);
+    signature=31*signature+Float.floatToIntBits(ru.givler.mbo.config.ColoredLightConfig.brightnessGain);
+    signature=31*signature+Float.floatToIntBits(ru.givler.mbo.config.ColoredLightConfig.colorFalloff);
+    signature=31*signature+ru.givler.mbo.client.lighting.ColoredLightClient.skyDarkness;
+    signature=31*signature+(ru.givler.mbo.client.lighting.ColoredLightShaderBridge.active?1:0);
+    if(ru.givler.mbo.client.lighting.ColoredLightClient.cacheActive || ru.givler.mbo.client.lighting.ColoredLightClient.volume!=null) {
+      signature=31*signature+(int)Math.floor(x*16); signature=31*signature+(int)Math.floor(y*16); signature=31*signature+(int)Math.floor(z*16);
+    }
+    return signature;
   }
 
   private static int[] interpolatedLightField(

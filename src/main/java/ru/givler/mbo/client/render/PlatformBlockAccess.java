@@ -12,7 +12,12 @@ import net.minecraftforge.common.util.ForgeDirection;
 import ru.givler.mbo.movingplatform.PlatformBlock;
 
 /** A small immutable world view used to render connected blocks on a moving platform. */
-final class PlatformBlockAccess implements IBlockAccess {
+final class PlatformBlockAccess implements IBlockAccess, ru.givler.mbo.client.lighting.ColoredLightRenderHooks.WorldCoordinates {
+  private double rgbX, rgbY, rgbZ;
+  public double lightOriginX() { return rgbX; }
+  public double lightOriginY() { return rgbY; }
+  public double lightOriginZ() { return rgbZ; }
+  void setLightOrigin(double x,double y,double z) { rgbX=x; rgbY=y; rgbZ=z; }
   private final Map<Long, PlatformBlock> blocks = new HashMap<Long, PlatformBlock>();
   private final Map<Long, Integer> frozenLight = new HashMap<Long, Integer>();
   private int[] lightField;
@@ -37,6 +42,7 @@ final class PlatformBlockAccess implements IBlockAccess {
     this.originX = originX;
     this.originY = originY;
     this.originZ = originZ;
+    setLightOrigin(originX,originY,originZ);
     this.useWorldOutside = useWorldOutside;
     for (PlatformBlock block : source) blocks.put(key(block.x, block.y, block.z), block);
   }

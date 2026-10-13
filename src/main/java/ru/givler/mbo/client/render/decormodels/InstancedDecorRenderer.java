@@ -23,7 +23,7 @@ import ru.givler.mbo.tileentity.ModelTileBase;
 public final class InstancedDecorRenderer implements IResourceManagerReloadListener {
     public static final InstancedDecorRenderer INSTANCE=new InstancedDecorRenderer();
     private final Map<ChunkDecorRenderer.Mesh,GpuMesh> meshes=new IdentityHashMap<>();
-    private int program,instancesVbo,instanceAttribute,lightAttribute;
+    private int program,instancesVbo,instanceAttribute,lightAttribute,tintAttribute;
     private int submitted,draws,visible;
     private long meshBytes;
     private String failure="";
@@ -31,12 +31,12 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
     private InstancedDecorRenderer() {}
 
     private static final String VERTEX=
-        "#version 120\nattribute vec4 aInstance; attribute vec2 aLight;\n"
-        +"varying vec2 vUv; varying vec2 vLight; varying float vShade; varying float vDistance;\n"
+        "#version 120\nattribute vec4 aInstance; attribute vec2 aLight; attribute vec3 aTint;\n"
+        +"varying vec3 vTint; varying vec2 vUv; varying vec2 vLight; varying float vShade; varying float vDistance;\n"
         +"uniform int uRadial;\n"
         +"vec3 turn(vec3 p,float r){if(r<0.5)return vec3(-p.x,p.y,-p.z);"
         +"if(r<1.5)return vec3(p.z,p.y,-p.x);if(r<2.5)return p;return vec3(-p.z,p.y,p.x);}\n"
-        +"void main(){vec3 p=turn(gl_Vertex.xyz,aInstance.w)+aInstance.xyz;"
+        +"void main(){vTint=aTint;vec3 p=turn(gl_Vertex.xyz,aInstance.w)+aInstance.xyz;"
         +"vec3 n=turn(gl_Normal,aInstance.w);"
         +"vec3 l=normalize(vec3(0.2,1.0,-0.7));vec3 q=normalize(vec3(-0.2,1.0,0.7));"
         +"vShade=clamp(0.4+0.6*(max(0.0,dot(n,l))+max(0.0,dot(n,q))),0.0,1.0);"
@@ -46,9 +46,9 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
     private static final String FRAGMENT=
         "#version 120\nuniform sampler2D uTexture;uniform sampler2D uLightmap;"
         +"uniform int uFog;uniform int uFogMode;uniform float uAlpha;\n"
-        +"varying vec2 vUv;varying vec2 vLight;varying float vShade;varying float vDistance;\n"
+        +"varying vec3 vTint; varying vec2 vUv;varying vec2 vLight;varying float vShade;varying float vDistance;\n"
         +"void main(){vec4 tex=texture2D(uTexture,vUv);if(tex.a<=uAlpha)discard;"
-        +"vec4 color=tex*vec4(vec3(vShade),1.0)*texture2D(uLightmap,vLight);"
+        +"vec4 color=tex*vec4(vec3(vShade)*vTint,1.0)*texture2D(uLightmap,vLight);"
         +"if(uFog!=0){float f;if(uFogMode==9729)f=(gl_Fog.end-vDistance)*gl_Fog.scale;"
         +"else if(uFogMode==2048)f=exp(-gl_Fog.density*vDistance);"
         +"else {float d=gl_Fog.density*vDistance;f=exp(-d*d);}"
@@ -92,12 +92,13 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
             vertex=shader(GL20.GL_VERTEX_SHADER,VERTEX);fragment=shader(GL20.GL_FRAGMENT_SHADER,FRAGMENT);
             newProgram=GL20.glCreateProgram();GL20.glAttachShader(newProgram,vertex);GL20.glAttachShader(newProgram,fragment);
             GL20.glBindAttribLocation(newProgram,6,"aInstance");GL20.glBindAttribLocation(newProgram,7,"aLight");
+            GL20.glBindAttribLocation(newProgram,8,"aTint");
             GL20.glLinkProgram(newProgram);
             if(GL20.glGetProgrami(newProgram,GL20.GL_LINK_STATUS)==GL11.GL_FALSE)
                 throw new IllegalStateException(GL20.glGetProgramInfoLog(newProgram,8192));
             program=newProgram;newProgram=0;
             instanceAttribute=GL20.glGetAttribLocation(program,"aInstance");lightAttribute=GL20.glGetAttribLocation(program,"aLight");
-            instancesVbo=GL15.glGenBuffers();
+            tintAttribute=GL20.glGetAttribLocation(program,"aTint"); instancesVbo=GL15.glGenBuffers();
         } finally {
             if(vertex!=0)GL20.glDeleteShader(vertex);if(fragment!=0)GL20.glDeleteShader(fragment);
             if(newProgram!=0)GL20.glDeleteProgram(newProgram);
@@ -156,8 +157,13 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
                     BlockModels block=(BlockModels)tile.getBlockType();
                     int facing=ChunkDecorRenderer.renderFacing(block,mc.theWorld,tile.xCoord,tile.yCoord,tile.zCoord,tile.getBlockMetadata());
                     int light=mc.theWorld.getLightBrightnessForSkyBlocks(tile.xCoord,tile.yCoord,tile.zCoord,0);
+                    int rgb=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldRGB(tile.xCoord+.5,tile.yCoord+.5,tile.zCoord+.5);
+                    int tint=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldTint(-1,light,rgb);
+                    light=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldBrightness(light,rgb);
+                    boolean little=java.nio.ByteOrder.nativeOrder()==java.nio.ByteOrder.LITTLE_ENDIAN;
                     gpu.data.put((float)(tile.xCoord-cx+.5)).put((float)(tile.yCoord-cy+.01+block.getModelOffsetY()))
-                        .put((float)(tile.zCoord-cz+.5)).put(facing).put(light&65535).put(light>>>16);
+                        .put((float)(tile.zCoord-cz+.5)).put(facing).put(light&65535).put(light>>>16)
+                        .put((tint>>>(little?0:24)&255)/255F).put((tint>>>(little?8:16)&255)/255F).put((tint>>>(little?16:8)&255)/255F);
                 }
                 gpu.data.flip();mc.renderEngine.bindTexture(gpu.texture);draw(gpu,gpu.data,count);draws++;
             }
@@ -198,16 +204,19 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
         GL11.glVertexPointer(3,GL11.GL_FLOAT,32,0L);GL11.glTexCoordPointer(2,GL11.GL_FLOAT,32,12L);GL11.glNormalPointer(GL11.GL_FLOAT,32,20L);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER,instancesVbo);GL15.glBufferData(GL15.GL_ARRAY_BUFFER,data,GL15.GL_STREAM_DRAW);
         GL20.glEnableVertexAttribArray(instanceAttribute);GL20.glEnableVertexAttribArray(lightAttribute);
-        GL20.glVertexAttribPointer(instanceAttribute,4,GL11.GL_FLOAT,false,24,0L);
-        GL20.glVertexAttribPointer(lightAttribute,2,GL11.GL_FLOAT,false,24,16L);
+        GL20.glVertexAttribPointer(instanceAttribute,4,GL11.GL_FLOAT,false,36,0L);
+        GL20.glVertexAttribPointer(lightAttribute,2,GL11.GL_FLOAT,false,36,16L);
         GL33.glVertexAttribDivisor(instanceAttribute,1);GL33.glVertexAttribDivisor(lightAttribute,1);
-        GL31.glDrawArraysInstanced(GL11.GL_QUADS,0,gpu.vertices,count);
+        GL20.glEnableVertexAttribArray(tintAttribute); GL20.glVertexAttribPointer(tintAttribute,3,GL11.GL_FLOAT,false,36,24L);
+        GL33.glVertexAttribDivisor(tintAttribute,1);
+        try { GL31.glDrawArraysInstanced(GL11.GL_QUADS,0,gpu.vertices,count); }
+        finally { GL33.glVertexAttribDivisor(tintAttribute,0); GL20.glDisableVertexAttribArray(tintAttribute); }
         GL33.glVertexAttribDivisor(instanceAttribute,0);GL33.glVertexAttribDivisor(lightAttribute,0);
         GL20.glDisableVertexAttribArray(instanceAttribute);GL20.glDisableVertexAttribArray(lightAttribute);
     }
     private static final class GpuMesh {
         final int vbo,vertices;final long bytes;final ResourceLocation texture;
-        final ArrayList<ModelTileBase> instances=new ArrayList<>();FloatBuffer data=BufferUtils.createFloatBuffer(6*16);
+        final ArrayList<ModelTileBase> instances=new ArrayList<>();FloatBuffer data=BufferUtils.createFloatBuffer(9*16);
         GpuMesh(ChunkDecorRenderer.Mesh mesh,BlockModels block) {
             int[] raw=mesh.raw;vertices=raw.length/8;bytes=vertices*32L;
             FloatBuffer buffer=BufferUtils.createFloatBuffer(vertices*8);
@@ -223,7 +232,7 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
             texture=mesh.icon instanceof DecorAtlasSprite ? ((DecorAtlasSprite)mesh.icon).source
                 : new ResourceLocation(icon.getResourceDomain(),"textures/blocks/"+icon.getResourcePath()+".png");
         }
-        void ensureCapacity(int count) {if(data.capacity()<count*6)data=BufferUtils.createFloatBuffer(Integer.highestOneBit(count*6-1)<<1);}
+        void ensureCapacity(int count) {if(data.capacity()<count*9)data=BufferUtils.createFloatBuffer(Integer.highestOneBit(count*9-1)<<1);}
     }
     private void clearMeshes() {
         for(GpuMesh mesh:meshes.values())GL15.glDeleteBuffers(mesh.vbo);meshes.clear();meshBytes=0;submitted=visible=draws=0;

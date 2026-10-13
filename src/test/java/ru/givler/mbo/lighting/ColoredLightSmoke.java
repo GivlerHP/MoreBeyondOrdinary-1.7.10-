@@ -16,11 +16,14 @@ import ru.givler.mbo.client.lighting.ColoredLightClient;
 import ru.givler.mbo.client.lighting.ColoredLightRenderHooks;
 import ru.givler.mbo.core.ColoredLightTransformer;
 import sun.misc.Unsafe;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
 
 /** Propagation, walls, mixing, native colors and real Forge/OptiFine bytecode regression checks. */
 public final class ColoredLightSmoke {
   public static void main(String[] args) throws Exception {
-    rules(); mf2Bridge(); propagation(); color(); sectionTransitions(); incrementalSections(); vanillaBytecode(); clientNightLighting();
+    rules(); defaults(); burning(); mf2Bridge(); propagation(); color(); sectionTransitions(); incrementalSections(); vanillaBytecode(); customGeometry(); clientNightLighting();
     if (Boolean.getBoolean("mbo.lightPixels")) shaderPrograms();
     if (args.length == 3) optifineBytecode(args);
     System.out.println("Colored light smoke passed");
@@ -30,6 +33,33 @@ public final class ColoredLightSmoke {
     ColoredLightVolume v = new ColoredLightVolume(size, -size / 2, 0, -size / 2);
     for (int i = 0; i < v.cells(); i++) v.setCell(i, 0, 0);
     return v;
+  }
+  private static void customGeometry() throws Exception {
+    Field field=Unsafe.class.getDeclaredField("theUnsafe"); field.setAccessible(true); Unsafe unsafe=(Unsafe)field.get(null);
+    RenderBlocks renderer=(RenderBlocks)unsafe.allocateInstance(RenderBlocks.class);
+    NightWorld world=(NightWorld)unsafe.allocateInstance(NightWorld.class); renderer.blockAccess=world;
+    ColoredLightVolume volume=blank(32); volume.setCell(index(volume,0,8,0),0,0xFF0000); finish(volume);
+    ColoredLightClient.volume=volume; ColoredLightClient.cacheActive=false;
+    long scope=ColoredLightRenderHooks.begin(renderer,0,8,0,7);
+    int worldColor=ColoredLightRenderHooks.tintVertex(-1,0,.5,8.5,.5);
+    check(worldColor!=-1,"World custom geometry remained white");
+    equal(240,ColoredLightRenderHooks.brightnessVertex(0,.5,8.5,.5)&65535);
+    ColoredLightRenderHooks.end(scope);
+    equal(-1,ColoredLightRenderHooks.tintVertex(-1,0,.5,8.5,.5));
+    world.rgbX=.25; world.rgbY=8; world.rgbZ=.25;
+    scope=ColoredLightRenderHooks.begin(renderer,0,0,0,7);
+    equal(worldColor,ColoredLightRenderHooks.tintVertex(-1,0,.25,.5,.25));
+    ColoredLightRenderHooks.end(scope);
+    renderer.blockAccess=null;
+    scope=ColoredLightRenderHooks.begin(renderer,0,8,0,7);
+    equal(-1,ColoredLightRenderHooks.tintVertex(-1,0,.5,8.5,.5)); ColoredLightRenderHooks.end(scope);
+    Method signature=ru.givler.mbo.client.render.RenderMovingPlatform.class.getDeclaredMethod("rgbSignature",double.class,double.class,double.class); signature.setAccessible(true);
+    int before=(Integer)signature.invoke(null,0D,8D,0D);
+    check(before!=(Integer)signature.invoke(null,.25D,8D,0D),"Moving platform ignored fractional RGB position");
+    float old=ru.givler.mbo.config.ColoredLightConfig.strength; ru.givler.mbo.config.ColoredLightConfig.strength=.5F;
+    check(before!=(Integer)signature.invoke(null,0D,8D,0D),"Platform cached previous RGB settings");
+    ru.givler.mbo.config.ColoredLightConfig.strength=old; ColoredLightClient.volume=null;
+    System.out.println("Custom RGB: World geometry, fractional platform coordinates, inventory isolation and cache settings passed");
   }
 
   private static void rules() {
@@ -48,6 +78,86 @@ public final class ColoredLightSmoke {
       check(rejected, "Invalid brightness accepted: " + invalid);
     }
     System.out.println("Source rules: metadata, automatic/explicit brightness, zero and invalid values passed");
+  }
+
+  private static void defaults() throws Exception {
+    com.google.gson.JsonObject base = ru.givler.mbo.config.ColoredLightConfig.createDefaults(false);
+    com.google.gson.JsonObject full = ru.givler.mbo.config.ColoredLightConfig.createDefaults(true);
+    for (String category : new String[]{"blocks", "items"}) for (Map.Entry<String, com.google.gson.JsonElement> rule : full.getAsJsonObject(category).entrySet())
+      ColoredLightRule.parse(rule.getKey(), rule.getValue(), category.equals("blocks"));
+    com.google.gson.JsonObject blocks = full.getAsJsonObject("blocks");
+    ColoredLightRule campfire = ColoredLightRule.parse("mbo:Campfire", blocks.get("mbo:Campfire"), true);
+    equal(0, campfire.emission(0)); equal(ColoredLightApi.emission(0xFFD6A0,15), campfire.emission(15));
+    int[] bulbLevels = {15,12,8,4};
+    for (int stage = 0; stage < 4; stage++) for (int wax : new int[]{0,8}) {
+      String id = "mbo:CopperBulb"+(stage+wax);
+      ColoredLightRule bulb = ColoredLightRule.parse(id,blocks.get(id),true);
+      equal(-1,bulb.brightness); equal(0,bulb.emission(0));
+      equal(ColoredLightApi.emission(0xFFD28A,bulbLevels[stage]),bulb.emission(bulbLevels[stage]));
+    }
+    check(!base.getAsJsonObject("blocks").has("Thaumcraft:blockCrystal:0"), "Absent Thaumcraft must not be seeded");
+    for (int meta = 0; meta < 6; meta++) check(blocks.has("Thaumcraft:blockCrystal:" + meta), "Missing aspect cluster");
+    for (int meta = 5; meta <= 7; meta++) equal(15, blocks.getAsJsonObject("minecraft:cauldron:" + meta).get("brightness").getAsInt());
+    check(!blocks.has("minecraft:cauldron:4") && !blocks.has("minecraft:redstone_wire:0") && !blocks.has("minecraft:furnace") && !blocks.has("minecraft:redstone_ore"), "Inactive states must not emit");
+    equal(1, blocks.getAsJsonObject("minecraft:redstone_wire:1").get("brightness").getAsInt());
+    equal(7, blocks.getAsJsonObject("minecraft:redstone_wire:15").get("brightness").getAsInt());
+    Path directory = Files.createTempDirectory("mbo-light-defaults");
+    ru.givler.mbo.config.ColoredLightSources.configure(directory.toFile());
+    Path config = ru.givler.mbo.config.ColoredLightSources.file().toPath();
+    Files.createDirectories(config.getParent());
+    byte[] custom = "{\"blocks\":{},\"items\":{},\"effects\":{\"colored_burning\":{\"enabled\":false,\"brightness\":3}}}".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    Files.write(config, custom);
+    check(ru.givler.mbo.config.ColoredLightSources.reload(), "Custom config failed");
+    check(Arrays.equals(custom, Files.readAllBytes(config)), "Existing config was overwritten");
+    check(!ru.givler.mbo.config.ColoredLightSources.coloredBurning, "Effect disable ignored");
+    equal(3, ru.givler.mbo.config.ColoredLightSources.burningBrightness);
+    Files.write(config, "{\"effects\":{\"colored_burning\":{\"brightness\":16}}}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    check(!ru.givler.mbo.config.ColoredLightSources.reload(), "Invalid effect accepted");
+    equal(3, ru.givler.mbo.config.ColoredLightSources.burningBrightness);
+    Files.write(config, "{}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    check(ru.givler.mbo.config.ColoredLightSources.reload(), "Legacy config failed");
+    check(ru.givler.mbo.config.ColoredLightSources.coloredBurning, "Legacy config lost burning support");
+    for (int meta = 0; meta < 16; meta++) check(blocks.has("Thaumcraft:blockCandle:" + meta), "Missing candle color");
+    check(blocks.has("Thaumcraft:blockMetalDevice:7") && blocks.has("Thaumcraft:blockCustomPlant:4"), "Missing lamp or bloom");
+    check(blocks.has("minecraft:lit_pumpkin") && blocks.has("minecraft:lit_redstone_lamp") && !blocks.has("minecraft:redstone_lamp"), "Incorrect decorative lamp states");
+    Files.delete(config);
+    Path obsolete = config.resolveSibling("colored-light-sources.json");
+    byte[] obsoleteContent = "{invalid legacy file".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    Files.write(obsolete, obsoleteContent);
+    com.google.gson.JsonObject fresh = ru.givler.mbo.config.ColoredLightConfig.readOrCreate();
+    check(fresh.has("lighting") && fresh.has("dynamic") && fresh.has("blocks") && fresh.has("effects"), "Unified config missing sections");
+    equal(16, fresh.getAsJsonObject("lighting").get("radius").getAsInt());
+    check(Arrays.equals(obsoleteContent, Files.readAllBytes(obsolete)), "Legacy file was migrated or modified");
+    fresh.getAsJsonObject("blocks").add("example:custom", new com.google.gson.JsonParser().parse("{\"color\":\"#123456\"}"));
+    ru.givler.mbo.config.ColoredLightConfig.write(fresh);
+    ru.givler.mbo.config.ColoredLightConfig.saveUserOptions();
+    check(ru.givler.mbo.config.ColoredLightConfig.read(config.toFile()).getAsJsonObject("blocks").has("example:custom"), "Menu save discarded source rules");
+    Files.delete(obsolete); Files.delete(config); Files.delete(config.getParent()); Files.delete(directory);
+    System.out.println("Default sources: metadata, optional Thaumcraft, preserved user config and atomic effect validation passed");
+  }
+
+  private static void burning() throws Exception {
+    Field field = Unsafe.class.getDeclaredField("theUnsafe"); field.setAccessible(true);
+    Unsafe unsafe = (Unsafe) field.get(null);
+    NightWorld world = (NightWorld) unsafe.allocateInstance(NightWorld.class); world.isRemote = true;
+    BurningSource entity = (BurningSource) unsafe.allocateInstance(BurningSource.class); entity.worldObj = world; entity.burning = true;
+    ru.givler.mbo.client.render.ColoredBurningRenderHooks.record(entity, 3, 20);
+    equal(ColoredLightApi.emission(ru.givler.mbo.block.BlockColourFire.COLORS[3], 15), ColoredLightApi.entityEmission(entity));
+    ru.givler.mbo.client.render.ColoredBurningRenderHooks.record(entity, 10, 20);
+    equal(ColoredLightApi.emission(ru.givler.mbo.block.BlockColourFire.COLORS[10], 15), ColoredLightApi.entityEmission(entity));
+    entity.burning = false; equal(0, ColoredLightApi.entityEmission(entity)); entity.burning = true;
+    ru.givler.mbo.config.ColoredLightSources.coloredBurning = false; equal(0, ColoredLightApi.entityEmission(entity));
+    ru.givler.mbo.config.ColoredLightSources.coloredBurning = true;
+    world.time = 21; equal(0, ColoredLightApi.entityEmission(entity));
+    System.out.println("Colored burning: palette changes, extinguishing, expiry and disable passed");
+  }
+  private static final class BurningSource extends net.minecraft.entity.Entity {
+    boolean burning;
+    BurningSource() { super(null); }
+    @Override public boolean isBurning() { return burning; }
+    @Override protected void entityInit() {}
+    @Override protected void readEntityFromNBT(net.minecraft.nbt.NBTTagCompound tag) {}
+    @Override protected void writeEntityToNBT(net.minecraft.nbt.NBTTagCompound tag) {}
   }
 
   private static void mf2Bridge() throws Exception {
@@ -71,6 +181,21 @@ public final class ColoredLightSmoke {
     org.lwjgl.opengl.Pbuffer context = new org.lwjgl.opengl.Pbuffer(32, 32, new org.lwjgl.opengl.PixelFormat(8, 24, 0), null, null);
     try {
       context.makeCurrent();
+      entityLightPixels();
+      Class<?> decor=ru.givler.mbo.client.render.decormodels.InstancedDecorRenderer.class;
+      Field vertexSource=decor.getDeclaredField("VERTEX"), fragmentSource=decor.getDeclaredField("FRAGMENT");
+      vertexSource.setAccessible(true); fragmentSource.setAccessible(true);
+      Path decorVertex=Paths.get("build/decor-rgb-test.vsh"), decorFragment=Paths.get("build/decor-rgb-test.fsh");
+      Files.write(decorVertex,((String)vertexSource.get(null)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      Files.write(decorFragment,((String)fragmentSource.get(null)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      int decorVs=compileShader(decorVertex,org.lwjgl.opengl.GL20.GL_VERTEX_SHADER), decorFs=compileShader(decorFragment,org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER);
+      int decorProgram=org.lwjgl.opengl.GL20.glCreateProgram();
+      org.lwjgl.opengl.GL20.glAttachShader(decorProgram,decorVs); org.lwjgl.opengl.GL20.glAttachShader(decorProgram,decorFs);
+      org.lwjgl.opengl.GL20.glLinkProgram(decorProgram);
+      check(org.lwjgl.opengl.GL20.glGetProgrami(decorProgram,org.lwjgl.opengl.GL20.GL_LINK_STATUS)!=0,"Instanced RGB shader failed: "+org.lwjgl.opengl.GL20.glGetProgramInfoLog(decorProgram,8192));
+      check(org.lwjgl.opengl.GL20.glGetAttribLocation(decorProgram,"aTint")>=0,"Instanced RGB attribute missing");
+      org.lwjgl.opengl.GL20.glDeleteProgram(decorProgram); org.lwjgl.opengl.GL20.glDeleteShader(decorVs); org.lwjgl.opengl.GL20.glDeleteShader(decorFs);
+      System.out.println("Instanced JSON decor: RGB shader compiled and linked on real OpenGL");
       Path directory = Paths.get("shaderpacks/MBO_RGB_Lite/shaders");
       try (DirectoryStream<Path> files = Files.newDirectoryStream(directory, "*.vsh")) {
         for (Path vertex : files) {
@@ -103,6 +228,63 @@ public final class ColoredLightSmoke {
     check(org.lwjgl.opengl.GL20.glGetShaderi(shader, org.lwjgl.opengl.GL20.GL_COMPILE_STATUS) != 0,
         path + ": " + org.lwjgl.opengl.GL20.glGetShaderInfoLog(shader, 8192));
     return shader;
+  }
+  private static void entityLightPixels() throws Exception {
+    Field singleton=net.minecraft.client.Minecraft.class.getDeclaredField("theMinecraft"); singleton.setAccessible(true); Object previous=singleton.get(null);
+    Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe"); unsafeField.setAccessible(true); Unsafe unsafe=(Unsafe)unsafeField.get(null);
+    net.minecraft.client.Minecraft mc=(net.minecraft.client.Minecraft)unsafe.allocateInstance(net.minecraft.client.Minecraft.class);
+    NightWorld world=(NightWorld)unsafe.allocateInstance(NightWorld.class); mc.theWorld=world; singleton.set(null,mc);
+    BurningSource entity=(BurningSource)unsafe.allocateInstance(BurningSource.class); entity.worldObj=world;
+    entity.posX=entity.lastTickPosX=.5; entity.posY=entity.lastTickPosY=16.5; entity.posZ=entity.lastTickPosZ=.5;
+    ColoredLightVolume oldVolume=ColoredLightClient.volume; boolean oldCache=ColoredLightClient.cacheActive, oldEnabled=ru.givler.mbo.config.ColoredLightConfig.enabled;
+    float oldStrength=ru.givler.mbo.config.ColoredLightConfig.strength;
+    int oldUnit=net.minecraft.client.renderer.OpenGlHelper.lightmapTexUnit;
+    float oldX=net.minecraft.client.renderer.OpenGlHelper.lastBrightnessX, oldY=net.minecraft.client.renderer.OpenGlHelper.lastBrightnessY;
+    GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+    int[] textures=new int[2];
+    try {
+      ColoredLightVolume field=blank(32); field.setCell(index(field,0,16,0),0,0xFF0000); finish(field);
+      ColoredLightClient.volume=field; ColoredLightClient.cacheActive=false; ru.givler.mbo.config.ColoredLightConfig.enabled=true; ru.givler.mbo.config.ColoredLightConfig.strength=1;
+      GL20.glUseProgram(0); GL11.glViewport(0,0,32,32); GL11.glDisable(GL11.GL_LIGHTING); GL11.glDisable(GL11.GL_FOG); GL11.glDisable(GL11.GL_BLEND); GL11.glDisable(GL11.GL_DEPTH_TEST);
+      GL11.glMatrixMode(GL11.GL_PROJECTION); GL11.glLoadIdentity(); GL11.glMatrixMode(GL11.GL_MODELVIEW); GL11.glLoadIdentity();
+      for(int unit=0;unit<2;unit++) {
+        GL13.glActiveTexture(GL13.GL_TEXTURE0+unit); textures[unit]=GL11.glGenTextures(); GL11.glBindTexture(GL11.GL_TEXTURE_2D,textures[unit]);
+        java.nio.ByteBuffer white=org.lwjgl.BufferUtils.createByteBuffer(4); white.putInt(-1).flip();
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D,0,GL11.GL_RGBA8,1,1,0,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,white);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D,GL11.GL_TEXTURE_MIN_FILTER,GL11.GL_NEAREST);GL11.glTexParameteri(GL11.GL_TEXTURE_2D,GL11.GL_TEXTURE_MAG_FILTER,GL11.GL_NEAREST);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL11.GL_TEXTURE_ENV_MODE,GL11.GL_MODULATE);
+      }
+      GL13.glActiveTexture(GL13.GL_TEXTURE2); GL11.glDisable(GL11.GL_TEXTURE_2D); GL13.glActiveTexture(GL13.GL_TEXTURE0);
+      net.minecraft.client.renderer.OpenGlHelper.lightmapTexUnit=GL13.GL_TEXTURE1;
+      net.minecraft.client.renderer.OpenGlHelper.lastBrightnessX=240;net.minecraft.client.renderer.OpenGlHelper.lastBrightnessY=0;
+      int token=ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1);
+      check(token!=0,"Entity RGB scope did not activate");
+      int rgbTexture;GL13.glActiveTexture(GL13.GL_TEXTURE2);rgbTexture=GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);GL13.glActiveTexture(GL13.GL_TEXTURE0);
+      try { entityQuad(); java.nio.ByteBuffer red=org.lwjgl.BufferUtils.createByteBuffer(4);GL11.glReadPixels(16,16,1,1,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,red);
+        check((red.get(0)&255)>240 && (red.get(1)&255)<10 && (red.get(2)&255)<10,"Model color reset defeated RGB lighting");
+      } finally {ru.givler.mbo.client.lighting.ColoredEntityLightHooks.end(token);}
+      equal(GL13.GL_TEXTURE0,GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE));
+      GL13.glActiveTexture(GL13.GL_TEXTURE2);check(!GL11.glIsEnabled(GL11.GL_TEXTURE_2D),"Entity tint leaked texture state");GL13.glActiveTexture(GL13.GL_TEXTURE0);
+      entityQuad();java.nio.ByteBuffer white=org.lwjgl.BufferUtils.createByteBuffer(4);GL11.glReadPixels(16,16,1,1,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,white);
+      check((white.get(0)&255)>240 && (white.get(1)&255)>240 && (white.get(2)&255)>240,"Next entity inherited RGB");
+      GL13.glActiveTexture(GL13.GL_TEXTURE1);GL11.glDisable(GL11.GL_TEXTURE_2D);GL13.glActiveTexture(GL13.GL_TEXTURE0);
+      equal(0,ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1));
+      GL13.glActiveTexture(GL13.GL_TEXTURE1);GL11.glEnable(GL11.GL_TEXTURE_2D);
+      GL13.glActiveTexture(GL13.GL_TEXTURE2);GL11.glEnable(GL11.GL_TEXTURE_2D);GL13.glActiveTexture(GL13.GL_TEXTURE0);
+      equal(0,ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1));
+      GL13.glActiveTexture(GL13.GL_TEXTURE2);GL11.glDisable(GL11.GL_TEXTURE_2D);GL13.glActiveTexture(GL13.GL_TEXTURE0);
+      ru.givler.mbo.config.ColoredLightConfig.enabled=false;equal(0,ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1));
+      ru.givler.mbo.client.lighting.ColoredEntityLightHooks.release();check(!GL11.glIsTexture(rgbTexture),"Disabled RGB retained entity GPU texture");
+      equal(GL11.GL_NO_ERROR,GL11.glGetError());
+      System.out.println("Entity RGB pixels: model color resets preserved, next draw white, GL state restored and disable deletes texture");
+    } finally {
+      ru.givler.mbo.client.lighting.ColoredEntityLightHooks.release(); for(int texture:textures)if(texture!=0)GL11.glDeleteTextures(texture); GL11.glPopAttrib();
+      singleton.set(null,previous);ColoredLightClient.volume=oldVolume;ColoredLightClient.cacheActive=oldCache;ru.givler.mbo.config.ColoredLightConfig.enabled=oldEnabled;ru.givler.mbo.config.ColoredLightConfig.strength=oldStrength;
+      net.minecraft.client.renderer.OpenGlHelper.lightmapTexUnit=oldUnit;net.minecraft.client.renderer.OpenGlHelper.lastBrightnessX=oldX;net.minecraft.client.renderer.OpenGlHelper.lastBrightnessY=oldY;
+    }
+  }
+  private static void entityQuad() {
+    GL11.glColor4f(1,1,1,1); GL11.glBegin(GL11.GL_QUADS);GL11.glVertex2f(-1,-1);GL11.glVertex2f(1,-1);GL11.glVertex2f(1,1);GL11.glVertex2f(-1,1);GL11.glEnd();
   }
 
   private static int index(ColoredLightVolume v, int x, int y, int z) {
@@ -462,6 +644,7 @@ public final class ColoredLightSmoke {
       check(ColoredLightClient.CACHE.sample(0, 64, 0) != 0, "New fire must bypass background scan delay");
       movingSources(mc, world, unsafe);
       if (Boolean.getBoolean("mbo.lightPixels")) shaderBridgeUpload();
+      menuAndDisable(mc,world,unsafe);
       System.out.println("Fire removal and placement applied within three client ticks");
       System.out.println("Client ticks: admin fire detected; outdoor night tint and daylight suppression passed");
     } finally {
@@ -470,7 +653,11 @@ public final class ColoredLightSmoke {
     }
   }
 
-  private static final class NightWorld extends net.minecraft.client.multiplayer.WorldClient {
+  private static final class NightWorld extends net.minecraft.client.multiplayer.WorldClient implements ColoredLightRenderHooks.WorldCoordinates {
+    double rgbX,rgbY,rgbZ;
+    public double lightOriginX(){return rgbX;} public double lightOriginY(){return rgbY;} public double lightOriginZ(){return rgbZ;}
+    long time;
+    @Override public long getTotalWorldTime() { return time; }
     net.minecraft.block.Block fire, air;
     boolean daylight;
     boolean present = true;
@@ -537,17 +724,74 @@ public final class ColoredLightSmoke {
       equal(ColoredLightClient.CACHE.sample(0, 64, 0), uploaded);
       equal(ColoredLightClient.INSTANCE.opacity(0, 64, 0) * 17, data.get(index + 3) & 255);
       equal(org.lwjgl.opengl.GL11.GL_NO_ERROR, org.lwjgl.opengl.GL11.glGetError());
+      int oldTexture = org.lwjgl.opengl.GL11.glGetInteger(org.lwjgl.opengl.GL12.GL_TEXTURE_BINDING_3D);
+      ru.givler.mbo.config.ColoredLightConfig.enabled = false;
+      ru.givler.mbo.client.lighting.ColoredLightShaderBridge.release();
+      check(!org.lwjgl.opengl.GL11.glIsTexture(oldTexture) && !ru.givler.mbo.client.lighting.ColoredLightShaderBridge.retainsField(), "Disabling must delete GPU field and release upload buffer");
+      ru.givler.mbo.client.lighting.ColoredLightShaderBridge.useProgram(0,64,0);
+      java.nio.FloatBuffer size = org.lwjgl.BufferUtils.createFloatBuffer(1);
+      org.lwjgl.opengl.GL20.glGetUniform(program,org.lwjgl.opengl.GL20.glGetUniformLocation(program,"mboLightSize"),size);
+      check(size.get(0) == 0F, "Disabled shader must not sample colored volume");
+      check(!ru.givler.mbo.client.lighting.ColoredLightShaderBridge.retainsField(), "Disabled shader use must not reallocate field");
+      ru.givler.mbo.config.ColoredLightConfig.enabled = true;
       org.lwjgl.opengl.GL20.glUseProgram(0); org.lwjgl.opengl.GL20.glDeleteProgram(program);
       org.lwjgl.opengl.GL20.glDeleteShader(vs); org.lwjgl.opengl.GL20.glDeleteShader(fs);
       ru.givler.mbo.client.lighting.ColoredLightShaderBridge.resetPrograms();
       System.out.println("RGB bridge: real GPU texture readback matches RGB/opacity, active texture restored");
-    } finally { ru.givler.mbo.client.lighting.ColoredLightShaderBridge.active = false; context.destroy(); }
+    } finally { ru.givler.mbo.config.ColoredLightConfig.enabled = true; ru.givler.mbo.client.lighting.ColoredLightShaderBridge.active = false; context.destroy(); }
   }
 
   private static final class RecordingRenderGlobal extends net.minecraft.client.renderer.RenderGlobal {
     Set<String> requests;
+    int reloads;
     private RecordingRenderGlobal() { super(null); }
     @Override public void markBlockRangeForRenderUpdate(int x, int y, int z, int x2, int y2, int z2) { requests.add((x >> 4) + ":" + (y >> 4) + ":" + (z >> 4)); }
+    @Override public void loadRenderers() { reloads++; }
+  }
+
+  private static void menuAndDisable(net.minecraft.client.Minecraft mc,NightWorld world,Unsafe unsafe) throws Exception {
+    ru.givler.mbo.client.lighting.ColoredLightMenu menu = new ru.givler.mbo.client.lighting.ColoredLightMenu();
+    for (int width : new int[]{320,427,854}) {
+      net.minecraft.client.gui.GuiVideoSettings screen = (net.minecraft.client.gui.GuiVideoSettings) unsafe.allocateInstance(net.minecraft.client.gui.GuiVideoSettings.class);
+      screen.width = width; screen.height = 240;
+      List<net.minecraft.client.gui.GuiButton> buttons = new ArrayList<>();
+      menu.init(new net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent.Post(screen,buttons));
+      check(buttons.size() == 1, "Video settings must receive one torch button");
+      net.minecraft.client.gui.GuiButton button = buttons.get(0);
+      check(button.width == 20 && button.height == 20 && button.xPosition >= 0 && button.xPosition+20 <= width, "Torch button must fit scaled screen");
+    }
+    ru.givler.mbo.config.ColoredLightConfig.enabled = false;
+    ColoredLightClient.INSTANCE.applyOptions();
+    check(!ColoredLightClient.cacheActive && ColoredLightClient.volume == null && world.observer == null, "Disabling must detach world observer and renderer field");
+    equal(0,ColoredLightClient.CACHE.sample(0,64,0));
+    check(ColoredLightClient.INSTANCE.statistics().contains("sections=0") && ColoredLightClient.INSTANCE.statistics().contains("pending=0"), "No section data or pending scans while disabled");
+    equal(0,ru.givler.mbo.client.lighting.ColoredDynamicLights.INSTANCE.cachedCells());
+    check(!ru.givler.mbo.client.lighting.ColoredLightShaderBridge.retainsField(), "Disabled light must not retain GPU/CPU shader field");
+    int reads = world.blockReads;
+    for (int i = 0; i < 12; i++) ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+    equal(reads,world.blockReads);
+    check(world.observer == null, "Disabled ticks must not reattach world listener");
+    check(((RecordingRenderGlobal) mc.renderGlobal).reloads > 0, "Disabling must clear all baked chunk colors");
+    ru.givler.mbo.config.ColoredLightConfig.enabled = true;
+    for (int i = 0; i < 100; i++) ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+    check(world.observer != null && ColoredLightClient.CACHE.sample(0,64,0) != 0, "Re-enabling must rebuild current world from scratch");
+    Field minecraftHome = cpw.mods.fml.relauncher.FMLInjectionData.class.getDeclaredField("minecraftHome"); minecraftHome.setAccessible(true);
+    Object previousHome = minecraftHome.get(null);
+    minecraftHome.set(null,new File("."));
+    try {
+    ru.givler.mbo.config.ColoredLightConfig.load(new File("build/light-menu-config"));
+    ru.givler.mbo.config.ColoredLightConfig.enabled = false;
+    ru.givler.mbo.config.ColoredLightConfig.strength = 0.75F;
+    ru.givler.mbo.config.ColoredLightConfig.brightnessGain = 1.25F;
+    ru.givler.mbo.config.ColoredLightConfig.saveUserOptions();
+    ru.givler.mbo.config.ColoredLightConfig.enabled = true;
+    ru.givler.mbo.config.ColoredLightConfig.load(new File("build/light-menu-config"));
+    check(!ru.givler.mbo.config.ColoredLightConfig.enabled && ru.givler.mbo.config.ColoredLightConfig.strength == 0.75F && ru.givler.mbo.config.ColoredLightConfig.brightnessGain == 1.25F, "GUI options must persist across reload");
+    ru.givler.mbo.config.ColoredLightConfig.enabled = true;
+    ru.givler.mbo.config.ColoredLightConfig.strength = 1F; ru.givler.mbo.config.ColoredLightConfig.brightnessGain = 1F;
+    ru.givler.mbo.config.ColoredLightConfig.saveUserOptions();
+    } finally { minecraftHome.set(null,previousHome); }
+    System.out.println("Lighting menu: scaled torch button; full disable clears sections/scans/dynamic data, stops world reads, reloads geometry, and re-enables cleanly");
   }
 
   private static final class Mapping extends Remapper {

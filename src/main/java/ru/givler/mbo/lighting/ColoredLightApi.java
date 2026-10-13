@@ -63,6 +63,7 @@ public final class ColoredLightApi {
     return 0;
   }
   public static int entityEmission(Entity entity) {
+    if (entity == null) return 0;
     String name = entityId(entity);
     if (name != null) {
       ColoredLightRule rule = ColoredLightSources.entity(name);
@@ -71,7 +72,12 @@ public final class ColoredLightApi {
     for (Class<?> type = entity.getClass(); type != null; type = type.getSuperclass()) {
       EntityProvider provider = ENTITIES.get(type); if (provider != null) return provider.getEmission(entity);
     }
-    return entity instanceof Emitter ? ((Emitter) entity).getColoredLightEmission() : 0;
+    if (entity instanceof Emitter) return ((Emitter) entity).getColoredLightEmission();
+    if (ColoredLightSources.coloredBurning && entity.worldObj != null && entity.worldObj.isRemote) {
+      int color = ru.givler.mbo.client.render.ColoredBurningRenderHooks.color(entity);
+      if (color >= 0) return emission(BlockColourFire.COLORS[color],ColoredLightSources.burningBrightness);
+    }
+    return 0;
   }
   public static String entityId(Entity entity) {
     String name = EntityList.getEntityString(entity);

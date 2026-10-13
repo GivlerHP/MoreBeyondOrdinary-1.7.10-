@@ -11,7 +11,7 @@ import ru.givler.mbo.lighting.ColoredLightApi;
 /** RGB field + independent moving sources. Texture uploads happen only on field/origin changes. */
 public final class ColoredLightShaderBridge {
   private static final int SIZE = 64, UNIT = 15;
-  private static final ByteBuffer pixels = BufferUtils.createByteBuffer(SIZE * SIZE * SIZE * 4);
+  private static ByteBuffer pixels;
   private static final Map<Integer, Uniforms> uniforms = new HashMap<>();
   private static int texture, ox = Integer.MIN_VALUE, oy, oz;
   private static long version = -1;
@@ -42,12 +42,25 @@ public final class ColoredLightShaderBridge {
   public static void resetPrograms() {
     uniforms.clear(); version = -1; if (active) reload = true; active = false;
     if (texture != 0) { GL11.glDeleteTextures(texture); texture = 0; }
+    pixels = null;
   }
+  public static void release() { resetPrograms(); reload = false; ox = Integer.MIN_VALUE; }
+  public static boolean retainsField() { return texture != 0 || pixels != null; }
 
   public static void useProgram(double cameraX, double cameraY, double cameraZ) {
     if (!GLContext.getCapabilities().OpenGL20 || !GLContext.getCapabilities().OpenGL12) return;
     int program = GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM);
     if (program == 0) return;
+    if (!ColoredLightConfig.enabled) {
+      // Keep an already selected MBO shaderpack neutral without retaining RGB resources.
+      int sampler = GL20.glGetUniformLocation(program,"mboLightVolume");
+      if (sampler >= 0) {
+        GL20.glUniform1i(sampler,UNIT);
+        GL20.glUniform1f(GL20.glGetUniformLocation(program,"mboLightSize"),0);
+        GL20.glUniform1i(GL20.glGetUniformLocation(program,"mboLightCount"),0);
+      }
+      return;
+    }
     Uniforms u = uniforms.get(program);
     if (u == null) { u = new Uniforms(program); uniforms.put(program, u); }
     if (u.volume < 0) return;
@@ -76,6 +89,7 @@ public final class ColoredLightShaderBridge {
       GL11.glBindTexture(GL12.GL_TEXTURE_3D, texture);
       long current = ColoredLightClient.CACHE.version() * 31 + ColoredLightClient.INSTANCE.geometryVersion();
       if (current != version || x != ox || y != oy || z != oz) {
+        if (pixels == null) pixels = BufferUtils.createByteBuffer(SIZE * SIZE * SIZE * 4);
         pixels.clear();
         for (int bz = 0; bz < SIZE; bz++) for (int by = 0; by < SIZE; by++) for (int bx = 0; bx < SIZE; bx++) {
           int rgb = ColoredLightConfig.enabled ? ColoredLightClient.CACHE.sample(x + bx, y + by, z + bz) : 0;

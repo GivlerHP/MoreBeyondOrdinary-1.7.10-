@@ -30,11 +30,26 @@ public final class ColoredDynamicLights {
   private int ticks;
   private volatile long generation;
   private boolean invalidated;
+  private final java.util.concurrent.ConcurrentLinkedQueue<java.lang.ref.WeakReference<Query>> allocatedQueries = new java.util.concurrent.ConcurrentLinkedQueue<>();
   private final ThreadLocal<Query> queries = new ThreadLocal<Query>() {
-    @Override protected Query initialValue() { return new Query(); }
+    @Override protected Query initialValue() { Query query = new Query(); allocatedQueries.add(new java.lang.ref.WeakReference<>(query)); return query; }
   };
   private ColoredDynamicLights() {}
   public List<Source> sources() { return sources; }
+  public int cachedCells() {
+    int cells = 0;
+    for (java.lang.ref.WeakReference<Query> reference : allocatedQueries) { Query query = reference.get(); if (query != null) cells += query.values.size(); }
+    return cells;
+  }
+  public void clear(Minecraft mc) {
+    if (!ColoredLightShaderBridge.active) for (Source source : sources) mark(mc,source);
+    sources = Collections.emptyList(); world = null; generation++; ticks = 0; invalidated = false;
+    for (java.lang.ref.WeakReference<Query> reference : allocatedQueries) {
+      Query query = reference.get();
+      if (query == null) allocatedQueries.remove(reference);
+      else { query.values = new HashMap<>(); query.generation = -1; }
+    }
+  }
 
   public void tick(Minecraft mc) {
     if (world != mc.theWorld) { world = mc.theWorld; sources = Collections.emptyList(); generation++; ticks = 0; }
@@ -76,31 +91,34 @@ public final class ColoredDynamicLights {
   }
   public int sample(int x, int y, int z) {
     List<Source> snapshot = sources;
-    if (snapshot.isEmpty() || world == null) return 0;
+    World sampledWorld = world;
+    if (snapshot.isEmpty() || sampledWorld == null || !ColoredLightConfig.enabled) return 0;
     Query query = queries.get();
     if (query.generation != generation) { query.generation = generation; query.values.clear(); }
+    Map<Cell,Integer> values = query.values;
     query.probe.x = x; query.probe.y = y; query.probe.z = z;
-    Integer cached = query.values.get(query.probe); if (cached != null) return cached;
+    Integer cached = values.get(query.probe); if (cached != null) return cached;
     int rgb = 0;
     for (Source source : snapshot) {
       double dx = x + 0.5 - source.x, dy = y + 0.5 - source.y, dz = z + 0.5 - source.z;
       double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-      if (distance >= source.radius || !visible(source, x + 0.5, y + 0.5, z + 0.5, distance)) continue;
+      if (distance >= source.radius || !visible(sampledWorld, source, x + 0.5, y + 0.5, z + 0.5, distance)) continue;
       int base = ColoredLightApi.rgb(source.packed); float scale = (float) (1 - distance / source.radius);
       int value = Math.round((base >>> 16) * scale) << 16 | Math.round((base >> 8 & 255) * scale) << 8 | Math.round((base & 255) * scale);
       rgb = ru.givler.mbo.lighting.ColoredLightVolume.merge(rgb, value);
     }
-    if (query.values.size() < 32768) query.values.put(new Cell(x, y, z), rgb);
+    if (!ColoredLightConfig.enabled || world != sampledWorld || sources != snapshot) return 0;
+    if (values.size() < 32768) values.put(new Cell(x, y, z), rgb);
     return rgb;
   }
   public void invalidate() { generation++; invalidated = true; }
-  private static final class Query { long generation = -1; final Cell probe = new Cell(0, 0, 0); final Map<Cell, Integer> values = new HashMap<>(); }
-  private boolean visible(Source source, double x, double y, double z, double distance) {
+  private static final class Query { volatile long generation = -1; final Cell probe = new Cell(0, 0, 0); volatile Map<Cell, Integer> values = new HashMap<>(); }
+  private boolean visible(World sampledWorld, Source source, double x, double y, double z, double distance) {
     int steps = Math.max(1, (int) Math.ceil(distance * 2));
     for (int i = 1; i < steps; i++) {
       double t = i / (double) steps;
       int bx = (int) Math.floor(source.x + (x - source.x) * t), by = (int) Math.floor(source.y + (y - source.y) * t), bz = (int) Math.floor(source.z + (z - source.z) * t);
-      if (!world.blockExists(bx, by, bz) || world.getBlock(bx, by, bz).getLightOpacity(world, bx, by, bz) >= 15) return false;
+      if (!sampledWorld.blockExists(bx, by,bz) || sampledWorld.getBlock(bx,by,bz).getLightOpacity(sampledWorld,bx,by,bz) >= 15) return false;
     }
     return true;
   }

@@ -6,7 +6,7 @@ import net.minecraft.world.ChunkCache;
 import ru.givler.mbo.config.ColoredLightConfig;
 import ru.givler.mbo.lighting.ColoredLightVolume;
 
-/** Only RenderBlocks world faces are tinted. Inventory, particles and GUI never inherit a tint. */
+/** Scoped world geometry tint. Inventory, particles and GUI never inherit a tint. */
 public final class ColoredLightRenderHooks {
   private static final boolean LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
   private static final int[] DX = {0, 0, 0, 0, -1, 1}, DY = {-1, 1, 0, 0, 0, 0}, DZ = {0, 0, -1, 1, 0, 0};
@@ -14,6 +14,7 @@ public final class ColoredLightRenderHooks {
     @Override protected State initialValue() { return new State(); }
   };
   private ColoredLightRenderHooks() {}
+  public interface WorldCoordinates { double lightOriginX(); double lightOriginY(); double lightOriginZ(); }
 
   public static long begin(RenderBlocks renderer, double x, double y, double z, int face) {
     State state = STATE.get();
@@ -22,10 +23,15 @@ public final class ColoredLightRenderHooks {
     Frame frame = state.frames[state.depth];
     if (frame == null) state.frames[state.depth] = frame = new Frame();
     state.depth++;
-    frame.x = (int) Math.floor(x); frame.y = (int) Math.floor(y); frame.z = (int) Math.floor(z); frame.face = face;
+    WorldCoordinates coordinates = renderer.blockAccess instanceof WorldCoordinates ? (WorldCoordinates)renderer.blockAccess : null;
+    frame.ox = coordinates == null ? 0 : coordinates.lightOriginX();
+    frame.oy = coordinates == null ? 0 : coordinates.lightOriginY();
+    frame.oz = coordinates == null ? 0 : coordinates.lightOriginZ();
+    frame.x = (int) Math.floor(x+frame.ox); frame.y = (int) Math.floor(y+frame.oy); frame.z = (int) Math.floor(z+frame.oz); frame.face = face;
+    if (coordinates!=null || ru.givler.mbo.client.render.SmoothOpeningRenderer.hasAnimationContext()) frame.face=7;
     frame.cached = false;
     frame.active = ColoredLightConfig.enabled && (ColoredLightClient.cacheActive || ColoredLightClient.volume != null)
-        && renderer.blockAccess instanceof ChunkCache;
+        && (renderer.blockAccess instanceof ChunkCache || renderer.blockAccess instanceof net.minecraft.world.World || coordinates != null);
     return previous;
   }
 
@@ -43,7 +49,7 @@ public final class ColoredLightRenderHooks {
     State state = STATE.get();
     if (state.depth == 0) return packedColor;
     Frame frame = state.frames[state.depth - 1];
-    return tintVertex(packedColor, brightness, frame.x + 0.5, frame.y + 0.5, frame.z + 0.5);
+    return tintVertex(packedColor, brightness, frame.x + 0.5-frame.ox, frame.y + 0.5-frame.oy, frame.z + 0.5-frame.oz);
   }
 
   public static int tintVertex(int packedColor, int brightness, double x, double y, double z) {
@@ -76,6 +82,8 @@ public final class ColoredLightRenderHooks {
   }
 
   private static int vertexRGB(Frame frame, double x, double y, double z) {
+    x += frame.ox; y += frame.oy; z += frame.oz;
+    if (frame.face == 7) return worldRGB(x,y,z);
     // Crossed plants have no cube face. One cell lookup per plant also avoids random-offset seams.
     if (frame.face == 6) {
       if (!frame.cached) { frame.rgb = sample(frame.x,frame.y,frame.z); frame.cached = true; }
@@ -123,6 +131,28 @@ public final class ColoredLightRenderHooks {
     return packed & alphaMask | r << rs | g << gs | b << bs;
   }
 
-  private static final class Frame { boolean active, cached; int x, y, z, face, rgb; double vx, vy, vz; }
+  /** Smooth world-space field for geometry without an axis-aligned block face. */
+  public static int worldRGB(double x,double y,double z) {
+    if (!ColoredLightConfig.enabled || (!ColoredLightClient.cacheActive && ColoredLightClient.volume == null)) return 0;
+    x-=0.5; y-=0.5; z-=0.5;
+    int ix=(int)Math.floor(x), iy=(int)Math.floor(y), iz=(int)Math.floor(z);
+    double fx=x-ix, fy=y-iy, fz=z-iz, r=0,g=0,b=0;
+    for(int dx=0;dx<2;dx++) for(int dy=0;dy<2;dy++) for(int dz=0;dz<2;dz++) {
+      double w=(dx==0?1-fx:fx)*(dy==0?1-fy:fy)*(dz==0?1-fz:fz);
+      if(w==0)continue;
+      int rgb=sample(ix+dx,iy+dy,iz+dz); r+=(rgb>>>16)*w; g+=(rgb>>8&255)*w; b+=(rgb&255)*w;
+    }
+    return (int)Math.round(r)<<16 | (int)Math.round(g)<<8 | (int)Math.round(b);
+  }
+  public static int worldTint(int packed,int brightness,int rgb) {
+    if (ColoredLightShaderBridge.active || !ColoredLightConfig.enabled) return packed;
+    return tintColor(packed,rgb,ColoredLightConfig.strength*skyColorWeight(brightness,ColoredLightClient.skyDarkness),LITTLE_ENDIAN);
+  }
+  public static int worldBrightness(int brightness,int rgb) {
+    if (ColoredLightShaderBridge.active || !ColoredLightConfig.enabled) return brightness;
+    int max=Math.max(rgb>>>16,Math.max(rgb>>8&255,rgb&255));
+    return brightness & 0xFFFF0000 | Math.max(brightness&65535,Math.min(240,Math.round(max*(240F/255)*ColoredLightConfig.brightnessGain)));
+  }
+  private static final class Frame { boolean active, cached; int x, y, z, face, rgb; double vx, vy, vz, ox,oy,oz; }
   private static final class State { int depth; Frame[] frames = new Frame[4]; }
 }

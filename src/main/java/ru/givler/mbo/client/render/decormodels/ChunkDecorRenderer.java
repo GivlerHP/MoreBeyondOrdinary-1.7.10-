@@ -259,6 +259,8 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
         meta=renderFacing((BlockModels)block,world,x,y,z,meta);
         if (!fitsBounds(mesh.bounds[meta&3],x,y,z)) return false;
         // TESR disables face culling. Emit both windings without touching GL chunk state.
+        long rgbScope=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.begin(renderer,x,y,z,7);
+        try {
         for (int quad=0; quad<mesh.raw.length; quad+=32) for (int winding=0; winding<2; winding++)
             for (int vertex=0; vertex<4; vertex++) {
                 int i=quad+(winding==0?vertex:3-vertex)*8;
@@ -270,6 +272,7 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
                     mesh.icon.getInterpolatedV(Float.intBitsToFloat(mesh.raw[i+4])*16));
             }
         return true;
+        } finally { ru.givler.mbo.client.lighting.ColoredLightRenderHooks.end(rgbScope); }
     }
     @Override public void renderInventoryBlock(Block block,int meta,int id,RenderBlocks renderer) {}
     @Override public boolean shouldRender3DInInventory(int id) { return false; }

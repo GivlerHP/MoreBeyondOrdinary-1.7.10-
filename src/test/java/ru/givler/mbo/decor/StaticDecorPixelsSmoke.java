@@ -20,6 +20,7 @@ public class StaticDecorPixelsSmoke {
  static final Path ASSETS=Paths.get("src/main/resources/assets/mbo");
  static final TemplateModelRenderer RENDERER=new TemplateModelRenderer();
  static final ModelTileBase TILE=new ModelTileBase("test","test");
+ static int rgb;
  static void fakeMinecraft()throws Exception {
   IReloadableResourceManager resources=(IReloadableResourceManager)Proxy.newProxyInstance(
    IResourceManager.class.getClassLoader(),new Class[]{IReloadableResourceManager.class},(p,m,a)-> {
@@ -69,8 +70,12 @@ public class StaticDecorPixelsSmoke {
   GL11.glMatrixMode(GL11.GL_PROJECTION);GL11.glLoadIdentity();GL11.glOrtho(-4,4,-2,6,-16,16);
   GL11.glMatrixMode(GL11.GL_MODELVIEW);GL11.glLoadIdentity();GL11.glRotatef(20,1,0,0);GL11.glRotatef(turn*90,0,1,0);
   GL13.glMultiTexCoord2f(GL13.GL_TEXTURE1,light,light);
-  if(cached)StaticDecorRenderCache.INSTANCE.render(RENDERER,TILE,location,1,1,1,1);
-  else RENDERER.render(model,TILE,0,1,1,1,1);
+  if(cached)StaticDecorRenderCache.INSTANCE.render(RENDERER,TILE,location,1,1,1,1,rgb,0);
+  else {
+   int tint=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldTint(-1,0,rgb);
+   boolean little=ByteOrder.nativeOrder()==ByteOrder.LITTLE_ENDIAN;
+   RENDERER.render(model,TILE,0,(tint>>>(little?0:24)&255)/255F,(tint>>>(little?8:16)&255)/255F,(tint>>>(little?16:8)&255)/255F,1);
+  }
   ByteBuffer pixels=BufferUtils.createByteBuffer(SIZE*SIZE*4);
   GL11.glReadPixels(0,0,SIZE,SIZE,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,pixels);
   byte[] result=new byte[pixels.remaining()];pixels.get(result);return result;
@@ -80,6 +85,7 @@ public class StaticDecorPixelsSmoke {
   buffer.makeCurrent();fakeMinecraft();texture();
   System.out.println("Hidden OpenGL: "+GL11.glGetString(GL11.GL_RENDERER));
   List<Path> paths=new ArrayList<>();Files.walk(ASSETS.resolve("geo")).filter(p->p.toString().endsWith(".geo.json")).forEach(paths::add);
+  if(Boolean.getBoolean("mbo.decorRgb")) { paths=new ArrayList<>(paths.subList(0,Math.min(8,paths.size()))); rgb=0xFF2040; }
   int pictures=0;
   for(Path path:paths) {
    ResourceLocation location=new ResourceLocation("mbo",ASSETS.relativize(path).toString().replace('\\','/'));
@@ -94,6 +100,11 @@ public class StaticDecorPixelsSmoke {
     pictures++;
    }
    if(pictures%400==0)System.out.println("Compared "+pictures+" images");
+   if(Boolean.getBoolean("mbo.decorRgb")) {
+    rgb=0;
+    if(!Arrays.equals(picture(model,location,0,.8F,false),picture(model,location,0,.8F,true)))throw new AssertionError("RGB contaminated shared mesh: "+location);
+    rgb=0xFF2040;
+   }
   }
   StaticDecorRenderCache.INSTANCE.clear();
   System.out.println("Exact pixels match: "+paths.size()+" models, "+pictures+" images, 4 rotations, 2 live lighting levels, alpha texture.");

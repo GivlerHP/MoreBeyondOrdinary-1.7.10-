@@ -31,14 +31,17 @@ public final class ColoredBurningRenderHooks {
   public static IIcon firstPersonIcon(BlockFire vanilla, int layer) {
     return icon(vanilla, layer, Minecraft.getMinecraft().thePlayer);
   }
+  public static int color(Entity entity) {
+    if (entity == null || entity.worldObj == null || !entity.isBurning()) return -1;
+    NBTTagCompound data = entity.getEntityData();
+    return data.getLong(UNTIL) > entity.worldObj.getTotalWorldTime() ? data.getInteger(COLOR) & 15 : -1;
+  }
 
   private static IIcon icon(BlockFire vanilla, int layer, Entity entity) {
-    if (entity != null && entity.isBurning()) {
-      NBTTagCompound data = entity.getEntityData();
-      if (data.getLong(UNTIL) > entity.worldObj.getTotalWorldTime()) {
-        IIcon colored = BlockRegistry.ColourFire.getColoredFireIcon(data.getInteger(COLOR), layer);
+    int color = color(entity);
+    if (color >= 0) {
+        IIcon colored = BlockRegistry.ColourFire.getColoredFireIcon(color, layer);
         if (colored != null) return colored;
-      }
     }
     return vanilla.getFireIcon(layer);
   }
