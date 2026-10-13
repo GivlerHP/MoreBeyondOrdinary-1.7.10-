@@ -46,15 +46,21 @@ public final class ColoredLightMenu {
     Options(GuiScreen parent) { this.parent = parent; }
     @Override public void initGui() {
       buttonList.clear();
-      buttonList.add(new GuiButton(0,width/2-100,height/2-50,200,20,toggleLabel()));
-      buttonList.add(new GuiButton(1,width/2-100,height/2-24,200,20,valueLabel("mbo.light.saturation",ColoredLightConfig.strength)));
-      buttonList.add(new GuiButton(2,width/2-100,height/2+2,200,20,valueLabel("mbo.light.brightness",ColoredLightConfig.brightnessGain)));
-      buttonList.add(new GuiButton(3,width/2-100,height/2+48,200,20,I18n.format("gui.done")));
+      buttonList.add(new GuiButton(0,width/2-100,height/2-64,200,20,toggleLabel()));
+      buttonList.add(new GuiButton(1,width/2-100,height/2-38,200,20,valueLabel("mbo.light.saturation",ColoredLightConfig.strength)));
+      buttonList.add(new GuiButton(2,width/2-100,height/2-12,200,20,valueLabel("mbo.light.brightness",ColoredLightConfig.brightnessGain)));
+      buttonList.add(new GuiButton(4,width/2-100,height/2+14,200,20,I18n.format("mbo.light.entities")+": "+I18n.format(ColoredLightConfig.entityLighting?"options.on":"options.off")));
+      buttonList.add(new GuiButton(3,width/2-100,height/2+66,200,20,I18n.format("gui.done")));
     }
     private static String toggleLabel() { return I18n.format("mbo.light.enabled") + ": " + I18n.format(ColoredLightConfig.enabled ? "options.on" : "options.off"); }
     private static String valueLabel(String key,float value) { return I18n.format(key) + ": " + Math.round(value*100) + "%"; }
     @Override protected void actionPerformed(GuiButton button) {
       if (button.id == 3) { mc.displayGuiScreen(parent); return; }
+      if (button.id == 4) {
+        ColoredLightConfig.entityLighting=!ColoredLightConfig.entityLighting;
+        if(!ColoredLightConfig.entityLighting)ColoredEntityLightHooks.release();
+        ColoredLightConfig.saveUserOptions();initGui();return;
+      }
       if (button.id == 0) ColoredLightConfig.enabled = !ColoredLightConfig.enabled;
       if (button.id == 1) ColoredLightConfig.strength = next(ColoredLightConfig.strength,new float[]{0.25F,0.5F,0.75F,1F});
       if (button.id == 2) ColoredLightConfig.brightnessGain = next(ColoredLightConfig.brightnessGain,new float[]{0.5F,1F,1.25F,1.5F,2F});
@@ -64,7 +70,7 @@ public final class ColoredLightMenu {
     @Override protected void keyTyped(char letter,int key) { if (key == 1) mc.displayGuiScreen(parent); }
     @Override public void drawScreen(int mouseX,int mouseY,float partial) {
       drawDefaultBackground(); drawCenteredString(fontRendererObj,I18n.format("mbo.light.title"),width/2,28,0xFFFFFF);
-      drawCenteredString(fontRendererObj,I18n.format("mbo.light.offHint"),width/2,height/2+30,0xAAAAAA);
+      drawCenteredString(fontRendererObj,I18n.format("mbo.light.offHint"),width/2,height/2+44,0xAAAAAA);
       super.drawScreen(mouseX,mouseY,partial);
     }
   }

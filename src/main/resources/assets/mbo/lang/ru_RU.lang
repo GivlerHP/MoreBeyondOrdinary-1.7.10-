@@ -1898,3 +1898,5 @@ mbo.light.enabled=Цветной свет
 mbo.light.saturation=Насыщенность
 mbo.light.brightness=Яркость
 mbo.light.offHint=При отключении данные света очищаются.
+
+mbo.light.entities=RGB на сущностях

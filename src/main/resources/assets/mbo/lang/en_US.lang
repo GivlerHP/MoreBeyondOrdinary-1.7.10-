@@ -1609,3 +1609,5 @@ mbo.light.enabled=Colored light
 mbo.light.saturation=Saturation
 mbo.light.brightness=Brightness
 mbo.light.offHint=Disabling clears the lighting data.
+
+mbo.light.entities=Entity RGB lighting

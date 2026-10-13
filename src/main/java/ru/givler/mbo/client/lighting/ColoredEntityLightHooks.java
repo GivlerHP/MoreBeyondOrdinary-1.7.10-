@@ -14,7 +14,7 @@ public final class ColoredEntityLightHooks {
   private static final ThreadLocal<State> STATE=new ThreadLocal<State>() { protected State initialValue(){return new State();} };
   private ColoredEntityLightHooks() {}
   public static int begin(Entity entity,float partial) {
-    if(!ColoredLightConfig.enabled || ColoredLightShaderBridge.active || entity==null || entity.worldObj==null
+    if(!ColoredLightConfig.enabled || !ColoredLightConfig.entityLighting || ColoredLightShaderBridge.active || entity==null || entity.worldObj==null
         || entity.worldObj!=Minecraft.getMinecraft().theWorld || entity instanceof ru.givler.mbo.movingplatform.EntityMovingPlatform)return 0;
     double x=entity.lastTickPosX+(entity.posX-entity.lastTickPosX)*partial;
     double y=entity.lastTickPosY+(entity.posY-entity.lastTickPosY)*partial-entity.yOffset;

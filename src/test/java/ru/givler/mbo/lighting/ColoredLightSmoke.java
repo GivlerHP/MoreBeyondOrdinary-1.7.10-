@@ -273,6 +273,10 @@ public final class ColoredLightSmoke {
       GL13.glActiveTexture(GL13.GL_TEXTURE2);GL11.glEnable(GL11.GL_TEXTURE_2D);GL13.glActiveTexture(GL13.GL_TEXTURE0);
       equal(0,ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1));
       GL13.glActiveTexture(GL13.GL_TEXTURE2);GL11.glDisable(GL11.GL_TEXTURE_2D);GL13.glActiveTexture(GL13.GL_TEXTURE0);
+      ru.givler.mbo.config.ColoredLightConfig.entityLighting=false;
+      equal(0,ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1));
+      check(ColoredLightClient.volume==field && ColoredLightRenderHooks.worldRGB(.5,16.5,.5)!=0,"Entity toggle disabled world RGB");
+      ru.givler.mbo.config.ColoredLightConfig.entityLighting=true;
       ru.givler.mbo.config.ColoredLightConfig.enabled=false;equal(0,ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1));
       ru.givler.mbo.client.lighting.ColoredEntityLightHooks.release();check(!GL11.glIsTexture(rgbTexture),"Disabled RGB retained entity GPU texture");
       equal(GL11.GL_NO_ERROR,GL11.glGetError());

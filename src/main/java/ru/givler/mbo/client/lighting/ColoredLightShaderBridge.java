@@ -103,6 +103,7 @@ public final class ColoredLightShaderBridge {
       GL20.glUniform3f(u.origin, (float) (ox - cameraX), (float) (oy - cameraY), (float) (oz - cameraZ));
       GL20.glUniform1f(u.size, SIZE); GL20.glUniform1f(u.gain, ColoredLightConfig.brightnessGain);
       GL20.glUniform1f(u.strength, ColoredLightConfig.strength); GL20.glUniform1f(u.falloff, ColoredLightConfig.colorFalloff);
+      GL20.glUniform1i(u.entities,ColoredLightConfig.entityLighting?1:0);
       List<ColoredDynamicLights.Source> sources = ColoredLightConfig.enabled ? ColoredDynamicLights.INSTANCE.sources() : Collections.emptyList();
       int count = Math.min(8, sources.size()); GL20.glUniform1i(u.count, count);
       for (int i = 0; i < count; i++) {
@@ -113,12 +114,13 @@ public final class ColoredLightShaderBridge {
     } finally { GL13.glActiveTexture(oldActive); }
   }
   private static final class Uniforms {
-    final int volume, origin, size, count, gain, strength, falloff;
+    final int volume, origin, size, count, gain, strength, falloff, entities;
     final int[] positions = new int[8], colors = new int[8];
     Uniforms(int program) {
       volume = GL20.glGetUniformLocation(program, "mboLightVolume"); origin = GL20.glGetUniformLocation(program, "mboLightOrigin"); size = GL20.glGetUniformLocation(program, "mboLightSize");
       count = GL20.glGetUniformLocation(program, "mboLightCount"); gain = GL20.glGetUniformLocation(program, "mboLightGain");
       strength = GL20.glGetUniformLocation(program, "mboLightStrength"); falloff = GL20.glGetUniformLocation(program, "mboColorFalloff");
+      entities = GL20.glGetUniformLocation(program,"mboEntityLightEnabled");
       if (volume >= 0) for (int i = 0; i < 8; i++) { positions[i] = GL20.glGetUniformLocation(program, "mboLightPosition[" + i + "]"); colors[i] = GL20.glGetUniformLocation(program, "mboLightColor[" + i + "]"); }
     }
   }

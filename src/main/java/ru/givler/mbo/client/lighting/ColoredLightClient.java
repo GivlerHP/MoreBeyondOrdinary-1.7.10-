@@ -34,6 +34,7 @@ public final class ColoredLightClient {
   public int opacity(int x, int y, int z) { return lighting.opacity(x, y, z); }
   public String statistics() { return "sections=" + lighting.sectionCount() + ", pending=" + scans.size() + ", ready=" + cacheActive; }
   public void applyOptions() {
+    if(!ColoredLightConfig.entityLighting)ColoredEntityLightHooks.release();
     Minecraft mc = Minecraft.getMinecraft();
     if (!ColoredLightConfig.enabled) release(mc);
     else { CACHE.invalidateAll(this::mark); ColoredDynamicLights.INSTANCE.invalidate(); rebuild(mc); }
