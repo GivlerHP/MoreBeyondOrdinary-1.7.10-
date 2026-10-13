@@ -19,19 +19,21 @@ public final class TrapdoorPlacementTransformer implements IClassTransformer, Op
     boolean placed = false;
     boolean changed = false;
     for (MethodNode method : node.methods) {
-      if (("onBlockPlacedBy".equals(method.name) || "func_149689_a".equals(method.name))
-          && DESC.equals(method.desc)) {
+      cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper remapper = cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper.INSTANCE;
+      String mapped = remapper.mapMethodName(node.name,method.name,method.desc), desc = remapper.mapMethodDesc(method.desc);
+      if (("onBlockPlacedBy".equals(method.name) || "func_149689_a".equals(method.name) || "func_149689_a".equals(mapped))
+          && DESC.equals(desc)) {
         inject(method);
         placed = changed = true;
       }
-      if (("onNeighborBlockChange".equals(method.name) || "func_149695_a".equals(method.name))
-          && method.desc.equals(
+      if (("onNeighborBlockChange".equals(method.name) || "func_149695_a".equals(method.name) || "func_149695_a".equals(mapped))
+          && desc.equals(
               "(Lnet/minecraft/world/World;IIILnet/minecraft/block/Block;)V")) {
         injectLatchGuard(method);
         changed = true;
       }
-      if (("onBlockActivated".equals(method.name) || "func_149727_a".equals(method.name))
-          && method.desc.equals(
+      if (("onBlockActivated".equals(method.name) || "func_149727_a".equals(method.name) || "func_149727_a".equals(mapped))
+          && desc.equals(
               "(Lnet/minecraft/world/World;IIILnet/minecraft/entity/player/EntityPlayer;IFFF)Z")) {
         injectActivationGuard(method);
         changed = true;

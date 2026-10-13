@@ -38,7 +38,7 @@ public final class SkeletonPoseTransformer implements IClassTransformer, Opcodes
         }
       } else if ((skeleton || biped || zombie)
           && ("setRotationAngles".equals(mapped) || "func_78087_a".equals(mapped))
-          && "(FFFFFFLnet/minecraft/entity/Entity;)V".equals(method.desc)) {
+          && "(FFFFFFLnet/minecraft/entity/Entity;)V".equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(method.desc))) {
         InsnList hook = new InsnList();
         hook.add(new VarInsnNode(ALOAD, 0));
         hook.add(new VarInsnNode(ALOAD, 7));

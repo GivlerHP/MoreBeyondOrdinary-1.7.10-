@@ -24,20 +24,35 @@ public final class BoatRiderRenderTransformer implements IClassTransformer, Opco
         }
       }
       if (render && ("doRender".equals(mapped) || "func_76986_a".equals(mapped))
-          && "(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V".equals(method.desc)) {
+          && "(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V".equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(method.desc))) {
+        int yaw = -1, partial = -1;
+        for (AbstractInsnNode insn : method.instructions.toArray()) if (insn instanceof MethodInsnNode) {
+          MethodInsnNode call = (MethodInsnNode) insn;
+          String callName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(call.owner,call.name,call.desc);
+          if (!(callName.equals("rotateCorpse") || callName.equals("func_77043_a"))) continue;
+          AbstractInsnNode p = previousCode(call), y = previousCode(p);
+          if (p instanceof VarInsnNode && p.getOpcode() == FLOAD && y instanceof VarInsnNode && y.getOpcode() == FLOAD) {
+            yaw = ((VarInsnNode) y).var; partial = ((VarInsnNode) p).var; break;
+          }
+        }
+        boolean bodyStarted = false;
         for (AbstractInsnNode insn : method.instructions.toArray()) {
-          if (insn instanceof VarInsnNode && insn.getOpcode() == FLOAD && ((VarInsnNode) insn).var == 10) {
+          if (insn instanceof VarInsnNode && insn.getOpcode() == FSTORE && ((VarInsnNode) insn).var == yaw) {
+            AbstractInsnNode previous = previousCode(insn);
+            if (previous instanceof MethodInsnNode && ((MethodInsnNode) previous).desc.equals("(FFF)F")) bodyStarted = true;
+          }
+          if (bodyStarted && insn instanceof VarInsnNode && insn.getOpcode() == FLOAD && ((VarInsnNode) insn).var == yaw) {
             InsnList hook = new InsnList();
             hook.add(new VarInsnNode(ALOAD, 1));
-            hook.add(new VarInsnNode(FLOAD, 10));
-            hook.add(new VarInsnNode(FLOAD, 9));
+            hook.add(new VarInsnNode(FLOAD, yaw));
+            hook.add(new VarInsnNode(FLOAD, partial));
             hook.add(new MethodInsnNode(INVOKESTATIC, HOOK, "bodyYaw", "(Lnet/minecraft/entity/EntityLivingBase;FF)F", false));
             method.instructions.insertBefore(insn, hook); method.instructions.remove(insn); changes++;
           }
         }
       }
       if (model && ("setRotationAngles".equals(mapped) || "func_78087_a".equals(mapped))
-          && "(FFFFFFLnet/minecraft/entity/Entity;)V".equals(method.desc)) {
+          && "(FFFFFFLnet/minecraft/entity/Entity;)V".equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(method.desc))) {
         for (AbstractInsnNode insn : method.instructions.toArray()) if (insn.getOpcode() == RETURN) {
           InsnList hook = new InsnList();
           hook.add(new VarInsnNode(ALOAD, 0)); hook.add(new VarInsnNode(ALOAD, 7));
@@ -48,5 +63,10 @@ public final class BoatRiderRenderTransformer implements IClassTransformer, Opco
     }
     if (changes == 0) throw new IllegalStateException("MBO boat rider render anchors missing: " + transformedName);
     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS); node.accept(writer); return writer.toByteArray();
+  }
+  private static AbstractInsnNode previousCode(AbstractInsnNode insn) {
+    if (insn == null) return null;
+    do { insn = insn.getPrevious(); } while (insn != null && insn.getOpcode() < 0);
+    return insn;
   }
 }

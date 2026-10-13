@@ -129,6 +129,18 @@ idea {
 
 tasks.build.dependsOn('deobfJar')
 
+task verifyProductionTransformers(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.ProductionTransformersSmoke'
+    args new File(gradle.gradleUserHomeDir, 'caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/srgs').absolutePath
+    if (project.hasProperty('coloredLightOptifineJar')) {
+        classpath += files(project.property('coloredLightOptifineJar'))
+        args project.property('coloredLightOptifineJar'), project.property('coloredLightMinecraftJar')
+    }
+    if (project.hasProperty('productionAuditExtraJars')) classpath += files(project.property('productionAuditExtraJars').toString().split(';'))
+}
+tasks.check.dependsOn('verifyProductionTransformers')
+
 task verifyWaterloggedStorage(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.waterlogging.WaterloggedStorageSmoke'
@@ -160,6 +172,23 @@ tasks.check.dependsOn('verifySkeletonCombat')
 task verifyTessellatorEmptyBuffer(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.core.TessellatorEmptyBufferSmoke'
+}
+
+task verifyColoredLight(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.ColoredLightSmoke'
+    if (project.hasProperty('coloredLightOptifineJar')) {
+        classpath += files(project.property('coloredLightOptifineJar'))
+        args project.property('coloredLightOptifineJar'), project.property('coloredLightMinecraftJar'), project.property('coloredLightMappings')
+    }
+}
+
+tasks.check.dependsOn('verifyColoredLight')
+
+task coloredLightShaderPack(type: Zip) {
+    from 'shaderpacks/MBO_RGB_Lite'
+    archiveFileName = 'MBO_RGB_Lite.zip'
+    destinationDirectory = file('build/libs')
 }
 
 tasks.check.dependsOn('verifyTessellatorEmptyBuffer')

@@ -29,7 +29,7 @@ public final class PotionDurationFontTransformer implements IClassTransformer, O
             for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext()) {
                 if (!(insn instanceof MethodInsnNode)) continue;
                 MethodInsnNode call = (MethodInsnNode) insn;
-                if (!FONT.equals(call.owner) || !"(Ljava/lang/String;III)I".equals(call.desc)) continue;
+                if (!FONT.equals(cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper.INSTANCE.map(call.owner)) || !"(Ljava/lang/String;III)I".equals(call.desc)) continue;
                 fontDraws++;
                 if (fontDraws != 2) continue;
                 // Keep the configured grey foreground, but remove the black
@@ -40,10 +40,11 @@ public final class PotionDurationFontTransformer implements IClassTransformer, O
                 AbstractInsnNode cursor = call.getPrevious();
                 for (int checked = 0; cursor != null && checked < 80; checked++, cursor = cursor.getPrevious()) {
                     if (cursor instanceof IntInsnNode && cursor.getOpcode() == BIPUSH
-                            && ((IntInsnNode) cursor).operand == (dynamic ? 10 : 16)) {
-                        // DynamicSurroundings uses y + 6 + 10; vanilla uses
-                        // y + 16. Move only the duration two pixels upward.
-                        ((IntInsnNode) cursor).operand = dynamic ? 8 : 14;
+                            && (((IntInsnNode) cursor).operand == 10
+                                || (!dynamic && ((IntInsnNode) cursor).operand == 16))) {
+                        // Both y + 6 + 10 and the folded y + 16 occur in supported bytecode.
+                        // The last offset before this draw is the duration's Y coordinate.
+                        ((IntInsnNode) cursor).operand -= 2;
                         positionPatched = true;
                         break;
                     }

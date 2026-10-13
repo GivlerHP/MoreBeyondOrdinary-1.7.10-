@@ -664,6 +664,11 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
       }
     }
   }
+  public java.util.List<int[]> getCollisionPartPositions(int x,int y,int z,int facing) {
+    java.util.List<int[]> positions=new java.util.ArrayList<>();
+    for(ModelCollisionPart part:collisionParts)positions.add(collisionPosition(x,y,z,facing,part));
+    return positions;
+  }
 
   private int[] collisionPosition(int x, int y, int z, int facing, ModelCollisionPart part) {
     int localX = part.localX;

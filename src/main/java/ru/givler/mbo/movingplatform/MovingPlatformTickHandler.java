@@ -40,6 +40,21 @@ public final class MovingPlatformTickHandler {
     }
     set.add(platform);
   }
+  /** Add thin moving model walls to vanilla's swept movement, on client and server. */
+  public static java.util.List addDecorCollisions(java.util.List result,World world,Entity entity,AxisAlignedBB query) {
+    if(entity instanceof EntityMovingPlatform)return result;
+    Set<EntityMovingPlatform> platforms=ACTIVE.get(world);
+    if(platforms==null)return result;
+    for(EntityMovingPlatform platform:platforms) {
+      if(platform.isDead||!platform.isCollisionActive()||!bounds(platform).expand(.01,.01,.01).intersectsWith(query))continue;
+      for(PlatformBlock b:platform.getOuterBlocks()) {
+        if(!(b.block instanceof ru.givler.mbo.block.BlockModels)&&!(b.block instanceof ru.givler.mbo.block.model.BlockModelCollision))continue;
+        AxisAlignedBB box=blockBox(platform,b);
+        if(box!=null&&box.intersectsWith(query))result.add(box);
+      }
+    }
+    return result;
+  }
 
   public static void untrack(EntityMovingPlatform platform) {
     World world = platform.worldObj;
@@ -264,8 +279,8 @@ public final class MovingPlatformTickHandler {
           oldGap >= -.12D && newGap <= .18D && newGap >= -.55D && entity.motionY <= .2D;
       boolean resting = newGap >= -.35D && newGap <= .12D && entity.motionY <= .05D;
       if (remembered || landing || resting) {
-        snapFeet(entity, oldTop);
-        entity.moveEntity(clientOnly ? 0D : dx, newTop - oldTop, clientOnly ? 0D : dz);
+        snapFeet(entity, newTop);
+        entity.moveEntity(clientOnly ? 0D : dx, 0D, clientOnly ? 0D : dz);
         if (entity.motionY < 0D) entity.motionY = 0D;
         entity.onGround = true;
         entity.fallDistance = 0;
@@ -382,8 +397,10 @@ public final class MovingPlatformTickHandler {
     if (chosen != null) {
       double oldTop = platform.clipCollisionTop(platform.prevPosY + chosen.y + chosen.maxY);
       double newTop = platform.clipCollisionTop(platform.posY + chosen.y + chosen.maxY);
-      snapFeet(player, oldTop);
-      player.moveEntity(dx, newTop - oldTop, dz);
+      // Vanilla decor collisions may already have placed the feet on the new floor.
+      // Do not rewind to last tick's floor and apply the same ascent a second time.
+      snapFeet(player, newTop);
+      player.moveEntity(dx, 0D, dz);
       if (player.motionY < 0) player.motionY = 0;
       player.onGround = true;
       player.fallDistance = 0;

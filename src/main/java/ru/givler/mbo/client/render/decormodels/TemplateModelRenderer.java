@@ -58,7 +58,8 @@ public class TemplateModelRenderer extends GeoAnimatedBlockRenderer<ModelTileBas
             if (decoration == RopeConnections.KNOT) {
                 return (tile.getBlockMetadata() & 3) == 2 ? EnumFacing.WEST : EnumFacing.NORTH;
             }
-            int mask = ((BlockConnectedRope) tile.getBlockType()).getConnectionMask(
+            int mask = tile instanceof ModelTileBase&&((ModelTileBase)tile).movingPlatformRopeMask>=0
+                ?((ModelTileBase)tile).movingPlatformRopeMask:((BlockConnectedRope) tile.getBlockType()).getConnectionMask(
                     tile.getWorldObj(), tile.xCoord, tile.yCoord, tile.zCoord);
             switch (RopeConnections.rotationQuarterTurns(mask)) {
                 case 1: return EnumFacing.WEST;  // +90 degrees around Y

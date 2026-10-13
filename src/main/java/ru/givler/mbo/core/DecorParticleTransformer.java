@@ -10,7 +10,7 @@ public final class DecorParticleTransformer implements IClassTransformer,Opcodes
   ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);boolean patched=false;
   for(MethodNode method:node.methods) {
    String mapped=cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(node.name,method.name,method.desc);
-   if(!(method.name.equals("doSpawnParticle")||method.name.equals("func_147974_a")||mapped.equals("func_147974_a"))||!method.desc.startsWith("(Ljava/lang/String;DDDDDD)"))continue;
+   if(!(method.name.equals("doSpawnParticle")||method.name.equals("func_72726_b")||mapped.equals("func_72726_b"))||!method.desc.startsWith("(Ljava/lang/String;DDDDDD)"))continue;
    for(AbstractInsnNode ins:method.instructions.toArray())if(ins.getOpcode()==ARETURN) {
     InsnList code=new InsnList();code.add(new VarInsnNode(ALOAD,1));
     code.add(new VarInsnNode(DLOAD,2));code.add(new VarInsnNode(DLOAD,4));code.add(new VarInsnNode(DLOAD,6));

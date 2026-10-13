@@ -38,7 +38,7 @@ public final class SmoothOpeningTransformer implements IClassTransformer, Opcode
     ClassNode node = read(bytes);
     String desc = "(ID[Lnet/minecraft/client/renderer/WorldRenderer;)I";
     for (MethodNode method : node.methods) {
-      if (!"preRenderSortedRenderers".equals(method.name) || !desc.equals(method.desc)) continue;
+      if (!"preRenderSortedRenderers".equals(method.name) || !desc.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(method.desc))) continue;
       InsnList hook = new InsnList();
       hook.add(new VarInsnNode(ILOAD, 1));
       hook.add(new VarInsnNode(DLOAD, 2));
@@ -76,7 +76,7 @@ public final class SmoothOpeningTransformer implements IClassTransformer, Opcode
     String desc =
         "(Lnet/minecraft/item/ItemStack;IIIDDDDDD[Lnet/minecraftforge/common/util/ForgeDirection;)V";
     for (MethodNode m : node.methods) {
-      if (!"renderBlockWithRotation".equals(m.name) || !desc.equals(m.desc)) continue;
+      if (!"renderBlockWithRotation".equals(m.name) || !desc.equals(FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(m.desc))) continue;
       InsnList code = new InsnList();
       code.add(new VarInsnNode(ALOAD, 0));
       code.add(new VarInsnNode(ALOAD, 1));

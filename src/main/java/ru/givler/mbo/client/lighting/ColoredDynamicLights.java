@@ -1,0 +1,113 @@
+package ru.givler.mbo.client.lighting;
+
+import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.world.World;
+import ru.givler.mbo.config.ColoredLightConfig;
+import ru.givler.mbo.lighting.ColoredLightApi;
+
+/** Small separate moving-light layer. Never inserts moving sources into the persistent flood fill. */
+public final class ColoredDynamicLights {
+  public static final ColoredDynamicLights INSTANCE = new ColoredDynamicLights();
+  public static final class Source {
+    public final Entity entity;
+    public final int packed;
+    public final double x, y, z, radius;
+    Source(Entity entity, int packed) {
+      this.entity = entity; this.packed = packed;
+      x = entity.posX; y = entity.posY + (entity instanceof EntityItem ? 0.2 : entity.getEyeHeight()); z = entity.posZ;
+      radius = 7.5; // OptiFine E7 range; intensity is supplied separately by the source level.
+    }
+    public double x(float partial) { return entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partial; }
+    public double y(float partial) { return entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partial + (entity instanceof EntityItem ? 0.2 : entity.getEyeHeight()); }
+    public double z(float partial) { return entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partial; }
+  }
+  private volatile List<Source> sources = Collections.emptyList();
+  private volatile World world;
+  private int ticks;
+  private volatile long generation;
+  private boolean invalidated;
+  private final ThreadLocal<Query> queries = new ThreadLocal<Query>() {
+    @Override protected Query initialValue() { return new Query(); }
+  };
+  private ColoredDynamicLights() {}
+  public List<Source> sources() { return sources; }
+
+  public void tick(Minecraft mc) {
+    if (world != mc.theWorld) { world = mc.theWorld; sources = Collections.emptyList(); generation++; ticks = 0; }
+    if (world == null || mc.renderViewEntity == null) return;
+    if (++ticks % Math.max(1, ColoredLightConfig.dynamicInterval) != 0) return;
+    List<Source> next = new ArrayList<>();
+    if (ColoredLightConfig.dynamicLights && ColoredLightConfig.dynamicLimit > 0) {
+      for (Object object : world.loadedEntityList == null ? Collections.emptyList() : world.loadedEntityList) {
+        if (!(object instanceof Entity)) continue;
+        Entity entity = (Entity) object;
+        if (entity.isDead || entity.getDistanceSqToEntity(mc.renderViewEntity) > 32 * 32) continue;
+        int packed = ColoredLightApi.entityEmission(entity);
+        if (packed == 0 && entity instanceof EntityItem) packed = ColoredLightApi.itemEmission(((EntityItem) entity).getEntityItem(), entity);
+        if (entity instanceof EntityLivingBase) packed = ColoredLightAuto.merge(packed, ColoredLightAuto.heldEmission((EntityLivingBase) entity));
+        if ((packed >>> 24) != 0 && (packed & 0xFFFFFF) != 0) next.add(new Source(entity, packed));
+      }
+      next.sort(Comparator.comparingDouble(s -> s.entity.getDistanceSqToEntity(mc.renderViewEntity)));
+      if (next.size() > ColoredLightConfig.dynamicLimit) next = new ArrayList<>(next.subList(0, ColoredLightConfig.dynamicLimit));
+    }
+    boolean changed = invalidated || next.size() != sources.size(); invalidated = false;
+    if (!changed) for (int i = 0; i < next.size(); i++) {
+      Source a = next.get(i), b = sources.get(i);
+      if (a.entity != b.entity || a.packed != b.packed || Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z) > 0.25) { changed = true; break; }
+    }
+    if (changed) {
+      // This fallback rebuilds only nearby sections, at a configurable cadence.
+      if (!ColoredLightShaderBridge.active) {
+        for (Source source : sources) mark(mc, source);
+        for (Source source : next) mark(mc, source);
+      }
+      sources = Collections.unmodifiableList(next); generation++;
+    }
+  }
+  private void mark(Minecraft mc, Source source) {
+    if (mc.renderGlobal == null) return;
+    int r = (int) Math.ceil(source.radius) + 1;
+    int x = (int) Math.floor(source.x), y = (int) Math.floor(source.y), z = (int) Math.floor(source.z);
+    mc.renderGlobal.markBlockRangeForRenderUpdate(x - r, y - r, z - r, x + r, y + r, z + r);
+  }
+  public int sample(int x, int y, int z) {
+    List<Source> snapshot = sources;
+    if (snapshot.isEmpty() || world == null) return 0;
+    Query query = queries.get();
+    if (query.generation != generation) { query.generation = generation; query.values.clear(); }
+    query.probe.x = x; query.probe.y = y; query.probe.z = z;
+    Integer cached = query.values.get(query.probe); if (cached != null) return cached;
+    int rgb = 0;
+    for (Source source : snapshot) {
+      double dx = x + 0.5 - source.x, dy = y + 0.5 - source.y, dz = z + 0.5 - source.z;
+      double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (distance >= source.radius || !visible(source, x + 0.5, y + 0.5, z + 0.5, distance)) continue;
+      int base = ColoredLightApi.rgb(source.packed); float scale = (float) (1 - distance / source.radius);
+      int value = Math.round((base >>> 16) * scale) << 16 | Math.round((base >> 8 & 255) * scale) << 8 | Math.round((base & 255) * scale);
+      rgb = ru.givler.mbo.lighting.ColoredLightVolume.merge(rgb, value);
+    }
+    if (query.values.size() < 32768) query.values.put(new Cell(x, y, z), rgb);
+    return rgb;
+  }
+  public void invalidate() { generation++; invalidated = true; }
+  private static final class Query { long generation = -1; final Cell probe = new Cell(0, 0, 0); final Map<Cell, Integer> values = new HashMap<>(); }
+  private boolean visible(Source source, double x, double y, double z, double distance) {
+    int steps = Math.max(1, (int) Math.ceil(distance * 2));
+    for (int i = 1; i < steps; i++) {
+      double t = i / (double) steps;
+      int bx = (int) Math.floor(source.x + (x - source.x) * t), by = (int) Math.floor(source.y + (y - source.y) * t), bz = (int) Math.floor(source.z + (z - source.z) * t);
+      if (!world.blockExists(bx, by, bz) || world.getBlock(bx, by, bz).getLightOpacity(world, bx, by, bz) >= 15) return false;
+    }
+    return true;
+  }
+  private static final class Cell {
+    int x, y, z;
+    Cell(int x, int y, int z) { this.x = x; this.y = y; this.z = z; }
+    @Override public int hashCode() { return (x * 31 + y) * 31 + z; }
+    @Override public boolean equals(Object o) { if (!(o instanceof Cell)) return false; Cell c = (Cell) o; return x == c.x && y == c.y && z == c.z; }
+  }
+}

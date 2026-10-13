@@ -14,6 +14,10 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 public class ModelTileBase extends TileEntity implements IAnimatable {
     public boolean ropeFloor, ropeAnchor, ropeAnchorExtra;
     public boolean cageOpen;
+    // Render-only connectivity captured when a rope becomes part of a moving platform.
+    public int movingPlatformRopeMask=-1;
+    public boolean movingPlatformRopeConnector;
+    public int movingPlatformLight=-1;
     private Boolean lastCageAnimationOpen;
     private String cageAnimation;
     public String textureName;

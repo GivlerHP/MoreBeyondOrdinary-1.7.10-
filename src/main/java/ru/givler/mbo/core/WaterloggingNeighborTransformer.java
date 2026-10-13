@@ -35,6 +35,8 @@ public final class WaterloggingNeighborTransformer implements IClassTransformer,
           && ("notifyBlocksOfNeighborChange".equals(method.name)
               || "func_147459_d".equals(method.name)
               || "notifyBlocksOfNeighborChange".equals(mappedName)
+              || "func_147441_b".equals(method.name)
+              || "func_147441_b".equals(mappedName)
               || "func_147459_d".equals(mappedName))) {
         InsnList hook = coordinatesHook("onNeighborNotification", "(Lnet/minecraft/world/World;III)V");
         method.instructions.insert(hook);

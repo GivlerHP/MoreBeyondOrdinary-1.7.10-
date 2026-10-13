@@ -54,13 +54,14 @@ public final class BlockDecorCage extends BlockModels {
   net.minecraft.tileentity.TileEntity raw=world.getTileEntity(x,y,z);
   if(!(raw instanceof ModelTileBase))return false;
   ModelTileBase tile=(ModelTileBase)raw;
-  if(tile.cageOpen) {
-   float[] b=rotateBounds(new float[]{0,1/32F,31/32F,1,2-1/32F,1},world.getBlockMetadata(x,y,z)&3);
-   if(!world.getEntitiesWithinAABB(EntityLivingBase.class,AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5])).isEmpty())return true;
-  }
+  if(tile.cageOpen&&!canClose(world,x,y,z))return true;
   tile.cageOpen=!tile.cageOpen;tile.markDirty();world.markBlockForUpdate(x,y,z);
   world.playSoundEffect(x+.5,y+1,z+.5,tile.cageOpen?"mbo:copper.door.open":"mbo:copper.door.close",.7F,1);
   return true;
+ }
+ public boolean canClose(World world,int x,int y,int z) {
+  float[] b=rotateBounds(new float[]{0,1/32F,31/32F,1,2-1/32F,1},world.getBlockMetadata(x,y,z)&3);
+  return world.getEntitiesWithinAABB(EntityLivingBase.class,AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5])).isEmpty();
  }
  public static boolean canOperateDoor(int facing,int side,double px,double py,double pz) {
   if(px>0&&px<1&&pz>0&&pz<1&&py>=0&&py<2)return true;

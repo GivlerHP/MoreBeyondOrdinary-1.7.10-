@@ -89,6 +89,7 @@ public final class SkeletonCombatTransformer implements IClassTransformer, Opcod
   }
 
   private static String replacement(String owner) {
+    owner = FMLDeobfuscatingRemapper.INSTANCE.map(owner);
     if ("net/minecraft/entity/ai/EntityAIArrowAttack".equals(owner)) return BOW;
     if ("net/minecraft/entity/ai/EntityAIAttackOnCollide".equals(owner)) return MELEE;
     return null;

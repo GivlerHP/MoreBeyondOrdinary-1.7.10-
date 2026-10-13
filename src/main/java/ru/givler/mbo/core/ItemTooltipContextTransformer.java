@@ -5,13 +5,13 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
-/** Marks only GuiContainer's ItemStack tooltip path for the ornamental frame. */
+/** Marks GuiContainer's call to the inherited ItemStack tooltip renderer. */
 public final class ItemTooltipContextTransformer implements IClassTransformer, Opcodes {
   private static final String TARGET = "net.minecraft.client.gui.inventory.GuiContainer";
   private static final String HOOK = "ru/givler/mbo/core/TooltipFrameHooks";
   private static final String DRAW_SCREEN_DESC = "(IIF)V";
   private static final String TOOLTIP_DESC =
-      "(Ljava/util/List;IILnet/minecraft/client/gui/FontRenderer;)V";
+      "(Lnet/minecraft/item/ItemStack;II)V";
 
   @Override
   public byte[] transform(String name, String transformedName, byte[] bytes) {
@@ -39,7 +39,7 @@ public final class ItemTooltipContextTransformer implements IClassTransformer, O
       if (patched) break;
     }
     if (!patched) {
-      System.err.println("[MBO ASM] Item tooltip drawHoveringText call was not found");
+      System.err.println("[MBO ASM] Item tooltip renderToolTip call was not found");
       return bytes;
     }
     ClassWriter writer = SafeClassWriter.create();

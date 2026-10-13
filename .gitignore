@@ -41,6 +41,8 @@ local.properties
 /.ref
 /docs
 /tools
+/config-examples
+/shaderpacks
 
 # Eclipse Core
 .project

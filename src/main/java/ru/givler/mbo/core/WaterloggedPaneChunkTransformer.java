@@ -16,7 +16,25 @@ public final class WaterloggedPaneChunkTransformer implements IClassTransformer,
     for (MethodNode method : node.methods) {
       MethodInsnNode anchor = null;
       int pass = -1;
+      java.util.Set<MethodInsnNode> reflectedPassChecks = new java.util.HashSet<>();
       for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext()) {
+        if (insn instanceof FieldInsnNode && ((FieldInsnNode) insn).owner.equals("Reflector")
+            && ((FieldInsnNode) insn).name.equals("ForgeBlock_canRenderInPass")) {
+          int candidate = -1;
+          for (AbstractInsnNode cursor = insn.getNext(); cursor != null; cursor = cursor.getNext()) {
+            if (cursor instanceof MethodInsnNode) {
+              MethodInsnNode reflected = (MethodInsnNode) cursor;
+              if (reflected.owner.equals("java/lang/Integer") && reflected.name.equals("valueOf")) {
+                AbstractInsnNode boxed = previousCode(cursor);
+                if (boxed instanceof VarInsnNode && boxed.getOpcode() == ILOAD) candidate = ((VarInsnNode) boxed).var;
+              }
+              if (reflected.owner.equals("Reflector") && reflected.name.equals("callBoolean")) {
+                if (candidate >= 0) { pass = candidate; reflectedPassChecks.add(reflected); }
+                break;
+              }
+            }
+          }
+        }
         if (!(insn instanceof MethodInsnNode)) continue;
         MethodInsnNode call = (MethodInsnNode) insn;
         String mapped = mapped(call);
@@ -43,6 +61,14 @@ public final class WaterloggedPaneChunkTransformer implements IClassTransformer,
         AbstractInsnNode next = insn.getNext();
         if (insn instanceof MethodInsnNode) {
           MethodInsnNode call = (MethodInsnNode) insn;
+          if (reflectedPassChecks.contains(call)) {
+            InsnList filter = new InsnList();
+            filter.add(new VarInsnNode(ALOAD, locals[1])); filter.add(new VarInsnNode(ILOAD, pass));
+            filter.add(context(locals));
+            filter.add(new MethodInsnNode(INVOKESTATIC, HOOK, "filterCanRender",
+                "(ZLnet/minecraft/block/Block;ILnet/minecraft/client/renderer/RenderBlocks;III)Z", false));
+            method.instructions.insert(call, filter); ++patched;
+          }
           String mapped = mapped(call);
           if (mapped.equals("getRenderBlockPass") || mapped.equals("func_149701_w")) {
             method.instructions.insertBefore(call, context(locals));

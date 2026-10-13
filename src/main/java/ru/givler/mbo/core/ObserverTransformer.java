@@ -37,6 +37,7 @@ public final class ObserverTransformer implements IClassTransformer, Opcodes {
             } else if ("(IIIII)Z".equals(mappedDesc)
                     && ("setBlockMetadataWithNotify".equals(method.name)
                     || "func_72921_c".equals(method.name)
+                    || "func_72921_c".equals(mappedName)
                     || "setBlockMetadataWithNotify".equals(mappedName))) {
                 for (AbstractInsnNode instruction = method.instructions.getFirst(); instruction != null;
                      instruction = instruction.getNext()) {

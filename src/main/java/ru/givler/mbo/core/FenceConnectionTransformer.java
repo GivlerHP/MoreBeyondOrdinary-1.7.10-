@@ -95,14 +95,16 @@ public final class FenceConnectionTransformer implements IClassTransformer, Opco
             boolean target;
             if (RENDER_BLOCKS.equals(transformedName)) {
                 target = "renderBlockFence".equals(method.name) || "renderBlockWall".equals(method.name)
-                        || "renderBlockFence".equals(mapped) || "renderBlockWall".equals(mapped);
+                        || "renderBlockFence".equals(mapped) || "renderBlockWall".equals(mapped)
+                        || "func_147735_a".equals(mapped) || "func_147807_a".equals(mapped);
             } else {
                 target = "setBlockBoundsBasedOnState".equals(method.name)
                         || "addCollisionBoxesToList".equals(method.name)
                         || "getCollisionBoundingBoxFromPool".equals(method.name)
                         || "setBlockBoundsBasedOnState".equals(mapped)
                         || "addCollisionBoxesToList".equals(mapped)
-                        || "getCollisionBoundingBoxFromPool".equals(mapped);
+                        || "getCollisionBoundingBoxFromPool".equals(mapped)
+                        || "func_149719_a".equals(mapped) || "func_149743_a".equals(mapped) || "func_149668_a".equals(mapped);
             }
             if (!target) continue;
             InsnList origin = new InsnList();

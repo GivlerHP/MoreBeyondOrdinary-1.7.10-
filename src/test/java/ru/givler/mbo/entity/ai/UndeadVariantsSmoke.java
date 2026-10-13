@@ -423,6 +423,43 @@ public final class UndeadVariantsSmoke {
         check(errors.toString().isEmpty(), errors.toString());
       }
     }
+    verifyObfuscatedDescriptor();
+  }
+
+  private static void verifyObfuscatedDescriptor() throws Exception {
+    // Forge coremods receive notch descriptors before the deobfuscating transformer runs.
+    cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper remapper =
+        cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper.INSTANCE;
+    Field classes = remapper.getClass().getDeclaredField("classNameBiMap"); classes.setAccessible(true);
+    Field methods = remapper.getClass().getDeclaredField("methodNameMaps"); methods.setAccessible(true);
+    Object previousClasses = classes.get(remapper), previousMethods = methods.get(remapper);
+    try (InputStream input = UndeadVariantsSmoke.class.getResourceAsStream("/net/minecraft/entity/projectile/EntityArrow.class")) {
+      org.objectweb.asm.ClassWriter writer = new org.objectweb.asm.ClassWriter(0);
+      org.objectweb.asm.commons.Remapper notch = new org.objectweb.asm.commons.Remapper() {
+        @Override public String map(String name) { return name.equals("net/minecraft/util/DamageSource") ? "ro" : name; }
+      };
+      new ClassReader(input).accept(new org.objectweb.asm.commons.RemappingClassAdapter(writer, notch), ClassReader.EXPAND_FRAMES);
+      com.google.common.collect.BiMap<String, String> classMap = com.google.common.collect.HashBiMap.create();
+      classMap.put("ro", "net/minecraft/util/DamageSource"); classes.set(remapper, classMap);
+      java.util.Map<String, java.util.Map<String, String>> methodMap = new java.util.HashMap<>();
+      org.objectweb.asm.tree.ClassNode before = new org.objectweb.asm.tree.ClassNode(); new ClassReader(writer.toByteArray()).accept(before, 0);
+      methodMap.put(before.name, Collections.emptyMap());
+      for (org.objectweb.asm.tree.MethodNode method : before.methods)
+        for (org.objectweb.asm.tree.AbstractInsnNode instruction : method.instructions.toArray())
+          if (instruction instanceof org.objectweb.asm.tree.MethodInsnNode)
+            methodMap.put(((org.objectweb.asm.tree.MethodInsnNode) instruction).owner, Collections.emptyMap());
+      methods.set(remapper, methodMap);
+      byte[] patched = new UndeadMechanicsTransformer().transform(before.name, "net.minecraft.entity.projectile.EntityArrow", writer.toByteArray());
+      org.objectweb.asm.tree.ClassNode after = new org.objectweb.asm.tree.ClassNode(); new ClassReader(patched).accept(after, 0);
+      int hits = 0;
+      for (org.objectweb.asm.tree.MethodNode method : after.methods) {
+        new org.objectweb.asm.tree.analysis.Analyzer<org.objectweb.asm.tree.analysis.BasicValue>(new org.objectweb.asm.tree.analysis.BasicVerifier()).analyze(after.name, method);
+        for (org.objectweb.asm.tree.AbstractInsnNode instruction : method.instructions.toArray())
+          if (instruction instanceof org.objectweb.asm.tree.MethodInsnNode && ((org.objectweb.asm.tree.MethodInsnNode) instruction).name.equals("arrowHit")) hits++;
+      }
+      check(hits == 1, "Arrow hit hook must match notch DamageSource descriptor");
+      System.out.println("Production arrow descriptor: obfuscated DamageSource matched and transformed bytecode verified");
+    } finally { classes.set(remapper, previousClasses); methods.set(remapper, previousMethods); }
   }
 
   private static void check(boolean ok, String message) {

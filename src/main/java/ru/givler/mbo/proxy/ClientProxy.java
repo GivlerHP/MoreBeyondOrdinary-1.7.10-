@@ -230,10 +230,16 @@ public class ClientProxy extends CommonProxy {
   public void preInit(FMLPreInitializationEvent event) {
     super.preInit(event);
     PlayerPingConfig.load(event.getModConfigurationDirectory());
+    ru.givler.mbo.config.ColoredLightConfig.load(event.getModConfigurationDirectory());
+    ru.givler.mbo.config.ColoredLightSources.configure(event.getModConfigurationDirectory());
   }
 
   public void init(FMLInitializationEvent event) {
     super.init(event);
+    ru.givler.mbo.config.ColoredLightSources.reload();
+    net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.lighting.ColoredLightCommand());
+    FMLCommonHandler.instance().bus().register(ru.givler.mbo.client.lighting.ColoredLightClient.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.lighting.ColoredLightClient.INSTANCE);
     registerFenceRenderer();
     registerBarrierRenderer();
     int adminFireRenderId = RenderingRegistry.getNextAvailableRenderId();

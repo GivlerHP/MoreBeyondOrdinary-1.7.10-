@@ -1598,3 +1598,9 @@ tile.ModelTortureTortureWithCoals.name=Torture With Coals
 tile.ModelTortureWheeledCorpse.name=Wheeled Corpse
 tile.ModelTortureWheeling.name=Wheeling
 tile.ModelTortureWitchSChair.name=Witch S Chair
+
+mbo.platform.returnMode.4=Wait for player
+mbo.platform.activationMode=Activation mode
+mbo.platform.waitShort=Time
+
+mbo.platform.error.incompleteModel=Select the whole model, including its collision blocks.

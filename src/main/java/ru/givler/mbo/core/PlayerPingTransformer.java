@@ -31,7 +31,7 @@ public final class PlayerPingTransformer implements IClassTransformer, Opcodes {
           instruction = instruction.getNext()) {
         if (instruction instanceof TypeInsnNode
             && instruction.getOpcode() == CHECKCAST
-            && PLAYER_INFO.equals(((TypeInsnNode) instruction).desc)
+            && PLAYER_INFO.equals(cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper.INSTANCE.map(((TypeInsnNode) instruction).desc))
             && instruction.getNext() instanceof VarInsnNode
             && instruction.getNext().getOpcode() == ASTORE) {
           VarInsnNode store = (VarInsnNode) instruction.getNext();
@@ -45,7 +45,8 @@ public final class PlayerPingTransformer implements IClassTransformer, Opcodes {
         }
         if (instruction instanceof MethodInsnNode) {
           MethodInsnNode call = (MethodInsnNode) instruction;
-          if (("drawTexturedModalRect".equals(call.name) || "func_73729_b".equals(call.name))
+          String mapped = cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(call.owner,call.name,call.desc);
+          if (("drawTexturedModalRect".equals(call.name) || "func_73729_b".equals(call.name) || "func_73729_b".equals(mapped))
               && "(IIIIII)V".equals(call.desc)) pingIconCall = call;
         }
       }

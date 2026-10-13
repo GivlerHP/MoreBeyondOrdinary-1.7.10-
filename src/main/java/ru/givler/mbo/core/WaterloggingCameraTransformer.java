@@ -132,7 +132,7 @@ public final class WaterloggingCameraTransformer implements IClassTransformer, O
         else if ((ACTIVE_RENDER_INFO.equals(call.owner)
                 || ACTIVE_RENDER_INFO.equals(FMLDeobfuscatingRemapper.INSTANCE.mapType(call.owner)))
             && ("updateRenderInfo".equals(call.name) || "func_74583_a".equals(call.name)
-                || "updateRenderInfo".equals(callName))) camera = call;
+                || "updateRenderInfo".equals(callName) || "func_74583_a".equals(callName))) camera = call;
       }
       if (fog == null || clear == null || camera == null) return false;
       AbstractInsnNode fogFloat = previousOpcode(fog);
@@ -209,6 +209,7 @@ public final class WaterloggingCameraTransformer implements IClassTransformer, O
         if (call.getOpcode() != INVOKEVIRTUAL
             || !("isInsideOfMaterial".equals(call.name)
                 || "func_70055_a".equals(call.name)
+                || "func_70055_a".equals(mapped)
                 || "isInsideOfMaterial".equals(mapped))
             || !"(Lnet/minecraft/block/material/Material;)Z".equals(
                 FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(call.desc))) continue;

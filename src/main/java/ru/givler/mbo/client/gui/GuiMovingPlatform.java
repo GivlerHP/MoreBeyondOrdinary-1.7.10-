@@ -106,7 +106,7 @@ public class GuiMovingPlatform extends GuiScreen {
       return;
     }
     if (b.id == 6) {
-      returnMode = (returnMode + 1) % 4;
+      returnMode = (returnMode + 1) % 5;
       b.displayString = returnLabel();
       return;
     }
@@ -224,8 +224,8 @@ public class GuiMovingPlatform extends GuiScreen {
     platformId.drawTextBox();
     drawString(fontRendererObj, I18n.format("mbo.platform.distanceShort"), leftX, 114, 0xaaaaaa);
     drawString(fontRendererObj, I18n.format("mbo.platform.secondsShort"), seconds.xPosition, 114, 0xaaaaaa);
-    drawString(fontRendererObj, I18n.format("mbo.platform.returnMode"), leftX, 150, 0xaaaaaa);
-    drawString(fontRendererObj, I18n.format("mbo.platform.delayShort"), delay.xPosition, 150, 0xaaaaaa);
+    drawString(fontRendererObj, I18n.format(returnMode==4?"mbo.platform.activationMode":"mbo.platform.returnMode"), leftX, 150, 0xaaaaaa);
+    drawString(fontRendererObj, I18n.format(returnMode==4?"mbo.platform.waitShort":"mbo.platform.delayShort"), delay.xPosition, 150, 0xaaaaaa);
     distance.drawTextBox();
     seconds.drawTextBox();
     delay.drawTextBox();

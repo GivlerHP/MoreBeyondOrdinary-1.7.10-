@@ -22,6 +22,9 @@ public final class WaterloggedPaneChunkHooks {
   public static boolean canRender(Block block, int pass, RenderBlocks renderer, int x, int y, int z) {
     return block.canRenderInPass(pass) || pass == 1 && hasWater(renderer, block, x, y, z);
   }
+  public static boolean filterCanRender(boolean original, Block block, int pass, RenderBlocks renderer, int x, int y, int z) {
+    return original || pass == 1 && hasWater(renderer, block, x, y, z);
+  }
 
   public static boolean render(RenderBlocks renderer, Block block, int x, int y, int z, int pass) {
     boolean drawn = block.canRenderInPass(pass) && renderer.renderBlockByRenderType(block, x, y, z);

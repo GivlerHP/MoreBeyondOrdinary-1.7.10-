@@ -20,6 +20,12 @@ public class RenderMovingPlatform extends Render {
   private final Map<java.util.UUID, Cache> cache = new HashMap<java.util.UUID, Cache>();
   private final DoubleBuffer clipPlane = BufferUtils.createDoubleBuffer(4);
   private static long lightEpoch;
+  private final ru.givler.mbo.client.render.decormodels.TemplateModelRenderer decorRenderer=
+      new ru.givler.mbo.client.render.decormodels.TemplateModelRenderer() {
+        protected boolean useSharedGeometry(){return true;}
+      };
+  private final java.util.WeakHashMap<PlatformBlock,ru.givler.mbo.tileentity.ModelTileBase> decorTiles=new java.util.WeakHashMap<>();
+  private java.util.WeakHashMap<EntityMovingPlatform,LightSamples> decorLights=new java.util.WeakHashMap<>();
 
   public RenderMovingPlatform() {
     net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(this);
@@ -31,6 +37,7 @@ public class RenderMovingPlatform extends Render {
     if (!event.world.isRemote) return;
     for (Cache entry : cache.values()) GL11.glDeleteLists(entry.list,1);
     cache.clear();
+    decorTiles.clear();decorLights.clear();
   }
 
   @cpw.mods.fml.common.eventhandler.SubscribeEvent
@@ -81,10 +88,49 @@ public class RenderMovingPlatform extends Render {
       GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
       GL11.glPolygonOffset(1F, 1F);
     }
-    GL11.glCallList(getCache(p, worldX, worldY, worldZ).list);
+    boolean normalBlocks=false;
+    for(PlatformBlock b:p.getBlocks())if(!(b.block instanceof ru.givler.mbo.block.BlockModels)&&b.block.getRenderType()>=0){normalBlocks=true;break;}
+    if(normalBlocks)GL11.glCallList(getCache(p, worldX, worldY, worldZ).list);
+    renderDecor(p,partial);
     } finally {
       GL11.glPopMatrix();
       GL11.glPopAttrib();
+    }
+  }
+
+  private void renderDecor(EntityMovingPlatform platform,float partial) {
+    boolean hasModels=false;for(PlatformBlock b:platform.getBlocks())if(b.block instanceof ru.givler.mbo.block.BlockModels){hasModels=true;break;}
+    if(!hasModels)return;
+    double wx=platform.lastTickPosX+(platform.posX-platform.lastTickPosX)*partial;
+    double wy=platform.lastTickPosY+(platform.posY-platform.lastTickPosY)*partial;
+    double wz=platform.lastTickPosZ+(platform.posZ-platform.lastTickPosZ)*partial;
+    if(decorLights==null)decorLights=new java.util.WeakHashMap<>();
+    LightSamples samples=decorLights.get(platform);
+    if(samples==null||!samples.matches(platform,wx,wy,wz)){samples=new LightSamples(platform,wx,wy,wz);decorLights.put(platform,samples);}
+    net.minecraft.client.Minecraft mc=net.minecraft.client.Minecraft.getMinecraft();
+    boolean lightmap=mc.entityRenderer!=null;
+    if(lightmap)mc.entityRenderer.enableLightmap(partial);
+    net.minecraft.client.renderer.RenderHelper.enableStandardItemLighting();
+    try {
+    for(PlatformBlock b:platform.getBlocks()) {
+      if(!(b.block instanceof ru.givler.mbo.block.BlockModels)||b.tileData==null||!platform.shouldRenderPlatformBlock(b))continue;
+      ru.givler.mbo.tileentity.ModelTileBase tile=decorTiles.get(b);
+      if(tile==null) {
+        tile=new ru.givler.mbo.tileentity.ModelTileBase();tile.readFromNBT(b.tileData);
+        tile.blockType=b.block;tile.blockMetadata=b.meta;tile.setWorldObj(platform.worldObj);decorTiles.put(b,tile);
+        if(b.tileData.hasKey("PlatformRopeMask")) {
+          tile.movingPlatformRopeMask=b.tileData.getInteger("PlatformRopeMask");
+          tile.movingPlatformRopeConnector=b.tileData.getBoolean("PlatformRopeConnector");
+        }
+      }
+      tile.xCoord=(int)Math.floor(platform.posX)+b.x;tile.yCoord=(int)Math.floor(platform.posY)+b.y;tile.zCoord=(int)Math.floor(platform.posZ)+b.z;
+      tile.cageOpen=b.tileData.getBoolean("cageOpen");
+      tile.movingPlatformLight=interpolateLight(samples,wx+b.x,wy+b.y,wz+b.z);
+      decorRenderer.renderTileEntityAt(tile,b.x,b.y,b.z,partial);
+    }
+    } finally {
+      net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting();
+      if(lightmap)mc.entityRenderer.disableLightmap(partial);
     }
   }
 
@@ -101,7 +147,7 @@ public class RenderMovingPlatform extends Render {
     Tessellator tessellator = Tessellator.instance;
     tessellator.startDrawingQuads();
     for (PlatformBlock block : platform.getBlocks())
-      if (platform.shouldRenderPlatformBlock(block))
+      if (platform.shouldRenderPlatformBlock(block)&&!(block.block instanceof ru.givler.mbo.block.BlockModels))
         renderer.renderBlockByRenderType(block.block, block.x, block.y, block.z);
     tessellator.draw();
   }
@@ -139,6 +185,7 @@ public class RenderMovingPlatform extends Render {
     Tessellator tessellator = Tessellator.instance;
     tessellator.startDrawingQuads();
     for (PlatformBlock b : platform.getBlocks()) {
+      if(b.block instanceof ru.givler.mbo.block.BlockModels)continue;
       // Cull interior faces only for vanilla-style full cubes; custom models
       // retain their original rendering behaviour.
       renderer.renderAllFaces=platform.isClipAboveSelection()

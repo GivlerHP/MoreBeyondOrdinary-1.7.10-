@@ -25,7 +25,7 @@ public final class UndeadMechanicsTransformer implements IClassTransformer, Opco
       String mapped =
           FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(node.name, method.name, method.desc);
       if ("net.minecraft.entity.projectile.EntityArrow".equals(transformedName)
-          && (mapped.equals("onCollideWithPlayer") || mapped.equals("func_70100_b"))) {
+          && (mapped.equals("onCollideWithPlayer") || mapped.equals("func_70100_b_"))) {
         InsnList pickup = new InsnList();
         pickup.add(new VarInsnNode(ALOAD, 0));
         pickup.add(new VarInsnNode(ALOAD, 1));
@@ -74,7 +74,9 @@ public final class UndeadMechanicsTransformer implements IClassTransformer, Opco
           changes++;
         } else if (arrow
             && (target.equals("attackEntityFrom") || target.equals("func_70097_a"))
-            && call.desc.equals("(Lnet/minecraft/util/DamageSource;F)Z")) {
+            && FMLDeobfuscatingRemapper.INSTANCE
+                .mapMethodDesc(call.desc)
+                .equals("(Lnet/minecraft/util/DamageSource;F)Z")) {
           method.instructions.set(
               call,
               new MethodInsnNode(

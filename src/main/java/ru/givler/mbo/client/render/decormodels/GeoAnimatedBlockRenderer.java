@@ -62,8 +62,9 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
         // Preserve RenderBlockItem's own lightmap exactly as the old static
         // renderer did. Only world TESRs calculate light from block position.
         if (!itemRender) {
-            int light = tile.getWorldObj().getLightBrightnessForSkyBlocks(
-                    tile.xCoord, tile.yCoord, tile.zCoord, 0);
+            int light=tile instanceof ru.givler.mbo.tileentity.ModelTileBase
+                ?((ru.givler.mbo.tileentity.ModelTileBase)tile).movingPlatformLight:-1;
+            if(light<0)light=tile.getWorldObj().getLightBrightnessForSkyBlocks(tile.xCoord,tile.yCoord,tile.zCoord,0);
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit,
                     (float) (light % 65536), (float) (light / 65536));
         }
@@ -98,7 +99,7 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
             boolean cached=false;
             if(!itemRender && tile instanceof ru.givler.mbo.tileentity.ModelTileBase
                     && !((ru.givler.mbo.tileentity.ModelTileBase)tile).usesDynamicRender()
-                    && getClass()==TemplateModelRenderer.class) {
+                    && useSharedGeometry()) {
                 @SuppressWarnings("unchecked")
                 GeoAnimatedBlockRenderer<ru.givler.mbo.tileentity.ModelTileBase> renderer=
                     (GeoAnimatedBlockRenderer<ru.givler.mbo.tileentity.ModelTileBase>)(GeoAnimatedBlockRenderer<?>)this;
@@ -138,6 +139,7 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
     protected void applyModelTransform(T tile) {
         rotateBlock(getFacing(tile));
     }
+    protected boolean useSharedGeometry() { return getClass()==TemplateModelRenderer.class; }
 
     protected void rotateBlock(EnumFacing facing) {
         switch (facing) {

@@ -13,13 +13,13 @@ public class DecorBlockModel extends AnimatedGeoModel<ModelTileBase> {
 	public ResourceLocation getModelLocation(ModelTileBase tileBase) {
 		if (tileBase.getWorldObj() != null && tileBase.getBlockType() instanceof BlockConnectedRope) {
 			int decoration = RopeConnections.decoration(tileBase.getBlockMetadata());
-			int visibleMask=((BlockConnectedRope)tileBase.getBlockType()).getConnectionMask(
+            int visibleMask=tileBase.movingPlatformRopeMask>=0?tileBase.movingPlatformRopeMask:((BlockConnectedRope)tileBase.getBlockType()).getConnectionMask(
 					 tileBase.getWorldObj(),tileBase.xCoord,tileBase.yCoord,tileBase.zCoord);
             String model;
             if(decoration==RopeConnections.NONE) {
                 model="instruments_of_torture/rope_connected/"+(tileBase.ropeFloor?"floor_":"center_")
-                    +(((BlockConnectedRope)tileBase.getBlockType()).hasConnector(tileBase.getWorldObj(),
-                        tileBase.xCoord,tileBase.yCoord,tileBase.zCoord)?"anchor_":"")+RopeConnections.canonicalMask(visibleMask);
+                    +((tileBase.movingPlatformRopeMask>=0?tileBase.movingPlatformRopeConnector:((BlockConnectedRope)tileBase.getBlockType()).hasConnector(tileBase.getWorldObj(),
+                        tileBase.xCoord,tileBase.yCoord,tileBase.zCoord))?"anchor_":"")+RopeConnections.canonicalMask(visibleMask);
             } else {
                 model="instruments_of_torture/"+(decoration==RopeConnections.NOOSE?"rope_around_the_neck":"rope_5");
             }

@@ -40,6 +40,9 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   private int motionTick;
   private int movementStartTick;
   private int returnMode = 2, delayTicks = 20, waitTicks;
+  private final java.util.Map<UUID,Integer> waitingPlayers=new java.util.HashMap<>();
+  private final java.util.Set<UUID> passengersMustExit=new java.util.HashSet<>();
+  private int doorClosingTicks;
   private String movementSound = "";
   private boolean clipAboveSelection;
   private boolean migrateVisualClipping;
@@ -105,7 +108,8 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
           Block block = worldObj.getBlock(wx, wy, wz);
           if (block == Blocks.air) continue;
           TileEntity tile = worldObj.getTileEntity(wx, wy, wz);
-          if (tile != null || block.getBlockHardness(worldObj, wx, wy, wz) < 0F) {
+          if ((tile != null && !(tile.getClass()==ru.givler.mbo.tileentity.ModelTileBase.class)
+              && !(tile instanceof ru.givler.mbo.tileentity.TileEntityModelCollision)) || block.getBlockHardness(worldObj, wx, wy, wz) < 0F) {
             if (feedback != null)
               feedback.addChatMessage(
                   new ChatComponentTranslation("mbo.platform.error.unsupported", wx, wy, wz));
@@ -123,6 +127,17 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
         feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.empty"));
       return false;
     }
+    for(PlatformBlock saved:found)if(saved.block instanceof ru.givler.mbo.block.model.BlockModelCollision) {
+      boolean ownerIncluded=false;
+      for(PlatformBlock owner:found)if(owner.x==saved.ownerX&&owner.y==saved.ownerY&&owner.z==saved.ownerZ)ownerIncluded=true;
+      if(!ownerIncluded) {if(feedback!=null)feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.incompleteModel"));return false;}
+    }
+    for(PlatformBlock saved:found)if(saved.block instanceof ru.givler.mbo.block.BlockModels)
+      for(int[] part:((ru.givler.mbo.block.BlockModels)saved.block).getCollisionPartPositions(saved.x,saved.y,saved.z,saved.meta&3)) {
+        boolean included=false;
+        for(PlatformBlock helper:found)if(helper.x==part[0]&&helper.y==part[1]&&helper.z==part[2])included=true;
+        if(!included) {if(feedback!=null)feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.incompleteModel"));return false;}
+      }
     blocks.clear();
     blocks.addAll(found);
     onboardControlInitialized = false;
@@ -181,6 +196,9 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     movementStartTick = worldTick();
     dataWatcher.updateObject(24, Integer.valueOf(movementStartTick));
     motionTick = 0;
+    boolean hasDecor=false;for(PlatformBlock saved:blocks)if(saved.tileData!=null)hasDecor=true;
+    if(!worldObj.isRemote&&hasDecor)ru.givler.mbo.network.PacketManager.INSTANCE.sendToDimension(
+        new ru.givler.mbo.network.packet.PacketPlatformSync(this),worldObj.provider.dimensionId);
     return true;
   }
 
@@ -240,6 +258,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       if (worldObj.getBlock(x, y, z) != saved.block) return false;
     }
     refreshMaterializedSnapshot();
+    rebuildCollisionCache();
     for (PlatformBlock saved : blocks)
       if (!isHiddenAt(oy + saved.y))
         worldObj.setBlock(ox + saved.x, oy + saved.y, oz + saved.z, Blocks.air, 0, 2);
@@ -272,6 +291,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
           ox + saved.x, oy + saved.y, oz + saved.z,
           saved.block, snapshotMetadata(saved.block, saved.meta), 2);
     setVirtualized(false);
+    for(PlatformBlock saved:blocks)if(!isHiddenAt(oy+saved.y))saved.restoreTile(worldObj,ox,oy,oz);
     captureOnboardControlState();
     return true;
   }
@@ -288,6 +308,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       if (worldObj.getBlock(x, y, z) == Blocks.air)
         worldObj.setBlock(x, y, z, saved.block, snapshotMetadata(saved.block, saved.meta), 2);
     }
+    for(PlatformBlock saved:blocks)if(!isHiddenAt(oy+saved.y))saved.restoreTile(worldObj,ox,oy,oz);
   }
 
   public boolean reset(EntityPlayer feedback) {
@@ -399,6 +420,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     if (!isMoving()) {
       if (rebuildPending) return;
       if (checkOnboardControl()) return;
+      if(returnMode==4) { tickPlayerWait();return; }
       if (returnMode == 3) {
         if (state == STOPPED_B) teleportToStartAndContinue();
         else if (state == STOPPED_A && !virtualized) start(true, null);
@@ -426,12 +448,12 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     }
     setPosition(nextX, nextY, nextZ);
     if (t >= 1D && !worldObj.isRemote) {
-      if (pendingConfiguration || returnMode == 2 || returnMode == 3)
+      if (pendingConfiguration || returnMode == 2 || returnMode == 3 || returnMode == 4)
         MovingPlatformTickHandler.processServerArrival(this);
       boolean arrivedAtB = state == MOVING_TO_B;
       if (pendingConfiguration) {
         applyPendingConfiguration();
-        if (returnMode == 2 && !materialize()) setVirtualized(true);
+        if ((returnMode == 2||returnMode==4) && !materialize()) setVirtualized(true);
         return;
       }
       if (returnMode == 0) {
@@ -456,7 +478,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       dataWatcher.updateObject(20, Integer.valueOf(state));
       motionTick = 0;
       waitTicks = 0;
-      if ((returnMode == 2 || returnMode == 3) && !materialize()) {
+      if ((returnMode == 2 || returnMode == 3 || returnMode==4) && !materialize()) {
         // The destination became occupied while the platform was in
         // transit. Keep the foreign block and return to the endpoint
         // which was clear when movement began.
@@ -491,6 +513,59 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     dataWatcher.updateObject(24, Integer.valueOf(movementStartTick));
     motionTick = 0;
     waitTicks = 0;
+    return true;
+  }
+
+  private void tickPlayerWait() {
+    if(!configured||virtualized){waitingPlayers.clear();return;}
+    java.util.Set<UUID> present=new java.util.HashSet<>();boolean ready=false;
+    for(Object raw:worldObj.playerEntities) {
+      EntityPlayer player=(EntityPlayer)raw;
+      if(player.isDead||player.isPlayerSleeping()||player.isRiding())continue;
+      if(!isPlayerInWaitingZone(player))continue;
+      UUID id=player.getUniqueID();present.add(id);
+      if(passengersMustExit.contains(id))continue;
+      int ticks=waitingPlayers.containsKey(id)?waitingPlayers.get(id)+1:1;
+      waitingPlayers.put(id,ticks);if(ticks>=Math.max(1,delayTicks))ready=true;
+    }
+    waitingPlayers.keySet().retainAll(present);
+    passengersMustExit.retainAll(present);
+    if(!passengersMustExit.isEmpty()){waitingPlayers.clear();doorClosingTicks=0;return;}
+    if(!ready){doorClosingTicks=0;return;}
+    if(doorClosingTicks>0&&--doorClosingTicks>0)return;
+    if(!ready||!closeCagesForDeparture())return;
+    if(start(state==STOPPED_A,null)){passengersMustExit.addAll(present);waitingPlayers.clear();}
+  }
+  public boolean isPlayerInWaitingZone(EntityPlayer player) {
+    double feet=player.boundingBox.minY;boolean hasCage=false;
+    for(PlatformBlock b:blocks)if(b.block instanceof ru.givler.mbo.block.model.BlockDecorCage) {
+      hasCage=true;
+      if(player.posX>posX+b.x&&player.posX<posX+b.x+1&&player.posZ>posZ+b.z&&player.posZ<posZ+b.z+1
+          &&feet>=posY+b.y-.05&&feet<posY+b.y+1.95)return true;
+    }
+    return !hasCage&&player.posX>=posX&&player.posX<posX+sizeX&&player.posZ>=posZ&&player.posZ<posZ+sizeZ
+        &&feet>=posY-.05&&feet<=posY+sizeY+.15;
+  }
+
+  private boolean closeCagesForDeparture() {
+    int ox=floor(posX),oy=floor(posY),oz=floor(posZ);
+    boolean closing=false;
+    // Validate every open door first: closing must never trap an entity in its plane.
+    for(PlatformBlock saved:blocks)if(saved.block instanceof ru.givler.mbo.block.model.BlockDecorCage) {
+      TileEntity tile=worldObj.getTileEntity(ox+saved.x,oy+saved.y,oz+saved.z);
+      if(tile instanceof ru.givler.mbo.tileentity.ModelTileBase&&((ru.givler.mbo.tileentity.ModelTileBase)tile).cageOpen
+          &&!((ru.givler.mbo.block.model.BlockDecorCage)saved.block).canClose(worldObj,ox+saved.x,oy+saved.y,oz+saved.z))return false;
+    }
+    for(PlatformBlock saved:blocks)if(saved.block instanceof ru.givler.mbo.block.model.BlockDecorCage) {
+      int x=ox+saved.x,y=oy+saved.y,z=oz+saved.z;
+      TileEntity tile=worldObj.getTileEntity(x,y,z);
+      if(tile instanceof ru.givler.mbo.tileentity.ModelTileBase&&((ru.givler.mbo.tileentity.ModelTileBase)tile).cageOpen) {
+        ((ru.givler.mbo.tileentity.ModelTileBase)tile).cageOpen=false;tile.markDirty();worldObj.markBlockForUpdate(x,y,z);
+        worldObj.playSoundEffect(x+.5,y+1,z+.5,"mbo:copper.door.close",.7F,1);
+        closing=true;
+      }
+    }
+    if(closing){doorClosingTicks=10;return false;}
     return true;
   }
 
@@ -718,7 +793,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     int newDirection = PlatformDirection.byOrdinal(direction).ordinal();
     int newDistance = Math.max(1, Math.min(256, distance));
     int newDuration = ticksFromSeconds(seconds, 1);
-    int newReturnMode = Math.max(0, Math.min(3, returnMode));
+    int newReturnMode = Math.max(0, Math.min(4, returnMode));
     int newDelay = ticksFromSeconds(delaySeconds, 0);
     if (isMoving()) {
       pendingConfiguration = true;
@@ -733,6 +808,7 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     this.distance = newDistance;
     this.durationTicks = newDuration;
     this.returnMode = newReturnMode;
+    waitingPlayers.clear();
     this.delayTicks = newDelay;
     dataWatcher.updateObject(21, Integer.valueOf(this.direction));
     dataWatcher.updateObject(22, Integer.valueOf(this.distance));
@@ -803,6 +879,10 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
 
   @Override
   protected void readEntityFromNBT(NBTTagCompound tag) {
+    passengersMustExit.clear();
+    NBTTagList exitList=tag.getTagList("PassengersMustExit",10);
+    for(int i=0;i<exitList.tagCount();i++){UUID id=parseUuid(exitList.getCompoundTagAt(i).getString("Id"));if(id!=null)passengersMustExit.add(id);}
+    doorClosingTicks=0;waitingPlayers.clear();
     UUID savedPlatformId = parseUuid(tag.getString("PlatformId"));
     if (savedPlatformId != null) platformId = savedPlatformId;
     ownerId = tag.hasKey("OwnerId") ? parseUuid(tag.getString("OwnerId")) : null;
@@ -856,6 +936,9 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
 
   @Override
   protected void writeEntityToNBT(NBTTagCompound tag) {
+    NBTTagList exitList=new NBTTagList();
+    for(UUID id:passengersMustExit){NBTTagCompound entry=new NBTTagCompound();entry.setString("Id",id.toString());exitList.appendTag(entry);}
+    tag.setTag("PassengersMustExit",exitList);
     if (worldObj != null && !worldObj.isRemote) refreshMaterializedSnapshot();
     tag.setString("PlatformId", platformId.toString());
     if (ownerId != null) tag.setString("OwnerId", ownerId.toString());
@@ -1001,6 +1084,15 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       indexed.put(blockKey(b.x, b.y, b.z), b);
     }
     for (PlatformBlock b : blocks) {
+      if(b.collisionBoxes!=null) {
+        for(double[] box:b.collisionBoxes) {
+          PlatformBlock part=new PlatformBlock(b.x,b.y,b.z,b.block,b.meta);
+          part.collidable=true;part.minX=box[0];part.minY=box[1]==box[4]?box[1]-.001:box[1];part.minZ=box[2];
+          part.maxX=box[3];part.maxY=box[4];part.maxZ=box[5];
+          outerBlocks.add(part);topBlocks.add(part);bottomBlocks.add(part);
+        }
+        continue;
+      }
       PlatformBlock above = indexed.get(blockKey(b.x, b.y + 1, b.z)),
           below = indexed.get(blockKey(b.x, b.y - 1, b.z));
       boolean top = above == null || !above.block.isNormalCube(),
