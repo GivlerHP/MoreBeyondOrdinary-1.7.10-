@@ -38,6 +38,12 @@ public final class DecorRenderDiagnostics extends CommandBase {
         if(usedCache)INSTANCE.cached++;else INSTANCE.dynamic++;
     }
 
+    private static String[] mf2Diagnostics(String[] args) {
+        if(!cpw.mods.fml.common.Loader.isModLoaded("minefantasy2"))return new String[0];
+        try { return (String[])Class.forName("minefantasy.mf2.client.render.block.DecorRenderDiagnostics").getMethod("execute",String[].class).invoke(null,(Object)args); }
+        catch(ClassNotFoundException | NoSuchMethodException oldVersion){return new String[0];}
+        catch(ReflectiveOperationException error){return new String[]{"MF2 diagnostics failed: "+error.getCause()};}
+    }
     @Override public String getCommandName() { return "mbodecor"; }
     @Override public String getCommandUsage(ICommandSender sender) {
         return "/mbodecor stats | report | inspect | gpu on/off | cache on/off | chunk on/off | sample <label> [frames]";
@@ -45,6 +51,10 @@ public final class DecorRenderDiagnostics extends CommandBase {
     @Override public int getRequiredPermissionLevel() { return 0; }
     @Override public boolean canCommandSenderUseCommand(ICommandSender sender) { return true; }
     @Override public void processCommand(ICommandSender sender,String[] args) {
+        if(frames!=null && args.length>0 && ("cache".equals(args[0]) || "chunk".equals(args[0]) || "gpu".equals(args[0]) || "sample".equals(args[0]))) { reply("Wait for the active sample to finish.");return; }
+        String[] mf2=mf2Diagnostics(args);
+        for(String line:mf2)reply(line);
+        if(args.length==1 && "inspect".equals(args[0]) && mf2.length>0)return;
         if("gpu".equals(args.length==0?"":args[0]) && args.length==2 && ("on".equals(args[1])||"off".equals(args[1]))) {
             if(frames!=null){reply("Wait for the active sample to finish.");return;}
             reply(InstancedDecorRenderer.INSTANCE.setEnabled("on".equals(args[1])));return;

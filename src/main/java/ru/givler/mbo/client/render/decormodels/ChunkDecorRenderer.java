@@ -35,6 +35,18 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
     public static final ChunkDecorRenderer INSTANCE = new ChunkDecorRenderer();
     private static final Field RAW = ReflectionHelper.findField(Tessellator.class, "rawBuffer", "field_78405_h");
     private static final Field INDEX = ReflectionHelper.findField(Tessellator.class, "rawBufferIndex", "field_78411_s");
+    private static final Field COUNT = ReflectionHelper.findField(Tessellator.class, "vertexCount", "field_78406_i");
+    private static int[] canonicalVertices(Tessellator builder) throws IllegalAccessException {
+        int count=COUNT.getInt(builder),length=INDEX.getInt(builder);
+        int[] raw=(int[])RAW.get(builder);
+        if(count==0)return new int[0];
+        int stride=DecorVertexCompatibility.stride(builder,length,count);
+        if(stride<8)throw new IllegalStateException("Unsupported decor vertex layout: length="+length+", count="+count);
+        count=length/stride;
+        int[] result=new int[count*8];
+        for(int vertex=0;vertex<count;vertex++)System.arraycopy(raw,vertex*stride,result,vertex*8,8);
+        return result;
+    }
     private final Map<BlockModels, Mesh> meshes = new IdentityHashMap<>();
     private final Map<String,Mesh> ropeMeshes=new LinkedHashMap<>();
     private int ropeBlocks;
@@ -80,10 +92,7 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
                     DecorResources.model(name));
                 if (model == null) { reject(block,"missing geometry"); continue; }
                 Tessellator builder = new Tessellator();
-                builder.startDrawingQuads();
-                ModelTileBase tile = new ModelTileBase();
-                for (GeoBone bone : model.topLevelBones) renderer.renderRecursively(builder, tile, bone, 1, 1, 1, 1);
-                int[] raw = Arrays.copyOf((int[])RAW.get(builder), INDEX.getInt(builder));
+                int[] raw=bakeQuads(builder,renderer,model);
                 String problem=geometryProblem(raw,block);
                 if (problem!=null) { reject(block,problem); continue; }
                 Mesh mesh=new Mesh(raw,DecorAtlasSprite.register(event.map,texture),block);
@@ -113,9 +122,8 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
             GeoModel model=GeoModelLoader.getInstance().loadModel(Minecraft.getMinecraft().getResourceManager(),
                 DecorResources.model("instruments_of_torture/rope_connected/"+key));
             if(model==null)throw new IllegalStateException("Missing rope mesh "+key);
-            Tessellator builder=new Tessellator();builder.startDrawingQuads();
-            for(GeoBone bone:model.topLevelBones)renderer.renderRecursively(builder,new ModelTileBase(),bone,1,1,1,1);
-            int[] raw=Arrays.copyOf((int[])RAW.get(builder),INDEX.getInt(builder));
+            Tessellator builder=new Tessellator();
+            int[] raw=bakeQuads(builder,renderer,model);
             String problem=geometryProblem(raw,block);
             if(problem!=null)throw new IllegalStateException(key+": "+problem);
             prepared.put(key,new Mesh(raw,icon,block));
@@ -123,6 +131,12 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
         ropeMeshes.putAll(prepared);
     }
 
+    private static int[] bakeQuads(Tessellator builder,TemplateModelRenderer renderer,GeoModel model)throws IllegalAccessException {
+            DecorGeometryRecorder recorder=new DecorGeometryRecorder();
+            ModelTileBase tile=new ModelTileBase();
+            for(GeoBone bone:model.topLevelBones)renderer.renderRecursively(recorder,tile,bone,1,1,1,1);
+            return recorder.finish();
+    }
     Mesh selected(BlockModels block,IBlockAccess world,int x,int y,int z,int meta) {
         if(!(block instanceof BlockConnectedRope))return meshes.get(block);
         if(RopeConnections.decoration(meta)!=RopeConnections.NONE || cameraAttachmentNearby(world,x,y,z))return null;

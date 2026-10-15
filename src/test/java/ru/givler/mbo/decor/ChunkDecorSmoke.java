@@ -16,11 +16,25 @@ import sun.misc.Unsafe;
 
 /** Bake real PNG/Geo resources, verify per-facing emission and reversible render routing. */
 public class ChunkDecorSmoke {
+ public static class TriangulatingBuilder extends Tessellator {
+  public int depth;
+  public boolean hackedQuadRendering(){return depth==0;}
+  public void disableTriangulatorLocal(){depth++;}
+  public void enableTriangulatorLocal(){depth--;}
+ }
  static void check(boolean value,String message) { if(!value)throw new AssertionError(message); }
  static void set(Object object,String name,Object value)throws Exception {
   Field f=BlockModels.class.getDeclaredField(name); f.setAccessible(true); f.set(object,value);
  }
  public static void main(String[] args)throws Exception {
+  Class<?> compatibility=Class.forName("ru.givler.mbo.client.render.decormodels.DecorVertexCompatibility");
+  Method begin=compatibility.getDeclaredMethod("beginQuads",Tessellator.class),end=compatibility.getDeclaredMethod("endQuads",Tessellator.class,boolean.class);
+  begin.setAccessible(true);end.setAccessible(true);
+  TriangulatingBuilder simulated=new TriangulatingBuilder();
+  boolean first=(Boolean)begin.invoke(null,simulated),second=(Boolean)begin.invoke(null,simulated);
+  check(simulated.depth==2,"Nested local quad scope not acquired");
+  end.invoke(null,simulated,second);end.invoke(null,simulated,first);
+  check(simulated.depth==0,"Local quad scope leaked triangulator state");
   Pbuffer buffer=new Pbuffer(32,32,new PixelFormat(8,24,0),null,null); buffer.makeCurrent();
   StaticDecorPixelsSmoke.fakeMinecraft();
   int visibilityLists=GL11.glGenLists(3);
@@ -77,7 +91,8 @@ public class ChunkDecorSmoke {
     });
     Tessellator.instance.startDrawingQuads();
     boolean fits=renderer.fits(block,8,24,8,meta);
-    check(renderer.renderWorldBlock(world,8,24,8,block,1234,null)==fits,"emit routing");
+    net.minecraft.client.renderer.RenderBlocks blockRenderer=new net.minecraft.client.renderer.RenderBlocks(world);
+    check(renderer.renderWorldBlock(world,8,24,8,block,1234,blockRenderer)==fits,"emit routing");
     int[] data=(int[])raw.get(Tessellator.instance);int length=index.getInt(Tessellator.instance);
     check(fits ? length>0 && length%64==0 : length==0,"both windings or TESR fallback");
     if(fits)emitted++;
@@ -94,7 +109,7 @@ public class ChunkDecorSmoke {
     Tessellator.instance.draw();
     Tessellator.instance.startDrawingQuads();
     fits=renderer.fits(block,-16,31,15,meta);
-    check(renderer.renderWorldBlock(world,-16,31,15,block,1234,null)==fits,"negative/chunk boundary routing");
+    check(renderer.renderWorldBlock(world,-16,31,15,block,1234,new net.minecraft.client.renderer.RenderBlocks(world))==fits,"negative/chunk boundary routing");
     if(!fits) {check(index.getInt(Tessellator.instance)==0,"oversized geometry keeps TESR");boundaries++;}
     else {check(index.getInt(Tessellator.instance)>0,"boundary geometry missing");boundaryEmissions++;}
     Tessellator.instance.draw();
@@ -119,7 +134,7 @@ public class ChunkDecorSmoke {
    lists[group]=GL11.glGenLists(1);GL11.glNewList(lists[group],GL11.GL_COMPILE);
    Tessellator.instance.startDrawingQuads();
    for(int i=group*256;i<Math.min(1000,(group+1)*256);i++)
-    renderer.renderWorldBlock(benchWorld,(i%100)*2,0,(i/100)*2,measured,1234,null);
+    renderer.renderWorldBlock(benchWorld,(i%100)*2,0,(i/100)*2,measured,1234,new net.minecraft.client.renderer.RenderBlocks(benchWorld));
    Tessellator.instance.draw();GL11.glEndList();
   }
   ResourceLocation location=ru.givler.mbo.client.model.decormodels.DecorResources.model(measured.getModelName());

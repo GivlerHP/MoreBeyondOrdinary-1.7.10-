@@ -44,6 +44,9 @@ public final class StaticDecorRenderCache implements IResourceManagerReloadListe
     public boolean render(GeoAnimatedBlockRenderer<ModelTileBase> renderer,ModelTileBase tile,
             ResourceLocation location,float red,float green,float blue,float alpha,int rgb,int light) {
         if(!enabled) return false;
+        Tessellator scopedBuilder=Tessellator.instance;
+        boolean quadScope=DecorVertexCompatibility.beginQuads(scopedBuilder);
+        try {
         Key key=new Key(location,red,green,blue,alpha);
         TesselatorVertexState mesh=meshes.get(key);
         GlStateManager.disableCull();
@@ -56,16 +59,14 @@ public final class StaticDecorRenderCache implements IResourceManagerReloadListe
             // Load an independent rest pose: Gecko's shared model may have been animated elsewhere.
             GeoModel model=GeoModelLoader.getInstance().loadModel(Minecraft.getMinecraft().getResourceManager(),location);
             if(model==null) return false;
-            builder.startDrawingQuads();
+            DecorGeometryRecorder recorder=new DecorGeometryRecorder();
             for(GeoBone bone:model.topLevelBones)
-                renderer.renderRecursively(builder,tile,bone,red,green,blue,alpha);
+                renderer.renderRecursively(recorder,tile,bone,red,green,blue,alpha);
             // getVertexState() sorts transparent quads. Capture the original order instead.
             try {
-                int length=INDEX.getInt(builder);
-                int[] raw=(int[])RAW.get(builder);
-                mesh=new TesselatorVertexState(length==0?new int[0]:Arrays.copyOf(raw,length),
-                    length,COUNT.getInt(builder),true,false,true,true);
-            } catch(IllegalAccessException error) { throw new IllegalStateException("Cannot cache decor vertices",error); }
+                int[] raw=recorder.finish();int length=raw.length;
+                mesh=new TesselatorVertexState(raw,length,length/8,true,false,true,true);
+            } catch(RuntimeException error) { throw new IllegalStateException("Cannot cache decor vertices",error); }
             meshes.put(key,mesh);
             misses++;
             if(meshes.size()>LIMIT) {
@@ -74,18 +75,19 @@ public final class StaticDecorRenderCache implements IResourceManagerReloadListe
             }
         } else {
             hits++;
-            builder.startDrawingQuads();
-            if(mesh.getVertexCount()>0) builder.setVertexState(mesh);
         }
+            builder.startDrawingQuads();
+            if(mesh.getVertexCount()>0) {
+                // Emit through the active Tessellator so shader/triangulator metadata is rebuilt.
+                int stride=mesh.getRawBuffer().length/mesh.getVertexCount();
+                DecorVertexCompatibility.replay(builder,mesh.getRawBuffer(),stride,rgb,light);
+            }
         // Tint only the Tessellator copy; shared immutable geometry remains reusable at any position.
-        if(rgb!=0) try {
-            int[] raw=(int[])RAW.get(builder); int length=INDEX.getInt(builder);
-            for(int i=5;i<length;i+=8) raw[i]=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldTint(raw[i],light,rgb);
-        } catch(IllegalAccessException error) { throw new IllegalStateException("Cannot tint decor vertices",error); }
         builder.draw();
         GlStateManager.disableBlend();
         GlStateManager.enableCull();
         return true;
+        } finally {DecorVertexCompatibility.endQuads(scopedBuilder,quadScope);}
     }
 
     public void clear() {
