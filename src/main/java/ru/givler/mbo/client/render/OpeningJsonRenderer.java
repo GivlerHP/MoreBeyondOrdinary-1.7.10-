@@ -54,7 +54,7 @@ public final class OpeningJsonRenderer {
     }
 
     public static boolean render(RenderBlocks renderer, Block block, int x, int y, int z) {
-        long previous=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.begin(renderer,x,y,z,7);
+        long previous=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.begin(renderer,x,y,z,8);
         try { return INSTANCE.renderBlock(renderer, block, x, y, z); }
         finally { ru.givler.mbo.client.lighting.ColoredLightRenderHooks.end(previous); }
     }

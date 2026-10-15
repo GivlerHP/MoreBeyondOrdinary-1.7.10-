@@ -24,7 +24,11 @@ public class RenderBannerItem implements IItemRenderer {
   public void renderItem(ItemRenderType type, ItemStack stack, Object... data) {
     banner.setItemValues(stack);
     banner.standing = true;
+    net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer renderer=
+        TileEntityRendererDispatcher.instance.getSpecialRenderer(banner);
+    if(renderer==null)return;
     GL11.glPushMatrix();
+    try {
     if (type == ItemRenderType.INVENTORY) {
       GL11.glTranslatef(0, -.25F, .6F);
       GL11.glRotatef(22.5F, 0, 1, 0);
@@ -40,7 +44,8 @@ public class RenderBannerItem implements IItemRenderer {
       GL11.glRotatef(225, 0, 1, 0);
       GL11.glTranslatef(-.25F, .0625F, -1);
     }
-    TileEntityRendererDispatcher.instance.renderTileEntityAt(banner, 0, 0, 0, 0);
-    GL11.glPopMatrix();
+    // This is a world-less inventory model, not a tile placed in the current world.
+    renderer.renderTileEntityAt(banner, 0, 0, 0, 0);
+    } finally { GL11.glPopMatrix(); }
   }
 }

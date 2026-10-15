@@ -23,6 +23,20 @@ public final class ColoredEntityLightHooks {
     double z=entity.lastTickPosZ+(entity.posZ-entity.lastTickPosZ)*partial;
     y+=entity.boundingBox==null ? entity.height*.66 : (entity.boundingBox.maxY-entity.boundingBox.minY)*.66;
     int rgb=ColoredLightRenderHooks.worldRGB(x,y,z);
+    return beginRGB(rgb);
+    } finally {ColoredLightAllocationDiagnostics.end(ColoredLightAllocationDiagnostics.ENTITY,allocationStart);}
+  }
+  /** TESRs reset glColor while drawing; the separate texture stage survives those resets. */
+  public static int beginTile(net.minecraft.tileentity.TileEntity tile) {
+    if(!ColoredLightConfig.enabled || ColoredLightShaderBridge.active || tile==null || tile.getWorldObj()==null
+        || tile.getWorldObj()!=Minecraft.getMinecraft().theWorld
+        || tile instanceof ru.givler.mbo.tileentity.ModelTileBase)return 0;
+    return beginRGB(tileRGB(tile.xCoord,tile.yCoord,tile.zCoord));
+  }
+  public static int tileRGB(int x,int y,int z) {
+    return ColoredLightRenderHooks.surfaceRGB(x+.5,y+.5,z+.5);
+  }
+  private static int beginRGB(int rgb) {
     if(rgb==0)return 0;
     if(GLContext.getCapabilities().OpenGL20 && GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM)!=0)return 0;
     int brightness=(int)OpenGlHelper.lastBrightnessX | (int)OpenGlHelper.lastBrightnessY<<16;
@@ -69,7 +83,6 @@ public final class ColoredEntityLightHooks {
       GL13.glActiveTexture(active);
       return ++state.depth;
     } catch(RuntimeException error) { GL11.glPopAttrib(); OpenGlHelper.lastBrightnessX=frame.x; OpenGlHelper.lastBrightnessY=frame.y; throw error; }
-    } finally {ColoredLightAllocationDiagnostics.end(ColoredLightAllocationDiagnostics.ENTITY,allocationStart);}
   }
   public static void end(int token) {
     if(token==0)return;

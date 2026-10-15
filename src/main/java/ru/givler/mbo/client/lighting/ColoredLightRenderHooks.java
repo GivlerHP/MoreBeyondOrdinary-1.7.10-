@@ -38,8 +38,8 @@ public final class ColoredLightRenderHooks {
     frame.oy = coordinates == null ? 0 : coordinates.lightOriginY();
     frame.oz = coordinates == null ? 0 : coordinates.lightOriginZ();
     frame.x = (int) Math.floor(x+frame.ox); frame.y = (int) Math.floor(y+frame.oy); frame.z = (int) Math.floor(z+frame.oz); frame.face = face;
-    if (coordinates!=null || ru.givler.mbo.client.render.SmoothOpeningRenderer.hasAnimationContext()) frame.face=7;
-    frame.cached = false;
+    if (frame.face!=8 && (coordinates!=null || ru.givler.mbo.client.render.SmoothOpeningRenderer.hasAnimationContext())) frame.face=7;
+    frame.cached = false;frame.surfaceCached=false;
     frame.active = ColoredLightConfig.enabled && (ColoredLightClient.cacheActive || ColoredLightClient.volume != null)
         && (renderer.blockAccess instanceof ChunkCache || renderer.blockAccess instanceof net.minecraft.world.World || coordinates != null);
     return previous;
@@ -95,12 +95,18 @@ public final class ColoredLightRenderHooks {
     x += frame.ox; y += frame.oy; z += frame.oz;
     // Crossed plants have no cube face. One cell lookup per plant also avoids random-offset seams.
     if (frame.face == 6) {
-      if (!frame.cached) { frame.rgb = sample(frame.x,frame.y,frame.z); frame.cached = true; }
+      if (!frame.cached) { frame.rgb = sample(frame.x,frame.y,frame.z); if(frame.rgb==0)frame.rgb=surface(frame);frame.cached = true; }
       return frame.rgb;
     }
     if (frame.cached && frame.vx == x && frame.vy == y && frame.vz == z) return frame.rgb;
     frame.vx = x; frame.vy = y; frame.vz = z; frame.cached = true;
-    return frame.rgb = frame.face==7 ? worldRGB(x,y,z) : interpolateFace(frame, x, y, z);
+    int rgb=frame.face>=7 ? worldRGB(x,y,z) : interpolateFace(frame, x, y, z);
+    if(frame.face==8 && rgb==0)rgb=surface(frame);
+    return frame.rgb=rgb;
+  }
+  private static int surface(Frame frame) {
+    if(!frame.surfaceCached){frame.surface=surfaceRGB(frame.x+.5,frame.y+.5,frame.z+.5);frame.surfaceCached=true;}
+    return frame.surface;
   }
 
   private static int interpolateFace(Frame frame, double x, double y, double z) {
@@ -153,6 +159,13 @@ public final class ColoredLightRenderHooks {
     }
     return (int)Math.round(r)<<16 | (int)Math.round(g)<<8 | (int)Math.round(b);
   }
+  /** Models inside opaque placement cells receive incident light from their six sides. */
+  public static int surfaceRGB(double x,double y,double z) {
+    int rgb=worldRGB(x,y,z);
+    for(int axis=0;axis<3;axis++)for(int sign=-1;sign<=1;sign+=2)
+      rgb=ColoredLightVolume.merge(rgb,worldRGB(x+(axis==0?sign:0),y+(axis==1?sign:0),z+(axis==2?sign:0)));
+    return rgb;
+  }
   public static int worldTint(int packed,int brightness,int rgb) {
     if (ColoredLightShaderBridge.active || !ColoredLightConfig.enabled) return packed;
     return tintColor(packed,rgb,ColoredLightConfig.strength*skyColorWeight(brightness,ColoredLightClient.skyDarkness),LITTLE_ENDIAN);
@@ -162,6 +175,6 @@ public final class ColoredLightRenderHooks {
     int max=Math.max(rgb>>>16,Math.max(rgb>>8&255,rgb&255));
     return brightness & 0xFFFF0000 | Math.max(brightness&65535,Math.min(240,Math.round(max*(240F/255)*ColoredLightConfig.brightnessGain)));
   }
-  private static final class Frame { boolean active, cached; int x, y, z, face, rgb; double vx, vy, vz, ox,oy,oz; }
+  private static final class Frame { boolean active, cached, surfaceCached; int x, y, z, face, rgb, surface; double vx, vy, vz, ox,oy,oz; }
   private static final class State { int depth; Frame[] frames = new Frame[4]; }
 }

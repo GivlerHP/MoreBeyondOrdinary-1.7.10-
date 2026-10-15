@@ -56,6 +56,19 @@ public final class ColoredLightConfig {
     root.add("lighting",light); root.add("dynamic",dynamic); write(root);
     return root;
   }
+  /** New built-ins also apply to existing files; explicit entries always win. */
+  public static void applyExtraSources(JsonObject root) {
+      JsonObject defaults=new JsonObject(), defaultItems=new JsonObject();extraSources(defaults,defaultItems);
+      for(String name:new String[]{"blocks","items"}) {
+        JsonObject category=category(root,name), additions=name.equals("blocks")?defaults:defaultItems;
+        for(java.util.Map.Entry<String,JsonElement> entry:additions.entrySet()) {
+          String id=entry.getKey();
+          boolean present=name.equals("blocks")?net.minecraft.block.Block.blockRegistry.containsKey(id):net.minecraft.item.Item.itemRegistry.containsKey(id);
+          if(present && !category.has(id))category.add(id,entry.getValue());
+        }
+        if(category.entrySet().size()>0)root.add(name,category);
+      }
+  }
   public static void write(JsonObject root) throws IOException {
     Files.createDirectories(file().toPath().getParent());
     Path temp = Files.createTempFile(file().toPath().getParent(),"colored-light-",".tmp");
@@ -84,6 +97,7 @@ public final class ColoredLightConfig {
   }
   public static JsonObject createDefaults(boolean thaumcraft) {
     JsonObject root = new JsonObject(), blocks = new JsonObject(), items = new JsonObject();
+    extraSources(blocks,items);
     add(blocks,"minecraft:torch","#FFD6A0"); add(items,"minecraft:torch","#FFD6A0");
     add(blocks,"minecraft:lava","#FF9B45"); add(blocks,"minecraft:flowing_lava","#FF9B45");
     add(items,"minecraft:lava_bucket","#FF9B45",15);
@@ -127,6 +141,12 @@ public final class ColoredLightConfig {
     return root;
   }
   private static void both(JsonObject blocks,JsonObject items,String id,String color) { add(blocks,id,color); add(items,id,color); }
+  private static void extraSources(JsonObject blocks,JsonObject items) {
+    for(String id:new String[]{"customnpcs:npcCandle","customnpcs:npcCampfire","customnpcs:npcLamp","GardenStuff:candle","customnpcs:npcShortLamp","customnpcs:npcTallLamp"})both(blocks,items,id,"#FFD6A0");
+    both(blocks,items,"minecraft:ender_chest","#80FFD0");
+    // Cold forge items remain dark; only the active world blocks emit light.
+    for(String id:new String[]{"minefantasy2:MF_Forgemetal","minefantasy2:MF_Forgestone","minefantasy2:MF_ForgemetalActive","minefantasy2:MF_ForgestoneActive"})add(blocks,id,"#FF9348");
+  }
   private static void add(JsonObject category,String id,String color) { JsonObject rule = new JsonObject(); rule.addProperty("color",color); category.add(id,rule); }
   private static void add(JsonObject category,String id,String color,int brightness) { add(category,id,color); category.getAsJsonObject(id).addProperty("brightness",brightness); }
 }

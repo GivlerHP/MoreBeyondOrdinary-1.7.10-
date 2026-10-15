@@ -21,7 +21,7 @@ public final class ColoredLightTransformer implements IClassTransformer, Opcodes
       if (insn instanceof MethodInsnNode && HOOK.equals(((MethodInsnNode) insn).owner)) return bytes;
     }
     int patched = faces ? patchFaces(node) : patchTessellator(node);
-    if (patched != (faces ? 8 : 1)) {
+    if (patched != (faces ? 10 : 1)) {
       System.err.println("[MBO ASM] Colored lighting unavailable in " + transformedName + ": " + patched);
       return bytes;
     }
@@ -38,17 +38,20 @@ public final class ColoredLightTransformer implements IClassTransformer, Opcodes
       boolean plant = (mapped.equals("renderCrossedSquares") || mapped.equals("func_147746_l") || method.name.equals("renderCrossedSquares")
           || mapped.equals("renderBlockDoublePlant") || mapped.equals("func_147774_a") || method.name.equals("renderBlockDoublePlant"))
           && (desc.equals("(Lnet/minecraft/block/Block;III)Z") || desc.equals("(Lnet/minecraft/block/BlockDoublePlant;III)Z"));
-      if (!plant && !"(Lnet/minecraft/block/Block;DDDLnet/minecraft/util/IIcon;)V".equals(desc)) continue;
-      for (int face = 0; face < (plant ? 1 : FACES.length); face++) {
-        if (!plant && !method.name.equals(FACES[face]) && !method.name.equals(SRG[face]) && !mapped.equals(SRG[face]) && !mapped.equals(FACES[face])) continue;
+      boolean liquid=(mapped.equals("renderBlockLiquid") || mapped.equals("func_147721_p") || method.name.equals("renderBlockLiquid")) && desc.equals("(Lnet/minecraft/block/Block;III)Z");
+      boolean dispatch=(mapped.equals("renderBlockByRenderType") || mapped.equals("func_147805_b") || method.name.equals("renderBlockByRenderType")) && desc.equals("(Lnet/minecraft/block/Block;III)Z");
+      boolean wholeBlock=plant || liquid || dispatch;
+      if (!wholeBlock && !"(Lnet/minecraft/block/Block;DDDLnet/minecraft/util/IIcon;)V".equals(desc)) continue;
+      for (int face = 0; face < (wholeBlock ? 1 : FACES.length); face++) {
+        if (!wholeBlock && !method.name.equals(FACES[face]) && !method.name.equals(SRG[face]) && !mapped.equals(SRG[face]) && !mapped.equals(FACES[face])) continue;
         int saved = method.maxLocals, error = saved + 2; method.maxLocals = error + 1;
         LabelNode start = new LabelNode(), end = new LabelNode(), handler = new LabelNode();
         InsnList begin = new InsnList(); begin.add(new VarInsnNode(ALOAD, 0));
         for (int i = 0; i < 3; i++) {
-          begin.add(new VarInsnNode(plant ? ILOAD : DLOAD, plant ? 2 + i : 2 + i * 2));
-          if (plant) begin.add(new InsnNode(I2D));
+          begin.add(new VarInsnNode(wholeBlock ? ILOAD : DLOAD, wholeBlock ? 2 + i : 2 + i * 2));
+          if (wholeBlock) begin.add(new InsnNode(I2D));
         }
-        if (plant) begin.add(new IntInsnNode(BIPUSH, 6)); else begin.add(new InsnNode(ICONST_0 + face));
+        if (wholeBlock) begin.add(new IntInsnNode(BIPUSH, dispatch?8:liquid?7:6)); else begin.add(new InsnNode(ICONST_0 + face));
         begin.add(new MethodInsnNode(INVOKESTATIC, HOOK, "begin", "(Lnet/minecraft/client/renderer/RenderBlocks;DDDI)J", false));
         begin.add(new VarInsnNode(LSTORE, saved)); begin.add(start);
         method.instructions.insert(begin);

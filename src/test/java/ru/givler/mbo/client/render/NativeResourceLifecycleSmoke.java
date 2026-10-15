@@ -50,6 +50,26 @@ public final class NativeResourceLifecycleSmoke {
         });
     field(Minecraft.class,"mcResourceManager").set(mc,resources);
     mc.renderEngine=new TextureManager(resources);
+    // Reproduce the reported world-less creative-inventory banner render with a real model.
+    net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher dispatcher=net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher.instance;
+    for(Field f:dispatcher.getClass().getDeclaredFields())if(f.getType()==TextureManager.class){f.setAccessible(true);f.set(dispatcher,mc.renderEngine);}
+    RenderBanner actualBanner=(RenderBanner)unsafe.allocateInstance(RenderBanner.class);
+    field(RenderBanner.class,"model").set(actualBanner,new ru.givler.mbo.client.render.banner.ModelBanner());
+    actualBanner.func_147497_a(dispatcher);
+    Object previousBanner=dispatcher.mapSpecialRenderers.put(TileEntityBanner.class,actualBanner);
+    try {
+      ru.givler.mbo.client.render.banner.RenderBannerItem itemRenderer=new ru.givler.mbo.client.render.banner.RenderBannerItem();
+      for(net.minecraftforge.client.IItemRenderer.ItemRenderType type:net.minecraftforge.client.IItemRenderer.ItemRenderType.values()) {
+        if(type==net.minecraftforge.client.IItemRenderer.ItemRenderType.FIRST_PERSON_MAP)continue;
+        int depth=GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH);
+        itemRenderer.renderItem(type,new net.minecraft.item.ItemStack(new net.minecraft.item.Item(),1,0));
+        check(depth==GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH),"Inventory banner leaked matrix stack");
+      }
+    } finally {
+      if(previousBanner==null)dispatcher.mapSpecialRenderers.remove(TileEntityBanner.class);else dispatcher.mapSpecialRenderers.put(TileEntityBanner.class,previousBanner);
+      actualBanner.onResourceManagerReload(resources);
+    }
+    System.out.println("PASS world-less banner: inventory, dropped item and both equipped views rendered with actual model and balanced GL matrices.");
     RenderBanner renderer=(RenderBanner)unsafe.allocateInstance(RenderBanner.class);
     Method texture=RenderBanner.class.getDeclaredMethod("texture",TileEntityBanner.class);texture.setAccessible(true);
     Map cache=(Map)field(RenderBanner.class,"CACHE").get(null);

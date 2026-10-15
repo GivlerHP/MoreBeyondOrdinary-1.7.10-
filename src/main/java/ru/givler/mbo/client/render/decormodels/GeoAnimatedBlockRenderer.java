@@ -69,7 +69,7 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
             if(light<0)light=tile.getWorldObj().getLightBrightnessForSkyBlocks(tile.xCoord,tile.yCoord,tile.zCoord,0);
             ru.givler.mbo.tileentity.ModelTileBase moving=tile instanceof ru.givler.mbo.tileentity.ModelTileBase ? (ru.givler.mbo.tileentity.ModelTileBase)tile : null;
             boolean platform=moving!=null && !Double.isNaN(moving.movingPlatformLightX);
-            rgb=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldRGB(platform?moving.movingPlatformLightX:tile.xCoord+.5,
+            rgb=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.surfaceRGB(platform?moving.movingPlatformLightX:tile.xCoord+.5,
                 platform?moving.movingPlatformLightY:tile.yCoord+.5,platform?moving.movingPlatformLightZ:tile.zCoord+.5);
             worldLight=light;
             light=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldBrightness(light,rgb);

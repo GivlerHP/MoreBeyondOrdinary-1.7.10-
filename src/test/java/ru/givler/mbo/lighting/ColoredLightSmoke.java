@@ -222,6 +222,16 @@ public final class ColoredLightSmoke {
     byte[] obsoleteContent = "{invalid legacy file".getBytes(java.nio.charset.StandardCharsets.UTF_8);
     Files.write(obsolete, obsoleteContent);
     com.google.gson.JsonObject fresh = ru.givler.mbo.config.ColoredLightConfig.readOrCreate();
+    for(String id:new String[]{"customnpcs:npcCandle","customnpcs:npcCampfire","customnpcs:npcLamp","GardenStuff:candle","customnpcs:npcShortLamp","customnpcs:npcTallLamp","minecraft:ender_chest","minefantasy2:MF_ForgemetalActive","minefantasy2:MF_ForgestoneActive"})
+      check(fresh.getAsJsonObject("blocks").has(id),"Missing new default light source: "+id);
+    net.minecraft.item.Item sourceItem=new net.minecraft.item.Item();
+    ColoredLightApi.registerItem(sourceItem,(stack,holder)->ColoredLightApi.emission(stack.getItemDamage()==3?0x3020FF:0xFF4020,7));
+    net.minecraft.item.ItemStack contents=new net.minecraft.item.ItemStack(sourceItem,1,3);
+    equal(ColoredLightApi.emission(0x3020FF,7),ru.givler.mbo.client.lighting.GardenLanternLight.contentsEmission(contents,12,null));
+    equal(0,ru.givler.mbo.client.lighting.GardenLanternLight.contentsEmission(contents,0,null));
+    equal(0,ru.givler.mbo.client.lighting.GardenLanternLight.contentsEmission(null,15,null));
+    net.minecraft.item.Item unknownSource=new net.minecraft.item.Item();
+    equal(ColoredLightApi.emission(0xFFFFFF,9),ru.givler.mbo.client.lighting.GardenLanternLight.contentsEmission(new net.minecraft.item.ItemStack(unknownSource),9,null));
     check(fresh.has("lighting") && fresh.has("dynamic") && fresh.has("blocks") && fresh.has("effects"), "Unified config missing sections");
     equal(16, fresh.getAsJsonObject("lighting").get("radius").getAsInt());
     check(Arrays.equals(obsoleteContent, Files.readAllBytes(obsolete)), "Legacy file was migrated or modified");
@@ -364,6 +374,22 @@ public final class ColoredLightSmoke {
       GL13.glActiveTexture(GL13.GL_TEXTURE2);check(!GL11.glIsEnabled(GL11.GL_TEXTURE_2D),"Entity tint leaked texture state");GL13.glActiveTexture(GL13.GL_TEXTURE0);
       entityQuad();java.nio.ByteBuffer white=org.lwjgl.BufferUtils.createByteBuffer(4);GL11.glReadPixels(16,16,1,1,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,white);
       check((white.get(0)&255)>240 && (white.get(1)&255)>240 && (white.get(2)&255)>240,"Next entity inherited RGB");
+      field.setCell(index(field,1,16,0),15,0);finish(field);
+      equal(0,ColoredLightRenderHooks.worldRGB(1.5,16.5,.5));
+      check(ru.givler.mbo.client.lighting.ColoredEntityLightHooks.tileRGB(1,16,0)!=0,"Opaque tile must sample light outside its blocked centre");
+      net.minecraft.tileentity.TileEntityChest chest=new net.minecraft.tileentity.TileEntityChest();chest.xCoord=1;chest.yCoord=16;
+      Field tileWorld=net.minecraft.tileentity.TileEntity.class.getDeclaredField("worldObj");tileWorld.setAccessible(true);tileWorld.set(chest,world);
+      ru.givler.mbo.config.ColoredLightConfig.entityLighting=false;
+      int tileToken=ru.givler.mbo.client.lighting.ColoredEntityLightHooks.beginTile(chest);
+      check(tileToken!=0,"World tile lighting must work independently of entity RGB option");
+      try {
+        entityQuad();java.nio.ByteBuffer tilePixel=org.lwjgl.BufferUtils.createByteBuffer(4);GL11.glReadPixels(16,16,1,1,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,tilePixel);
+        check((tilePixel.get(0)&255)>240 && (tilePixel.get(1)&255)<10 && (tilePixel.get(2)&255)<10,"Chest/model glColor reset defeated tile RGB");
+      } finally {ru.givler.mbo.client.lighting.ColoredEntityLightHooks.end(tileToken);}
+      equal(240,(int)net.minecraft.client.renderer.OpenGlHelper.lastBrightnessX);
+      GL13.glActiveTexture(GL13.GL_TEXTURE2);check(!GL11.glIsEnabled(GL11.GL_TEXTURE_2D),"Tile RGB leaked texture state");GL13.glActiveTexture(GL13.GL_TEXTURE0);
+      tileWorld.set(chest,null);equal(0,ru.givler.mbo.client.lighting.ColoredEntityLightHooks.beginTile(chest));
+      ru.givler.mbo.config.ColoredLightConfig.entityLighting=true;
       GL13.glActiveTexture(GL13.GL_TEXTURE1);GL11.glDisable(GL11.GL_TEXTURE_2D);GL13.glActiveTexture(GL13.GL_TEXTURE0);
       equal(0,ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1));
       GL13.glActiveTexture(GL13.GL_TEXTURE1);GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -533,7 +559,21 @@ public final class ColoredLightSmoke {
   }
 
   private static void vanillaBytecode() throws Exception {
-    transform("net.minecraft.client.renderer.RenderBlocks", resource("net/minecraft/client/renderer/RenderBlocks"), 8);
+    transform("net.minecraft.client.renderer.RenderBlocks", resource("net/minecraft/client/renderer/RenderBlocks"), 10);
+    for(String target:new String[]{"net.minecraft.client.renderer.entity.RenderManager","net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher"}) {
+      ru.givler.mbo.core.ColoredEntityLightTransformer transformer=new ru.givler.mbo.core.ColoredEntityLightTransformer();
+      byte[] transformed=transformer.transform(target,target,resource(target.replace('.','/')));
+      ClassNode scoped=new ClassNode();new ClassReader(transformed).accept(scoped,0);int begins=0;
+      for(MethodNode method:scoped.methods) {
+        boolean hooked=false;
+        for(AbstractInsnNode instruction:method.instructions.toArray())if(instruction instanceof MethodInsnNode) {
+          MethodInsnNode call=(MethodInsnNode)instruction;
+          if(call.owner.endsWith("ColoredEntityLightHooks") && (call.name.equals("begin") || call.name.equals("beginTile"))){begins++;hooked=true;}
+        }
+        if(hooked)new Analyzer<BasicValue>(new BasicVerifier()).analyze(scoped.name,method);
+      }
+      equal(1,begins);check(Arrays.equals(transformed,transformer.transform(target,target,transformed)),"Model RGB scope must be idempotent");
+    }
     byte[] tess = transform("net.minecraft.client.renderer.Tessellator", resource("net/minecraft/client/renderer/Tessellator"), 1);
     // Actually execute transformed vertex packing, instead of only checking instruction counts.
     Class<?> type = new ClassLoader(ColoredLightSmoke.class.getClassLoader()) {
@@ -567,6 +607,27 @@ public final class ColoredLightSmoke {
     ColoredLightRenderHooks.end(previous);
     equal(0xC8FFFFFF, ColoredLightRenderHooks.tintVertex(0xC8FFFFFF, 0, 0, 16, 0));
     System.out.println("Crossed plants: source-cell color, random-offset stability, alpha and scope restoration passed");
+    v.setCell(index(v,1,16,0),15,0);finish(v);
+    equal(0,ColoredLightRenderHooks.worldRGB(1.5,16.5,.5));
+    equal(0xFF0000,ColoredLightRenderHooks.surfaceRGB(1.5,16.5,.5));
+    Object model=type.getConstructor().newInstance();
+    type.getMethod("startDrawingQuads").invoke(model);
+    type.getMethod("setColorRGBA",int.class,int.class,int.class,int.class).invoke(model,255,255,255,200);
+    type.getMethod("setBrightness",int.class).invoke(model,0);
+    previous=ColoredLightRenderHooks.begin(renderer,1,16,0,8);
+    vertex.invoke(model,1.5,16.5,.5);
+    ColoredLightRenderHooks.end(previous);
+    vertex.invoke(model,1.5,16.5,.5);
+    int[] modelData=(int[])raw.get(model);
+    equal(0xC80000FF,modelData[5]);equal(0xC8FFFFFF,modelData[13]);
+    check((modelData[7]&65535)>0,"Custom model RGB must raise packed lightmap brightness");
+    previous=ColoredLightRenderHooks.begin(renderer,1,16,0,8);
+    long plantScope=ColoredLightRenderHooks.begin(renderer,1,16,0,6);
+    equal(0xC80000FF,ColoredLightRenderHooks.tintVertex(0xC8FFFFFF,0,1.5,16.5,.5));
+    ColoredLightRenderHooks.end(plantScope);
+    equal(0xC80000FF,ColoredLightRenderHooks.tintVertex(0xC8FFFFFF,0,1.5,16.5,.5));
+    ColoredLightRenderHooks.end(previous);
+    System.out.println("Custom block/model and potted plant RGB: opaque-cell surface fallback, actual vertex tint/lightmap, alpha and nested scope restoration passed");
     // Adjacent quads must agree at shared corners while preserving a smooth gradient.
     ColoredLightVolume gradient = new ColoredLightVolume(48, 0, 48, -16);
     for (int x = 0; x < 48; x++) for (int z = -1; z <= 1; z++) {
@@ -676,7 +737,7 @@ public final class ColoredLightSmoke {
         ClassWriter mapped = new ClassWriter(0);
         new ClassReader(patched).accept(new RemappingClassAdapter(mapped, mapping), ClassReader.EXPAND_FRAMES);
         String name = mapping.map(obf).replace('/', '.');
-        transform(name, mapped.toByteArray(), name.endsWith("RenderBlocks") ? 8 : 1);
+        transform(name, mapped.toByteArray(), name.endsWith("RenderBlocks") ? 10 : 1);
         System.out.println("OptiFine E7 verified: " + name);
       }
     }

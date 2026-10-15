@@ -59,7 +59,7 @@ public final class ColoredLightApi {
     }
     ItemProvider provider = ITEMS.get(stack.getItem());
     if (provider != null) return provider.getEmission(stack, holder);
-    if (block == BlockRegistry.ColourFire) return emission(BlockColourFire.COLORS[stack.getItemDamage() & 15], 15);
+    if (block != null && block == BlockRegistry.ColourFire) return emission(BlockColourFire.COLORS[stack.getItemDamage() & 15], 15);
     return 0;
   }
   public static int entityEmission(Entity entity) {

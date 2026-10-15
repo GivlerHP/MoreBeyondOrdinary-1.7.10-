@@ -30,6 +30,7 @@ public final class ColoredLightSources {
   public static boolean reload() {
     try {
       JsonObject root = ColoredLightConfig.readOrCreate();
+      ColoredLightConfig.applyExtraSources(root);
       Runnable applyOptions = ColoredLightConfig.validate(root);
       Map<Block, Rules> nextBlocks = new IdentityHashMap<>(); Map<Item, Rules> nextItems = new IdentityHashMap<>();
       Map<String, ColoredLightRule> nextEntities = new HashMap<>();
@@ -65,6 +66,7 @@ public final class ColoredLightSources {
       blocks = nextBlocks; items = nextItems; entities = nextEntities;
       coloredBurning = nextBurning; burningBrightness = nextBurningBrightness;
       applyOptions.run();
+      ru.givler.mbo.client.lighting.GardenLanternLight.register();
       return true;
     } catch (IOException | RuntimeException error) {
       System.err.println("[MBO] Keeping previous colored-light rules: " + error); return false;

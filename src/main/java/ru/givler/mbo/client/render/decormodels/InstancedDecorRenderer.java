@@ -157,7 +157,7 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
                     BlockModels block=(BlockModels)tile.getBlockType();
                     int facing=ChunkDecorRenderer.renderFacing(block,mc.theWorld,tile.xCoord,tile.yCoord,tile.zCoord,tile.getBlockMetadata());
                     int light=mc.theWorld.getLightBrightnessForSkyBlocks(tile.xCoord,tile.yCoord,tile.zCoord,0);
-                    int rgb=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldRGB(tile.xCoord+.5,tile.yCoord+.5,tile.zCoord+.5);
+                    int rgb=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.surfaceRGB(tile.xCoord+.5,tile.yCoord+.5,tile.zCoord+.5);
                     int tint=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldTint(-1,light,rgb);
                     light=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.worldBrightness(light,rgb);
                     boolean little=java.nio.ByteOrder.nativeOrder()==java.nio.ByteOrder.LITTLE_ENDIAN;
