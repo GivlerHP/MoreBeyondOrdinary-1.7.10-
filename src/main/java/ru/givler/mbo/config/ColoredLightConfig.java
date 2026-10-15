@@ -11,6 +11,11 @@ public final class ColoredLightConfig {
   public static volatile boolean entityLighting = true;
   public static int radius = 16, scanBudget = 2048, propagationBudget = 4096, refreshTicks = 2;
   public static int urgentScanBudget = 32768, urgentPropagationBudget = 32768;
+  /** 0=low (existing budgets), 1=medium, 2=high; always bounded per tick. */
+  public static int updateSpeed = 0;
+  public static int scanWorkBudget(boolean discovery) { return scaledBudget(discovery ? urgentScanBudget : scanBudget); }
+  public static int propagationWorkBudget(boolean urgent) { return scaledBudget(urgent ? urgentPropagationBudget : propagationBudget); }
+  private static int scaledBudget(int base) { return (int)Math.min(262144L, (long)base << Math.max(0,Math.min(2,updateSpeed))); }
   public static float strength = 1F, colorFalloff = 0.7F, brightnessGain = 1F;
   public static boolean dynamicLights = true;
   public static int dynamicLimit = 4, dynamicInterval = 4;
@@ -29,7 +34,9 @@ public final class ColoredLightConfig {
       JsonObject root = readOrCreate(), light = category(root,"lighting");
       light.addProperty("enabled",enabled); light.addProperty("strength",strength); light.addProperty("brightnessGain",brightnessGain);
       light.addProperty("entityLighting",entityLighting);
-      root.add("lighting",light); write(root);
+      light.addProperty("updateSpeed",updateSpeed);
+      JsonObject dynamic = category(root,"dynamic");dynamic.addProperty("enabled",dynamicLights);
+      root.add("lighting",light);root.add("dynamic",dynamic); write(root);
     } catch (IOException | RuntimeException e) { System.err.println("[MBO] Could not save light settings: "+e); }
   }
   public static JsonObject read(File value) throws IOException {
@@ -43,6 +50,7 @@ public final class ColoredLightConfig {
     light.addProperty("entityLighting",true);
     light.addProperty("propagationBudget",4096); light.addProperty("refreshTicks",2);
     light.addProperty("urgentScanBudget",32768); light.addProperty("urgentPropagationBudget",32768);
+    light.addProperty("updateSpeed",0);
     light.addProperty("strength",1F); light.addProperty("colorFalloff",0.7F); light.addProperty("brightnessGain",1F);
     dynamic.addProperty("enabled",true); dynamic.addProperty("maxSources",4); dynamic.addProperty("updateTicks",4);
     root.add("lighting",light); root.add("dynamic",dynamic); write(root);
@@ -69,10 +77,10 @@ public final class ColoredLightConfig {
     final boolean entities=l.has("entityLighting") ? l.get("entityLighting").getAsBoolean() : true;
     final int r=(int)n(l,"radius",16,8,24), s=(int)n(l,"scanBudget",2048,256,8192), p=(int)n(l,"propagationBudget",4096,256,16384),
       t=(int)n(l,"refreshTicks",2,1,200), us=(int)n(l,"urgentScanBudget",32768,2048,65536), up=(int)n(l,"urgentPropagationBudget",32768,4096,65536),
-      lim=(int)n(d,"maxSources",4,0,8), interval=(int)n(d,"updateTicks",4,1,20);
+      lim=(int)n(d,"maxSources",4,0,8), interval=(int)n(d,"updateTicks",4,1,20), speed=(int)n(l,"updateSpeed",0,0,2);
     final float sat=(float)n(l,"strength",1,0,1), fall=(float)n(l,"colorFalloff",0.7,0.25,2), gain=(float)n(l,"brightnessGain",1,0,2);
     return () -> { enabled=on; entityLighting=entities; dynamicLights=dyn; radius=r; scanBudget=s; propagationBudget=p; refreshTicks=t;
-      urgentScanBudget=us; urgentPropagationBudget=up; dynamicLimit=lim; dynamicInterval=interval; strength=sat; colorFalloff=fall; brightnessGain=gain; };
+      urgentScanBudget=us; urgentPropagationBudget=up; updateSpeed=speed; dynamicLimit=lim; dynamicInterval=interval; strength=sat; colorFalloff=fall; brightnessGain=gain; };
   }
   public static JsonObject createDefaults(boolean thaumcraft) {
     JsonObject root = new JsonObject(), blocks = new JsonObject(), items = new JsonObject();

@@ -1611,3 +1611,10 @@ mbo.light.brightness=Brightness
 mbo.light.offHint=Disabling clears the lighting data.
 
 mbo.light.entities=Entity RGB lighting
+mbo.light.dynamic=Dynamic RGB
+mbo.light.speed=RGB updates
+mbo.light.speed.0=Low
+mbo.light.speed.1=Medium
+mbo.light.speed.2=High
+mbo.light.dynamicHint=Light from held items and entities.
+mbo.light.speedHint=Faster light updates use more CPU.

@@ -85,8 +85,9 @@ public final class ColoredLightCache {
 
   private static void markSection(Key key, Dirty dirty) {
     int x = key.x * 16 + 8, y = key.y * 16 + 8, z = key.z * 16 + 8;
-    dirty.mark(x, y, z); dirty.mark(x - 16, y, z); dirty.mark(x + 16, y, z);
-    dirty.mark(x, y - 16, z); dirty.mark(x, y + 16, z); dirty.mark(x, y, z - 16); dirty.mark(x, y, z + 16);
+    // Face interpolation can read the edge/corner of a diagonally adjacent section.
+    for(int dy=-1;dy<=1;dy++)for(int dz=-1;dz<=1;dz++)for(int dx=-1;dx<=1;dx++)
+      dirty.mark(x+dx*16,y+dy*16,z+dz*16);
   }
 
   /** Only publish the interior: every possible contributing source has been scanned in the halo. */

@@ -55,6 +55,7 @@ public final class ColoredDynamicLights {
   public void tick(Minecraft mc) {
     if (world != mc.theWorld) { world = mc.theWorld; sources = Collections.emptyList(); generation++; ticks = 0; }
     if (world == null || mc.renderViewEntity == null) return;
+    if(!ColoredLightConfig.dynamicLights) { if(!sources.isEmpty())clear(mc);return; }
     if (++ticks % Math.max(1, ColoredLightConfig.dynamicInterval) != 0) return;
     List<Source> next = new ArrayList<>();
     if (ColoredLightConfig.dynamicLights && ColoredLightConfig.dynamicLimit > 0) {
@@ -89,12 +90,12 @@ public final class ColoredDynamicLights {
     if (mc.renderGlobal == null) return;
     int r = (int) Math.ceil(source.radius) + 1;
     int x = (int) Math.floor(source.x), y = (int) Math.floor(source.y), z = (int) Math.floor(source.z);
-    mc.renderGlobal.markBlockRangeForRenderUpdate(x - r, y - r, z - r, x + r, y + r, z + r);
+    ColoredLightClient.INSTANCE.markRange(x-r,y-r,z-r,x+r,y+r,z+r);
   }
   public int sample(int x, int y, int z) {
     List<Source> snapshot = sources;
     World sampledWorld = world;
-    if (snapshot.isEmpty() || sampledWorld == null || !ColoredLightConfig.enabled) return 0;
+    if (snapshot.isEmpty() || sampledWorld == null || !ColoredLightConfig.enabled || !ColoredLightConfig.dynamicLights) return 0;
     Query query = queries.get();
     if (query.generation != generation) { query.generation = generation; query.values.clear(); }
     Map<Cell,Integer> values = query.values;
@@ -112,6 +113,9 @@ public final class ColoredDynamicLights {
     if (!ColoredLightConfig.enabled || world != sampledWorld || sources != snapshot) return 0;
     if (values.size() < 32768) values.put(new Cell(x, y, z), rgb);
     return rgb;
+  }
+  public void invalidateGeometry() {
+    if(!ColoredLightShaderBridge.active)for(Source source:sources)mark(Minecraft.getMinecraft(),source);
   }
   public void invalidate() { generation++; invalidated = true; }
   private static final class Query { volatile long generation = -1; final Cell probe = new Cell(0, 0, 0); volatile Map<Cell, Integer> values = new HashMap<>(); }

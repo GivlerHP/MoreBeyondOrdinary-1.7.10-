@@ -691,7 +691,7 @@ public final class ColoredLightSmoke {
     try {
       net.minecraft.client.Minecraft mc = (net.minecraft.client.Minecraft) unsafe.allocateInstance(net.minecraft.client.Minecraft.class);
       NightWorld world = (NightWorld) unsafe.allocateInstance(NightWorld.class);
-      world.present = true; world.metadata = 10; world.isRemote=true;
+      world.present = true; world.metadata = 10; world.isRemote=true; world.farLoaded=true;world.farPresent=true;
       world.fire = (ru.givler.mbo.block.BlockColourFire) unsafe.allocateInstance(ru.givler.mbo.block.BlockColourFire.class);
       world.air = (net.minecraft.block.BlockAir) unsafe.allocateInstance(net.minecraft.block.BlockAir.class);
       ru.givler.mbo.registry.BlockRegistry.ColourFire = (ru.givler.mbo.block.BlockColourFire) world.fire;
@@ -703,6 +703,10 @@ public final class ColoredLightSmoke {
       mc.theWorld = world;
       RecordingRenderGlobal renderGlobal = (RecordingRenderGlobal) unsafe.allocateInstance(RecordingRenderGlobal.class);
       renderGlobal.requests = new HashSet<>(); mc.renderGlobal = renderGlobal;
+      RecordingWorldRenderer pending=(RecordingWorldRenderer)unsafe.allocateInstance(RecordingWorldRenderer.class);
+      pending.posX=0;pending.posY=64;pending.posZ=0;pending.needsUpdate=true;
+      Field rendererArray=net.minecraft.client.renderer.RenderGlobal.class.getDeclaredField("worldRenderers");rendererArray.setAccessible(true);
+      rendererArray.set(renderGlobal,new net.minecraft.client.renderer.WorldRenderer[]{pending});
       mc.renderViewEntity = (net.minecraft.entity.passive.EntityPig) unsafe.allocateInstance(net.minecraft.entity.passive.EntityPig.class);
       mc.renderViewEntity.posY = 65;
       singleton.set(null, mc);
@@ -711,6 +715,19 @@ public final class ColoredLightSmoke {
       Object originalScratch=scratch.get(ColoredLightClient.INSTANCE);
       equal(11, ColoredLightClient.skyDarkness);
       check(ColoredLightClient.cacheActive && ColoredLightClient.CACHE.sample(0, 64, 0) != 0, "Real client ticks must find colored admin fire");
+      check(ColoredLightClient.CACHE.sample(128,200,0)!=0,"Never-visited distant source above the player must be discovered without approaching");
+      world.farPresent=false;world.observer.markBlockForUpdate(128,200,0);
+      for(int tick=0;tick<6;tick++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      equal(0,ColoredLightClient.CACHE.sample(128,200,0));
+      world.farLoaded=false;
+      net.minecraft.world.chunk.Chunk farChunk=(net.minecraft.world.chunk.Chunk)unsafe.allocateInstance(net.minecraft.world.chunk.Chunk.class);
+      Field farWorld=net.minecraft.world.chunk.Chunk.class.getDeclaredField("worldObj");farWorld.setAccessible(true);farWorld.set(farChunk,world);
+      Field farX=net.minecraft.world.chunk.Chunk.class.getDeclaredField("xPosition");farX.setAccessible(true);farX.setInt(farChunk,8);
+      ColoredLightClient.INSTANCE.chunkUnloaded(new net.minecraftforge.event.world.ChunkEvent.Unload(farChunk));
+      world.farLoaded=true;world.farPresent=true;
+      ColoredLightClient.INSTANCE.chunkLoaded(new net.minecraftforge.event.world.ChunkEvent.Load(farChunk));
+      for(int tick=0;tick<30;tick++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      check(ColoredLightClient.CACHE.sample(128,200,0)!=0,"Distant chunk load must discover its source without camera movement");
       int stationaryColor = ColoredLightClient.CACHE.sample(0, 64, 0);
       // Flight never evicts RGB belonging to a still-loaded chunk.
       for(int destination : new int[]{160,0,-160,0}) {
@@ -735,6 +752,19 @@ public final class ColoredLightSmoke {
       for(int tick=0;tick<160;tick++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
       equal(stationaryColor,ColoredLightClient.CACHE.sample(0,64,0));
       System.out.println("RGB chunk lifetime: flight preserves colour, distant source edits apply, unload clears and reload restores");
+      world.blockReads=0;
+      for(int idle=0;idle<20;idle++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      equal(0,world.blockReads);
+      for(int repeat=0;repeat<100;repeat++)world.observer.markBlockForUpdate(0,64,0);
+      ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      check(world.blockReads<=2,"Repeated vanilla notifications must share one input read");
+      world.present=false;
+      world.observer.markBlockRangeForRenderUpdate(0,64,0,15,79,15);
+      for(int bulk=0;bulk<8;bulk++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      equal(0,ColoredLightClient.CACHE.sample(0,64,0));
+      world.present=true;world.observer.markBlockRangeForRenderUpdate(0,64,0,15,79,15);
+      for(int bulk=0;bulk<8;bulk++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      equal(stationaryColor,ColoredLightClient.CACHE.sample(0,64,0));
       world.blockReads = 0; mc.renderViewEntity.posX = 15;
       ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
       check(world.blockReads <= ru.givler.mbo.config.ColoredLightConfig.scanBudget, "Moving inside one chunk must not rebuild/re-read the whole field");
@@ -750,9 +780,16 @@ public final class ColoredLightSmoke {
       int nightColor = ColoredLightRenderHooks.tint(0xFFFFFFFF, 15 << 20);
       ColoredLightRenderHooks.end(previous);
       check(nightColor != 0xFFFFFFFF, "Outdoor sky light 15 must not suppress color at night");
+      renderGlobal.requests.clear();
+      ColoredLightCache.Editor distant=ColoredLightClient.CACHE.edit();
+      int[] farLight=new int[4096];farLight[0]=0xFF4400;
+      distant.put(20,4,20,farLight,(x,y,z)->{});distant.commit();
+      pending.posX=21*16;pending.posY=5*16;pending.posZ=21*16;pending.marks=0;
       world.daylight = true;
       ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
+      check(pending.marks>0,"Queued terrain renderer must receive markDirty after RGB/daylight changes");
       equal(0, ColoredLightClient.skyDarkness);
+      check(renderGlobal.requests.contains("19:3:19") && renderGlobal.requests.contains("21:5:21"),"Daylight must invalidate distant diagonal RGB consumers");
       previous = ColoredLightRenderHooks.begin(renderer, 0, 63, 0, 1);
       equal(0xFFFFFFFF, ColoredLightRenderHooks.tint(0xFFFFFFFF, 15 << 20));
       ColoredLightRenderHooks.end(previous);
@@ -769,7 +806,7 @@ public final class ColoredLightSmoke {
       for (int i = 0; i < 3; i++) ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
       check(ColoredLightClient.CACHE.sample(0, 64, 0) != 0, "New fire must bypass background scan delay");
       check(originalScratch==scratch.get(ColoredLightClient.INSTANCE),"Scanner allocated a new array between sections");
-      world.missingSourceCell=true;world.present=false;
+      world.missingSourceCell=true;world.present=false;world.observer.markBlockForUpdate(0,64,0);
       for(int i=0;i<2000;i++)ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));
       equal(0,ColoredLightClient.CACHE.sample(0,64,0));
       world.missingSourceCell=false;world.present=true;world.observer.markBlockForUpdate(0,64,0);
@@ -795,16 +832,20 @@ public final class ColoredLightSmoke {
     boolean daylight;
     boolean present = true;
     boolean missingSourceCell;
+    boolean farLoaded,farPresent;
     int metadata = 10;
     int blockReads;
     boolean wall;
     net.minecraft.block.Block barrier;
     net.minecraft.world.IWorldAccess observer;
     private NightWorld() { super(null, null, 0, net.minecraft.world.EnumDifficulty.NORMAL, null); }
-    @Override public boolean blockExists(int x, int y, int z) { return !(missingSourceCell && x==0 && y==64 && z==0); }
+    @Override public boolean blockExists(int x, int y, int z) {
+      return y>=0 && y<256 && ((Math.abs(x>>4)<=2 && Math.abs(z>>4)<=2) || (farLoaded && (x>>4)==8 && (z>>4)==0))
+          && !(missingSourceCell && x==0 && y==64 && z==0);
+    }
     @Override public void addWorldAccess(net.minecraft.world.IWorldAccess access) { observer = access; }
     @Override public void removeWorldAccess(net.minecraft.world.IWorldAccess access) { if (observer == access) observer = null; }
-    @Override public net.minecraft.block.Block getBlock(int x, int y, int z) { blockReads++; if (wall && x == 1) return barrier; return present && x == 0 && y == 64 && z == 0 ? fire : air; }
+    @Override public net.minecraft.block.Block getBlock(int x, int y, int z) { blockReads++; if (wall && x == 1) return barrier; return (present && x == 0 && y == 64 && z == 0) || (farPresent && x==128 && y==200 && z==0) ? fire : air; }
     @Override public int getBlockMetadata(int x, int y, int z) { return metadata; }
   }
 
@@ -819,6 +860,13 @@ public final class ColoredLightSmoke {
       Field list = net.minecraft.world.World.class.getDeclaredField("loadedEntityList"); list.setAccessible(true); list.set(world, entities);
       ru.givler.mbo.client.lighting.ColoredDynamicLights dynamic = ru.givler.mbo.client.lighting.ColoredDynamicLights.INSTANCE;
       dynamic.tick(mc); equal(0xFF0000, dynamic.sample(0, 64, 0));
+      ru.givler.mbo.config.ColoredLightConfig.dynamicLights=false;
+      equal(0,dynamic.sample(0,64,0));
+      dynamic.tick(mc);
+      check(dynamic.sources().isEmpty(),"Disabling dynamic RGB must immediately discard moving sources");
+      check(ColoredLightClient.CACHE.sample(0,64,0)!=0,"Dynamic RGB toggle must preserve static light");
+      ru.givler.mbo.config.ColoredLightConfig.dynamicLights=true;
+      dynamic.tick(mc);equal(0xFF0000,dynamic.sample(0,64,0));
       check(dynamic.sample(2, 64, 0) != 0, "Moving source should reach neighboring air");
       world.barrier = new net.minecraft.block.Block(net.minecraft.block.material.Material.rock) {}; world.wall = true;
       dynamic.invalidate(); equal(0, dynamic.sample(2, 64, 0));
@@ -875,6 +923,11 @@ public final class ColoredLightSmoke {
     } finally { ru.givler.mbo.config.ColoredLightConfig.enabled = true; ru.givler.mbo.client.lighting.ColoredLightShaderBridge.active = false; context.destroy(); }
   }
 
+  private static final class RecordingWorldRenderer extends net.minecraft.client.renderer.WorldRenderer {
+    int marks;
+    private RecordingWorldRenderer(){super(null,null,0,0,0,0);}
+    @Override public void markDirty(){needsUpdate=true;marks++;}
+  }
   private static final class RecordingRenderGlobal extends net.minecraft.client.renderer.RenderGlobal {
     Set<String> requests;
     int reloads;
@@ -918,19 +971,58 @@ public final class ColoredLightSmoke {
     Field minecraftHome = cpw.mods.fml.relauncher.FMLInjectionData.class.getDeclaredField("minecraftHome"); minecraftHome.setAccessible(true);
     Object previousHome = minecraftHome.get(null);
     minecraftHome.set(null,new File("."));
+    Field localeField=null;
+    for(Field field:net.minecraft.client.resources.I18n.class.getDeclaredFields())if(field.getType()==net.minecraft.client.resources.Locale.class)localeField=field;
+    localeField.setAccessible(true);Object previousLocale=localeField.get(null);
+    localeField.set(null,new net.minecraft.client.resources.Locale());
     try {
     ru.givler.mbo.config.ColoredLightConfig.load(new File("build/light-menu-config"));
     ru.givler.mbo.config.ColoredLightConfig.enabled = false;
     ru.givler.mbo.config.ColoredLightConfig.strength = 0.75F;
     ru.givler.mbo.config.ColoredLightConfig.brightnessGain = 1.25F;
+    ru.givler.mbo.config.ColoredLightConfig.dynamicLights=false;
+    ru.givler.mbo.config.ColoredLightConfig.updateSpeed=2;
     ru.givler.mbo.config.ColoredLightConfig.saveUserOptions();
     ru.givler.mbo.config.ColoredLightConfig.enabled = true;
     ru.givler.mbo.config.ColoredLightConfig.load(new File("build/light-menu-config"));
     check(!ru.givler.mbo.config.ColoredLightConfig.enabled && ru.givler.mbo.config.ColoredLightConfig.strength == 0.75F && ru.givler.mbo.config.ColoredLightConfig.brightnessGain == 1.25F, "GUI options must persist across reload");
+    check(!ru.givler.mbo.config.ColoredLightConfig.dynamicLights && ru.givler.mbo.config.ColoredLightConfig.updateSpeed==2,"Dynamic toggle and update speed must persist across reload");
+    java.lang.reflect.Constructor<?> optionsConstructor=ru.givler.mbo.client.lighting.ColoredLightMenu.Options.class.getDeclaredConstructor(net.minecraft.client.gui.GuiScreen.class);
+    optionsConstructor.setAccessible(true);
+    net.minecraft.client.gui.GuiScreen options=(net.minecraft.client.gui.GuiScreen)optionsConstructor.newInstance(new Object[]{null});
+    options.width=320;options.height=240;
+    Field screenMinecraft=net.minecraft.client.gui.GuiScreen.class.getDeclaredField("mc");screenMinecraft.setAccessible(true);screenMinecraft.set(options,mc);
+    Field screenButtons=net.minecraft.client.gui.GuiScreen.class.getDeclaredField("buttonList");screenButtons.setAccessible(true);
+    Method optionClick=options.getClass().getDeclaredMethod("actionPerformed",net.minecraft.client.gui.GuiButton.class);optionClick.setAccessible(true);
+    for(int expected:new int[]{0,1,2}) {
+      options.initGui();
+      List<?> controls=(List<?>)screenButtons.get(options);
+      equal(7,controls.size());
+      net.minecraft.client.gui.GuiButton speedButton=null;
+      for(Object control:controls) {
+        net.minecraft.client.gui.GuiButton button=(net.minecraft.client.gui.GuiButton)control;
+        check(button.xPosition>=0 && button.xPosition+button.width<=320 && button.yPosition>=0 && button.yPosition+button.height<=240,"RGB menu control must fit scaled screen");
+        if(button.id==6)speedButton=button;
+      }
+      optionClick.invoke(options,speedButton);
+      equal(expected,ru.givler.mbo.config.ColoredLightConfig.updateSpeed);
+    }
+    options.initGui();
+    net.minecraft.client.gui.GuiButton dynamicButton=null;
+    for(Object control:(List<?>)screenButtons.get(options))if(((net.minecraft.client.gui.GuiButton)control).id==5)dynamicButton=(net.minecraft.client.gui.GuiButton)control;
+    optionClick.invoke(options,dynamicButton);
+    check(ru.givler.mbo.config.ColoredLightConfig.dynamicLights,"Menu dynamic RGB button must toggle independently");
+    int low=ru.givler.mbo.config.ColoredLightConfig.urgentScanBudget;
+    equal(low*4,ru.givler.mbo.config.ColoredLightConfig.scanWorkBudget(true));
+    ru.givler.mbo.config.ColoredLightConfig.updateSpeed=1;
+    equal(low*2,ru.givler.mbo.config.ColoredLightConfig.scanWorkBudget(true));
+    ru.givler.mbo.config.ColoredLightConfig.updateSpeed=0;
+    equal(low,ru.givler.mbo.config.ColoredLightConfig.scanWorkBudget(true));
+    ru.givler.mbo.config.ColoredLightConfig.dynamicLights=true;
     ru.givler.mbo.config.ColoredLightConfig.enabled = true;
     ru.givler.mbo.config.ColoredLightConfig.strength = 1F; ru.givler.mbo.config.ColoredLightConfig.brightnessGain = 1F;
     ru.givler.mbo.config.ColoredLightConfig.saveUserOptions();
-    } finally { minecraftHome.set(null,previousHome); }
+    } finally { minecraftHome.set(null,previousHome);localeField.set(null,previousLocale); }
     System.out.println("Lighting menu: scaled torch button; full disable clears sections/scans/dynamic data, stops world reads, reloads geometry, and re-enables cleanly");
   }
 

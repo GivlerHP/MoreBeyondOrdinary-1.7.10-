@@ -1900,3 +1900,10 @@ mbo.light.brightness=Яркость
 mbo.light.offHint=При отключении данные света очищаются.
 
 mbo.light.entities=RGB на сущностях
+mbo.light.dynamic=Динамический RGB
+mbo.light.speed=Обновление RGB
+mbo.light.speed.0=Низкое
+mbo.light.speed.1=Среднее
+mbo.light.speed.2=Высокое
+mbo.light.dynamicHint=Свет от предметов в руках и существ.
+mbo.light.speedHint=Быстрее обновляется свет — выше нагрузка.

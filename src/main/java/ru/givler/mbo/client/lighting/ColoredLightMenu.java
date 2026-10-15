@@ -46,17 +46,28 @@ public final class ColoredLightMenu {
     Options(GuiScreen parent) { this.parent = parent; }
     @Override public void initGui() {
       buttonList.clear();
-      buttonList.add(new GuiButton(0,width/2-100,height/2-64,200,20,toggleLabel()));
-      buttonList.add(new LightSlider(1,width/2-100,height/2-38,1F,ColoredLightConfig.strength));
-      buttonList.add(new LightSlider(2,width/2-100,height/2-12,2F,ColoredLightConfig.brightnessGain));
-      buttonList.add(new GuiButton(4,width/2-100,height/2+14,200,20,I18n.format("mbo.light.entities")+": "+I18n.format(ColoredLightConfig.entityLighting?"options.on":"options.off")));
-      buttonList.add(new GuiButton(3,width/2-100,height/2+66,200,20,I18n.format("gui.done")));
+      int top=height/2-88;
+      buttonList.add(new GuiButton(0,width/2-100,top,200,20,toggleLabel()));
+      buttonList.add(new LightSlider(1,width/2-100,top+24,1F,ColoredLightConfig.strength));
+      buttonList.add(new LightSlider(2,width/2-100,top+48,2F,ColoredLightConfig.brightnessGain));
+      buttonList.add(new GuiButton(4,width/2-100,top+72,200,20,I18n.format("mbo.light.entities")+": "+I18n.format(ColoredLightConfig.entityLighting?"options.on":"options.off")));
+      buttonList.add(new GuiButton(5,width/2-100,top+96,200,20,I18n.format("mbo.light.dynamic")+": "+I18n.format(ColoredLightConfig.dynamicLights?"options.on":"options.off")));
+      buttonList.add(new GuiButton(6,width/2-100,top+120,200,20,I18n.format("mbo.light.speed")+": "+I18n.format("mbo.light.speed."+ColoredLightConfig.updateSpeed)));
+      buttonList.add(new GuiButton(3,width/2-100,top+172,200,20,I18n.format("gui.done")));
     }
     private static String toggleLabel() { return I18n.format("mbo.light.enabled") + ": " + I18n.format(ColoredLightConfig.enabled ? "options.on" : "options.off"); }
     private static String valueLabel(String key,float value) { return I18n.format(key) + ": " + Math.round(value*100) + "%"; }
     @Override protected void actionPerformed(GuiButton button) {
       if(button instanceof LightSlider)return;
       if (button.id == 3) { mc.displayGuiScreen(parent); return; }
+      if(button.id==5) {
+        ColoredLightConfig.dynamicLights=!ColoredLightConfig.dynamicLights;
+        ColoredLightConfig.saveUserOptions();ColoredLightClient.INSTANCE.applyDynamicOptions();initGui();return;
+      }
+      if(button.id==6) {
+        ColoredLightConfig.updateSpeed=(ColoredLightConfig.updateSpeed+1)%3;
+        ColoredLightConfig.saveUserOptions();initGui();return;
+      }
       if (button.id == 4) {
         ColoredLightConfig.entityLighting=!ColoredLightConfig.entityLighting;
         if(!ColoredLightConfig.entityLighting)ColoredEntityLightHooks.release();
@@ -70,8 +81,16 @@ public final class ColoredLightMenu {
     }
     @Override protected void keyTyped(char letter,int key) { if (key == 1) mc.displayGuiScreen(parent); }
     @Override public void drawScreen(int mouseX,int mouseY,float partial) {
-      drawDefaultBackground(); drawCenteredString(fontRendererObj,I18n.format("mbo.light.title"),width/2,28,0xFFFFFF);
-      drawCenteredString(fontRendererObj,I18n.format("mbo.light.offHint"),width/2,height/2+44,0xAAAAAA);
+      drawDefaultBackground(); drawCenteredString(fontRendererObj,I18n.format("mbo.light.title"),width/2,height/2-112,0xFFFFFF);
+      String hint="mbo.light.offHint";
+      for(Object value:buttonList) {
+        GuiButton button=(GuiButton)value;
+        if(mouseX>=button.xPosition && mouseX<button.xPosition+button.width && mouseY>=button.yPosition && mouseY<button.yPosition+button.height) {
+          if(button.id==5)hint="mbo.light.dynamicHint";
+          if(button.id==6)hint="mbo.light.speedHint";
+        }
+      }
+      drawCenteredString(fontRendererObj,I18n.format(hint),width/2,height/2+62,0xAAAAAA);
       super.drawScreen(mouseX,mouseY,partial);
     }
   }

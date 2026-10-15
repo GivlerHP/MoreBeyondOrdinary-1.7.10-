@@ -109,7 +109,7 @@ public final class ColoredLightShaderBridge {
       GL20.glUniform1f(u.size, SIZE); GL20.glUniform1f(u.gain, ColoredLightConfig.brightnessGain);
       GL20.glUniform1f(u.strength, ColoredLightConfig.strength); GL20.glUniform1f(u.falloff, ColoredLightConfig.colorFalloff);
       GL20.glUniform1i(u.entities,ColoredLightConfig.entityLighting?1:0);
-      List<ColoredDynamicLights.Source> sources = ColoredLightConfig.enabled ? ColoredDynamicLights.INSTANCE.sources() : Collections.emptyList();
+      List<ColoredDynamicLights.Source> sources = ColoredLightConfig.enabled && ColoredLightConfig.dynamicLights ? ColoredDynamicLights.INSTANCE.sources() : Collections.emptyList();
       int count = Math.min(8, sources.size()); GL20.glUniform1i(u.count, count);
       for (int i = 0; i < count; i++) {
         ColoredDynamicLights.Source source = sources.get(i); int rgb = ColoredLightApi.rgb(source.packed);
