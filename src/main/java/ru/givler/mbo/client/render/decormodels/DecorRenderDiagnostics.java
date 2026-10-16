@@ -52,24 +52,14 @@ public final class DecorRenderDiagnostics extends CommandBase {
     @Override public boolean canCommandSenderUseCommand(ICommandSender sender) { return true; }
     @Override public void processCommand(ICommandSender sender,String[] args) {
         if(frames!=null && args.length>0 && ("cache".equals(args[0]) || "chunk".equals(args[0]) || "gpu".equals(args[0]) || "sample".equals(args[0]))) { reply("Wait for the active sample to finish.");return; }
+        if(args.length==1 && "inspect".equals(args[0])) { inspectTarget();return; }
         String[] mf2=mf2Diagnostics(args);
         for(String line:mf2)reply(line);
-        if(args.length==1 && "inspect".equals(args[0]) && mf2.length>0)return;
         if("gpu".equals(args.length==0?"":args[0]) && args.length==2 && ("on".equals(args[1])||"off".equals(args[1]))) {
             if(frames!=null){reply("Wait for the active sample to finish.");return;}
             reply(InstancedDecorRenderer.INSTANCE.setEnabled("on".equals(args[1])));return;
         }
         if(args.length==1 && "report".equals(args[0])) { reply(ChunkDecorRenderer.INSTANCE.writeReport());return; }
-        if(args.length==1 && "inspect".equals(args[0])) {
-            Minecraft mc=Minecraft.getMinecraft();net.minecraft.util.MovingObjectPosition hit=mc.objectMouseOver;
-            if(mc.theWorld==null || hit==null || hit.typeOfHit!=net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK) {
-                reply("Look at a decor block.");return;
-            }
-            net.minecraft.block.Block block=mc.theWorld.getBlock(hit.blockX,hit.blockY,hit.blockZ);
-            if(!(block instanceof ru.givler.mbo.block.BlockModels)) {reply("This block is not a decor model.");return;}
-            reply(ChunkDecorRenderer.INSTANCE.inspect((ru.givler.mbo.block.BlockModels)block,
-                hit.blockX,hit.blockY,hit.blockZ,mc.theWorld.getBlockMetadata(hit.blockX,hit.blockY,hit.blockZ)));return;
-        }
         if(args.length==0 || "stats".equals(args[0])) {
             reply(StaticDecorRenderCache.INSTANCE.statistics());
             reply(InstancedDecorRenderer.INSTANCE.statistics());
@@ -97,6 +87,30 @@ public final class DecorRenderDiagnostics extends CommandBase {
             reply("Measuring "+label+" for "+count+" frames. Keep the camera still; close chat.");return;
         }
         reply(getCommandUsage(sender));
+    }
+
+    private static void inspectTarget() {
+        Minecraft mc=Minecraft.getMinecraft();
+        net.minecraft.util.MovingObjectPosition hit=mc.objectMouseOver;
+        if(mc.theWorld==null || hit==null || hit.typeOfHit!=net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK) {
+            reply("Look at a block.");return;
+        }
+        int x=hit.blockX,y=hit.blockY,z=hit.blockZ;
+        net.minecraft.block.Block block=mc.theWorld.getBlock(x,y,z);
+        int meta=mc.theWorld.getBlockMetadata(x,y,z);
+        Object id=net.minecraft.block.Block.blockRegistry.getNameForObject(block);
+        net.minecraft.tileentity.TileEntity tile=mc.theWorld.getTileEntity(x,y,z);
+        boolean declared=block.hasTileEntity(meta);
+        reply("Block: "+id+" meta="+meta+" at "+x+", "+y+", "+z+" (client world)");
+        reply("Storage: "+(tile!=null ? "TileEntity present" : declared ? "TileEntity expected, absent on client" : "ordinary block (no TileEntity)")
+            +"; hasTileEntity="+declared);
+        reply("Block class: "+block.getClass().getName()+"; renderType="+block.getRenderType());
+        if(tile!=null) reply("TileEntity: "+tile.getClass().getName()+"; canUpdate="+tile.canUpdate());
+        if(block instanceof ru.givler.mbo.block.BlockModels) {
+            reply(ChunkDecorRenderer.INSTANCE.inspect((ru.givler.mbo.block.BlockModels)block,x,y,z,meta));
+        } else if(id!=null && id.toString().startsWith("minefantasy2:")) {
+            for(String line:mf2Diagnostics(new String[] {"inspect"})) reply(line);
+        }
     }
 
     @SubscribeEvent public void onRenderTick(TickEvent.RenderTickEvent event) {
