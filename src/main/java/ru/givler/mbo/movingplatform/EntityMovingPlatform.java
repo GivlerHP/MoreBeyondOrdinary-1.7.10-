@@ -74,6 +74,20 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
   }
 
   @Override
+  public boolean isInRangeToRender3d(double x, double y, double z) {
+    // The entity's 1x1 physics box is only an anchor, not the rendered structure.
+    // Measure from the nearest point of the selection, including both tick positions
+    // so interpolation cannot cull a nearby end of a long moving platform.
+    double dx = Math.max(0D, Math.max(Math.min(posX, lastTickPosX) - x,
+        x - (Math.max(posX, lastTickPosX) + sizeX)));
+    double dy = Math.max(0D, Math.max(Math.min(posY, lastTickPosY) - y,
+        y - (Math.max(posY, lastTickPosY) + sizeY)));
+    double dz = Math.max(0D, Math.max(Math.min(posZ, lastTickPosZ) - z,
+        z - (Math.max(posZ, lastTickPosZ) + sizeZ)));
+    return isInRangeToRenderDist(dx * dx + dy * dy + dz * dz);
+  }
+
+  @Override
   protected void entityInit() {
     dataWatcher.addObject(20, Integer.valueOf(STOPPED_A));
     dataWatcher.addObject(21, Integer.valueOf(0));

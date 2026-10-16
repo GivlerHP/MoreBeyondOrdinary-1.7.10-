@@ -11,6 +11,7 @@ public final class PlatformClippingSmoke {
   private PlatformClippingSmoke() { }
 
   public static void check() {
+    verifyRenderDistance();
     verifyPassengerAnimation();
     NBTTagCompound original = new NBTTagCompound();
     original.setDouble("HomeY", 100D);
@@ -55,6 +56,34 @@ public final class PlatformClippingSmoke {
       }
     }
     System.out.println("Elevator clipping: persistence, collision, world ownership, obstruction and editor packet passed");
+  }
+
+  private static void verifyRenderDistance() {
+    NBTTagCompound tag = new NBTTagCompound();
+    tag.setInteger("SizeX", 1);
+    tag.setInteger("SizeY", 160);
+    tag.setInteger("SizeZ", 1);
+    EntityMovingPlatform platform = new EntityMovingPlatform(null);
+    platform.readPlatformTag(tag);
+    platform.setPosition(10, 20, 30);
+    platform.lastTickPosX = 10;
+    platform.lastTickPosY = 20;
+    platform.lastTickPosZ = 30;
+    if (!platform.isInRangeToRender3d(10.5, 179.5, 31.5)
+        || !platform.isInRangeToRender3d(10.5, 20.5, 31.5)
+        || platform.isInRangeToRender3d(10.5, 300, 30.5))
+      throw new AssertionError("Tall platforms must use distance to their full selection");
+    platform.setPosition(10, 100, 30);
+    if (!platform.isInRangeToRender3d(10.5, 20.5, 31.5))
+      throw new AssertionError("Render distance must include the interpolated tick position");
+    tag.setInteger("SizeX", 160);
+    tag.setInteger("SizeY", 1);
+    tag.setInteger("SizeZ", 160);
+    platform.readPlatformTag(tag);
+    platform.lastTickPosY = platform.posY;
+    if (!platform.isInRangeToRender3d(169.5, 100.5, 189.5)
+        || platform.isInRangeToRender3d(-100, 100.5, -100))
+      throw new AssertionError("Horizontal structures must use their complete bounds too");
   }
 
   private static void verifyPassengerAnimation() {
