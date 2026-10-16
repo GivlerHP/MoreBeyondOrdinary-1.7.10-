@@ -9,6 +9,8 @@ public final class ColoredLightConfig {
   private static File directory;
   public static volatile boolean enabled = true;
   public static volatile boolean entityLighting = true;
+  /** Shared texture-state scope for world entities/TESRs; false restores the isolated compatibility path. */
+  public static boolean entityRenderPass = true;
   public static int radius = 16, scanBudget = 2048, propagationBudget = 4096, refreshTicks = 2;
   public static int urgentScanBudget = 32768, urgentPropagationBudget = 32768;
   /** 0=low (existing budgets), 1=medium, 2=high; always bounded per tick. */
@@ -34,6 +36,7 @@ public final class ColoredLightConfig {
       JsonObject root = readOrCreate(), light = category(root,"lighting");
       light.addProperty("enabled",enabled); light.addProperty("strength",strength); light.addProperty("brightnessGain",brightnessGain);
       light.addProperty("entityLighting",entityLighting);
+      light.addProperty("entityRenderPass",entityRenderPass);
       light.addProperty("updateSpeed",updateSpeed);
       JsonObject dynamic = category(root,"dynamic");dynamic.addProperty("enabled",dynamicLights);
       root.add("lighting",light);root.add("dynamic",dynamic); write(root);
@@ -48,6 +51,7 @@ public final class ColoredLightConfig {
     JsonObject light = new JsonObject(), dynamic = new JsonObject();
     light.addProperty("enabled",true); light.addProperty("radius",16); light.addProperty("scanBudget",2048);
     light.addProperty("entityLighting",true);
+    light.addProperty("entityRenderPass",true);
     light.addProperty("propagationBudget",4096); light.addProperty("refreshTicks",2);
     light.addProperty("urgentScanBudget",32768); light.addProperty("urgentPropagationBudget",32768);
     light.addProperty("updateSpeed",0);
@@ -88,11 +92,12 @@ public final class ColoredLightConfig {
     JsonObject l=category(root,"lighting"), d=category(root,"dynamic");
     final boolean on=l.has("enabled") ? l.get("enabled").getAsBoolean() : true, dyn=d.has("enabled") ? d.get("enabled").getAsBoolean() : true;
     final boolean entities=l.has("entityLighting") ? l.get("entityLighting").getAsBoolean() : true;
+    final boolean sharedPass=l.has("entityRenderPass") ? l.get("entityRenderPass").getAsBoolean() : true;
     final int r=(int)n(l,"radius",16,8,24), s=(int)n(l,"scanBudget",2048,256,8192), p=(int)n(l,"propagationBudget",4096,256,16384),
       t=(int)n(l,"refreshTicks",2,1,200), us=(int)n(l,"urgentScanBudget",32768,2048,65536), up=(int)n(l,"urgentPropagationBudget",32768,4096,65536),
       lim=(int)n(d,"maxSources",4,0,8), interval=(int)n(d,"updateTicks",4,1,20), speed=(int)n(l,"updateSpeed",0,0,2);
     final float sat=(float)n(l,"strength",1,0,1), fall=(float)n(l,"colorFalloff",0.7,0.25,2), gain=(float)n(l,"brightnessGain",1,0,2);
-    return () -> { enabled=on; entityLighting=entities; dynamicLights=dyn; radius=r; scanBudget=s; propagationBudget=p; refreshTicks=t;
+    return () -> { enabled=on; entityLighting=entities; entityRenderPass=sharedPass; dynamicLights=dyn; radius=r; scanBudget=s; propagationBudget=p; refreshTicks=t;
       urgentScanBudget=us; urgentPropagationBudget=up; updateSpeed=speed; dynamicLimit=lim; dynamicInterval=interval; strength=sat; colorFalloff=fall; brightnessGain=gain; };
   }
   public static JsonObject createDefaults(boolean thaumcraft) {

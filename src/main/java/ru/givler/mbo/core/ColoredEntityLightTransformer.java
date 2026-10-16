@@ -10,7 +10,8 @@ public final class ColoredEntityLightTransformer implements IClassTransformer,Op
   private static final String HOOK="ru/givler/mbo/client/lighting/ColoredEntityLightHooks";
   public byte[] transform(String name,String transformedName,byte[] bytes) {
     boolean tiles="net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher".equals(transformedName);
-    if(bytes==null || (!tiles && !"net.minecraft.client.renderer.entity.RenderManager".equals(transformedName)))return bytes;
+    boolean pass="net.minecraft.client.renderer.RenderGlobal".equals(transformedName);
+    if(bytes==null || (!pass && !tiles && !"net.minecraft.client.renderer.entity.RenderManager".equals(transformedName)))return bytes;
     ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);
     for(MethodNode method:node.methods)for(AbstractInsnNode insn:method.instructions.toArray())
       if(insn instanceof MethodInsnNode && HOOK.equals(((MethodInsnNode)insn).owner))return bytes;
@@ -18,6 +19,13 @@ public final class ColoredEntityLightTransformer implements IClassTransformer,Op
     for(MethodNode method:node.methods) {
       String desc=FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(method.desc);
       String mapped=FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(node.name,method.name,method.desc);
+      if(pass) {
+        if(desc.equals("(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/client/renderer/culling/ICamera;F)V")
+            && (method.name.equals("renderEntities") || method.name.equals("func_147589_a") || mapped.equals("func_147589_a"))) {
+          wrapPass(method);patched++;
+        }
+        continue;
+      }
       if(tiles) {
         if(!desc.equals("(Lnet/minecraft/tileentity/TileEntity;DDDF)V") || !(method.name.equals("renderTileEntityAt") || method.name.equals("func_147549_a") || mapped.equals("func_147549_a")))continue;
       } else if(!desc.equals("(Lnet/minecraft/entity/Entity;DDDFFZ)Z") || !(method.name.equals("func_147939_a") || method.name.equals("doRenderEntity") || mapped.equals("func_147939_a")))continue;
@@ -48,4 +56,20 @@ public final class ColoredEntityLightTransformer implements IClassTransformer,Op
     ClassWriter writer=SafeClassWriter.create();node.accept(writer);return writer.toByteArray();
   }
   private static InsnList restore(int token){InsnList list=new InsnList();list.add(new VarInsnNode(ILOAD,token));list.add(new MethodInsnNode(INVOKESTATIC,HOOK,"end","(I)V",false));return list;}
+  private static void wrapPass(MethodNode method) {
+    int token=method.maxLocals++,error=method.maxLocals++;
+    LabelNode start=new LabelNode(),end=new LabelNode(),handler=new LabelNode();
+    InsnList begin=new InsnList();
+    begin.add(new MethodInsnNode(INVOKESTATIC,HOOK,"beginPass","()I",false));
+    begin.add(new VarInsnNode(ISTORE,token));begin.add(start);method.instructions.insert(begin);
+    for(AbstractInsnNode insn:method.instructions.toArray())if(insn.getOpcode()==RETURN)method.instructions.insertBefore(insn,finishPass(token));
+    method.instructions.add(end);method.instructions.add(handler);method.instructions.add(new VarInsnNode(ASTORE,error));
+    method.instructions.add(finishPass(token));method.instructions.add(new VarInsnNode(ALOAD,error));method.instructions.add(new InsnNode(ATHROW));
+    method.tryCatchBlocks.add(new TryCatchBlockNode(start,end,handler,null));
+  }
+  private static InsnList finishPass(int token) {
+    InsnList list=new InsnList();list.add(new VarInsnNode(ILOAD,token));
+    list.add(new MethodInsnNode(INVOKESTATIC,HOOK,"endPass","(I)V",false));
+    list.add(new InsnNode(ICONST_0));list.add(new VarInsnNode(ISTORE,token));return list;
+  }
 }

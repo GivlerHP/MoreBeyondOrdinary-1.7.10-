@@ -69,8 +69,7 @@ public final class WaterloggingCameraHooks {
     }
     if (capturedCamera == null) {
       double x = view.prevPosX + (view.posX - view.prevPosX) * partialTicks;
-      double y = view.prevPosY + (view.posY - view.prevPosY) * partialTicks
-          - view.yOffset + cameraEyeHeight(view);
+      double y = interpolatedEyeY(view, partialTicks);
       double z = view.prevPosZ + (view.posZ - view.prevPosZ) * partialTicks;
       capturedCamera = Vec3.createVectorHelper(x, y, z);
     }
@@ -83,12 +82,20 @@ public final class WaterloggingCameraHooks {
             (net.minecraft.entity.player.EntityPlayer) view) ? 0.4F : 1.62F;
   }
 
+  private static double interpolatedEyeY(Entity view, float partialTicks) {
+    double y = view.prevPosY + (view.posY - view.prevPosY) * partialTicks;
+    if (view instanceof net.minecraft.entity.player.EntityPlayer
+        && ru.givler.mbo.swimming.SwimmingHooks.isSwimming((net.minecraft.entity.player.EntityPlayer) view))
+      return y + ru.givler.mbo.swimming.SwimmingHooks.swimmingEyeY(
+          (net.minecraft.entity.player.EntityPlayer) view) - view.posY;
+    return y - view.yOffset + cameraEyeHeight(view);
+  }
+
   public static Block getViewBlock(World world, EntityLivingBase entity, float partialTicks) {
     Vec3 camera = capturedEntity == entity && capturedCamera != null
         ? capturedCamera : Vec3.createVectorHelper(
             entity.prevPosX + (entity.posX - entity.prevPosX) * partialTicks,
-            entity.prevPosY + (entity.posY - entity.prevPosY) * partialTicks
-                - entity.yOffset + cameraEyeHeight(entity),
+            interpolatedEyeY(entity, partialTicks),
             entity.prevPosZ + (entity.posZ - entity.prevPosZ) * partialTicks);
     double x = camera.xCoord;
     double y = camera.yCoord;

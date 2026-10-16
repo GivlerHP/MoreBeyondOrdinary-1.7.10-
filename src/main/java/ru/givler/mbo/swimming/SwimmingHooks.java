@@ -65,8 +65,19 @@ public final class SwimmingHooks {
   }
 
   public static float eyeHeight(float vanilla, EntityPlayer player) {
-    // In 1.7.10 posY already includes yOffset; getEyeHeight is an offset from posY.
-    return isSwimming(player) ? 0.4F - player.yOffset + player.getDefaultEyeHeight() : vanilla;
+    // Forge's eye offset is relative to posY. The physical feet are the AABB,
+    // not posY-yOffset (which can differ during pose/interpolation updates).
+    return isSwimming(player)
+        ? (float) (swimmingEyeY(player) - player.posY) + player.getDefaultEyeHeight() : vanilla;
+  }
+
+  public static double swimmingEyeY(EntityPlayer player) {
+    return player.boundingBox.minY + 0.4D;
+  }
+
+  /** Value subtracted from yOffset by vanilla/OptiFine orientCamera. */
+  public static float cameraEyeHeight(EntityPlayer player) {
+    return (float) (player.yOffset + swimmingEyeY(player) - player.posY);
   }
 
   public static boolean canTriggerWalking(boolean vanilla, EntityPlayer player) {
@@ -146,7 +157,18 @@ public final class SwimmingHooks {
 
   private static void setSize(EntityPlayer player, float height) {
     try {
+      double feetY = player.boundingBox.minY;
       SET_SIZE.invoke(player, 0.6F, height);
+      // Keep the legacy position anchor and the resized collision box in sync.
+      // Otherwise the next setPosition (including a server correction) rebuilds
+      // the box from an obsolete standing anchor and can move it into the floor.
+      double positionY = feetY + player.yOffset - player.ySize;
+      double correction = positionY - player.posY;
+      player.posY = positionY;
+      player.prevPosY += correction;
+      player.lastTickPosY += correction;
+      player.boundingBox.setBounds(player.boundingBox.minX, feetY, player.boundingBox.minZ,
+          player.boundingBox.maxX, feetY + height, player.boundingBox.maxZ);
     } catch (Exception exception) {
       throw new IllegalStateException("Cannot change player swimming size", exception);
     }

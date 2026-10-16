@@ -129,6 +129,13 @@ idea {
 
 tasks.build.dependsOn('deobfJar')
 
+task verifyProductionJar(type: JavaExec, dependsOn: ['reobf', 'testClasses']) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.ProductionJarSmoke'
+    doFirst { args = [tasks.jar.archivePath.absolutePath] }
+}
+tasks.build.dependsOn('verifyProductionJar')
+
 task verifyProductionTransformers(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.core.ProductionTransformersSmoke'
@@ -184,6 +191,16 @@ task verifyColoredLight(type: JavaExec, dependsOn: testClasses) {
 }
 
 tasks.check.dependsOn('verifyColoredLight')
+
+task verifyUnifiedDynamicLights(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.UnifiedDynamicLightSmoke'
+    if (project.hasProperty('dynamicLightsFalseTweaksJar') && project.hasProperty('coloredLightMappings')) {
+        args project.property('dynamicLightsFalseTweaksJar'), project.property('coloredLightMappings')
+    } else onlyIf { false }
+}
+tasks.check.dependsOn('verifyUnifiedDynamicLights')
+
 
 task coloredLightShaderPack(type: Zip) {
     from 'shaderpacks/MBO_RGB_Lite'

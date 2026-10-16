@@ -138,7 +138,7 @@ public final class ColoredLightClient {
 
   private void requestArea() {
     int radius = Math.max(1, discoveryDistance) + 1; ArrayList<Section> requests = new ArrayList<>();
-    for (int y = 0; y < 16; y++)
+    for (int y = ColoredLightApi.minimumY(world) >> 4; y < 16; y++)
       for (int z = cz - radius; z <= cz + radius; z++) for (int x = cx - radius; x <= cx + radius; x++) {
         Section s = new Section(x, y, z);
         if (!lighting.contains(x, y, z) && !waiting.contains(s) && world.blockExists(x * 16, y * 16, z * 16)) requests.add(s);
@@ -162,7 +162,7 @@ public final class ColoredLightClient {
         if(scanOpacity==null)scanOpacity=new byte[4096];
         if(scanEmission==null)scanEmission=new int[4096];
         // Absent vanilla storage is all air. Keep its propagation path without 4096 world reads.
-        if(world.getChunkProvider()!=null && world.getChunkFromChunkCoords(scanning.x,scanning.z)
+        if(scanning.y>=0 && scanning.y<16 && world.getChunkProvider()!=null && world.getChunkFromChunkCoords(scanning.x,scanning.z)
             .getBlockStorageArray()[scanning.y]==null) {
           Arrays.fill(scanOpacity,(byte)1);Arrays.fill(scanEmission,0);cursor=4096;
           budget-=4096;
@@ -186,21 +186,22 @@ public final class ColoredLightClient {
   }
 
   void changed(int x, int y, int z) {
-    if (world == null || disabled || !ColoredLightConfig.enabled || y < 0 || y >= 256) return;
+    if (world == null || disabled || !ColoredLightConfig.enabled || y < ColoredLightApi.minimumY(world) || y >= 256) return;
     changedCells.add(new Section(x,y,z));
   }
 
   void changedRange(int x,int y,int z,int x2,int y2,int z2) {
     if(world==null || disabled || !ColoredLightConfig.enabled)return;
-    long cells=((long)x2-x+1)*((long)Math.min(255,y2)-Math.max(0,y)+1)*((long)z2-z+1);
+    int minimumY=ColoredLightApi.minimumY(world);
+    long cells=((long)x2-x+1)*((long)Math.min(255,y2)-Math.max(minimumY,y)+1)*((long)z2-z+1);
     if(cells>0 && cells<=512) {
-      for(int by=Math.max(0,y);by<=Math.min(255,y2);by++)for(int bz=z;bz<=z2;bz++)for(int bx=x;bx<=x2;bx++)changed(bx,by,bz);
+      for(int by=Math.max(minimumY,y);by<=Math.min(255,y2);by++)for(int bz=z;bz<=z2;bz++)for(int bx=x;bx<=x2;bx++)changed(bx,by,bz);
       return;
     }
     if(scanning!=null && scanning.x>=(x>>4) && scanning.x<=(x2>>4)
         && scanning.y>=(y>>4) && scanning.y<=(y2>>4) && scanning.z>=(z>>4) && scanning.z<=(z2>>4))cursor=0;
     // Bulk chunk/light notifications share the same bounded section discovery queue.
-    for(int sy=Math.max(0,y>>4);sy<=Math.min(15,y2>>4);sy++)
+    for(int sy=Math.max(minimumY>>4,y>>4);sy<=Math.min(15,y2>>4);sy++)
       for(int sz=z>>4;sz<=z2>>4;sz++)for(int sx=x>>4;sx<=x2>>4;sx++) {
         queueSection(sx,sy,sz);
       }
@@ -208,7 +209,7 @@ public final class ColoredLightClient {
 
   private void queueSection(int sx,int sy,int sz) {
     probe.x=sx;probe.y=sy;probe.z=sz;
-    if(sy<0 || sy>=16)return;
+    if(sy<(ColoredLightApi.minimumY(world)>>4) || sy>=16)return;
     if(waiting.contains(probe))return;
     Section section=new Section(sx,sy,sz);waiting.add(section);scans.addLast(section);
   }
@@ -243,24 +244,25 @@ public final class ColoredLightClient {
   private void chunkChanged(ChunkEvent event) {
     if (!event.world.isRemote || event.world != world) return;
     int x = event.getChunk().xPosition, z = event.getChunk().zPosition;
-    for (int y = 0; y < 16; y++) { lighting.remove(x, y, z); probe.x = x; probe.y = y; probe.z = z; known.remove(probe); waiting.remove(probe); }
+    for (int y = ColoredLightApi.minimumY(world)>>4; y < 16; y++) { lighting.remove(x, y, z); probe.x = x; probe.y = y; probe.z = z; known.remove(probe); waiting.remove(probe); }
     scans.removeIf(s -> s.x == x && s.z == z);
     changedCells.removeIf(s -> (s.x >> 4) == x && (s.z >> 4) == z);
     if (scanning != null && scanning.x == x && scanning.z == z) scanning = null;
     urgent = true;
     geometryVersion++;
-    if (event instanceof ChunkEvent.Load) for(int y=0;y<16;y++)queueSection(x,y,z);
+    if (event instanceof ChunkEvent.Load) for(int y=ColoredLightApi.minimumY(world)>>4;y<16;y++)queueSection(x,y,z);
   }
 
   void markRange(int x,int y,int z,int x2,int y2,int z2) {
-    for(int sy=Math.max(0,y>>4);sy<=Math.min(15,y2>>4);sy++)
+    for(int sy=Math.max(ColoredLightApi.minimumY(world)>>4,y>>4);sy<=Math.min(15,y2>>4);sy++)
       for(int sz=z>>4;sz<=z2>>4;sz++)for(int sx=x>>4;sx<=x2>>4;sx++)mark(sx*16+8,sy*16+8,sz*16+8);
   }
   private void mark(int x, int y, int z) {
-    if (y < 0 || y >= 256) return;
+    if (y < ColoredLightApi.minimumY(world) || y >= 256) return;
     probe.x = x >> 4; probe.y = y >> 4; probe.z = z >> 4;
     if (!dirty.contains(probe)) dirty.add(new Section(probe.x, probe.y, probe.z));
   }
+  void flushDynamicRebuilds(Minecraft mc) { rebuild(mc); }
   private void rebuild(Minecraft mc) {
     for (Section s : dirty) if (mc.renderGlobal != null) mc.renderGlobal.markBlockRangeForRenderUpdate(s.x * 16 + 1, s.y * 16 + 1, s.z * 16 + 1, s.x * 16 + 14, s.y * 16 + 14, s.z * 16 + 14);
     // Vanilla skips markDirty for a renderer already queued. Explicitly notify it again so

@@ -26,6 +26,7 @@ public final class ColoredLightSmoke {
     rules(); defaults(); allocationCounters(); sparseSections(); cacheLookupTransitions(); burning(); mf2Bridge(); propagation(); color(); falloffEquivalence(); sectionTransitions(); incrementalSections(); vanillaBytecode(); customGeometry(); clientNightLighting();
     if (Boolean.getBoolean("mbo.lightPixels")) shaderPrograms();
     if (args.length == 3) optifineBytecode(args);
+    negativeHeight();
     System.out.println("Colored light smoke passed");
   }
 
@@ -35,6 +36,43 @@ public final class ColoredLightSmoke {
     return v;
   }
   private static volatile Object allocationSink;
+  private static void negativeHeight() throws Exception {
+    Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);
+    Unsafe unsafe=(Unsafe)unsafeField.get(null);
+    NightWorld world=(NightWorld)unsafe.allocateInstance(NightWorld.class);
+    Field provider=net.minecraft.world.World.class.getDeclaredField("provider");provider.setAccessible(true);
+    net.minecraft.world.WorldProvider dimension=new net.minecraft.world.WorldProviderSurface();
+    dimension.dimensionId=23456;provider.set(world,dimension);
+    equal(0,ColoredLightApi.minimumY(world));
+    ColoredLightApi.registerMinimumY(23456,-64);equal(-64,ColoredLightApi.minimumY(world));
+    dimension.dimensionId=-1;equal(0,ColoredLightApi.minimumY(world));dimension.dimensionId=23456;
+    world.negative=true;world.present=true;
+    world.fire=new net.minecraft.block.Block(net.minecraft.block.material.Material.rock) {};
+    world.air=new net.minecraft.block.Block(net.minecraft.block.material.Material.air) {}.setLightOpacity(0);
+    ColoredLightApi.register(world.fire,(access,x,y,z)->ColoredLightApi.emission(0xFF0000,15));
+    ColoredLightClient client=ColoredLightClient.INSTANCE;
+    Field worldField=ColoredLightClient.class.getDeclaredField("world");worldField.setAccessible(true);
+    Object previous=worldField.get(client);
+    Method reset=ColoredLightClient.class.getDeclaredMethod("reset");reset.setAccessible(true);
+    Method queue=ColoredLightClient.class.getDeclaredMethod("queueSection",int.class,int.class,int.class);queue.setAccessible(true);
+    Method scan=ColoredLightClient.class.getDeclaredMethod("scanInputs");scan.setAccessible(true);
+    Field field=ColoredLightClient.class.getDeclaredField("lighting");field.setAccessible(true);
+    try {
+      worldField.set(client,world);reset.invoke(client);
+      queue.invoke(client,0,-4,0);
+      for(int i=0;i<64;i++)scan.invoke(client);
+      ColoredLightSections sections=(ColoredLightSections)field.get(client);
+      check(sections.contains(0,-4,0),"CaveAbyss bottom section was not scanned");
+      settle(sections);ColoredLightCache cache=new ColoredLightCache();sections.publish(cache,(x,y,z)->{});
+      equal(0xFF0000,cache.sample(0,-64,0));check(cache.sample(1,-64,0)!=0,"Negative section lost propagation");
+      for(int sy=-3;sy<=0;sy++)sections.install(0,sy,0,new byte[4096],new int[4096]);
+      sections.update(0,-1,0,1,0x00FF00);settle(sections);sections.publish(cache,(x,y,z)->{});
+      check(cache.sample(0,0,0)!=0,"Light cannot cross Y=-1/0");
+      sections.update(0,-1,0,1,0);sections.remove(0,-4,0);settle(sections);sections.publish(cache,(x,y,z)->{});
+      equal(0,cache.sample(0,-64,0));equal(0,cache.sample(0,0,0));
+    } finally { reset.invoke(client);worldField.set(client,previous); }
+    System.out.println("CaveAbyss RGB: dimension isolation, negative section scan, Y=-64 propagation, Y=-1/0 crossing and removal passed");
+  }
   private static void sparseSections() throws Exception {
     ColoredLightSections sections=new ColoredLightSections();
     sections.install(0,0,0,new byte[4096],new int[4096]);settle(sections);
@@ -288,7 +326,8 @@ public final class ColoredLightSmoke {
     org.lwjgl.opengl.Pbuffer context = new org.lwjgl.opengl.Pbuffer(32, 32, new org.lwjgl.opengl.PixelFormat(8, 24, 0), null, null);
     try {
       context.makeCurrent();
-      entityLightPixels();
+      entityLightPixels(false);
+      entityLightPixels(true);
       Class<?> decor=ru.givler.mbo.client.render.decormodels.InstancedDecorRenderer.class;
       Field vertexSource=decor.getDeclaredField("VERTEX"), fragmentSource=decor.getDeclaredField("FRAGMENT");
       vertexSource.setAccessible(true); fragmentSource.setAccessible(true);
@@ -336,7 +375,7 @@ public final class ColoredLightSmoke {
         path + ": " + org.lwjgl.opengl.GL20.glGetShaderInfoLog(shader, 8192));
     return shader;
   }
-  private static void entityLightPixels() throws Exception {
+  private static void entityLightPixels(boolean shared) throws Exception {
     Field singleton=net.minecraft.client.Minecraft.class.getDeclaredField("theMinecraft"); singleton.setAccessible(true); Object previous=singleton.get(null);
     Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe"); unsafeField.setAccessible(true); Unsafe unsafe=(Unsafe)unsafeField.get(null);
     net.minecraft.client.Minecraft mc=(net.minecraft.client.Minecraft)unsafe.allocateInstance(net.minecraft.client.Minecraft.class);
@@ -349,6 +388,7 @@ public final class ColoredLightSmoke {
     float oldX=net.minecraft.client.renderer.OpenGlHelper.lastBrightnessX, oldY=net.minecraft.client.renderer.OpenGlHelper.lastBrightnessY;
     GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
     int[] textures=new int[2];
+    int passToken=0;
     try {
       ColoredLightVolume field=blank(32); field.setCell(index(field,0,16,0),0,0xFF0000); finish(field);
       ColoredLightClient.volume=field; ColoredLightClient.cacheActive=false; ru.givler.mbo.config.ColoredLightConfig.enabled=true; ru.givler.mbo.config.ColoredLightConfig.strength=1;
@@ -362,6 +402,7 @@ public final class ColoredLightSmoke {
         GL11.glEnable(GL11.GL_TEXTURE_2D);GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL11.GL_TEXTURE_ENV_MODE,GL11.GL_MODULATE);
       }
       GL13.glActiveTexture(GL13.GL_TEXTURE2); GL11.glDisable(GL11.GL_TEXTURE_2D); GL13.glActiveTexture(GL13.GL_TEXTURE0);
+      if(shared)passToken=ru.givler.mbo.client.lighting.ColoredEntityLightHooks.beginPass();
       net.minecraft.client.renderer.OpenGlHelper.lightmapTexUnit=GL13.GL_TEXTURE1;
       net.minecraft.client.renderer.OpenGlHelper.lastBrightnessX=240;net.minecraft.client.renderer.OpenGlHelper.lastBrightnessY=0;
       int token=ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1);
@@ -369,11 +410,24 @@ public final class ColoredLightSmoke {
       int rgbTexture;GL13.glActiveTexture(GL13.GL_TEXTURE2);rgbTexture=GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);GL13.glActiveTexture(GL13.GL_TEXTURE0);
       try { entityQuad(); java.nio.ByteBuffer red=org.lwjgl.BufferUtils.createByteBuffer(4);GL11.glReadPixels(16,16,1,1,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,red);
         check((red.get(0)&255)>240 && (red.get(1)&255)<10 && (red.get(2)&255)<10,"Model color reset defeated RGB lighting");
+        int nested=ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1);
+        check(nested!=0,"Nested RGB scope did not activate");
+        try { entityQuad(); } finally {ru.givler.mbo.client.lighting.ColoredEntityLightHooks.end(nested);}
+        entityQuad();red.clear();GL11.glReadPixels(16,16,1,1,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,red);
+        check((red.get(0)&255)>240 && (red.get(1)&255)<10,"Nested render destroyed outer RGB");
       } finally {ru.givler.mbo.client.lighting.ColoredEntityLightHooks.end(token);}
       equal(GL13.GL_TEXTURE0,GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE));
       GL13.glActiveTexture(GL13.GL_TEXTURE2);check(!GL11.glIsEnabled(GL11.GL_TEXTURE_2D),"Entity tint leaked texture state");GL13.glActiveTexture(GL13.GL_TEXTURE0);
       entityQuad();java.nio.ByteBuffer white=org.lwjgl.BufferUtils.createByteBuffer(4);GL11.glReadPixels(16,16,1,1,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,white);
       check((white.get(0)&255)>240 && (white.get(1)&255)>240 && (white.get(2)&255)>240,"Next entity inherited RGB");
+      if(shared) {
+        // A foreign renderer changes the disabled unit between two models.
+        GL13.glActiveTexture(GL13.GL_TEXTURE2);GL11.glBindTexture(GL11.GL_TEXTURE_2D,textures[0]);
+        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL11.GL_TEXTURE_ENV_MODE,GL11.GL_REPLACE);
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        int nestedPass=ru.givler.mbo.client.lighting.ColoredEntityLightHooks.beginPass();
+        ru.givler.mbo.client.lighting.ColoredEntityLightHooks.endPass(nestedPass);
+      }
       field.setCell(index(field,1,16,0),15,0);finish(field);
       equal(0,ColoredLightRenderHooks.worldRGB(1.5,16.5,.5));
       check(ru.givler.mbo.client.lighting.ColoredEntityLightHooks.tileRGB(1,16,0)!=0,"Opaque tile must sample light outside its blocked centre");
@@ -401,10 +455,12 @@ public final class ColoredLightSmoke {
       check(ColoredLightClient.volume==field && ColoredLightRenderHooks.worldRGB(.5,16.5,.5)!=0,"Entity toggle disabled world RGB");
       ru.givler.mbo.config.ColoredLightConfig.entityLighting=true;
       ru.givler.mbo.config.ColoredLightConfig.enabled=false;equal(0,ru.givler.mbo.client.lighting.ColoredEntityLightHooks.begin(entity,1));
+      ru.givler.mbo.client.lighting.ColoredEntityLightHooks.endPass(passToken);passToken=0;
       ru.givler.mbo.client.lighting.ColoredEntityLightHooks.release();check(!GL11.glIsTexture(rgbTexture),"Disabled RGB retained entity GPU texture");
       equal(GL11.GL_NO_ERROR,GL11.glGetError());
-      System.out.println("Entity RGB pixels: model color resets preserved, next draw white, GL state restored and disable deletes texture");
+      System.out.println("Entity RGB pixels (shared="+shared+"): model color resets preserved, next draw white, GL state restored and disable deletes texture");
     } finally {
+      ru.givler.mbo.client.lighting.ColoredEntityLightHooks.endPass(passToken);
       ru.givler.mbo.client.lighting.ColoredEntityLightHooks.release(); for(int texture:textures)if(texture!=0)GL11.glDeleteTextures(texture); GL11.glPopAttrib();
       singleton.set(null,previous);ColoredLightClient.volume=oldVolume;ColoredLightClient.cacheActive=oldCache;ru.givler.mbo.config.ColoredLightConfig.enabled=oldEnabled;ru.givler.mbo.config.ColoredLightConfig.strength=oldStrength;
       net.minecraft.client.renderer.OpenGlHelper.lightmapTexUnit=oldUnit;net.minecraft.client.renderer.OpenGlHelper.lastBrightnessX=oldX;net.minecraft.client.renderer.OpenGlHelper.lastBrightnessY=oldY;
@@ -560,15 +616,21 @@ public final class ColoredLightSmoke {
 
   private static void vanillaBytecode() throws Exception {
     transform("net.minecraft.client.renderer.RenderBlocks", resource("net/minecraft/client/renderer/RenderBlocks"), 10);
-    for(String target:new String[]{"net.minecraft.client.renderer.entity.RenderManager","net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher"}) {
+    for(String target:new String[]{"net.minecraft.client.renderer.RenderGlobal","net.minecraft.client.renderer.entity.RenderManager","net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher"}) {
       ru.givler.mbo.core.ColoredEntityLightTransformer transformer=new ru.givler.mbo.core.ColoredEntityLightTransformer();
       byte[] transformed=transformer.transform(target,target,resource(target.replace('.','/')));
+      if(target.equals("net.minecraft.client.renderer.RenderGlobal")) {
+        Class<?> verified=new ClassLoader(ColoredLightSmoke.class.getClassLoader()) {
+          Class<?> define(){return defineClass(target,transformed,0,transformed.length);}
+        }.define();
+        verified.getDeclaredMethods(); // Force the JVM verifier to check computed stack-map frames.
+      }
       ClassNode scoped=new ClassNode();new ClassReader(transformed).accept(scoped,0);int begins=0;
       for(MethodNode method:scoped.methods) {
         boolean hooked=false;
         for(AbstractInsnNode instruction:method.instructions.toArray())if(instruction instanceof MethodInsnNode) {
           MethodInsnNode call=(MethodInsnNode)instruction;
-          if(call.owner.endsWith("ColoredEntityLightHooks") && (call.name.equals("begin") || call.name.equals("beginTile"))){begins++;hooked=true;}
+          if(call.owner.endsWith("ColoredEntityLightHooks") && (call.name.equals("begin") || call.name.equals("beginTile") || call.name.equals("beginPass"))){begins++;hooked=true;}
         }
         if(hooked)new Analyzer<BasicValue>(new BasicVerifier()).analyze(scoped.name,method);
       }
@@ -731,13 +793,27 @@ public final class ColoredLightSmoke {
         check(Arrays.equals(transformed, extra.transform(target, target, transformed)), "E7 bridge must be idempotent: " + target);
         System.out.println("OptiFine E7 bridge verified: " + target + " (" + hooks + " hooks)");
       }
-      for (String obf : new String[]{"blm", "bmh"}) {
+      for (String obf : new String[]{"blm", "bmh", "bma"}) {
         byte[] delta = read(of.getInputStream(of.getEntry("patch/" + obf + ".class.xdelta")));
         byte[] patched = (byte[]) apply.invoke(null, obf + ".class", delta, patterns, config, provider);
         ClassWriter mapped = new ClassWriter(0);
         new ClassReader(patched).accept(new RemappingClassAdapter(mapped, mapping), ClassReader.EXPAND_FRAMES);
         String name = mapping.map(obf).replace('/', '.');
-        transform(name, mapped.toByteArray(), name.endsWith("RenderBlocks") ? 10 : 1);
+        if(name.endsWith("RenderGlobal")) {
+          ru.givler.mbo.core.ColoredEntityLightTransformer transformer=new ru.givler.mbo.core.ColoredEntityLightTransformer();
+          byte[] result=transformer.transform(name,name,mapped.toByteArray());
+          ClassNode node=new ClassNode();new ClassReader(result).accept(node,0);int begins=0;
+          for(MethodNode method:node.methods) {
+            boolean hooked=false;
+            for(AbstractInsnNode instruction:method.instructions.toArray())if(instruction instanceof MethodInsnNode) {
+              MethodInsnNode call=(MethodInsnNode)instruction;
+              if(call.owner.endsWith("ColoredEntityLightHooks") && call.name.equals("beginPass")){begins++;hooked=true;}
+            }
+            if(hooked)new Analyzer<BasicValue>(new BasicVerifier()).analyze(node.name,method);
+          }
+          equal(1,begins);
+          check(Arrays.equals(result,transformer.transform(name,name,result)),"E7 RGB pass must be idempotent");
+        } else transform(name, mapped.toByteArray(), name.endsWith("RenderBlocks") ? 10 : 1);
         System.out.println("OptiFine E7 verified: " + name);
       }
     }
@@ -885,6 +961,7 @@ public final class ColoredLightSmoke {
   }
 
   private static final class NightWorld extends net.minecraft.client.multiplayer.WorldClient implements ColoredLightRenderHooks.WorldCoordinates {
+    boolean negative;
     double rgbX,rgbY,rgbZ;
     public double lightOriginX(){return rgbX;} public double lightOriginY(){return rgbY;} public double lightOriginZ(){return rgbZ;}
     long time;
@@ -901,12 +978,12 @@ public final class ColoredLightSmoke {
     net.minecraft.world.IWorldAccess observer;
     private NightWorld() { super(null, null, 0, net.minecraft.world.EnumDifficulty.NORMAL, null); }
     @Override public boolean blockExists(int x, int y, int z) {
-      return y>=0 && y<256 && ((Math.abs(x>>4)<=2 && Math.abs(z>>4)<=2) || (farLoaded && (x>>4)==8 && (z>>4)==0))
+      return y>=(negative?-64:0) && y<256 && ((Math.abs(x>>4)<=2 && Math.abs(z>>4)<=2) || (farLoaded && (x>>4)==8 && (z>>4)==0))
           && !(missingSourceCell && x==0 && y==64 && z==0);
     }
     @Override public void addWorldAccess(net.minecraft.world.IWorldAccess access) { observer = access; }
     @Override public void removeWorldAccess(net.minecraft.world.IWorldAccess access) { if (observer == access) observer = null; }
-    @Override public net.minecraft.block.Block getBlock(int x, int y, int z) { blockReads++; if (wall && x == 1) return barrier; return (present && x == 0 && y == 64 && z == 0) || (farPresent && x==128 && y==200 && z==0) ? fire : air; }
+    @Override public net.minecraft.block.Block getBlock(int x, int y, int z) { blockReads++; if (wall && x == 1) return barrier; return (present && x == 0 && y == (negative?-64:64) && z == 0) || (farPresent && x==128 && y==200 && z==0) ? fire : air; }
     @Override public int getBlockMetadata(int x, int y, int z) { return metadata; }
   }
 
@@ -934,6 +1011,17 @@ public final class ColoredLightSmoke {
       world.wall = false; source.posX = 10; dynamic.tick(mc); equal(0, dynamic.sample(0, 64, 0));
       entities.clear(); dynamic.tick(mc); equal(0, dynamic.sample(10, 64, 0));
       check(dynamic.sources().isEmpty(), "Removed entity must not leave moving RGB");
+      // The integrated backend supplies its accepted position, not the entity's live position.
+      source.posX=30;
+      Class<?> sourceType=ru.givler.mbo.client.lighting.ColoredDynamicLights.Source.class;
+      java.lang.reflect.Constructor<?> constructor=sourceType.getDeclaredConstructor(net.minecraft.entity.Entity.class,int.class,double.class,double.class,double.class);
+      constructor.setAccessible(true);
+      java.lang.reflect.Method backend=dynamic.getClass().getDeclaredMethod("fromBackend",net.minecraft.client.Minecraft.class,List.class);backend.setAccessible(true);
+      List<Object> backendSources=new ArrayList<>();backendSources.add(constructor.newInstance(source,ColoredLightApi.emission(0xFF0000,15),.5,64.5,.5));
+      backend.invoke(dynamic,mc,backendSources);equal(0xFF0000,dynamic.sample(0,64,0));
+      backendSources=new ArrayList<>();backendSources.add(constructor.newInstance(source,ColoredLightApi.emission(0x0000FF,15),10.5,64.5,.5));
+      backend.invoke(dynamic,mc,backendSources);equal(0,dynamic.sample(0,64,0));equal(0x0000FF,dynamic.sample(10,64,0));
+      backend.invoke(dynamic,mc,new ArrayList<>());equal(0,dynamic.sample(10,64,0));
       System.out.println("Moving RGB: source color, solid wall, movement and removal passed");
     } finally { world.wall = false; ru.givler.mbo.config.ColoredLightConfig.dynamicInterval = previousInterval; }
   }

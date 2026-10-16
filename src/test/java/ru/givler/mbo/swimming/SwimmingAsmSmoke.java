@@ -27,6 +27,7 @@ public final class SwimmingAsmSmoke {
     if (SwimmingHooks.eyeHeight(1.62F, null) != 1.62F)
       throw new AssertionError("Player size accessor failed");
     verifySwimSpeeds();
+    SwimmingCollisionSmoke.check();
     verifyFogFade();
     verifyWaterSurface();
     verifyWaterloggedSourceRegeneration();

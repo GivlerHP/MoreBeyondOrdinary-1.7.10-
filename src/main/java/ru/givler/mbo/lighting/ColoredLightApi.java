@@ -30,6 +30,22 @@ public final class ColoredLightApi {
   private static volatile Map<Block, Provider> PROVIDERS = new IdentityHashMap<>();
   private ColoredLightApi() {}
 
+  private static final java.util.concurrent.ConcurrentMap<Integer, Integer> MINIMUM_Y =
+      new java.util.concurrent.ConcurrentHashMap<>();
+
+  /** Optional extended-height mods register their real block range during post-init. */
+  public static void registerMinimumY(int dimension, int minimumY) {
+    if ((minimumY & 15) != 0 || minimumY > 0 || minimumY < -4096)
+      throw new IllegalArgumentException("Minimum Y must be a section-aligned value from -4096 to 0");
+    MINIMUM_Y.merge(dimension, minimumY, Math::min);
+  }
+
+  public static int minimumY(net.minecraft.world.World world) {
+    if (world == null || world.provider == null) return 0;
+    Integer minimum = MINIMUM_Y.get(world.provider.dimensionId);
+    return minimum == null ? 0 : minimum;
+  }
+
   public static synchronized void register(Block block, Provider provider) {
     if (block == null || provider == null) throw new IllegalArgumentException("Block and provider required");
     Map<Block, Provider> next = new IdentityHashMap<>(PROVIDERS); next.put(block, provider); PROVIDERS = next;

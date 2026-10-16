@@ -13,6 +13,21 @@ public final class ColoredEntityLightHooks {
   private static int texture;
   private static final ThreadLocal<State> STATE=new ThreadLocal<State>() { protected State initialValue(){return new State();} };
   private ColoredEntityLightHooks() {}
+  /** RenderGlobal owns the world entity/TESR pass. Allocate no GL state until a lit model is drawn. */
+  public static int beginPass() {
+    if(!ColoredLightConfig.enabled || !ColoredLightConfig.entityRenderPass || ColoredLightShaderBridge.active)return 0;
+    State state=STATE.get();
+    if(state.depth!=0)return 0; // A recursive world render inside a model keeps the isolated path.
+    return ++state.passDepth;
+  }
+  public static void endPass(int token) {
+    if(token==0)return;
+    State state=STATE.get();
+    if(--state.passDepth==0 && state.passSaved) {
+      state.passSaved=false;
+      GL11.glPopAttrib();
+    }
+  }
   public static int begin(Entity entity,float partial) {
     if(!ColoredLightConfig.enabled || !ColoredLightConfig.entityLighting || ColoredLightShaderBridge.active || entity==null || entity.worldObj==null
         || entity.worldObj!=Minecraft.getMinecraft().theWorld || entity instanceof ru.givler.mbo.movingplatform.EntityMovingPlatform)return 0;
@@ -54,7 +69,15 @@ public final class ColoredEntityLightHooks {
     if(state.depth==state.frames.length)state.frames=java.util.Arrays.copyOf(state.frames,state.depth*2);
     Frame frame=state.frames[state.depth]; if(frame==null)state.frames[state.depth]=frame=new Frame();
     frame.x=OpenGlHelper.lastBrightnessX; frame.y=OpenGlHelper.lastBrightnessY;
-    GL11.glPushAttrib(GL11.GL_TEXTURE_BIT|GL11.GL_CURRENT_BIT);
+    frame.active=active;
+    frame.shared=state.passDepth>0 && state.depth==0;
+    if(frame.shared && !state.passSaved) {
+      GL11.glPushAttrib(GL11.GL_TEXTURE_BIT);
+      state.passSaved=true;
+    }
+    // Saving all texture units for every TESR is very expensive on legacy drivers.
+    // Current color/coordinates still need per-model isolation, including nested renders.
+    GL11.glPushAttrib(GL11.GL_CURRENT_BIT | (frame.shared?0:GL11.GL_TEXTURE_BIT));
     try {
       GL13.glActiveTexture(GL13.GL_TEXTURE2);
       if(texture==0) {
@@ -82,14 +105,23 @@ public final class ColoredEntityLightHooks {
       OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit,lit&65535,lit>>>16);
       GL13.glActiveTexture(active);
       return ++state.depth;
-    } catch(RuntimeException error) { GL11.glPopAttrib(); OpenGlHelper.lastBrightnessX=frame.x; OpenGlHelper.lastBrightnessY=frame.y; throw error; }
+    } catch(RuntimeException | Error error) { restore(frame); throw error; }
   }
   public static void end(int token) {
     if(token==0)return;
     State state=STATE.get(); Frame frame=state.frames[--state.depth];
-    GL11.glPopAttrib(); OpenGlHelper.lastBrightnessX=frame.x; OpenGlHelper.lastBrightnessY=frame.y;
+    restore(frame);
+  }
+  private static void restore(Frame frame) {
+    GL11.glPopAttrib();
+    if(frame.shared) {
+      // Do not tint shadows, fire, debug geometry, unlit models, or GUI drawn between models.
+      GL13.glActiveTexture(GL13.GL_TEXTURE2);GL11.glDisable(GL11.GL_TEXTURE_2D);
+      GL13.glActiveTexture(frame.active);
+    }
+    OpenGlHelper.lastBrightnessX=frame.x; OpenGlHelper.lastBrightnessY=frame.y;
   }
   public static void release() { if(texture!=0){GL11.glDeleteTextures(texture);texture=0;} STATE.remove(); }
-  private static final class Frame { float x,y; final FloatBuffer color=BufferUtils.createFloatBuffer(4); }
-  private static final class State { int depth; Frame[] frames=new Frame[4]; }
+  private static final class Frame { float x,y; int active; boolean shared; final FloatBuffer color=BufferUtils.createFloatBuffer(4); }
+  private static final class State { int depth,passDepth; boolean passSaved; Frame[] frames=new Frame[4]; }
 }

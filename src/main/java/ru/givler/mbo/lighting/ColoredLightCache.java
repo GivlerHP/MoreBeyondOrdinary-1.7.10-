@@ -95,7 +95,6 @@ public final class ColoredLightCache {
     Map<Key, int[]> next = new HashMap<>(sections), edited = new HashMap<>();
     Key probe = new Key(0, 0, 0);
     for (int y = volume.y + halo; y < volume.y + volume.size - halo; y++) {
-      if (y < 0 || y >= 256) continue;
       for (int z = volume.z + halo; z < volume.z + volume.size - halo; z++) for (int x = volume.x + halo; x < volume.x + volume.size - halo; x++) {
         probe.x = x >> 4; probe.y = y >> 4; probe.z = z >> 4;
         int i = ((y & 15) * 16 + (z & 15)) * 16 + (x & 15), value = volume.sample(x, y, z);
