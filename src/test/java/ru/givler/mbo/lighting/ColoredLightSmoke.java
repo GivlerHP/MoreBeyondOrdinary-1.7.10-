@@ -694,6 +694,25 @@ public final class ColoredLightSmoke {
     equal(0xC80000FF,ColoredLightRenderHooks.tintVertex(0xC8FFFFFF,0,1.5,16.5,.5));
     ColoredLightRenderHooks.end(previous);
     System.out.println("Custom block/model and potted plant RGB: opaque-cell surface fallback, actual vertex tint/lightmap, alpha and nested scope restoration passed");
+    // Waterlogged water is emitted after RenderBlocks returns, with no outer RGB scope.
+    Object water=type.getConstructor().newInstance();
+    type.getMethod("startDrawingQuads").invoke(water);
+    type.getMethod("setColorRGBA",int.class,int.class,int.class,int.class).invoke(water,255,255,255,200);
+    type.getMethod("setBrightness",int.class).invoke(water,0);
+    long waterScope=ColoredLightRenderHooks.beginWorld(renderer.blockAccess,0,16,0,7);
+    try { vertex.invoke(water,.5,16.5,.5); }
+    finally { ColoredLightRenderHooks.end(waterScope); }
+    vertex.invoke(water,.5,16.5,.5);
+    int[] waterData=(int[])raw.get(water);
+    check(waterData[5]!=waterData[13],"Waterlogged water must receive RGB outside RenderBlocks");
+    check((waterData[7]&65535)>0,"Waterlogged water must receive RGB lightmap brightness");
+    equal(0xC8FFFFFF,waterData[13]);
+    v.setCell(index(v,0,16,0),0,0x0000FF);finish(v);
+    waterScope=ColoredLightRenderHooks.beginWorld(renderer.blockAccess,0,16,0,7);
+    try { vertex.invoke(water,.5,16.5,.5); }
+    finally { ColoredLightRenderHooks.end(waterScope); }
+    check(waterData[21]!=waterData[5],"Waterlogged water must pick up changed light color on rebuild");
+    System.out.println("Waterlogged water RGB: custom geometry tint, lightmap, changing source and scope cleanup passed");
     // Adjacent quads must agree at shared corners while preserving a smooth gradient.
     ColoredLightVolume gradient = new ColoredLightVolume(48, 0, 48, -16);
     for (int x = 0; x < 48; x++) for (int z = -1; z <= 1; z++) {

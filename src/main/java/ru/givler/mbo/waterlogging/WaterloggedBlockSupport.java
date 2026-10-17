@@ -33,6 +33,11 @@ public final class WaterloggedBlockSupport {
           && (name.toString().endsWith("_aquamarine_bud")
               || name.toString().endsWith(":aquamarine_cluster"))) return true;
     }
+    return supportsWaterlogging(block);
+  }
+
+  /** Block-only eligibility for scheduling; geometry itself still uses the client World. */
+  public static boolean supportsWaterlogging(Block block) {
     if (block instanceof BlockStairs) return true;
     if (block instanceof BlockChest || block instanceof BlockCampfire) return true;
     if (block instanceof BlockSlab) return !block.isOpaqueCube();

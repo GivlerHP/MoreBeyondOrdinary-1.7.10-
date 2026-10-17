@@ -26,6 +26,7 @@ public final class AngelicaClientRegistration {
       irisApi=api.getMethod("getInstance").invoke(null);
       shaderPackInUse=api.getMethod("isShaderPackInUse");
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new AngelicaClientRegistration());
+      ru.givler.mbo.client.render.WaterloggedBlockRenderer.enableAngelicaChunkWater();
       HandRenderTrace.enabled=true;
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new HandRenderTrace());
       System.out.println("[MBO] Angelica compatibility: preserve MBO vertex lighting and immediate entity/TESR rendering");

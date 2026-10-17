@@ -27,11 +27,12 @@ import ru.givler.mbo.core.WaterloggingCameraHooks;
 
 public final class WaterloggedBlockRenderer {
   private static boolean renderedInTranslucentPass;
+  private static boolean angelicaChunkWater;
+  public static void enableAngelicaChunkWater() { angelicaChunkWater=true; }
   private static final double EDGE = 0.001D;
   private static final double SOURCE_SURFACE = WaterloggedLiquidHeightHooks.sourceSurface();
   private static final ThreadLocal<double[]> CHUNK_QUAD = new ThreadLocal<double[]>();
   private static final ThreadLocal<Integer> CHUNK_VERTEX = new ThreadLocal<Integer>();
-
   public static void renderPaneWaterInChunk(World world, int x, int y, int z) {
     CHUNK_QUAD.set(new double[20]);
     CHUNK_VERTEX.set(0);
@@ -110,6 +111,7 @@ public final class WaterloggedBlockRenderer {
   }
 
   public static void renderNow(float partialTicks) {
+    if(angelicaChunkWater)return; // Every virtual water block is already in Angelica's sorted terrain.
     Minecraft minecraft = Minecraft.getMinecraft();
     World world = minecraft.theWorld;
     if (world == null || minecraft.renderViewEntity == null) return;
@@ -162,6 +164,9 @@ public final class WaterloggedBlockRenderer {
   }
 
   private static void renderWater(World world, ClientWaterloggedBlocks.Position position) {
+    long lightScope = ru.givler.mbo.client.lighting.ColoredLightRenderHooks.beginWorld(
+        world, position.x, position.y, position.z, 7);
+    try {
     boolean scope = WaterloggedGeometry.beginScope(world);
     try {
     double[] heights = new double[4];
@@ -172,6 +177,9 @@ public final class WaterloggedBlockRenderer {
     try { renderWaterBody(world,position); }
     finally { SURFACE_CORNERS.remove(); }
     } finally { if (scope) WaterloggedGeometry.endScope(); }
+    } finally {
+      ru.givler.mbo.client.lighting.ColoredLightRenderHooks.end(lightScope);
+    }
   }
 
   private static final ThreadLocal<double[]> SURFACE_CORNERS = new ThreadLocal<double[]>();

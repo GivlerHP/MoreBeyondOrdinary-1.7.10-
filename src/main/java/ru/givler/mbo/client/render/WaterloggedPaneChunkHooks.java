@@ -18,14 +18,32 @@ public final class WaterloggedPaneChunkHooks {
   }
 
   public static boolean filterAngelicaPass(boolean original,Block block,int pass,IBlockAccess view,int x,int y,int z) {
-    return original || pass==1 && block instanceof BlockPane && WaterloggingRenderHooks.isWaterlogged(view,x,y,z);
+    return original || pass==1 && hasAngelicaWater(block,view,x,y,z);
   }
 
   public static boolean deferAngelicaBlock(Block block,IBlockAccess view) {
     // Water geometry consults collision/flow information in World. Keep it on the client thread.
-    return block instanceof BlockPane || block.getMaterial()==Material.water
-        && view instanceof WaterloggingRenderHooks.ClientView
+    boolean wet=view instanceof WaterloggingRenderHooks.ClientView
         && ((WaterloggingRenderHooks.ClientView)view).mbo$hasWaterlogging();
+    return block instanceof BlockPane || wet && (block.getMaterial()==Material.water
+        || ru.givler.mbo.waterlogging.WaterloggedBlockSupport.supportsWaterlogging(block));
+  }
+
+  private static boolean hasAngelicaWater(Block block,IBlockAccess view,int x,int y,int z) {
+    return block.getMaterial()!=Material.water && WaterloggingRenderHooks.isWaterlogged(view,x,y,z);
+  }
+
+  /** All Angelica virtual water shares the pane path and the ordinary translucent terrain buffer. */
+  public static boolean renderAngelica(RenderBlocks renderer,Block block,int x,int y,int z,int pass) {
+    boolean drawn=block.canRenderInPass(pass) && renderer.renderBlockByRenderType(block,x,y,z);
+    if(pass==1 && hasAngelicaWater(block,renderer.blockAccess,x,y,z)) {
+      World world=renderer.blockAccess instanceof World ? (World)renderer.blockAccess : Minecraft.getMinecraft().theWorld;
+      if(world!=null) {
+        WaterloggedBlockRenderer.renderPaneWaterInChunk(world,x,y,z);
+        drawn=true;
+      }
+    }
+    return drawn;
   }
 
   public static int renderPass(Block block, RenderBlocks renderer, int x, int y, int z) {

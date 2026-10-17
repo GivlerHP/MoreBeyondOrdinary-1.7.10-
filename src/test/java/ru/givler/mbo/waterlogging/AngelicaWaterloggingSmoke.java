@@ -59,6 +59,20 @@ public final class AngelicaWaterloggingSmoke {
           || !WaterloggedPaneChunkHooks.filterAngelicaPass(true,pane,0,dry,0,0,0))throw new AssertionError("Translucent pass selection");
       if(!WaterloggedPaneChunkHooks.deferAngelicaBlock(pane,dry) || !WaterloggedPaneChunkHooks.deferAngelicaBlock(water,wet)
           || WaterloggedPaneChunkHooks.deferAngelicaBlock(water,dry))throw new AssertionError("Worker scheduling changed dry ordinary water");
+      for(Class<?> blockType:new Class<?>[]{BlockStairs.class,BlockStoneSlab.class,BlockFence.class,BlockWall.class,BlockTrapDoor.class}) {
+        Block block=(Block)unsafe.allocateInstance(blockType);
+        if(!WaterloggedPaneChunkHooks.filterAngelicaPass(false,block,1,wet,-1,-64,-1)
+            || WaterloggedPaneChunkHooks.filterAngelicaPass(false,block,0,wet,-1,-64,-1)
+            || WaterloggedPaneChunkHooks.filterAngelicaPass(false,block,1,dry,-1,-64,-1)
+            || !WaterloggedPaneChunkHooks.deferAngelicaBlock(block,wet)
+            || WaterloggedPaneChunkHooks.deferAngelicaBlock(block,dry))
+          throw new AssertionError("Full-block water must use pane chunk pass and safe scheduling: "+block);
+        if(WaterloggedPaneChunkHooks.hasWater(new RenderBlocks(wet),block,-1,-64,-1))
+          throw new AssertionError("Vanilla non-pane live-water path must remain unchanged");
+      }
+      if(WaterloggedPaneChunkHooks.filterAngelicaPass(false,water,1,wet,-1,-64,-1))
+        throw new AssertionError("Ordinary water must not emit duplicate virtual water");
+      verifyActualAdapter();
       if(WaterloggedLiquidHeightHooks.getHeightOverride(new RenderBlocks(dry),0,0,0,Material.water)!=-1F)
         throw new AssertionError("Dry worker queried live world");
       p.dimensionId=78;if(!ClientWaterloggedBlocks.snapshotForRender(world,-2,-66,-2).isEmpty())throw new AssertionError("Dimension leak");p.dimensionId=77;
@@ -71,4 +85,27 @@ public final class AngelicaWaterloggingSmoke {
     }catch(ReflectiveOperationException | InterruptedException e){throw new AssertionError(e);}
     finally {ClientWaterloggedBlocks.clear();}
   }
+  private static void verifyActualAdapter() {
+    String name="com.gtnewhorizons.angelica.rendering.celeritas.AngelicaChunkBuilderMeshingTask";
+    try(java.io.InputStream in=AngelicaWaterloggingSmoke.class.getClassLoader().getResourceAsStream(name.replace('.','/')+".class")) {
+      if(in==null)return;
+      java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();byte[] part=new byte[8192];int count;
+      while((count=in.read(part))!=-1)out.write(part,0,count);
+      ru.givler.mbo.integration.angelica.core.AngelicaWaterloggingTransformer adapter=new ru.givler.mbo.integration.angelica.core.AngelicaWaterloggingTransformer();
+      byte[] changed=adapter.transform(name,name,out.toByteArray());
+      if(!java.util.Arrays.equals(changed,adapter.transform(name,name,changed)))throw new AssertionError("Water adapter injected twice");
+      org.objectweb.asm.tree.ClassNode node=new org.objectweb.asm.tree.ClassNode();new org.objectweb.asm.ClassReader(changed).accept(node,0);
+      int calls=0;
+      for(org.objectweb.asm.tree.MethodNode method:node.methods) {
+        new org.objectweb.asm.tree.analysis.Analyzer<org.objectweb.asm.tree.analysis.BasicValue>(new org.objectweb.asm.tree.analysis.BasicVerifier()).analyze(node.name,method);
+        for(org.objectweb.asm.tree.AbstractInsnNode i:method.instructions.toArray())if(i instanceof org.objectweb.asm.tree.MethodInsnNode) {
+          org.objectweb.asm.tree.MethodInsnNode call=(org.objectweb.asm.tree.MethodInsnNode)i;
+          if(call.owner.endsWith("WaterloggedPaneChunkHooks") && call.name.equals("renderAngelica"))calls++;
+        }
+      }
+      if(calls!=1)throw new AssertionError("Actual Angelica must invoke the shared water renderer exactly once");
+      System.out.println("Actual Angelica all-shape water: shared chunk renderer linked once, bytecode and idempotence passed");
+    }catch(Exception error){throw new AssertionError(error);}
+  }
+
 }

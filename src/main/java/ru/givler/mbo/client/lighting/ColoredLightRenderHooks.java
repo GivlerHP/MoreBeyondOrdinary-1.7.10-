@@ -27,13 +27,18 @@ public final class ColoredLightRenderHooks {
   public interface WorldCoordinates { double lightOriginX(); double lightOriginY(); double lightOriginZ(); }
 
   public static long begin(RenderBlocks renderer, double x, double y, double z, int face) {
+    return beginWorld(renderer.blockAccess, x, y, z, face);
+  }
+
+  /** Custom geometry outside RenderBlocks needs its own tint and lightmap scope. */
+  public static long beginWorld(net.minecraft.world.IBlockAccess access, double x, double y, double z, int face) {
     State state = STATE.get();
     int previous = state.depth;
     if (state.depth == state.frames.length) state.frames = java.util.Arrays.copyOf(state.frames, state.depth * 2);
     Frame frame = state.frames[state.depth];
     if (frame == null) state.frames[state.depth] = frame = new Frame();
     state.depth++;
-    WorldCoordinates coordinates = renderer.blockAccess instanceof WorldCoordinates ? (WorldCoordinates)renderer.blockAccess : null;
+    WorldCoordinates coordinates = access instanceof WorldCoordinates ? (WorldCoordinates)access : null;
     frame.ox = coordinates == null ? 0 : coordinates.lightOriginX();
     frame.oy = coordinates == null ? 0 : coordinates.lightOriginY();
     frame.oz = coordinates == null ? 0 : coordinates.lightOriginZ();
@@ -44,7 +49,7 @@ public final class ColoredLightRenderHooks {
     else if (frame.face!=8 && (frame.ox!=0 || frame.oy!=0 || frame.oz!=0)) frame.face=7;
     frame.cached = false;frame.surfaceCached=false;
     frame.active = ColoredLightConfig.enabled && (ColoredLightClient.cacheActive || ColoredLightClient.volume != null)
-        && (renderer.blockAccess instanceof ChunkCache || renderer.blockAccess instanceof net.minecraft.world.World || coordinates != null);
+        && (access instanceof ChunkCache || access instanceof net.minecraft.world.World || coordinates != null);
     return previous;
   }
 
