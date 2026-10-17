@@ -15,6 +15,7 @@ import ru.givler.mbo.config.ColoredLightConfig;
 /** Forge GUI events work with both the vanilla and E7 video settings screen. */
 public final class ColoredLightMenu {
   @SubscribeEvent public void init(GuiScreenEvent.InitGuiEvent.Post event) {
+    if (ru.givler.mbo.integration.angelica.client.gui.AngelicaColoredLightOptions.attach(event.gui)) return;
     if (!(event.gui instanceof GuiVideoSettings)) return;
     int x = Math.min(event.gui.width - 24,event.gui.width / 2 + 160);
     int y = event.gui.width < 360 ? 6 : Math.max(28,event.gui.height / 6 - 10);

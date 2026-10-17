@@ -10,9 +10,15 @@ import ru.givler.mbo.waterlogging.ClientWaterloggedBlocks;
 import ru.givler.mbo.waterlogging.WaterloggedWorldData;
 
 public final class WaterloggingRenderHooks {
+  /** Optional client render views carry a detached waterlogging snapshot, not a live World. */
+  public interface ClientView {
+    boolean mbo$isWaterlogged(int x,int y,int z);
+    boolean mbo$hasWaterlogging();
+  }
   private WaterloggingRenderHooks() {}
 
   public static boolean isWaterlogged(IBlockAccess access, int x, int y, int z) {
+    if(access instanceof ClientView)return ((ClientView)access).mbo$isWaterlogged(x,y,z);
     if (access instanceof World) {
       World world = (World) access;
       return world.isRemote

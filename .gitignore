@@ -12,6 +12,7 @@ thumbs.db
 
 # Package Files #
 /libs
+/.angelica-dev
 *.war
 *.ear
 *.txt

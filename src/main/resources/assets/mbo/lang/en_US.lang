@@ -1618,3 +1618,4 @@ mbo.light.speed.1=Medium
 mbo.light.speed.2=High
 mbo.light.dynamicHint=Light from held items and entities.
 mbo.light.speedHint=Faster light updates use more CPU.
+mbo.guiScale.hint=Fractional GUI scale from RightProperGUIScale. Uses the mod configured range and step.

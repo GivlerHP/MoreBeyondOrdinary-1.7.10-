@@ -59,6 +59,50 @@ public final class OpeningJsonRenderer {
         finally { ru.givler.mbo.client.lighting.ColoredLightRenderHooks.end(previous); }
     }
 
+    /** Same explicit model lightmap as JSON doors, retaining the trapdoor's own face UVs. */
+    public static void renderAnimatedTrapdoor(RenderBlocks renderer, Block block, int x, int y, int z) {
+        int meta=renderer.blockAccess.getBlockMetadata(x,y,z);
+        double thickness=3D/16D;
+        double x0=0,y0=(meta&8)!=0?1-thickness:0,z0=0,x1=1,y1=y0+thickness,z1=1;
+        if((meta&4)!=0) {
+            y0=0;y1=1;
+            switch(meta&3) {
+                case 0:z0=1-thickness;break;
+                case 1:z1=thickness;break;
+                case 2:x0=1-thickness;break;
+                default:x1=thickness;
+            }
+        }
+        renderer.setRenderBounds(x0,y0,z0,x1,y1,z1);
+        boolean ao=renderer.enableAO;
+        long light=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.begin(renderer,x,y,z,8);
+        try {
+            renderer.enableAO=false;
+            Tessellator t=Tessellator.instance;
+            int brightness=block.getMixedBrightnessForBlock(renderer.blockAccess,x,y,z);
+            int color=block.colorMultiplier(renderer.blockAccess,x,y,z);
+            float r=(color>>16&255)/255F,g=(color>>8&255)/255F,b=(color&255)/255F;
+            for(int side=0;side<6;side++) {
+                float shade=side==0?.5F:side==1?1F:side<4?.8F:.6F;
+                // AO's full-bright sentinel and cached corners must never enter this model path.
+                t.setBrightness(brightness);
+                t.setColorOpaque_F(r*shade,g*shade,b*shade);
+                IIcon icon=renderer.getBlockIcon(block,renderer.blockAccess,x,y,z,side);
+                switch(side) {
+                    case 0:renderer.renderFaceYNeg(block,x,y,z,icon);break;
+                    case 1:renderer.renderFaceYPos(block,x,y,z,icon);break;
+                    case 2:renderer.renderFaceZNeg(block,x,y,z,icon);break;
+                    case 3:renderer.renderFaceZPos(block,x,y,z,icon);break;
+                    case 4:renderer.renderFaceXNeg(block,x,y,z,icon);break;
+                    default:renderer.renderFaceXPos(block,x,y,z,icon);
+                }
+            }
+        } finally {
+            renderer.enableAO=ao;
+            ru.givler.mbo.client.lighting.ColoredLightRenderHooks.end(light);
+        }
+    }
+
     public static boolean supports(Block block) {
         return block == Blocks.wooden_door || block == Blocks.iron_door
                 || block == BlockRegistry.IronTrapdoor

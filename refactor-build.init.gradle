@@ -1,0 +1,1 @@
+gradle.beforeProject { project -> project.buildDir = new File(project.projectDir, 'build-integration-check') }

@@ -1907,3 +1907,5 @@ mbo.light.speed.1=Среднее
 mbo.light.speed.2=Высокое
 mbo.light.dynamicHint=Свет от предметов в руках и существ.
 mbo.light.speedHint=Быстрее обновляется свет — выше нагрузка.
+
+mbo.guiScale.hint=Дробный масштаб RightProperGUIScale. Диапазон и шаг берутся из настроек мода.

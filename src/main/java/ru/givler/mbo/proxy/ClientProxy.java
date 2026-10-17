@@ -360,6 +360,7 @@ public class ClientProxy extends CommonProxy {
       MinecraftForge.EVENT_BUS.register(swimmingInput);
     FMLCommonHandler.instance().bus().register(new GamemodeSwitcherInputHandler());
     FMLCommonHandler.instance().bus().register(new BarrierVisibilityEvents());
+    ru.givler.mbo.integration.angelica.client.AngelicaClientRegistration.register();
     SmoothOpeningRenderer.configureIntegrations();
     SmoothOpeningRenderer smoothOpeningRenderer =
         new SmoothOpeningRenderer();

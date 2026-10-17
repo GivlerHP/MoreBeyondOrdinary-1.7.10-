@@ -27,6 +27,10 @@ public final class ColoredLightSmoke {
     if (Boolean.getBoolean("mbo.lightPixels")) shaderPrograms();
     if (args.length == 3) optifineBytecode(args);
     negativeHeight();
+    AnimatedTrapdoorLightingSmoke.run();
+    AngelicaTileEntitySmoke.run();
+    AngelicaLiveTileSmoke.run();
+    ControlsSizingSmoke.run();
     System.out.println("Colored light smoke passed");
   }
 

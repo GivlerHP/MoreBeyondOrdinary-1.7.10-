@@ -38,7 +38,10 @@ public final class ColoredLightRenderHooks {
     frame.oy = coordinates == null ? 0 : coordinates.lightOriginY();
     frame.oz = coordinates == null ? 0 : coordinates.lightOriginZ();
     frame.x = (int) Math.floor(x+frame.ox); frame.y = (int) Math.floor(y+frame.oy); frame.z = (int) Math.floor(z+frame.oz); frame.face = face;
-    if (frame.face!=8 && (coordinates!=null || ru.givler.mbo.client.render.SmoothOpeningRenderer.hasAnimationContext())) frame.face=7;
+    // Animated thin faces can lie inside their opaque placement cell. Use the same
+    // incident-surface fallback as JSON doors instead of losing RGB to that cell.
+    if (ru.givler.mbo.client.render.SmoothOpeningRenderer.hasAnimationContext()) frame.face=8;
+    else if (frame.face!=8 && (frame.ox!=0 || frame.oy!=0 || frame.oz!=0)) frame.face=7;
     frame.cached = false;frame.surfaceCached=false;
     frame.active = ColoredLightConfig.enabled && (ColoredLightClient.cacheActive || ColoredLightClient.volume != null)
         && (renderer.blockAccess instanceof ChunkCache || renderer.blockAccess instanceof net.minecraft.world.World || coordinates != null);

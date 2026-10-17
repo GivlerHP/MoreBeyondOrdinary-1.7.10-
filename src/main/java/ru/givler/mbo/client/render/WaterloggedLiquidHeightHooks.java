@@ -37,6 +37,8 @@ public final class WaterloggedLiquidHeightHooks {
   public static float getHeightOverride(
       RenderBlocks renderer, int x, int y, int z, Material material) {
     if (material != Material.water) return -1.0F;
+    if(renderer.blockAccess instanceof ru.givler.mbo.core.WaterloggingRenderHooks.ClientView
+        && !((ru.givler.mbo.core.WaterloggingRenderHooks.ClientView)renderer.blockAccess).mbo$hasWaterlogging())return -1F;
     World world = Minecraft.getMinecraft().theWorld;
     if (world == null) return -1.0F;
     // Falling ordinary water has priority over the adjacent virtual source.

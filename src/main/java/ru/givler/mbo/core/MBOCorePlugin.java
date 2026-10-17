@@ -5,10 +5,15 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.Name("MBOCore")
 @IFMLLoadingPlugin.MCVersion("1.7.10")
-@IFMLLoadingPlugin.TransformerExclusions({"ru.givler.mbo.core", "ru.givler.mbo.integration.thaumcraft.core"})
+@IFMLLoadingPlugin.TransformerExclusions({"ru.givler.mbo.core", "ru.givler.mbo.integration.thaumcraft.core", "ru.givler.mbo.integration.angelica.core"})
 public class MBOCorePlugin implements IFMLLoadingPlugin {
   public String[] getASMTransformerClass() {
     return new String[] {
+      "ru.givler.mbo.integration.angelica.core.AngelicaRenderTransformer",
+      "ru.givler.mbo.integration.angelica.core.AngelicaTileEntityTransformer",
+      "ru.givler.mbo.integration.angelica.core.AngelicaWaterloggingTransformer",
+      "ru.givler.mbo.core.KeyBindingListTransformer",
+      "ru.givler.mbo.core.HandRenderTraceTransformer",
       "ru.givler.mbo.core.TickRateTransformer",
       "ru.givler.mbo.core.DecorSleepTransformer",
       "ru.givler.mbo.core.DecorSleepRenderTransformer",

@@ -59,6 +59,7 @@ public final class WaterloggedStorageSmoke {
     verifyChunkPackets();
     verifyGeometryKeys();
     verifyGeometryScopes();
+    AngelicaWaterloggingSmoke.run();
     System.out.println("Waterlogged negative Y storage and migration passed");
   }
   private static void verifyGeometryScopes() {

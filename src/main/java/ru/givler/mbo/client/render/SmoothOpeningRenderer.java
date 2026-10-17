@@ -63,7 +63,7 @@ public final class SmoothOpeningRenderer {
   public static void configureIntegrations() {
     thaumcraftLoaded = Loader.isModLoaded("Thaumcraft");
     carpenters = Loader.isModLoaded("CarpentersBlocks");
-    neodymiumLoaded = Loader.isModLoaded("neodymium");
+    neodymiumLoaded = Loader.isModLoaded("neodymium") || Loader.isModLoaded("angelica");
     makePanesMainThreadOnly();
   }
 
@@ -110,7 +110,13 @@ public final class SmoothOpeningRenderer {
     // Chunk display lists must omit a moving block. The World-backed
     // renderer below draws it every frame instead.
     if (state.active(now) && !(access instanceof World) && !isCarpenterBlock(block)) return true;
-    return OpeningJsonRenderer.render(renderer, block, x, y, z);
+    if (OpeningJsonRenderer.render(renderer, block, x, y, z)) return true;
+    if (state.active(now) && access instanceof World && snapshot.kind == TRAPDOOR
+        && !isCarpenterBlock(block)) {
+      OpeningJsonRenderer.renderAnimatedTrapdoor(renderer, block, x, y, z);
+      return true;
+    }
+    return false;
   }
 
   public static void end() {
@@ -172,7 +178,7 @@ public final class SmoothOpeningRenderer {
     if (context == null) return out;
     // JSON models supply their own per-face shading. The legacy AO repair
     // below would brighten their dark sides every time an animation runs.
-    if (OpeningJsonRenderer.supports(context.state.block)) return out;
+    if (OpeningJsonRenderer.supports(context.state.block) || context.state.kind == TRAPDOOR) return out;
     float max = Math.max(red, Math.max(green, blue));
     // RenderBlocks calculates ambient occlusion before our vertices are
     // rotated. A face touching a neighbour therefore carries its old dark
