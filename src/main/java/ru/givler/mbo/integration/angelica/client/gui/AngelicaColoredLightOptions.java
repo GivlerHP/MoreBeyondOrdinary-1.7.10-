@@ -22,6 +22,7 @@ public final class AngelicaColoredLightOptions {
       for(Object page:pages)if("RGB-MBO".equals(page.getClass().getMethod("getName").invoke(page)))return true;
       AngelicaGuiScale.replace(pages);
       pages.add(createPage());
+      pages.add(AngelicaCtmOptions.createPage());
       screen.getClass().getMethod("rebuildGUI").invoke(screen);
       return true;
     }catch(ReflectiveOperationException e){throw new IllegalStateException("Cannot add RGB-MBO page to Angelica",e);}

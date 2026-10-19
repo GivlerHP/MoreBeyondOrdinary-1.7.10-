@@ -62,7 +62,7 @@ spotless {
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.26.12"
+version = "1.26.22"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 
@@ -328,3 +328,24 @@ task verifyAngelicaTileSnapshot(type: JavaExec, dependsOn: testClasses) {
     else onlyIf { false }
     if (project.hasProperty('angelicaAuditJava')) executable = project.property('angelicaAuditJava')
 }
+
+// The installed renderer owns CTM parsing/selection; verify the custom-model bridge independently of GL.
+task verifyConnectedTextures(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.texture.ConnectedTextureSmoke'
+}
+tasks.check.dependsOn('verifyConnectedTextures')
+
+task verifyNaturalTextures(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.texture.NaturalTextureSmoke'
+    if (project.hasProperty('optifineReference')) systemProperty 'optifineReference', project.property('optifineReference')
+    if (project.hasProperty('ctmPack')) systemProperty 'ctmPack', project.property('ctmPack')
+}
+tasks.check.dependsOn('verifyNaturalTextures')
+
+task verifyAngelicaDefaultCtm(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.integration.angelica.client.AngelicaDefaultCtmSmoke'
+}
+tasks.check.dependsOn('verifyAngelicaDefaultCtm')

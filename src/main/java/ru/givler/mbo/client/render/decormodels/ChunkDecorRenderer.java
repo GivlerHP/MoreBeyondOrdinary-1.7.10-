@@ -275,16 +275,22 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
         // TESR disables face culling. Emit both windings without touching GL chunk state.
         long rgbScope=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.begin(renderer,x,y,z,8);
         try {
-        for (int quad=0; quad<mesh.raw.length; quad+=32) for (int winding=0; winding<2; winding++)
-            for (int vertex=0; vertex<4; vertex++) {
+        for (int quad=0; quad<mesh.raw.length; quad+=32) {
+            int face=ru.givler.mbo.client.texture.ConnectedTextureHooks.rotatedFace(mesh.raw[quad+6],meta);
+            IIcon icon=ru.givler.mbo.client.texture.ConnectedTextureHooks.resolve(mesh.icon,block,world,x,y,z,face);
+            long natural=ru.givler.mbo.client.texture.NaturalTextureHooks.beginWorld(world,x,y,z,icon,face,renderer.hasOverrideBlockTexture());
+            try {
+            for (int winding=0; winding<2; winding++)for(int vertex=0;vertex<4;vertex++) {
                 int i=quad+(winding==0?vertex:3-vertex)*8;
                 double[] p=position(mesh.raw,i,(BlockModels)block,meta);
                 int shade=mesh.shading[meta&3][i/8];
                 builder.setColorOpaque_I(shade | shade<<8 | shade<<16);
                 builder.addVertexWithUV(x+p[0],y+p[1],z+p[2],
-                    mesh.icon.getInterpolatedU(Float.intBitsToFloat(mesh.raw[i+3])*16),
-                    mesh.icon.getInterpolatedV(Float.intBitsToFloat(mesh.raw[i+4])*16));
+                    icon.getInterpolatedU(Float.intBitsToFloat(mesh.raw[i+3])*16),
+                    icon.getInterpolatedV(Float.intBitsToFloat(mesh.raw[i+4])*16));
             }
+            } finally {ru.givler.mbo.client.texture.NaturalTextureHooks.end(natural);}
+        }
         return true;
         } finally { ru.givler.mbo.client.lighting.ColoredLightRenderHooks.end(rgbScope); }
     }

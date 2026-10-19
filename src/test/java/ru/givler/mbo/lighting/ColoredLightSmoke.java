@@ -31,6 +31,7 @@ public final class ColoredLightSmoke {
     AngelicaTileEntitySmoke.run();
     AngelicaLiveTileSmoke.run();
     ControlsSizingSmoke.run();
+    DungeonRenderSmoke.run();
     System.out.println("Colored light smoke passed");
   }
 
@@ -179,6 +180,47 @@ public final class ColoredLightSmoke {
     scope=ColoredLightRenderHooks.begin(renderer,0,0,0,7);
     equal(worldColor,ColoredLightRenderHooks.tintVertex(-1,0,.25,.5,.25));
     ColoredLightRenderHooks.end(scope);
+    // An Angelica model callback may bypass the transformed RenderBlocks body.
+    PlatformModelRenderer model=(PlatformModelRenderer)unsafe.allocateInstance(PlatformModelRenderer.class);
+    model.blockAccess=world;
+    Method render=ru.givler.mbo.client.render.RenderMovingPlatform.class.getDeclaredMethod("renderLitBlock",RenderBlocks.class,net.minecraft.block.Block.class,int.class,int.class,int.class);
+    render.setAccessible(true);
+    render.invoke(null,model,null,0,0,0);
+    check(model.color!=-1,"Platform model callback missed its outer RGB scope");
+    world.rgbX=100;
+    render.invoke(null,model,null,0,0,0);
+    equal(-1,model.color);
+    world.rgbX=.25;
+    model.fail=true;
+    try {render.invoke(null,model,null,0,0,0);throw new AssertionError("Expected model failure");}
+    catch(java.lang.reflect.InvocationTargetException expected){check(expected.getCause() instanceof IllegalStateException,"Unexpected model failure");}
+    equal(-1,ColoredLightRenderHooks.tintVertex(-1,0,.25,.5,.25));
+    int savedDarkness=ColoredLightClient.skyDarkness;
+    ColoredLightClient.skyDarkness=11;
+    int stride=12; int[] mesh=new int[stride*4];
+    float[][] points={{1,1,1},{1,1,0},{0,1,0},{0,1,1}};
+    for(int i=0;i<4;i++) {
+      for(int axis=0;axis<3;axis++)mesh[i*stride+axis]=Float.floatToIntBits(points[i][axis]);
+      mesh[i*stride+5]=0xC8FFFFFF;mesh[i*stride+7]=15<<20;mesh[i*stride+11]=12345;
+    }
+    int[] unlit=mesh.clone();
+    ru.givler.mbo.client.render.PlatformVertexLighting.apply(mesh,4,stride,0,7,0);
+    for(int i=0;i<4;i++) {
+      int at=i*stride;
+      int rgb=ColoredLightRenderHooks.worldRGB(points[i][0],8.5,points[i][2]);
+      equal(ColoredLightRenderHooks.worldTint(unlit[at+5],unlit[at+7],rgb),mesh[at+5]);
+      check(mesh[at+5]!=unlit[at+5],"Platform top face lost RGB at night");
+      equal(0xC8000000,mesh[at+5]&0xFF000000);equal(15<<20,mesh[at+7]&0xFFFF0000);equal(12345,mesh[at+11]);
+    }
+    mesh=unlit.clone();ru.givler.mbo.client.render.PlatformVertexLighting.apply(mesh,4,stride,100,7,0);
+    check(Arrays.equals(mesh,unlit),"Platform retained RGB after leaving the source");
+    scope=ColoredLightRenderHooks.begin(renderer,0,0,0,8);
+    int token=ColoredLightRenderHooks.beginUntintedBuffer();
+    try {equal(-1,ColoredLightRenderHooks.tintVertex(-1,0,.25,.5,.25));equal(0,ColoredLightRenderHooks.brightnessVertex(0,.25,.5,.25));}
+    finally {ColoredLightRenderHooks.endUntintedBuffer(token);ColoredLightRenderHooks.end(scope);}
+    ru.givler.mbo.client.render.PlatformTessellatorSmoke.run();
+    ColoredLightClient.skyDarkness=savedDarkness;
+    System.out.println("Platform final buffer: incident-face RGB, motion, extended stride, alpha/skylight preservation and no double tint passed");
     renderer.blockAccess=null;
     scope=ColoredLightRenderHooks.begin(renderer,0,8,0,7);
     equal(-1,ColoredLightRenderHooks.tintVertex(-1,0,.5,8.5,.5)); ColoredLightRenderHooks.end(scope);
@@ -199,6 +241,15 @@ public final class ColoredLightSmoke {
     equal(initial,(Integer)region.invoke(null,0D,8D,0D,5,40,5));
     System.out.println("Platform local RGB signature: distant publication ignored, upper blocks refreshed, full clear restored");
     System.out.println("Custom RGB: World geometry, fractional platform coordinates, inventory isolation and cache settings passed");
+  }
+
+  public static class PlatformModelRenderer extends RenderBlocks {
+    int color; boolean fail;
+    @Override public boolean renderBlockByRenderType(net.minecraft.block.Block block,int x,int y,int z) {
+      color=ColoredLightRenderHooks.tintVertex(-1,0,.25,.5,.25);
+      if(fail)throw new IllegalStateException("Model failure");
+      return true;
+    }
   }
 
   private static void rules() {

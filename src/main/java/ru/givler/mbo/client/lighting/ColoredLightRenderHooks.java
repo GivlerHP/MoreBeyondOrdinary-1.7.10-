@@ -65,16 +65,20 @@ public final class ColoredLightRenderHooks {
 
   public static int tint(int packedColor, int brightness) {
     State state = STATE.get();
-    if (state.depth == 0) return packedColor;
+    if (state.depth == 0 || state.untinted!=0) return packedColor;
     Frame frame = state.frames[state.depth - 1];
     return tintVertex(packedColor, brightness, frame.x + 0.5-frame.ox, frame.y + 0.5-frame.oy, frame.z + 0.5-frame.oz);
   }
+
+  /** A renderer which lights its completed buffer must not bake the tint twice. */
+  public static int beginUntintedBuffer() { State state=STATE.get(); return state.untinted++; }
+  public static void endUntintedBuffer(int previous) { STATE.get().untinted=previous; }
 
   public static int tintVertex(int packedColor, int brightness, double x, double y, double z) {
     if (ColoredLightShaderBridge.active) return packedColor;
     if (!ColoredLightConfig.enabled || (!ColoredLightClient.cacheActive && ColoredLightClient.volume == null)) return packedColor;
     State state = STATE.get();
-    if (state.depth == 0) return packedColor;
+    if (state.depth == 0 || state.untinted!=0) return packedColor;
     Frame frame = state.frames[state.depth - 1];
     if (!frame.active) return packedColor;
     int rgb = vertexRGB(frame, x, y, z);
@@ -92,7 +96,7 @@ public final class ColoredLightRenderHooks {
     if (ColoredLightShaderBridge.active) return brightness;
     if (!ColoredLightConfig.enabled || (!ColoredLightClient.cacheActive && ColoredLightClient.volume == null)) return brightness;
     State state = STATE.get();
-    if (state.depth == 0 || !state.frames[state.depth - 1].active) return brightness;
+    if (state.depth == 0 || state.untinted!=0 || !state.frames[state.depth - 1].active) return brightness;
     int rgb = vertexRGB(state.frames[state.depth - 1], x, y, z);
     int max = Math.max(rgb >>> 16, Math.max(rgb >> 8 & 255, rgb & 255));
     int level = Math.min(240, Math.round(max * (240F / 255F) * ColoredLightConfig.brightnessGain));
@@ -184,5 +188,5 @@ public final class ColoredLightRenderHooks {
     return brightness & 0xFFFF0000 | Math.max(brightness&65535,Math.min(240,Math.round(max*(240F/255)*ColoredLightConfig.brightnessGain)));
   }
   private static final class Frame { boolean active, cached, surfaceCached; int x, y, z, face, rgb, surface; double vx, vy, vz, ox,oy,oz; }
-  private static final class State { int depth; Frame[] frames = new Frame[4]; }
+  private static final class State { int depth, untinted; Frame[] frames = new Frame[4]; }
 }

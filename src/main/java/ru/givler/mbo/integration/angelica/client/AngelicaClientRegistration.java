@@ -13,6 +13,15 @@ public final class AngelicaClientRegistration {
     if(!cpw.mods.fml.common.Loader.isModLoaded("angelica"))return;
     try {
       Class<?> config=Class.forName("com.gtnewhorizons.angelica.config.AngelicaConfig");
+      final Field natural=config.getField("enableNaturalTextures");
+      final Field paneCtm=Class.forName("jss.notfine.config.MCPatcherForgeConfig$ConnectedTextures").getField("glassPane");
+      ru.givler.mbo.integration.angelica.client.render.AngelicaPaneRendering.configure(()->{
+        try{return paneCtm.getBoolean(null);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
+      });
+      ru.givler.mbo.client.texture.NaturalTextureHooks.configure(()->{
+        try{return natural.getBoolean(null);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
+      });
+      net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.texture.NaturalTextureHooks.INSTANCE);
       for(String flag:new String[]{"enableEntityBatching","enableCubeInstancing","enableFontRenderer","enableTESRChestCache","enableTESRSignCache","enableTESRProviderDispatch","enableTESRSkullCache","enableTESRJarCache"})
         config.getField(flag).setBoolean(null,false);
       Class<?> proxy=Class.forName("com.gtnewhorizons.angelica.proxy.ClientProxy");
@@ -27,6 +36,7 @@ public final class AngelicaClientRegistration {
       shaderPackInUse=api.getMethod("isShaderPackInUse");
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new AngelicaClientRegistration());
       ru.givler.mbo.client.render.WaterloggedBlockRenderer.enableAngelicaChunkWater();
+      net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new AngelicaTextureReport());
       HandRenderTrace.enabled=true;
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new HandRenderTrace());
       System.out.println("[MBO] Angelica compatibility: preserve MBO vertex lighting and immediate entity/TESR rendering");

@@ -1619,3 +1619,6 @@ mbo.light.speed.2=High
 mbo.light.dynamicHint=Light from held items and entities.
 mbo.light.speedHint=Faster light updates use more CPU.
 mbo.guiScale.hint=Fractional GUI scale from RightProperGUIScale. Uses the mod configured range and step.
+
+mbo.ctm.panes=Connected glass panes
+mbo.ctm.panes.hint=Apply resource-pack CTM to glass panes. Applying rebuilds chunks; no restart is needed.

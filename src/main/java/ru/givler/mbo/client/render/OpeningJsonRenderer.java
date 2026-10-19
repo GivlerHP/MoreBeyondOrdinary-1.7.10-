@@ -154,40 +154,49 @@ public final class OpeningJsonRenderer {
         if (model == null) return false;
         Tessellator t = Tessellator.instance;
         t.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
-        for (Element element : model.elements) renderElement(t, model, element, rotation, doorMeta, x, y, z);
+        for (Element element : model.elements) renderElement(t, model, element, rotation, doorMeta, x, y, z, world, block);
         return true;
     }
 
-    private void renderElement(Tessellator t, Model model, Element e, int rotation, int doorMeta, int x, int y, int z) {
+    private void renderElement(Tessellator t, Model model, Element e, int rotation, int doorMeta, int x, int y, int z, IBlockAccess world, Block block) {
         double x1=e.from[0]/16D, y1=e.from[1]/16D, z1=e.from[2]/16D;
         double x2=e.to[0]/16D, y2=e.to[1]/16D, z2=e.to[2]/16D;
-        emit(t,model,e,"north",.8F,rotation,doorMeta,x,y,z,p(x2,y1,z1),p(x1,y1,z1),p(x1,y2,z1),p(x2,y2,z1));
-        emit(t,model,e,"east",.6F,rotation,doorMeta,x,y,z,p(x2,y1,z2),p(x2,y1,z1),p(x2,y2,z1),p(x2,y2,z2));
-        emit(t,model,e,"south",.8F,rotation,doorMeta,x,y,z,p(x1,y1,z2),p(x2,y1,z2),p(x2,y2,z2),p(x1,y2,z2));
-        emit(t,model,e,"west",.6F,rotation,doorMeta,x,y,z,p(x1,y1,z1),p(x1,y1,z2),p(x1,y2,z2),p(x1,y2,z1));
-        emit(t,model,e,"up",1F,rotation,doorMeta,x,y,z,p(x1,y2,z2),p(x2,y2,z2),p(x2,y2,z1),p(x1,y2,z1));
-        emit(t,model,e,"down",.5F,rotation,doorMeta,x,y,z,p(x1,y1,z1),p(x2,y1,z1),p(x2,y1,z2),p(x1,y1,z2));
+        emit(t,model,e,"north",.8F,rotation,doorMeta,x,y,z,world,block,p(x2,y1,z1),p(x1,y1,z1),p(x1,y2,z1),p(x2,y2,z1));
+        emit(t,model,e,"east",.6F,rotation,doorMeta,x,y,z,world,block,p(x2,y1,z2),p(x2,y1,z1),p(x2,y2,z1),p(x2,y2,z2));
+        emit(t,model,e,"south",.8F,rotation,doorMeta,x,y,z,world,block,p(x1,y1,z2),p(x2,y1,z2),p(x2,y2,z2),p(x1,y2,z2));
+        emit(t,model,e,"west",.6F,rotation,doorMeta,x,y,z,world,block,p(x1,y1,z1),p(x1,y1,z2),p(x1,y2,z2),p(x1,y2,z1));
+        emit(t,model,e,"up",1F,rotation,doorMeta,x,y,z,world,block,p(x1,y2,z2),p(x2,y2,z2),p(x2,y2,z1),p(x1,y2,z1));
+        emit(t,model,e,"down",.5F,rotation,doorMeta,x,y,z,world,block,p(x1,y1,z1),p(x2,y1,z1),p(x2,y1,z2),p(x1,y1,z2));
     }
 
     private void emit(Tessellator t, Model model, Element e, String side, float shade, int rotation, int doorMeta,
-                      int wx, int wy, int wz, double[]... vertices) {
+                      int wx, int wy, int wz, IBlockAccess world, Block block, double[]... vertices) {
         Face face = e.faces.get(side);
         if (face == null) return;
         String path = face.texture.startsWith("#") ? model.textures.get(face.texture.substring(1)) : face.texture;
         if (path == null) return;
         IIcon icon = icons.get(baseName(path));
         if (icon == null) return;
+        double[][] points=new double[4][];
+        for(int i=0;i<4;i++) {
+            points[i]=transform(vertices[i],e.rotation,rotation);
+            if(doorMeta>=0 && (doorMeta&4)!=0)rotateOpenDoor(points[i],doorMeta);
+        }
+        int worldFace=ru.givler.mbo.client.texture.ConnectedTextureHooks.face(points[0],points[1],points[2]);
+        icon=ru.givler.mbo.client.texture.ConnectedTextureHooks.resolve(icon,block,world,wx,wy,wz,worldFace);
         double u1=icon.getInterpolatedU(face.uv[0]), v1=icon.getInterpolatedV(face.uv[1]);
         double u2=icon.getInterpolatedU(face.uv[2]), v2=icon.getInterpolatedV(face.uv[3]);
         double[][] uv={{u1,v2},{u2,v2},{u2,v1},{u1,v1}};
         int turns=((face.rotation/90)%4+4)%4;
         t.setColorOpaque_F(shade,shade,shade);
+        long natural=ru.givler.mbo.client.texture.NaturalTextureHooks.beginWorld(world,wx,wy,wz,icon,worldFace,false);
+        try {
         for (int i=0;i<4;i++) {
-            double[] q=transform(vertices[i],e.rotation,rotation);
-            if (doorMeta >= 0 && (doorMeta & 4) != 0) rotateOpenDoor(q, doorMeta);
+            double[] q=points[i];
             double[] tex=uv[(i-turns+4)%4];
             t.addVertexWithUV(wx+q[0],wy+q[1],wz+q[2],tex[0],tex[1]);
         }
+        } finally {ru.givler.mbo.client.texture.NaturalTextureHooks.end(natural);}
     }
 
     private static void rotateOpenDoor(double[] p, int meta) {

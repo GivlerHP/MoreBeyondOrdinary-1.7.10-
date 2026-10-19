@@ -55,6 +55,10 @@ public final class DungeonAreaWorldRenderer implements net.minecraft.client.reso
     }
   }
 
+  public static void renderBeforeTerrain(int pass,double partialTicks) {
+    if(pass==1)renderBeforeTranslucent((float)partialTicks);
+  }
+
   public static void renderBeforeTranslucent(float partialTicks) {
     if (instance == null || instance.renderedBeforeTranslucent) return;
     instance.renderedBeforeTranslucent = true;
@@ -269,10 +273,13 @@ public final class DungeonAreaWorldRenderer implements net.minecraft.client.reso
                 a.getZ(),
                 true));
     r.renderAllFaces = false;
-    Tessellator t = Tessellator.instance;
+    boolean local=PlatformVertexLighting.begin();
+    try {
+    Tessellator t = PlatformVertexLighting.tessellator();
     t.startDrawingQuads();
     for (PlatformBlock b : a.getBlocks()) r.renderBlockByRenderType(b.block, b.x, b.y, b.z);
     t.draw();
+    } finally {PlatformVertexLighting.end(local);}
     GL11.glEndList();
     Cache made = new Cache(list, sig);
     made.checkedEpoch = lightEpoch;

@@ -146,12 +146,20 @@ public class RenderMovingPlatform extends Render {
                 (int) Math.floor(worldY), (int) Math.floor(worldZ)));
     renderer.renderAllFaces = true;
     ((PlatformBlockAccess)renderer.blockAccess).setLightOrigin(worldX,worldY,worldZ);
-    Tessellator tessellator = Tessellator.instance;
+    boolean local=PlatformVertexLighting.begin();
+    Tessellator tessellator = PlatformVertexLighting.tessellator();
+    int untinted=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.beginUntintedBuffer();
+    try {
     tessellator.startDrawingQuads();
     for (PlatformBlock block : platform.getBlocks())
       if (platform.shouldRenderPlatformBlock(block)&&!(block.block instanceof ru.givler.mbo.block.BlockModels))
-        renderer.renderBlockByRenderType(block.block, block.x, block.y, block.z);
+        renderLitBlock(renderer, block.block, block.x, block.y, block.z);
+    PlatformVertexLighting.apply(tessellator,worldX,worldY,worldZ);
     tessellator.draw();
+    } finally {
+      ru.givler.mbo.client.lighting.ColoredLightRenderHooks.endUntintedBuffer(untinted);
+      PlatformVertexLighting.end(local);
+    }
   }
 
   private Cache getCache(
@@ -186,7 +194,10 @@ public class RenderMovingPlatform extends Render {
                 platform.getSizeZ(), platform.worldObj, ox, oy, oz));
     renderer.renderAllFaces = true;
     ((PlatformBlockAccess)renderer.blockAccess).setLightOrigin(worldX,worldY,worldZ);
-    Tessellator tessellator = Tessellator.instance;
+    boolean local=PlatformVertexLighting.begin();
+    Tessellator tessellator = PlatformVertexLighting.tessellator();
+    int untinted=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.beginUntintedBuffer();
+    try {
     tessellator.startDrawingQuads();
     for (PlatformBlock b : platform.getBlocks()) {
       if(b.block instanceof ru.givler.mbo.block.BlockModels)continue;
@@ -194,13 +205,29 @@ public class RenderMovingPlatform extends Render {
       // retain their original rendering behaviour.
       renderer.renderAllFaces=platform.isClipAboveSelection()
           || !(b.block.getRenderType()==0 && b.block.isNormalCube());
-      renderer.renderBlockByRenderType(b.block, b.x, b.y, b.z);
+      renderLitBlock(renderer, b.block, b.x, b.y, b.z);
     }
+    PlatformVertexLighting.apply(tessellator,worldX,worldY,worldZ);
     tessellator.draw();
+    } finally {
+      ru.givler.mbo.client.lighting.ColoredLightRenderHooks.endUntintedBuffer(untinted);
+      PlatformVertexLighting.end(local);
+    }
     GL11.glEndList();
     Cache made = new Cache(list, signature,platform,samples);
     cache.put(platform.getPlatformId(), made);
     return made;
+  }
+
+  // Keep the scope outside RenderBlocks: Angelica can return from a model-renderer
+  // injection before the coremod's RenderBlocks method body is entered.
+  static boolean renderLitBlock(RenderBlocks renderer, net.minecraft.block.Block block, int x, int y, int z) {
+    long scope=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.begin(renderer,x,y,z,8);
+    try {
+      return renderer.renderBlockByRenderType(block,x,y,z);
+    } finally {
+      ru.givler.mbo.client.lighting.ColoredLightRenderHooks.end(scope);
+    }
   }
 
   private static int[] interpolatedLightField(

@@ -35,7 +35,10 @@ public final class WaterloggedPaneChunkHooks {
 
   /** All Angelica virtual water shares the pane path and the ordinary translucent terrain buffer. */
   public static boolean renderAngelica(RenderBlocks renderer,Block block,int x,int y,int z,int pass) {
-    boolean drawn=block.canRenderInPass(pass) && renderer.renderBlockByRenderType(block,x,y,z);
+    boolean drawn=block.canRenderInPass(pass) &&
+        (ru.givler.mbo.integration.angelica.client.render.AngelicaPaneRendering.useNative(renderer,block,x,y,z)
+            ?ru.givler.mbo.integration.angelica.client.render.AngelicaPaneRendering.render(renderer,block,x,y,z)
+            :renderer.renderBlockByRenderType(block,x,y,z));
     if(pass==1 && hasAngelicaWater(block,renderer.blockAccess,x,y,z)) {
       World world=renderer.blockAccess instanceof World ? (World)renderer.blockAccess : Minecraft.getMinecraft().theWorld;
       if(world!=null) {

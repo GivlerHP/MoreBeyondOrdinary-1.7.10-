@@ -9,9 +9,11 @@ import java.util.Map;
 public class MBOCorePlugin implements IFMLLoadingPlugin {
   public String[] getASMTransformerClass() {
     return new String[] {
+      "ru.givler.mbo.integration.angelica.core.AngelicaCtmTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaRenderTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaTileEntityTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaWaterloggingTransformer",
+      "ru.givler.mbo.core.NaturalTextureTransformer",
       "ru.givler.mbo.core.KeyBindingListTransformer",
       "ru.givler.mbo.core.HandRenderTraceTransformer",
       "ru.givler.mbo.core.TickRateTransformer",
@@ -29,6 +31,7 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.core.FenceConnectionTransformer",
       "ru.givler.mbo.core.PaneTransformer",
       "ru.givler.mbo.core.LootingPotionTransformer",
+      "ru.givler.mbo.core.DungeonAreaRenderTransformer",
       "ru.givler.mbo.core.SmoothOpeningTransformer",
       "ru.givler.mbo.core.TessellatorEmptyBufferTransformer",
       "ru.givler.mbo.core.ColoredLightTransformer",
