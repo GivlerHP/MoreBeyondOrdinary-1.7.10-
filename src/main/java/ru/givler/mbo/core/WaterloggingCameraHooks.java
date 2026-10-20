@@ -10,16 +10,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
-
-import java.nio.FloatBuffer;
-import java.nio.Buffer;
-
 public final class WaterloggingCameraHooks {
-  private static final FloatBuffer MODELVIEW = BufferUtils.createFloatBuffer(16);
+  private static Entity pendingEntity;
+  private static Vec3 pendingCamera;
   private static Entity capturedEntity;
   private static Vec3 capturedCamera;
   private WaterloggingCameraHooks() {}
@@ -31,42 +24,8 @@ public final class WaterloggingCameraHooks {
     capturedEntity = null;
     capturedCamera = null;
     if (view == null) return;
-    boolean swimming = view instanceof net.minecraft.entity.player.EntityPlayer
-        && ru.givler.mbo.swimming.SwimmingHooks.isSwimming(
-            (net.minecraft.entity.player.EntityPlayer) view);
-    if (minecraft.gameSettings.thirdPersonView != 0 || swimming) {
-      // Swimming changes the camera's eye height as well as the F5 transform.
-      // Both modes must use the same transform that renders this frame, not
-      // a second eye-position formula built from the player coordinates.
-      ((Buffer) MODELVIEW).clear();
-      GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, MODELVIEW);
-      ((Buffer) MODELVIEW).rewind();
-      Matrix4f matrix = new Matrix4f();
-      matrix.load(MODELVIEW);
-      Matrix4f inverse = Matrix4f.invert(matrix, null);
-      if (inverse != null) {
-        Vector4f origin = Matrix4f.transform(inverse,
-            new Vector4f(0.0F, 0.0F, 0.0F, 1.0F), null);
-        if (Math.abs(origin.w) > 0.0001F) {
-          double x = view.prevPosX + (view.posX - view.prevPosX) * partialTicks;
-          double y = view.prevPosY + (view.posY - view.prevPosY) * partialTicks;
-          double z = view.prevPosZ + (view.posZ - view.prevPosZ) * partialTicks;
-          x += origin.x / origin.w;
-          y += origin.y / origin.w;
-          z += origin.z / origin.w;
-          if (swimming && minecraft.gameSettings.thirdPersonView == 0) {
-            // orientCamera moves the first-person projection 0.1 block
-            // backward. Fluid state belongs to the eye, not that screen
-            // offset, which otherwise changes the answer with pitch.
-            Vec3 look = ((EntityLivingBase) view).getLook(partialTicks);
-            x += look.xCoord * 0.1D;
-            y += look.yCoord * 0.1D;
-            z += look.zCoord * 0.1D;
-          }
-          capturedCamera = Vec3.createVectorHelper(x, y, z);
-        }
-      }
-    }
+    if (minecraft.gameSettings.thirdPersonView != 0 && pendingEntity == view)
+      capturedCamera = pendingCamera;
     if (capturedCamera == null) {
       double x = view.prevPosX + (view.posX - view.prevPosX) * partialTicks;
       double y = interpolatedEyeY(view, partialTicks);
@@ -74,6 +33,30 @@ public final class WaterloggingCameraHooks {
       capturedCamera = Vec3.createVectorHelper(x, y, z);
     }
     capturedEntity = view;
+  }
+
+  /** Reset at orientCamera entry so a camera override cannot reuse last frame. */
+  public static void beginCameraPosition() { pendingEntity=null; pendingCamera=null; }
+
+  /** Distance comes from orientCamera after its eight collision rays have clipped it. */
+  public static void thirdPersonDistance(double distance,float partialTicks) {
+    Minecraft mc=Minecraft.getMinecraft();
+    Entity view=mc.renderViewEntity;
+    if(view==null || mc.gameSettings.thirdPersonView==0)return;
+    float yaw=view.prevRotationYaw+(view.rotationYaw-view.prevRotationYaw)*partialTicks;
+    float pitch=view.prevRotationPitch+(view.rotationPitch-view.prevRotationPitch)*partialTicks;
+    if(mc.gameSettings.thirdPersonView==2)pitch+=180F;
+    pendingCamera=thirdPersonPosition(view,partialTicks,distance,yaw,pitch);
+    pendingEntity=view;
+  }
+
+  public static Vec3 thirdPersonPosition(Entity view,float partialTicks,double distance,float yaw,float pitch) {
+    double yr=Math.toRadians(yaw),pr=Math.toRadians(pitch);
+    double horizontal=Math.cos(pr)*distance;
+    return Vec3.createVectorHelper(
+        view.prevPosX+(view.posX-view.prevPosX)*partialTicks+Math.sin(yr)*horizontal,
+        interpolatedEyeY(view,partialTicks)+Math.sin(pr)*distance,
+        view.prevPosZ+(view.posZ-view.prevPosZ)*partialTicks-Math.cos(yr)*horizontal);
   }
 
   private static float cameraEyeHeight(Entity view) {

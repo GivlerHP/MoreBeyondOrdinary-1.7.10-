@@ -30,6 +30,7 @@ public final class SwimmingAsmSmoke {
     SwimmingCollisionSmoke.check();
     verifyFogFade();
     verifyWaterSurface();
+    SwimmingSurfaceCameraSmoke.check();
     verifyWaterloggedSourceRegeneration();
     verifyHalfFilledPane();
     verifyPaneWaterChunkRendering();
@@ -45,6 +46,7 @@ public final class SwimmingAsmSmoke {
     verify("net.minecraft.client.renderer.EntityRenderer", "cameraEyeHeight", 1);
     verify("net.minecraft.client.renderer.EntityRenderer", "skipViewBobbing", 1);
     verifyFogCameraOrder();
+    verifyF5DistanceCapture();
     verifyUnderwaterOverlay();
     verifyUnderwaterSky();
     verifyWaterTopUnderside();
@@ -318,6 +320,26 @@ public final class SwimmingAsmSmoke {
     StringWriter errors = new StringWriter();
     CheckClassAdapter.verify(new ClassReader(transformed), false, new PrintWriter(errors));
     if (errors.getBuffer().length() != 0) throw new AssertionError(name + ": " + errors);
+  }
+
+  private static void verifyF5DistanceCapture() throws Exception {
+    String target="net.minecraft.client.renderer.EntityRenderer";
+    byte[] patched=new WaterloggingCameraTransformer().transform(target,target,classBytes(target));
+    checkClass(target,patched);ClassNode node=new ClassNode();new ClassReader(patched).accept(node,0);
+    int distance=0,reset=0;
+    for(MethodNode method:node.methods)for(AbstractInsnNode i:method.instructions.toArray())if(i instanceof MethodInsnNode) {
+      MethodInsnNode call=(MethodInsnNode)i;
+      if(call.owner.equals("ru/givler/mbo/core/WaterloggingCameraHooks")) {
+        if(call.name.equals("thirdPersonDistance"))distance++;
+        if(call.name.equals("beginCameraPosition"))reset++;
+      }
+    }
+    if(distance!=2 || reset!=1)throw new AssertionError("Actual clipped F5 distances were not captured in both camera branches");
+    new ClassReader(classBytes("ru.givler.mbo.core.WaterloggingCameraHooks")).accept(node=new ClassNode(),0);
+    for(MethodNode method:node.methods)for(AbstractInsnNode i:method.instructions.toArray())if(i instanceof MethodInsnNode) {
+      String owner=((MethodInsnNode)i).owner;
+      if(owner.startsWith("org/lwjgl/"))throw new AssertionError("Fluid camera still depends on GL matrices");
+    }
   }
 
   private static void verifyFogCameraOrder() throws Exception {

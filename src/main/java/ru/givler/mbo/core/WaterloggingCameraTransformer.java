@@ -51,7 +51,7 @@ public final class WaterloggingCameraTransformer implements IClassTransformer, O
         call.itf = false;
         patched++;
       }
-    if (patched == 0 || !moveFogUpdateAfterCamera(node)) {
+    if (patched == 0 || !captureThirdPersonDistance(node) || !moveFogUpdateAfterCamera(node)) {
       System.err.println("[MBO ASM] EntityRenderer camera hooks were not found");
       return bytes;
     }
@@ -107,6 +107,27 @@ public final class WaterloggingCameraTransformer implements IClassTransformer, O
     ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);
     return writer.toByteArray();
+  }
+
+  private static boolean captureThirdPersonDistance(ClassNode node) {
+    String hook="ru/givler/mbo/core/WaterloggingCameraHooks";
+    for(MethodNode method:node.methods) {
+      String mapped=FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(node.name,method.name,method.desc);
+      if(!method.desc.equals("(F)V") || !(method.name.equals("orientCamera") || method.name.equals("func_78467_g") || mapped.equals("func_78467_g")))continue;
+      int count=0;
+      for(AbstractInsnNode i:method.instructions.toArray())if(i instanceof MethodInsnNode) {
+        MethodInsnNode call=(MethodInsnNode)i;
+        if(!call.owner.equals("org/lwjgl/opengl/GL11") || !call.name.equals("glTranslatef") || !call.desc.equals("(FFF)V"))continue;
+        AbstractInsnNode cast=previousOpcode(i),neg=previousOpcode(cast),distance=previousOpcode(neg);
+        if(cast==null || neg==null || !(distance instanceof VarInsnNode) || cast.getOpcode()!=D2F || neg.getOpcode()!=DNEG || distance.getOpcode()!=DLOAD)continue;
+        InsnList code=new InsnList();code.add(new VarInsnNode(DLOAD,((VarInsnNode)distance).var));code.add(new VarInsnNode(FLOAD,1));
+        code.add(new MethodInsnNode(INVOKESTATIC,hook,"thirdPersonDistance","(DF)V",false));method.instructions.insert(i,code);count++;
+      }
+      if(count!=2)return false;
+      method.instructions.insert(new MethodInsnNode(INVOKESTATIC,hook,"beginCameraPosition","()V",false));
+      return true;
+    }
+    return false;
   }
 
   /** Update fog after ActiveRenderInfo has captured the current F5 camera. */

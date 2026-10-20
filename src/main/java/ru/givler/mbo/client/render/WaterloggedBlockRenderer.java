@@ -74,12 +74,14 @@ public final class WaterloggedBlockRenderer {
   public void underwaterFog(EntityViewRenderEvent.FogDensity event) {
     if (event.entity != Minecraft.getMinecraft().renderViewEntity) return;
     if (event.block.getMaterial() != Material.water) return;
-    // Use the same underwater distance for terrain, sky and particles. The
-    // former 96-block range made shallow rivers almost indistinguishable from air.
+    // Keep the existing far visibility, but retain a subtle water tint even on
+    // nearby geometry in small pools. A zero start made the first metres look
+    // like air. A negative start provides 12% fog at the camera without a
+    // separate screen overlay (which also behaved differently with F1).
     float end = Math.min(48.0F,
         Math.max(16.0F, Minecraft.getMinecraft().gameSettings.renderDistanceChunks * 16.0F - 8.0F));
     GL11.glFogi(GL11.GL_FOG_MODE, GL11.GL_LINEAR);
-    GL11.glFogf(GL11.GL_FOG_START, 0.0F);
+    GL11.glFogf(GL11.GL_FOG_START, -end * (0.12F / 0.88F));
     GL11.glFogf(GL11.GL_FOG_END, end);
     event.setCanceled(true);
   }
