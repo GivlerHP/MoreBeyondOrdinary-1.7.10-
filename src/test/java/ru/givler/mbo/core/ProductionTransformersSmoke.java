@@ -156,6 +156,22 @@ public final class ProductionTransformersSmoke {
       throw new AssertionError("Item tooltip context changed GuiContainer and could break NEI instruction matching");
     System.out.println("NEI compatibility: GuiContainer tooltip instruction sequence remains untouched");
     Path mappingDir = Paths.get(args[0]);
+    Mapping srgToMcp=new Mapping(mappingDir.resolve("srg-mcp.srg"));
+    for(String renderer:new String[]{"client/render/PlatformVertexLighting","client/render/decormodels/ChunkDecorRenderer","client/render/decormodels/StaticDecorRenderCache"}) {
+      ClassNode reflected=new ClassNode();new ClassReader(resource("ru/givler/mbo/"+renderer)).accept(reflected,0);
+      boolean checked=false;
+      for(MethodNode method:reflected.methods)if(method.name.equals("<clinit>"))for(AbstractInsnNode i:method.instructions.toArray()) {
+        if(!(i instanceof LdcInsnNode) || !"rawBufferIndex".equals(((LdcInsnNode)i).cst))continue;
+        for(AbstractInsnNode next=i.getNext();next!=null;next=next.getNext())if(next instanceof LdcInsnNode && ((LdcInsnNode)next).cst instanceof String) {
+          String alias=(String)((LdcInsnNode)next).cst;
+          if(!"rawBufferIndex".equals(srgToMcp.fields.get("net/minecraft/client/renderer/Tessellator/"+alias)))
+            throw new AssertionError(renderer+" rawBufferIndex alias resolves to "+srgToMcp.fields.get("net/minecraft/client/renderer/Tessellator/"+alias));
+          checked=true;break;
+        }
+      }
+      if(!checked)throw new AssertionError("Missing production buffer-index alias in "+renderer);
+    }
+    System.out.println("Production reflection: platform and both decor renderers resolve rawBufferIndex against actual SRG mappings");
     Mapping toNotch = new Mapping(mappingDir.resolve("mcp-notch.srg"));
     productionNames = toNotch;
     Mapping toMcp = new Mapping(mappingDir.resolve("notch-mcp.srg"));

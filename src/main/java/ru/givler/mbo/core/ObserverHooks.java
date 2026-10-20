@@ -16,7 +16,7 @@ public final class ObserverHooks {
             int nx = x + Facing.offsetsXForSide[side];
             int ny = y + Facing.offsetsYForSide[side];
             int nz = z + Facing.offsetsZForSide[side];
-            if (ny < 0 || ny >= world.getActualHeight() || !world.blockExists(nx, ny, nz)) continue;
+            if (ny < ru.givler.mbo.lighting.ColoredLightApi.minimumY(world) || ny >= world.getActualHeight() || !world.blockExists(nx, ny, nz)) continue;
             Block neighbor = world.getBlock(nx, ny, nz);
             if (neighbor == BlockRegistry.Observer)
                 ((BlockObserver) neighbor).observedChange(world, nx, ny, nz, x, y, z);

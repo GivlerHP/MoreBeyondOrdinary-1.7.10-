@@ -10,7 +10,7 @@ import ru.givler.mbo.config.ColoredLightConfig;
 /** Lights the platform's completed local-space mesh before it enters the display list. */
 public final class PlatformVertexLighting {
   private static final Field RAW=ReflectionHelper.findField(Tessellator.class,"rawBuffer","field_78405_h");
-  private static final Field INDEX=ReflectionHelper.findField(Tessellator.class,"rawBufferIndex","field_78411_s");
+  private static final Field INDEX=ReflectionHelper.findField(Tessellator.class,"rawBufferIndex","field_147569_p");
   private static final Field COUNT=ReflectionHelper.findField(Tessellator.class,"vertexCount","field_78406_i");
   private PlatformVertexLighting() {}
   private static boolean resolveManager=true;

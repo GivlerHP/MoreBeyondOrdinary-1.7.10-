@@ -34,7 +34,7 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
     public static final ChunkDecorRenderer INSTANCE = new ChunkDecorRenderer();
     private static final Field RAW = ReflectionHelper.findField(Tessellator.class, "rawBuffer", "field_78405_h");
-    private static final Field INDEX = ReflectionHelper.findField(Tessellator.class, "rawBufferIndex", "field_78411_s");
+    private static final Field INDEX = ReflectionHelper.findField(Tessellator.class, "rawBufferIndex", "field_147569_p");
     private static final Field COUNT = ReflectionHelper.findField(Tessellator.class, "vertexCount", "field_78406_i");
     private static int[] canonicalVertices(Tessellator builder) throws IllegalAccessException {
         int count=COUNT.getInt(builder),length=INDEX.getInt(builder);

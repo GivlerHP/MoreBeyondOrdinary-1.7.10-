@@ -23,7 +23,7 @@ public final class StaticDecorRenderCache implements IResourceManagerReloadListe
     private static final int LIMIT=512;
     private final LinkedHashMap<Key,TesselatorVertexState> meshes=new LinkedHashMap<Key,TesselatorVertexState>(64,.75F,true);
     private static final Field RAW=ReflectionHelper.findField(Tessellator.class,"rawBuffer","field_78405_h");
-    private static final Field INDEX=ReflectionHelper.findField(Tessellator.class,"rawBufferIndex","field_78411_s");
+    private static final Field INDEX=ReflectionHelper.findField(Tessellator.class,"rawBufferIndex","field_147569_p");
     private static final Field COUNT=ReflectionHelper.findField(Tessellator.class,"vertexCount","field_78406_i");
     private long hits,misses;
     private boolean enabled=true;
