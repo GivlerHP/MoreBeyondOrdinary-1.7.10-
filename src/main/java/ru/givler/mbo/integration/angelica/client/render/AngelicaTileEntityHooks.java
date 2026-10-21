@@ -24,7 +24,9 @@ public final class AngelicaTileEntityHooks {
     TileEntityRendererDispatcher dispatcher=TileEntityRendererDispatcher.instance;
     double x=TileEntityRendererDispatcher.staticPlayerX,y=TileEntityRendererDispatcher.staticPlayerY,z=TileEntityRendererDispatcher.staticPlayerZ;
     Frustrum camera=new Frustrum();camera.setPosition(x,y,z);
+    List<TileEntity> before=ru.givler.mbo.client.diagnostics.TileEntityRenderTrace.enabled()?new java.util.ArrayList<TileEntity>(frame):null;
     collect(mc.theWorld,camera,x,y,z,mc.gameSettings.renderDistanceChunks,frame,dispatcher::hasSpecialRenderer);
+    if(before!=null)ru.givler.mbo.client.diagnostics.TileEntityRenderTrace.visible(before,frame);
     if(!reported){reported=true;System.out.println("[MBO] Angelica live TESR collection: loaded chunk maps, independent of terrain rebuilds");}
   }
   /** No section-cache or history access; never request a missing chunk. Includes non-ticking TESRs. */

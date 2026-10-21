@@ -70,10 +70,9 @@ public final class WaterloggedBlockRenderer {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
   public void underwaterFog(EntityViewRenderEvent.FogDensity event) {
-    if (event.entity != Minecraft.getMinecraft().renderViewEntity) return;
-    if (event.block.getMaterial() != Material.water) return;
+    if (!isUnderwaterCamera(event.entity, event.renderPartialTicks)) return;
     // Keep the existing far visibility, but retain a subtle water tint even on
     // nearby geometry in small pools. A zero start made the first metres look
     // like air. A negative start provides 12% fog at the camera without a
@@ -86,15 +85,24 @@ public final class WaterloggedBlockRenderer {
     event.setCanceled(true);
   }
 
-  @SubscribeEvent
+  @SubscribeEvent(priority = EventPriority.LOWEST)
   public void underwaterColor(EntityViewRenderEvent.FogColors event) {
-    if (event.entity != Minecraft.getMinecraft().renderViewEntity
-        || event.block.getMaterial() != Material.water) return;
-    // The 1.7.10 water branch is a very dark, height-dependent blue. Keep the
-    // clear colour and fog colour identical while the camera is underwater.
-    event.red = 0.055F;
-    event.green = 0.145F;
-    event.blue = 0.235F;
+    if (!isUnderwaterCamera(event.entity, event.renderPartialTicks)) return;
+    float[] color = WaterFogColors.sample(event.entity.worldObj,
+        WaterloggingCameraHooks.getCameraPosition(event.entity, (float) event.renderPartialTicks));
+    event.red = color[0];
+    event.green = color[1];
+    event.blue = color[2];
+  }
+
+  /** Other fog handlers can cancel density or supply the player's block in F5.
+   * Use the same clipped camera and fluid surface as the camera hooks. */
+  public static boolean isUnderwaterCamera(net.minecraft.entity.EntityLivingBase entity,
+      double partialTicks) {
+    return entity != null && entity == Minecraft.getMinecraft().renderViewEntity
+        && entity.worldObj != null
+        && WaterloggingCameraHooks.getViewBlock(entity.worldObj, entity, (float) partialTicks)
+            .getMaterial() == Material.water;
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)

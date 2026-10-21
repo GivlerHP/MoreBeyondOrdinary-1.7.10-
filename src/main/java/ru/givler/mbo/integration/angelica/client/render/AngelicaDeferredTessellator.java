@@ -23,6 +23,7 @@ public final class AngelicaDeferredTessellator {
   }
 
   public static boolean begin() {
+    ru.givler.mbo.client.diagnostics.TileEntityRenderTrace.deferred("ENTER");
     try {
       initialize();
       if (active.getBoolean(getLocal.invoke(null))) return false;
@@ -38,10 +39,10 @@ public final class AngelicaDeferredTessellator {
   }
 
   public static void end(boolean owned) {
-    if (!owned) return;
-    try { exit.invoke(null); }
+    try { if(owned)exit.invoke(null); }
     catch (ReflectiveOperationException e) {
       throw new IllegalStateException("Cannot release Angelica deferred Tessellator", e);
     }
+    finally {ru.givler.mbo.client.diagnostics.TileEntityRenderTrace.deferred("EXIT");}
   }
 }

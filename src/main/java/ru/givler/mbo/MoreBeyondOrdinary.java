@@ -57,7 +57,7 @@ public class MoreBeyondOrdinary {
   public static final String VERSION = "@VERSION@";
   public static final String DEPENDENCIES =
       "required-after:geckolib3;required-after:Baubles;"
-          + "after:Thaumcraft;after:BiomesOPlenty;after:minefantasy2;after:customnpcs;after:NotEnoughItems;"
+          + "after:angelica;after:Thaumcraft;after:BiomesOPlenty;after:minefantasy2;after:customnpcs;after:NotEnoughItems;"
           + "before:Growthcraft;before:Growthcraft|Apples";
 
   @Mod.Instance(value = MoreBeyondOrdinary.MODID)

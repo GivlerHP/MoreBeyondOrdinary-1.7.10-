@@ -1622,3 +1622,13 @@ mbo.guiScale.hint=Fractional GUI scale from RightProperGUIScale. Uses the mod co
 
 mbo.ctm.panes=Connected glass panes
 mbo.ctm.panes.hint=Apply resource-pack CTM to glass panes. Applying rebuilds chunks; no restart is needed.
+
+mbo.window.title=Window settings
+mbo.window.fullscreen=Fullscreen
+mbo.window.fullscreen.hint=Switch fullscreen on or off. F11 still works.
+mbo.window.borderless=Fullscreen window
+mbo.window.borderless.hint=Replaces fullscreen (F11) with borderless mode. Applies without restarting.
+mbo.window.pause=Pause when unfocused
+mbo.window.pause.hint=Turn off to keep playing during Alt+Tab and Windows screenshots.
+mbo.window.unavailable=Borderless fullscreen requires LWJGL3ify. The pause option works without it.
+mbo.window.apply=Apply

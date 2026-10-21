@@ -36,6 +36,7 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.core.TessellatorEmptyBufferTransformer",
       "ru.givler.mbo.core.ColoredLightTransformer",
       "ru.givler.mbo.core.ColoredEntityLightTransformer",
+      "ru.givler.mbo.core.TileEntityTraceTransformer",
       "ru.givler.mbo.core.ColoredDynamicLightTransformer",
       "ru.givler.mbo.core.ColoredLightShaderTransformer",
       "ru.givler.mbo.core.ThaumcraftFontTransformer",

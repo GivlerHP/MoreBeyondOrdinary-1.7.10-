@@ -27,9 +27,8 @@ public final class AngelicaClientRegistration {
       Class<?> proxy=Class.forName("com.gtnewhorizons.angelica.proxy.ClientProxy");
       Object options=proxy.getMethod("options").invoke(null);
       set(options,"quality","useCeleritasSmoothLighting",false);
-      set(options,"performance","sectionGatedTesrCulling",false);
-      set(options,"performance","useEntityCulling",false);
-      set(options,"performance","useOcclusionCulling",false);
+      // Preserve the user's culling options. The lighting-related TESR flicker
+      // came from Carpenter's Blocks writing Forge's render pass on worker threads.
       set(options,"advanced","enableDeferredBatching",false);
       Class<?> api=Class.forName("net.irisshaders.iris.api.v0.IrisApi");
       irisApi=api.getMethod("getInstance").invoke(null);
@@ -37,6 +36,8 @@ public final class AngelicaClientRegistration {
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new AngelicaClientRegistration());
       ru.givler.mbo.client.render.WaterloggedBlockRenderer.enableAngelicaChunkWater();
       net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new AngelicaTextureReport());
+      net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.diagnostics.TileEntityTraceCommand());
+      cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(ru.givler.mbo.client.diagnostics.TileEntityRenderTrace.INSTANCE);
       HandRenderTrace.enabled=true;
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new HandRenderTrace());
       System.out.println("[MBO] Angelica compatibility: preserve MBO vertex lighting and immediate entity/TESR rendering");

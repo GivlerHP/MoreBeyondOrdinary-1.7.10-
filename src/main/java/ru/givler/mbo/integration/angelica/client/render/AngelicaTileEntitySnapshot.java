@@ -68,6 +68,7 @@ public final class AngelicaTileEntitySnapshot {
       // Distance is still checked per TESR by the dispatcher. Avoid calling arbitrary mod distance overrides on workers.
       dataType.getField("maxTeRenderDistSq").setDouble(data,Double.POSITIVE_INFINITY);
       dataType.getField("sectionBuilt").set(data,builtArray);dataType.getField("sectionBuiltResults").set(data,prepared);
+      ru.givler.mbo.client.diagnostics.TileEntityRenderTrace.section(x,y,z,nextGlobal.size(),nextCulled.size(),prepared.length);
       if(!logged){logged=true;System.out.println("[MBO] Angelica live TESR metadata moved to client-thread upload; terrain meshing stays threaded");}
     }catch(ReflectiveOperationException e){throw new IllegalStateException("Cannot publish Angelica TESR snapshot",e);}
   }

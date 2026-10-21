@@ -346,6 +346,9 @@ public class ClientProxy extends CommonProxy {
     MinecraftForge.EVENT_BUS.register(new SignGuiEvents());
     MinecraftForge.EVENT_BUS.register(new DungeonAreaWorldRenderer());
     MinecraftForge.EVENT_BUS.register(new WaterloggedBlockRenderer());
+    ru.givler.mbo.client.settings.WindowSettingsMenu windowSettings = new ru.givler.mbo.client.settings.WindowSettingsMenu();
+    MinecraftForge.EVENT_BUS.register(windowSettings);
+    FMLCommonHandler.instance().bus().register(windowSettings);
     MinecraftForge.EVENT_BUS.register(new WaterSurfaceColor());
     MinecraftForge.EVENT_BUS.register(new PlatformTechnicalRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaSelectionRenderer());

@@ -62,7 +62,7 @@ spotless {
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.26.27"
+version = "1.26.32"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 
@@ -335,6 +335,13 @@ task verifyConnectedTextures(type: JavaExec, dependsOn: testClasses) {
     main = 'ru.givler.mbo.client.texture.ConnectedTextureSmoke'
 }
 tasks.check.dependsOn('verifyConnectedTextures')
+
+task verifyWindowSettings(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.WindowSettingsSmoke'
+    onlyIf { angelicaDevEnabled }
+}
+tasks.check.dependsOn('verifyWindowSettings')
 
 task verifyNaturalTextures(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath

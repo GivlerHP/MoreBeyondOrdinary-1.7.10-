@@ -74,12 +74,16 @@ public final class WaterloggingCameraHooks {
     return y - view.yOffset + cameraEyeHeight(view);
   }
 
-  public static Block getViewBlock(World world, EntityLivingBase entity, float partialTicks) {
-    Vec3 camera = capturedEntity == entity && capturedCamera != null
+  public static Vec3 getCameraPosition(EntityLivingBase entity, float partialTicks) {
+    return capturedEntity == entity && capturedCamera != null
         ? capturedCamera : Vec3.createVectorHelper(
             entity.prevPosX + (entity.posX - entity.prevPosX) * partialTicks,
             interpolatedEyeY(entity, partialTicks),
             entity.prevPosZ + (entity.posZ - entity.prevPosZ) * partialTicks);
+  }
+
+  public static Block getViewBlock(World world, EntityLivingBase entity, float partialTicks) {
+    Vec3 camera = getCameraPosition(entity, partialTicks);
     double x = camera.xCoord;
     double y = camera.yCoord;
     double z = camera.zCoord;

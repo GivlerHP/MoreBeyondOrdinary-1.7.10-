@@ -1912,3 +1912,13 @@ mbo.guiScale.hint=Дробный масштаб RightProperGUIScale. Диапа�
 
 mbo.ctm.panes=Соединение стеклянных панелей
 mbo.ctm.panes.hint=Применять CTM ресурспака к стеклянным панелям. После применения чанки перестраиваются; перезапуск не требуется.
+
+mbo.window.title=Настройки окна
+mbo.window.fullscreen=Полноэкранный режим
+mbo.window.fullscreen.hint=Включает или выключает полный экран. F11 тоже работает.
+mbo.window.borderless=Полноэкранное окно
+mbo.window.borderless.hint=Заменяет полный экран (F11) режимом без рамок. Без перезапуска.
+mbo.window.pause=Пауза при потере фокуса
+mbo.window.pause.hint=Выключи, чтобы Alt+Tab и скриншоты Windows не ставили игру на паузу.
+mbo.window.unavailable=Для режима без рамок нужен LWJGL3ify. Настройка паузы работает и без него.
+mbo.window.apply=Применить

@@ -21,6 +21,7 @@ public final class AngelicaColoredLightOptions {
       List<Object> pages=(List<Object>)field.get(screen);
       for(Object page:pages)if("RGB-MBO".equals(page.getClass().getMethod("getName").invoke(page)))return true;
       AngelicaGuiScale.replace(pages);
+      AngelicaWindowOptions.attach(pages);
       pages.add(createPage());
       pages.add(AngelicaCtmOptions.createPage());
       screen.getClass().getMethod("rebuildGUI").invoke(screen);
