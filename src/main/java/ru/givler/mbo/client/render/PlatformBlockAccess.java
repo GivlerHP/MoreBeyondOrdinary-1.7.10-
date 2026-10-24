@@ -127,6 +127,8 @@ final class PlatformBlockAccess implements IBlockAccess, ru.givler.mbo.client.li
       }
     }
     Integer saved = frozenLight.get(key(x, y, z));
+    if(saved==null && useWorldOutside)
+      return DungeonWallLighting.brightness(world,originX+x,originY+y,originZ+z,minimum);
     return saved == null
         ? world.getLightBrightnessForSkyBlocks(originX + x, originY + y, originZ + z, minimum)
         : saved.intValue();

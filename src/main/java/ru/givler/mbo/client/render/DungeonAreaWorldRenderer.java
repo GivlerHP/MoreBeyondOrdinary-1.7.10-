@@ -255,6 +255,7 @@ public final class DungeonAreaWorldRenderer implements net.minecraft.client.reso
     // Lighting changes on ticks; do not rescan the whole volume every frame.
     if (old != null && old.checkedEpoch == lightEpoch) return old;
     int sig = currentLightSignature(a, mc);
+    sig=31*sig+RenderMovingPlatform.rgbSignature(a.getX(),a.getY(),a.getZ(),a.getSizeX(),a.getSizeY(),a.getSizeZ());
     for (PlatformBlock b : a.getBlocks()) {
       sig = 31 * sig + net.minecraft.block.Block.getIdFromBlock(b.block);
       sig = 31 * sig + b.meta;
@@ -274,12 +275,17 @@ public final class DungeonAreaWorldRenderer implements net.minecraft.client.reso
                 true));
     r.renderAllFaces = false;
     boolean local=PlatformVertexLighting.begin();
+    int untinted=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.beginUntintedBuffer();
     try {
     Tessellator t = PlatformVertexLighting.tessellator();
     t.startDrawingQuads();
-    for (PlatformBlock b : a.getBlocks()) r.renderBlockByRenderType(b.block, b.x, b.y, b.z);
+    for (PlatformBlock b : a.getBlocks()) RenderMovingPlatform.renderLitBlock(r,b.block,b.x,b.y,b.z);
+    PlatformVertexLighting.apply(t,a.getX(),a.getY(),a.getZ());
     t.draw();
-    } finally {PlatformVertexLighting.end(local);}
+    } finally {
+      ru.givler.mbo.client.lighting.ColoredLightRenderHooks.endUntintedBuffer(untinted);
+      PlatformVertexLighting.end(local);
+    }
     GL11.glEndList();
     Cache made = new Cache(list, sig);
     made.checkedEpoch = lightEpoch;
@@ -294,7 +300,7 @@ public final class DungeonAreaWorldRenderer implements net.minecraft.client.reso
         for (int z = -1; z <= a.getSizeZ(); z++)
           signature =
               31 * signature
-                  + mc.theWorld.getLightBrightnessForSkyBlocks(
+                  + DungeonWallLighting.brightness(mc.theWorld,
                       a.getX() + x, a.getY() + y, a.getZ() + z, 0);
     return signature;
   }
