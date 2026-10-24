@@ -78,10 +78,10 @@ public final class AngelicaDefaultCtmSmoke {
     check(savedConfig==setting.getDeclaringClass(),"Save the configuration that owns the pane field");
     boolean before=setting.getBoolean(null);
     Object page=ru.givler.mbo.integration.angelica.client.gui.AngelicaCtmOptions.createPage();
-    check("CTM".equals(page.getClass().getMethod("getName").invoke(page)),"CTM page name");
+    check("mbo.pack.page".equals(page.getClass().getMethod("getName").invoke(page)),"Resource-pack page localization key");
     List<?> options=(List<?>)page.getClass().getMethod("getOptions").invoke(page);
-    check(options.size()==1,"Pane menu toggle");
-    Object option=options.get(0);Class<?> type=option.getClass();
+    check(options.size()==8,"Resource-pack feature toggles");
+    Object option=options.get(2);Class<?> type=option.getClass();
     check(type.getMethod("getControl").invoke(option)!=null,"Pane checkbox control");
     type.getMethod("setValue",Object.class).invoke(option,!before);
     check(setting.getBoolean(null)==before,"Pane setting must wait for Apply");
@@ -91,7 +91,7 @@ public final class AngelicaDefaultCtmSmoke {
     type.getMethod("applyChanges").invoke(option);
     Object storage=type.getMethod("getStorage").invoke(option);
     Class<?> storageType=Class.forName("me.jellysquid.mods.sodium.client.gui.options.storage.OptionStorage");
-    check(((boolean[])storageType.getMethod("getData").invoke(storage))[0]==!before,"Pane Apply binding");
+    check(((Map<?,?>)storageType.getMethod("getData").invoke(storage)).get("panes").equals(!before),"Pane Apply binding");
     System.out.println("Actual Angelica CTM menu: native pane checkbox, pending Apply and Undo passed");
   }
   static class TestBlock extends net.minecraft.block.Block {

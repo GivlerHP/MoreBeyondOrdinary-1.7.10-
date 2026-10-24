@@ -164,10 +164,14 @@ public class RenderMovingPlatform extends Render {
 
   private Cache getCache(
       EntityMovingPlatform platform, double worldX, double worldY, double worldZ) {
+    Cache old = cache.get(platform.getPlatformId());
+    // Movement is interpolated every frame, but baked lighting only needs one
+    // update per world tick. Otherwise every fractional position recompiles all
+    // block models and uploads a new display list, even within the same tick.
+    if (old != null && old.owner.get() == platform && old.evaluatedEpoch == lightEpoch) return old;
     int ox = (int) Math.floor(worldX),
         oy = (int) Math.floor(worldY),
         oz = (int) Math.floor(worldZ);
-    Cache old = cache.get(platform.getPlatformId());
     LightSamples samples=old!=null && old.samples.matches(platform,worldX,worldY,worldZ)
         ? old.samples : new LightSamples(platform,worldX,worldY,worldZ);
     int[] light = interpolatedLightField(platform, worldX, worldY, worldZ,samples);
@@ -183,7 +187,9 @@ public class RenderMovingPlatform extends Render {
     signature=31*signature+rgbSignature(worldX,worldY,worldZ,platform.getSizeX(),platform.getSizeY(),platform.getSizeZ());
     int cx = ox + platform.getSizeX() / 2, cz = oz + platform.getSizeZ() / 2;
     signature = 31 * signature + platform.worldObj.getBiomeGenForCoords(cx, cz).biomeID;
-    if (old != null && old.signature == signature) { old.samples=samples; return old; }
+    if (old != null && old.owner.get() == platform && old.signature == signature) {
+      old.samples=samples; old.evaluatedEpoch=lightEpoch; return old;
+    }
     if (old != null) GL11.glDeleteLists(old.list, 1);
     int list = GL11.glGenLists(1);
     GL11.glNewList(list, GL11.GL_COMPILE);
@@ -310,6 +316,7 @@ public class RenderMovingPlatform extends Render {
     final int list, signature;
     final java.lang.ref.WeakReference<EntityMovingPlatform> owner;
     LightSamples samples;
+    long evaluatedEpoch=lightEpoch;
 
     Cache(int list, int signature,EntityMovingPlatform platform,LightSamples samples) {
       this.list = list;

@@ -62,7 +62,7 @@ spotless {
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.26.32"
+version = "1.26.34"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 
@@ -356,3 +356,10 @@ task verifyAngelicaDefaultCtm(type: JavaExec, dependsOn: testClasses) {
     main = 'ru.givler.mbo.integration.angelica.client.AngelicaDefaultCtmSmoke'
 }
 tasks.check.dependsOn('verifyAngelicaDefaultCtm')
+
+task verifyPackFeatures(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.texture.PackFeaturesSmoke'
+    args 'run/resourcepacks/Cinnersis_v1.7.10.zip', '../MF2/libs/OptiFine_1.7.10_HD_U_E7.jar', '.angelica-dev/libs/angelica-2.2.33-dev.jar'
+}
+tasks.check.dependsOn('verifyPackFeatures')

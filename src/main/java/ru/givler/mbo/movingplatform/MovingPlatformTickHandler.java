@@ -266,7 +266,15 @@ public final class MovingPlatformTickHandler {
     double feet = feet(entity);
     for (PlatformBlock block : platform.getTopBlocks()) {
       AxisAlignedBB box = blockBox(platform, block);
-      if (box == null || !overlapXZ(entity, box)) continue;
+      if (box == null) continue;
+      // Server passengers still occupy last tick's horizontal position here.
+      // At an edge the new floor can already have moved out from under them.
+      if (!overlapXZ(entity, box)) {
+        boolean carriedFromOldSurface = !clientOnly && previous != null
+            && previous.intValue() == platform.getEntityId()
+            && overlapXZ(entity, box.getOffsetBoundingBox(-dx, 0D, -dz));
+        if (!carriedFromOldSurface) continue;
+      }
       double oldTop = platform.clipCollisionTop(platform.prevPosY + block.y + block.maxY),
           newTop = box.maxY;
       double oldGap = previousFeet(entity) - oldTop, newGap = feet - newTop;
@@ -279,11 +287,19 @@ public final class MovingPlatformTickHandler {
           oldGap >= -.12D && newGap <= .18D && newGap >= -.55D && entity.motionY <= .2D;
       boolean resting = newGap >= -.35D && newGap <= .12D && entity.motionY <= .05D;
       if (remembered || landing || resting) {
+        boolean vanillaGrounded = entity.onGround;
         snapFeet(entity, newTop);
         entity.moveEntity(clientOnly ? 0D : dx, 0D, clientOnly ? 0D : dz);
         if (entity.motionY < 0D) entity.motionY = 0D;
         entity.onGround = true;
         entity.fallDistance = 0;
+        if (!vanillaGrounded && entity instanceof net.minecraft.entity.item.EntityItem) {
+          // EntityItem already applied air drag because this virtual floor is
+          // absent from vanilla's world blocks. Supply the missing ground
+          // friction, retaining the material's slipperiness (including ice).
+          entity.motionX *= block.block.slipperiness;
+          entity.motionZ *= block.block.slipperiness;
+        }
         carriers.put(entity, platform.getEntityId());
         if (clientOnly) {
           if (ride == null || ride.platformId != platform.getEntityId()) {

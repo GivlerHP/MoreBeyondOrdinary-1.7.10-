@@ -52,6 +52,7 @@ public final class SwimmingAsmSmoke {
     verifyWaterTopUnderside();
     verifyDungeonRenderPass();
     ru.givler.mbo.movingplatform.PlatformClippingSmoke.check();
+    ru.givler.mbo.movingplatform.PlatformMotionSmoke.check();
     verifyPlatformClippingAsm();
     verifyPassengerBodyAsm();
     ru.givler.mbo.core.TickRateSmoke.check();

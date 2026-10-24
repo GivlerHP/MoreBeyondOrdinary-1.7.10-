@@ -14,14 +14,20 @@ public final class AngelicaClientRegistration {
     try {
       Class<?> config=Class.forName("com.gtnewhorizons.angelica.config.AngelicaConfig");
       final Field natural=config.getField("enableNaturalTextures");
+      final Field packFeatures=config.getField("enableMCPatcherForgeFeatures");
       final Field paneCtm=Class.forName("jss.notfine.config.MCPatcherForgeConfig$ConnectedTextures").getField("glassPane");
+      final Field connected=Class.forName("jss.notfine.config.MCPatcherForgeConfig$ConnectedTextures").getField("enabled");
       ru.givler.mbo.integration.angelica.client.render.AngelicaPaneRendering.configure(()->{
-        try{return paneCtm.getBoolean(null);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
+        try{return packFeatures.getBoolean(null)&&connected.getBoolean(null)&&paneCtm.getBoolean(null);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
       });
       ru.givler.mbo.client.texture.NaturalTextureHooks.configure(()->{
-        try{return natural.getBoolean(null);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
+        try{return packFeatures.getBoolean(null)&&natural.getBoolean(null);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
       });
       net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.texture.NaturalTextureHooks.INSTANCE);
+      ((net.minecraft.client.resources.IReloadableResourceManager)net.minecraft.client.Minecraft.getMinecraft().getResourceManager())
+          .registerReloadListener(ru.givler.mbo.client.texture.RandomMobTextureHooks.INSTANCE);
+      net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.texture.RandomMobTextureHooks.INSTANCE);
+      net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(AngelicaSkyHooks.INSTANCE);
       for(String flag:new String[]{"enableEntityBatching","enableCubeInstancing","enableFontRenderer","enableTESRChestCache","enableTESRSignCache","enableTESRProviderDispatch","enableTESRSkullCache","enableTESRJarCache"})
         config.getField(flag).setBoolean(null,false);
       Class<?> proxy=Class.forName("com.gtnewhorizons.angelica.proxy.ClientProxy");

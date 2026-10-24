@@ -1911,6 +1911,23 @@ mbo.light.speedHint=Быстрее обновляется свет — выше 
 mbo.guiScale.hint=Дробный масштаб RightProperGUIScale. Диапазон и шаг берутся из настроек мода.
 
 mbo.ctm.panes=Соединение стеклянных панелей
+mbo.pack.page=Ресурс-паки
+mbo.pack.features=Функции ресурс-паков
+mbo.pack.features.hint=Общая поддержка MCPatcher/OptiFine в Angelica. Для изменения требуется перезапуск игры.
+mbo.pack.connected=Соединённые текстуры (CTM)
+mbo.pack.connected.hint=Соединение, повторение и случайный выбор текстур блоков по правилам пака. Требуется перезапуск игры.
+mbo.pack.panes=Соединение стеклянных панелей
+mbo.pack.panes.hint=Применять CTM стеклянных блоков к панелям. После применения чанки перестраиваются.
+mbo.pack.natural=Естественные текстуры
+mbo.pack.natural.hint=Поворот и отражение текстур по natural.properties. Требуется перезапуск игры.
+mbo.pack.sky=Небо ресурс-пака
+mbo.pack.sky.hint=Модуль Custom Sky: слои неба, солнце и луна из пака. Требуется перезапуск игры.
+mbo.pack.skybox=Слои неба
+mbo.pack.skybox.hint=Небесные панорамы по mcpatcher/sky/world*/sky*.properties с условиями времени, погоды и места. Нужен модуль неба; требуется перезапуск.
+mbo.pack.mobs=Разные текстуры мобов
+mbo.pack.mobs.hint=Варианты из mcpatcher/mob или optifine/random/entity, правила .properties и стабильный выбор для каждого моба. Варианты должны быть в паке. Требуется перезапуск.
+mbo.pack.colors=Цвета ресурс-пака
+mbo.pack.colors.hint=Пользовательские цвета воды, травы, листвы и других элементов из пака. Требуется перезапуск игры.
 mbo.ctm.panes.hint=Применять CTM ресурспака к стеклянным панелям. После применения чанки перестраиваются; перезапуск не требуется.
 
 mbo.window.title=Настройки окна

@@ -1621,6 +1621,23 @@ mbo.light.speedHint=Faster light updates use more CPU.
 mbo.guiScale.hint=Fractional GUI scale from RightProperGUIScale. Uses the mod configured range and step.
 
 mbo.ctm.panes=Connected glass panes
+mbo.pack.page=Resource packs
+mbo.pack.features=Resource-pack features
+mbo.pack.features.hint=Master MCPatcher/OptiFine support in Angelica. Requires a game restart.
+mbo.pack.connected=Connected textures (CTM)
+mbo.pack.connected.hint=Connected, repeat and random block textures using pack rules. Requires a game restart.
+mbo.pack.panes=Connected glass panes
+mbo.pack.panes.hint=Apply resource-pack CTM to glass panes. Applying rebuilds chunks.
+mbo.pack.natural=Natural textures
+mbo.pack.natural.hint=Texture rotations and flips from natural.properties. Requires a game restart.
+mbo.pack.sky=Custom sky module
+mbo.pack.sky.hint=Resource-pack sky layers, sun and moon. Requires a game restart.
+mbo.pack.skybox=Custom sky layers
+mbo.pack.skybox.hint=Sky panoramas from mcpatcher/sky/world*/sky*.properties with time, weather and location rules. Requires the sky module and a game restart.
+mbo.pack.mobs=Random mob textures
+mbo.pack.mobs.hint=Variants from mcpatcher/mob or optifine/random/entity with .properties rules and stable per-mob selection. The pack must supply variants. Requires a game restart.
+mbo.pack.colors=Custom colors
+mbo.pack.colors.hint=Resource-pack water, grass, foliage and other custom colors. Requires a game restart.
 mbo.ctm.panes.hint=Apply resource-pack CTM to glass panes. Applying rebuilds chunks; no restart is needed.
 
 mbo.window.title=Window settings

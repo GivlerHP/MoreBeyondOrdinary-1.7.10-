@@ -55,7 +55,7 @@ public final class NaturalTextureHooks {
     if(key.startsWith("textures/blocks/"))key=key.substring(16);
     return key.indexOf(':')<0?"minecraft:"+key:key;
   }
-  public static boolean allowBuiltin(boolean original){return original && !configured;}
+  public static boolean allowBuiltin(boolean original){return original && !configured && enabled.getAsBoolean();}
 
   public static long begin(RenderBlocks renderer,Block block,double x,double y,double z,IIcon icon,int face) {
     return beginWorld(renderer==null?null:renderer.blockAccess,x,y,z,icon,face,renderer!=null && renderer.hasOverrideBlockTexture());

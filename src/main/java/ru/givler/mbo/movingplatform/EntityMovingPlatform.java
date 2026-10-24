@@ -87,6 +87,14 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
     return isInRangeToRenderDist(dx * dx + dy * dy + dz * dz);
   }
 
+  /** Visual bounds only: using these as physics bounds would fill the whole lift shaft. */
+  public AxisAlignedBB getPlatformRenderBounds() {
+    return AxisAlignedBB.getBoundingBox(
+        Math.min(posX, lastTickPosX), Math.min(posY, lastTickPosY), Math.min(posZ, lastTickPosZ),
+        Math.max(posX, lastTickPosX) + sizeX, Math.max(posY, lastTickPosY) + sizeY,
+        Math.max(posZ, lastTickPosZ) + sizeZ);
+  }
+
   @Override
   protected void entityInit() {
     dataWatcher.addObject(20, Integer.valueOf(STOPPED_A));
