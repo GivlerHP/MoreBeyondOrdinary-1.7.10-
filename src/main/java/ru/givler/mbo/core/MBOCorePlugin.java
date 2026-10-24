@@ -9,6 +9,7 @@ import java.util.Map;
 public class MBOCorePlugin implements IFMLLoadingPlugin {
   public String[] getASMTransformerClass() {
     return new String[] {
+      "ru.givler.mbo.core.TextureInterpolationTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaPackSettingsTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaSkyTransformer",
       "ru.givler.mbo.core.RandomMobTextureTransformer",

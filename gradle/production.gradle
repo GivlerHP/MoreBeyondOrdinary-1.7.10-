@@ -1,0 +1,42 @@
+// Production and dev artifacts. Keep a verified release separate from runClient output.
+
+jar {
+    from sourceSets.main.output
+    manifest {
+        attributes(
+                'FMLCorePlugin': 'ru.givler.mbo.core.MBOCorePlugin',
+                'FMLCorePluginContainsFMLMod': 'true'
+        )
+    }
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'deobf'
+    manifest {
+        attributes(
+                'FMLCorePlugin': 'ru.givler.mbo.core.MBOCorePlugin',
+                'FMLCorePluginContainsFMLMod': 'true'
+        )
+    }
+}
+
+task stageProductionJar(type: Copy, dependsOn: 'reobf') {
+    from { tasks.jar.archivePath }
+    into 'build/production'
+    outputs.upToDateWhen { false }
+}
+
+task verifyProductionJar(type: JavaExec, dependsOn: ['stageProductionJar', 'testClasses']) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.ProductionJarSmoke'
+    doFirst { args = [file('build/production/' + tasks.jar.archivePath.name).absolutePath] }
+}
+
+task coloredLightShaderPack(type: Zip) {
+    from 'shaderpacks/MBO_RGB_Lite'
+    archiveFileName = 'MBO_RGB_Lite.zip'
+    destinationDirectory = file('build/libs')
+}
+
+tasks.build.dependsOn('deobfJar', 'verifyProductionJar')

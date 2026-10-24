@@ -1,0 +1,46 @@
+// Source formatting rules.
+
+spotless {
+    enforceCheck = false
+    java {
+        target 'src/main/java/ru/givler/mbo/entity/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/entity/ai/*Skeleton*.java',
+                'src/main/java/ru/givler/mbo/entity/ai/EntityAIUndeadCamelRider.java',
+                'src/main/java/ru/givler/mbo/entity/ai/EntityAIMountedHuskAttack.java',
+                'src/main/java/ru/givler/mbo/handler/SkeletonCombatEvents.java',
+                 'src/main/java/ru/givler/mbo/core/Skeleton*Transformer.java',
+                'src/main/java/ru/givler/mbo/core/UndeadMechanicsTransformer.java',
+                'src/main/java/ru/givler/mbo/entity/monster/**/*.java',
+                'src/main/java/ru/givler/mbo/client/model/monster/**/*.java',
+                'src/main/java/ru/givler/mbo/client/render/monster/**/*.java',
+                'src/main/java/ru/givler/mbo/item/weapon/ItemEffectArrow.java',
+                'src/main/java/ru/givler/mbo/handler/UndeadEvents.java',
+                'src/main/java/ru/givler/mbo/handler/EffectArrowEvents.java',
+                'src/main/java/ru/givler/mbo/config/MobSpawnConfig.java',
+                'src/main/java/ru/givler/mbo/config/MobBiomeConfig.java',
+                'src/main/java/ru/givler/mbo/integration/minefantasy2/UndeadMineFantasy.java',
+                'src/test/java/ru/givler/mbo/entity/ai/UndeadVariantsSmoke.java',
+                'src/main/java/ru/givler/mbo/client/render/SkeletonRenderHooks.java',
+                'src/test/java/ru/givler/mbo/entity/ai/SkeletonCombatSmoke.java',
+                'src/main/java/ru/givler/mbo/item/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/block/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/client/model/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/client/render/fauna/**/*.java',
+                'src/main/java/ru/givler/mbo/config/Fauna*.java',
+                'src/main/java/ru/givler/mbo/handler/Fauna*.java',
+                'src/main/java/ru/givler/mbo/integration/**/Fauna*.java',
+                'src/main/java/ru/givler/mbo/network/packet/PacketCamelDash.java',
+                'src/main/java/ru/givler/mbo/network/packet/PacketElderGuardianCurse.java',
+                'src/test/java/ru/givler/mbo/fauna/**/*.java'
+        googleJavaFormat('1.19.2')
+        custom 'compact model parts', { source ->
+            source.replaceAll(/(?ms)^([ \t]*)part\(\s*(".*?)\);/) { full, indent, arguments ->
+                def values = arguments.split(',').collect { it.trim() }
+                if (values.size() != 17) return full
+                return indent + 'part(' + values[0..3].join(', ') + ',\n' +
+                        indent + '    ' + values[4..9].join(', ') + ',\n' +
+                        indent + '    ' + values[10..16].join(', ') + ');'
+            }
+        }
+    }
+}

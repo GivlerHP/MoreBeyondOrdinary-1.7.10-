@@ -1,0 +1,147 @@
+// Feature checks and optional renderer audits. Existing task names and check dependencies are retained.
+
+task verifyProductionTransformers(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.ProductionTransformersSmoke'
+    args new File(gradle.gradleUserHomeDir, 'caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/srgs').absolutePath
+    if (project.hasProperty('coloredLightOptifineJar')) {
+        classpath += files(project.property('coloredLightOptifineJar'))
+        args project.property('coloredLightOptifineJar'), project.property('coloredLightMinecraftJar')
+    }
+    if (project.hasProperty('productionAuditExtraJars')) classpath += files(project.property('productionAuditExtraJars').toString().split(';'))
+}
+
+task verifyWaterloggedStorage(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.waterlogging.WaterloggedStorageSmoke'
+}
+
+task verifyBoatRiderRender(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.BoatRiderRenderSmoke'
+}
+
+task verifyFauna(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.fauna.FaunaSmoke'
+    if (project.hasProperty('faunaCaveJar')) classpath += files(project.property('faunaCaveJar'))
+}
+
+task verifyPowderSnow(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.fauna.PowderSnowSmoke'
+}
+
+task verifySkeletonCombat(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.entity.ai.SkeletonCombatSmoke'
+}
+
+task verifyTessellatorEmptyBuffer(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.TessellatorEmptyBufferSmoke'
+}
+
+task verifyColoredLight(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.ColoredLightSmoke'
+    if (project.hasProperty('coloredLightOptifineJar')) {
+        classpath += files(project.property('coloredLightOptifineJar'))
+        args project.property('coloredLightOptifineJar'), project.property('coloredLightMinecraftJar'), project.property('coloredLightMappings')
+    }
+}
+
+task verifyUnifiedDynamicLights(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.UnifiedDynamicLightSmoke'
+    if (project.hasProperty('dynamicLightsFalseTweaksJar') && project.hasProperty('coloredLightMappings')) {
+        args project.property('dynamicLightsFalseTweaksJar'), project.property('coloredLightMappings')
+    } else onlyIf { false }
+}
+
+task verifySwimmingAsm(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.swimming.SwimmingAsmSmoke'
+}
+
+task verifyUndeadVariants(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.entity.ai.UndeadVariantsSmoke'
+}
+
+task verifyAngelicaOptions(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.AngelicaOptionsSmoke'
+    if (project.hasProperty('angelicaAuditJar')) classpath += files(project.property('angelicaAuditJar').toString().split(';'))
+    else onlyIf { false }
+    if (project.hasProperty('angelicaAuditJava')) executable = project.property('angelicaAuditJava')
+}
+
+task verifyAngelicaTileSnapshot(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.AngelicaTileEntitySnapshotSmoke'
+    if (project.hasProperty('angelicaAuditJar')) classpath += files(project.property('angelicaAuditJar').toString().split(';'))
+    else onlyIf { false }
+    if (project.hasProperty('angelicaAuditJava')) executable = project.property('angelicaAuditJava')
+}
+
+task verifyConnectedTextures(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.texture.ConnectedTextureSmoke'
+}
+
+task verifyWindowSettings(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.WindowSettingsSmoke'
+    onlyIf { angelicaDevEnabled }
+}
+
+task verifyNaturalTextures(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.texture.NaturalTextureSmoke'
+    if (project.hasProperty('optifineReference')) systemProperty 'optifineReference', project.property('optifineReference')
+    if (project.hasProperty('ctmPack')) systemProperty 'ctmPack', project.property('ctmPack')
+}
+
+task verifyAngelicaDefaultCtm(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.integration.angelica.client.AngelicaDefaultCtmSmoke'
+}
+
+task verifyPackFeatures(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.texture.PackFeaturesSmoke'
+    args 'run/resourcepacks/Cinnersis_v1.7.10.zip', '../MF2/libs/OptiFine_1.7.10_HD_U_E7.jar', '.angelica-dev/libs/angelica-2.2.33-dev.jar'
+}
+
+task verifyTextureInterpolation(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.texture.TextureInterpolationSmoke'
+}
+
+task verifyTextureInterpolationStandalone(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath.filter {
+        !it.name.startsWith('angelica-') && !it.name.startsWith('gtnhlib-') && !it.name.startsWith('AAunimixins-')
+    }
+    main = 'ru.givler.mbo.client.texture.TextureInterpolationSmoke'
+}
+
+apply from: 'gradle/verifyNativeResources.gradle'
+
+tasks.check.dependsOn(
+        'verifyProductionTransformers',
+        'verifySkeletonCombat',
+        'verifyColoredLight',
+        'verifyUnifiedDynamicLights',
+        'verifyTessellatorEmptyBuffer',
+        'verifyWaterloggedStorage',
+        'verifySwimmingAsm',
+        'verifyUndeadVariants',
+        'verifyConnectedTextures',
+        'verifyWindowSettings',
+        'verifyNaturalTextures',
+        'verifyAngelicaDefaultCtm',
+        'verifyPackFeatures',
+        'verifyTextureInterpolation',
+        'verifyTextureInterpolationStandalone'
+)

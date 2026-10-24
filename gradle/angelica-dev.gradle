@@ -1,0 +1,69 @@
+// Optional Angelica dev runtime, dependency remapping and client launch.
+
+// Dev renderer can be disabled for A/B runs: gradlew runClient -PwithoutAngelica.
+ext.angelicaDevEnabled = !project.hasProperty('withoutAngelica')
+def oldChickenJars = ['CodeChickenCore-1.7.10-1.0.7.48-universal.jar',
+        'CodeChickenLib-1.7.10-1.1.3.141-universal.jar',
+        'NotEnoughItems-1.7.10-1.0.5.120-universal.jar']
+configurations { angelicaDevTools }
+
+dependencies {
+    angelicaDevTools 'org.ow2.asm:asm-debug-all:5.0.3'
+    if (angelicaDevEnabled) {
+        // Modern CodeChickenCore already embeds its matching CodeChickenLib.
+        implementation files('.angelica-dev/libs/CodeChickenCore-1.4.22-dev.jar',
+                '.angelica-dev/libs/NotEnoughItems-2.8.161-GTNH-dev.jar')
+        runtimeOnly files('.angelica-dev/libs/angelica-2.2.33-dev.jar',
+                '.angelica-dev/libs/gtnhlib-0.11.54-dev.jar',
+                '.angelica-dev/libs/AAunimixins-all-1.7.10-0.3.1.jar')
+    } else {
+        implementation name: "CodeChickenLib-1.7.10-1.1.3.141-universal"
+        implementation name: "CodeChickenCore-1.7.10-1.0.7.48-universal"
+        implementation name: "NotEnoughItems-1.7.10-1.0.5.120-universal"
+    }
+}
+
+def angelicaDevInputs = fileTree('libs') { include '*.jar'; exclude oldChickenJars } +
+        files('.angelica-dev/libs/AAunimixins-all-1.7.10-0.3.1.jar')
+task compileAngelicaDevTools(type: JavaCompile) {
+    source = files('devtools/RemapDevJars.java')
+    classpath = configurations.angelicaDevTools
+    destinationDirectory = file('build/angelica-dev-tools')
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+task prepareAngelicaDev(type: JavaExec, dependsOn: compileAngelicaDevTools) {
+    classpath = files('build/angelica-dev-tools') + configurations.angelicaDevTools
+    main = 'RemapDevJars'
+    inputs.files angelicaDevInputs
+    inputs.file 'devtools/RemapDevJars.java'
+    outputs.dir '.angelica-dev/mapped-libs'
+    doFirst {
+        args = [new File(gradle.gradleUserHomeDir,
+                'caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/srgs/srg-mcp.srg').absolutePath,
+                file('.angelica-dev/mapped-libs').absolutePath] + angelicaDevInputs.files.collect { it.absolutePath }
+    }
+}
+
+afterEvaluate {
+    tasks.matching { it.name == 'runClient' || it.name == 'run' }.all {
+        jvmArgs '-noverify'
+        if (file('.angelica-dev/natives/OpenAL64.dll').exists()) {
+            systemProperty 'org.lwjgl.librarypath', file('.angelica-dev/natives').absolutePath
+        }
+        if (angelicaDevEnabled) {
+            // CustomNPC+ bundles an older Mixin. UniMixins must own bootstrap in the dev classpath.
+            // ForgeGradle 1.2 adds all libs/*.jar itself, in addition to declared dependencies.
+            dependsOn prepareAngelicaDev
+            def remappedNames = angelicaDevInputs.files.collect { it.name }
+            classpath = files('.angelica-dev/mapped-libs/AAunimixins-all-1.7.10-0.3.1.jar') +
+                    files(classpath.files.findAll { !oldChickenJars.contains(it.name) }.collect {
+                        remappedNames.contains(it.name) ? file('.angelica-dev/mapped-libs/' + it.name) : it
+                    })
+            args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker'
+        }
+        if (project.hasProperty('memoryProfile')) {
+            jvmArgs '-XX:NativeMemoryTracking=summary'
+        }
+    }
+}

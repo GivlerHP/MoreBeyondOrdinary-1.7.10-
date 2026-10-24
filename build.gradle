@@ -14,55 +14,12 @@ apply plugin: 'forge'
 apply plugin: 'idea'
 apply plugin: 'com.diffplug.spotless'
 
-spotless {
-    enforceCheck = false
-    java {
-        target 'src/main/java/ru/givler/mbo/entity/fauna/**/*.java',
-                'src/main/java/ru/givler/mbo/entity/ai/*Skeleton*.java',
-                'src/main/java/ru/givler/mbo/entity/ai/EntityAIUndeadCamelRider.java',
-                'src/main/java/ru/givler/mbo/entity/ai/EntityAIMountedHuskAttack.java',
-                'src/main/java/ru/givler/mbo/handler/SkeletonCombatEvents.java',
-                 'src/main/java/ru/givler/mbo/core/Skeleton*Transformer.java',
-                'src/main/java/ru/givler/mbo/core/UndeadMechanicsTransformer.java',
-                'src/main/java/ru/givler/mbo/entity/monster/**/*.java',
-                'src/main/java/ru/givler/mbo/client/model/monster/**/*.java',
-                'src/main/java/ru/givler/mbo/client/render/monster/**/*.java',
-                'src/main/java/ru/givler/mbo/item/weapon/ItemEffectArrow.java',
-                'src/main/java/ru/givler/mbo/handler/UndeadEvents.java',
-                'src/main/java/ru/givler/mbo/handler/EffectArrowEvents.java',
-                'src/main/java/ru/givler/mbo/config/MobSpawnConfig.java',
-                'src/main/java/ru/givler/mbo/config/MobBiomeConfig.java',
-                'src/main/java/ru/givler/mbo/integration/minefantasy2/UndeadMineFantasy.java',
-                'src/test/java/ru/givler/mbo/entity/ai/UndeadVariantsSmoke.java',
-                'src/main/java/ru/givler/mbo/client/render/SkeletonRenderHooks.java',
-                'src/test/java/ru/givler/mbo/entity/ai/SkeletonCombatSmoke.java',
-                'src/main/java/ru/givler/mbo/item/fauna/**/*.java',
-                'src/main/java/ru/givler/mbo/block/fauna/**/*.java',
-                'src/main/java/ru/givler/mbo/client/model/fauna/**/*.java',
-                'src/main/java/ru/givler/mbo/client/render/fauna/**/*.java',
-                'src/main/java/ru/givler/mbo/config/Fauna*.java',
-                'src/main/java/ru/givler/mbo/handler/Fauna*.java',
-                'src/main/java/ru/givler/mbo/integration/**/Fauna*.java',
-                'src/main/java/ru/givler/mbo/network/packet/PacketCamelDash.java',
-                'src/main/java/ru/givler/mbo/network/packet/PacketElderGuardianCurse.java',
-                'src/test/java/ru/givler/mbo/fauna/**/*.java'
-        googleJavaFormat('1.19.2')
-        custom 'compact model parts', { source ->
-            source.replaceAll(/(?ms)^([ \t]*)part\(\s*(".*?)\);/) { full, indent, arguments ->
-                def values = arguments.split(',').collect { it.trim() }
-                if (values.size() != 17) return full
-                return indent + 'part(' + values[0..3].join(', ') + ',\n' +
-                        indent + '    ' + values[4..9].join(', ') + ',\n' +
-                        indent + '    ' + values[10..16].join(', ') + ');'
-            }
-        }
-    }
-}
+apply from: 'gradle/formatting.gradle'
 
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.26.35"
+version = "1.26.37"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 
@@ -79,15 +36,9 @@ repositories {
     flatDir { dirs 'libs' }
 }
 
-// Dev renderer can be disabled for A/B runs: gradlew runClient -PwithoutAngelica.
-def angelicaDevEnabled = !project.hasProperty('withoutAngelica')
-def oldChickenJars = ['CodeChickenCore-1.7.10-1.0.7.48-universal.jar',
-        'CodeChickenLib-1.7.10-1.1.3.141-universal.jar',
-        'NotEnoughItems-1.7.10-1.0.5.120-universal.jar']
-configurations { angelicaDevTools }
+apply from: 'gradle/angelica-dev.gradle'
 
 dependencies {
-    angelicaDevTools 'org.ow2.asm:asm-debug-all:5.0.3'
     implementation name: "geckolib-unofficial-1.7.10-1.0.4-dev"
     implementation name: "Baubles-1.7.10-1.0.1.10-dev"
     implementation name: "MF2-dev"
@@ -96,63 +47,8 @@ dependencies {
     implementation name: "CustomNPC-Plus-1.10.2"
     implementation name: "Thaumcraft-4-Ariamis-4.2.4.0-deobf"
     implementation name: "Thaumic-Dyes-deobf"
-    if (angelicaDevEnabled) {
-        // Modern CodeChickenCore already embeds its matching CodeChickenLib.
-        implementation files('.angelica-dev/libs/CodeChickenCore-1.4.22-dev.jar',
-                '.angelica-dev/libs/NotEnoughItems-2.8.161-GTNH-dev.jar')
-        runtimeOnly files('.angelica-dev/libs/angelica-2.2.33-dev.jar',
-                '.angelica-dev/libs/gtnhlib-0.11.54-dev.jar',
-                '.angelica-dev/libs/AAunimixins-all-1.7.10-0.3.1.jar')
-    } else {
-        implementation name: "CodeChickenLib-1.7.10-1.1.3.141-universal"
-        implementation name: "CodeChickenCore-1.7.10-1.0.7.48-universal"
-        implementation name: "NotEnoughItems-1.7.10-1.0.5.120-universal"
-    }
     implementation name: "Carpentersblocks-1.0.0.0-deobf"
     implementation ("com.github.GTNewHorizons:waila:1.19.30:dev") { transitive = false }
-}
-
-def angelicaDevInputs = fileTree('libs') { include '*.jar'; exclude oldChickenJars } +
-        files('.angelica-dev/libs/AAunimixins-all-1.7.10-0.3.1.jar')
-task compileAngelicaDevTools(type: JavaCompile) {
-    source = files('devtools/RemapDevJars.java')
-    classpath = configurations.angelicaDevTools
-    destinationDirectory = file('build/angelica-dev-tools')
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
-}
-task prepareAngelicaDev(type: JavaExec, dependsOn: compileAngelicaDevTools) {
-    classpath = files('build/angelica-dev-tools') + configurations.angelicaDevTools
-    main = 'RemapDevJars'
-    inputs.files angelicaDevInputs
-    inputs.file 'devtools/RemapDevJars.java'
-    outputs.dir '.angelica-dev/mapped-libs'
-    doFirst {
-        args = [new File(gradle.gradleUserHomeDir,
-                'caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/srgs/srg-mcp.srg').absolutePath,
-                file('.angelica-dev/mapped-libs').absolutePath] + angelicaDevInputs.files.collect { it.absolutePath }
-    }
-}
-
-jar {
-    from sourceSets.main.output
-    manifest {
-        attributes(
-                'FMLCorePlugin': 'ru.givler.mbo.core.MBOCorePlugin',
-                'FMLCorePluginContainsFMLMod': 'true'
-        )
-    }
-}
-
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
-    manifest {
-        attributes(
-                'FMLCorePlugin': 'ru.givler.mbo.core.MBOCorePlugin',
-                'FMLCorePluginContainsFMLMod': 'true'
-        )
-    }
 }
 
 tasks.withType(JavaCompile) {
@@ -166,98 +62,6 @@ idea {
     }
 }
 
-tasks.build.dependsOn('deobfJar')
-
-task verifyProductionJar(type: JavaExec, dependsOn: ['reobf', 'testClasses']) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.lighting.ProductionJarSmoke'
-    doFirst { args = [tasks.jar.archivePath.absolutePath] }
-}
-tasks.build.dependsOn('verifyProductionJar')
-
-task verifyProductionTransformers(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.core.ProductionTransformersSmoke'
-    args new File(gradle.gradleUserHomeDir, 'caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/srgs').absolutePath
-    if (project.hasProperty('coloredLightOptifineJar')) {
-        classpath += files(project.property('coloredLightOptifineJar'))
-        args project.property('coloredLightOptifineJar'), project.property('coloredLightMinecraftJar')
-    }
-    if (project.hasProperty('productionAuditExtraJars')) classpath += files(project.property('productionAuditExtraJars').toString().split(';'))
-}
-tasks.check.dependsOn('verifyProductionTransformers')
-
-task verifyWaterloggedStorage(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.waterlogging.WaterloggedStorageSmoke'
-}
-
-task verifyBoatRiderRender(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.core.BoatRiderRenderSmoke'
-}
-
-task verifyFauna(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.fauna.FaunaSmoke'
-    if (project.hasProperty('faunaCaveJar')) classpath += files(project.property('faunaCaveJar'))
-}
-
-task verifyPowderSnow(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.fauna.PowderSnowSmoke'
-}
-
-task verifySkeletonCombat(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.entity.ai.SkeletonCombatSmoke'
-}
-
-tasks.check.dependsOn('verifySkeletonCombat')
-
-task verifyTessellatorEmptyBuffer(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.core.TessellatorEmptyBufferSmoke'
-}
-
-task verifyColoredLight(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.lighting.ColoredLightSmoke'
-    if (project.hasProperty('coloredLightOptifineJar')) {
-        classpath += files(project.property('coloredLightOptifineJar'))
-        args project.property('coloredLightOptifineJar'), project.property('coloredLightMinecraftJar'), project.property('coloredLightMappings')
-    }
-}
-
-tasks.check.dependsOn('verifyColoredLight')
-
-task verifyUnifiedDynamicLights(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.core.UnifiedDynamicLightSmoke'
-    if (project.hasProperty('dynamicLightsFalseTweaksJar') && project.hasProperty('coloredLightMappings')) {
-        args project.property('dynamicLightsFalseTweaksJar'), project.property('coloredLightMappings')
-    } else onlyIf { false }
-}
-tasks.check.dependsOn('verifyUnifiedDynamicLights')
-
-
-task coloredLightShaderPack(type: Zip) {
-    from 'shaderpacks/MBO_RGB_Lite'
-    archiveFileName = 'MBO_RGB_Lite.zip'
-    destinationDirectory = file('build/libs')
-}
-
-tasks.check.dependsOn('verifyTessellatorEmptyBuffer')
-
-tasks.check.dependsOn('verifyWaterloggedStorage')
-
-task verifySwimmingAsm(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.swimming.SwimmingAsmSmoke'
-}
-
-tasks.check.dependsOn('verifySwimmingAsm')
-
 processResources {
     duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.EXCLUDE
     inputs.property "version", project.version
@@ -265,101 +69,7 @@ processResources {
     filesMatching('mcmod.info') {
         expand 'version': project.version, 'mcversion': project.minecraft.version
     }
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version': project.version, 'mcversion': project.minecraft.version
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-
-    doLast {
-        def metadata = new File(destinationDir, 'mcmod.info')
-        metadata.setText(metadata.getText('UTF-8').replace('${version}', project.version.toString()).replace('${mcversion}', '1.7.10'), 'UTF-8')
-    }
-    // DecorAtlasSprite loads model and particle textures directly from their shared folder.
 }
 
-afterEvaluate {
-    tasks.matching { it.name == 'runClient' || it.name == 'run' }.all {
-        jvmArgs '-noverify'
-        if (file('.angelica-dev/natives/OpenAL64.dll').exists()) {
-            systemProperty 'org.lwjgl.librarypath', file('.angelica-dev/natives').absolutePath
-        }
-        if (angelicaDevEnabled) {
-            // CustomNPC+ bundles an older Mixin. UniMixins must own bootstrap in the dev classpath.
-            // ForgeGradle 1.2 adds all libs/*.jar itself, in addition to declared dependencies.
-            dependsOn prepareAngelicaDev
-            def remappedNames = angelicaDevInputs.files.collect { it.name }
-            classpath = files('.angelica-dev/mapped-libs/AAunimixins-all-1.7.10-0.3.1.jar') +
-                    files(classpath.files.findAll { !oldChickenJars.contains(it.name) }.collect {
-                        remappedNames.contains(it.name) ? file('.angelica-dev/mapped-libs/' + it.name) : it
-                    })
-            args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker'
-        }
-        if (project.hasProperty('memoryProfile')) {
-            jvmArgs '-XX:NativeMemoryTracking=summary'
-        }
-    }
-}
-
-task verifyUndeadVariants(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.entity.ai.UndeadVariantsSmoke'
-}
-tasks.check.dependsOn('verifyUndeadVariants')
-
-apply from: "gradle/verifyNativeResources.gradle"
-
-task verifyAngelicaOptions(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.lighting.AngelicaOptionsSmoke'
-    if (project.hasProperty('angelicaAuditJar')) classpath += files(project.property('angelicaAuditJar').toString().split(';'))
-    else onlyIf { false }
-    if (project.hasProperty('angelicaAuditJava')) executable = project.property('angelicaAuditJava')
-}
-
-task verifyAngelicaTileSnapshot(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.lighting.AngelicaTileEntitySnapshotSmoke'
-    if (project.hasProperty('angelicaAuditJar')) classpath += files(project.property('angelicaAuditJar').toString().split(';'))
-    else onlyIf { false }
-    if (project.hasProperty('angelicaAuditJava')) executable = project.property('angelicaAuditJava')
-}
-
-// The installed renderer owns CTM parsing/selection; verify the custom-model bridge independently of GL.
-task verifyConnectedTextures(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.client.texture.ConnectedTextureSmoke'
-}
-tasks.check.dependsOn('verifyConnectedTextures')
-
-task verifyWindowSettings(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.lighting.WindowSettingsSmoke'
-    onlyIf { angelicaDevEnabled }
-}
-tasks.check.dependsOn('verifyWindowSettings')
-
-task verifyNaturalTextures(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.client.texture.NaturalTextureSmoke'
-    if (project.hasProperty('optifineReference')) systemProperty 'optifineReference', project.property('optifineReference')
-    if (project.hasProperty('ctmPack')) systemProperty 'ctmPack', project.property('ctmPack')
-}
-tasks.check.dependsOn('verifyNaturalTextures')
-
-task verifyAngelicaDefaultCtm(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.integration.angelica.client.AngelicaDefaultCtmSmoke'
-}
-tasks.check.dependsOn('verifyAngelicaDefaultCtm')
-
-task verifyPackFeatures(type: JavaExec, dependsOn: testClasses) {
-    classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.client.texture.PackFeaturesSmoke'
-    args 'run/resourcepacks/Cinnersis_v1.7.10.zip', '../MF2/libs/OptiFine_1.7.10_HD_U_E7.jar', '.angelica-dev/libs/angelica-2.2.33-dev.jar'
-}
-tasks.check.dependsOn('verifyPackFeatures')
+apply from: 'gradle/production.gradle'
+apply from: 'gradle/verification.gradle'
