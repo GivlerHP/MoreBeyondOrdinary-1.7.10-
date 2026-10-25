@@ -196,7 +196,7 @@ public final class WaterloggedBlockRenderer {
 
   private static double surfaceY(ClientWaterloggedBlocks.Position position, double x, double z, double maxY) {
     double[] heights = SURFACE_CORNERS.get();
-    if (heights == null || maxY <= 0.5D) return position.y+maxY;
+    if (heights == null || maxY < SOURCE_SURFACE) return position.y+maxY;
     double localX = x-position.x, localZ = z-position.z;
     return position.y + (heights[0]*(1-localZ)+heights[1]*localZ)*(1-localX)
         + (heights[2]*(1-localZ)+heights[3]*localZ)*localX;
@@ -335,6 +335,9 @@ public final class WaterloggedBlockRenderer {
     double maxX = cellX == 1 ? 1.0D : 0.5D;
     double maxY = cellMaxY(world, position, cellX, cellY, cellZ);
     double maxZ = cellZ == 1 ? 1.0D : 0.5D;
+    if(world.getBlock(position.x,position.y,position.z) instanceof net.minecraft.block.BlockTrapDoor
+        && (world.getBlockMetadata(position.x,position.y,position.z) & 12)==0)
+      minY=Math.max(minY,3D/16D);
     if (world.getBlock(position.x, position.y, position.z) instanceof BlockPane) {
       double[] bounds = WaterloggedGeometry.paneWaterCellBounds(
           WaterloggedGeometry.waterCellsForRender(world, position.x, position.y, position.z),
@@ -379,6 +382,8 @@ public final class WaterloggedBlockRenderer {
     if (cellY == 0) return 0.5D;
     int aboveY = position.y + 1;
     Block block = world.getBlock(position.x, position.y, position.z);
+    if(block instanceof net.minecraft.block.BlockTrapDoor
+        && (world.getBlockMetadata(position.x,position.y,position.z) & 12)==8) return 13D/16D;
     if (block instanceof BlockDoor
         && world.getBlock(position.x, aboveY, position.z) == block
         && ClientWaterloggedBlocks.contains(
@@ -527,6 +532,9 @@ public final class WaterloggedBlockRenderer {
     int adjacentY = position.y + directionY;
     int adjacentZ = position.z + directionZ;
     if (world.getBlock(adjacentX, adjacentY, adjacentZ).getMaterial() == Material.water) return false;
+    int neighbourCellX = directionX < 0 ? 1 : directionX > 0 ? 0 : cellX;
+    int neighbourCellY = directionY < 0 ? 1 : directionY > 0 ? 0 : cellY;
+    int neighbourCellZ = directionZ < 0 ? 1 : directionZ > 0 ? 0 : cellZ;
     int side =
         directionY < 0
             ? 0
@@ -540,15 +548,34 @@ public final class WaterloggedBlockRenderer {
         && !(directionY != 0
             && isPartialSolid(world.getBlock(position.x, position.y, position.z))))
       return false;
+    // A slab's occupied half is solid, not a dry water compartment. Do not
+    // draw a water/air curtain against that half of its opaque side face.
+    if(isCoveredByPartialSolid(world,adjacentX,adjacentY,adjacentZ,
+        neighbourCellX,neighbourCellY,neighbourCellZ,-directionX,-directionY,-directionZ)) return false;
     if (!ClientWaterloggedBlocks.contains(
             world.provider.dimensionId, adjacentX, adjacentY, adjacentZ)
         || !WaterloggedBlockSupport.canWaterlog(world, adjacentX, adjacentY, adjacentZ)) return true;
     boolean[] adjacentWater = WaterloggedGeometry.waterCellsForRender(
         world, adjacentX, adjacentY, adjacentZ);
-    int neighbourCellX = directionX < 0 ? 1 : directionX > 0 ? 0 : cellX;
-    int neighbourCellY = directionY < 0 ? 1 : directionY > 0 ? 0 : cellY;
-    int neighbourCellZ = directionZ < 0 ? 1 : directionZ > 0 ? 0 : cellZ;
     return !adjacentWater[WaterloggedGeometry.index(neighbourCellX, neighbourCellY, neighbourCellZ)];
+  }
+
+  private static boolean isCoveredByPartialSolid(World world,int x,int y,int z,
+      int cellX,int cellY,int cellZ,int dx,int dy,int dz) {
+    Block block=world.getBlock(x,y,z);
+    if(!isPartialSolid(block) || !block.getMaterial().isOpaque()) return false;
+    double minX=x+cellX*.5D,minY=y+cellY*.5D,minZ=z+cellZ*.5D;
+    double maxX=minX+.5D,maxY=minY+.5D,maxZ=minZ+.5D;
+    if(dx!=0) minX=maxX=x+(dx<0?0:1);
+    if(dy!=0) minY=maxY=y+(dy<0?0:1);
+    if(dz!=0) minZ=maxZ=z+(dz<0?0:1);
+    java.util.List<net.minecraft.util.AxisAlignedBB> boxes=new java.util.ArrayList<net.minecraft.util.AxisAlignedBB>();
+    block.addCollisionBoxesToList(world,x,y,z,
+        net.minecraft.util.AxisAlignedBB.getBoundingBox(x,y,z,x+1,y+1,z+1),boxes,null);
+    for(net.minecraft.util.AxisAlignedBB box:boxes)
+      if(box.minX<=minX && box.minY<=minY && box.minZ<=minZ
+          && box.maxX>=maxX && box.maxY>=maxY && box.maxZ>=maxZ) return true;
+    return false;
   }
 
   private static boolean insideCell(int x, int y, int z) {

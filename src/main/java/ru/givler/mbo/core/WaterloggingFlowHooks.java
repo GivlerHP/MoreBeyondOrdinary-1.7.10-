@@ -1,9 +1,6 @@
 package ru.givler.mbo.core;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockBasePressurePlate;
-import net.minecraft.block.BlockButton;
-import net.minecraft.block.BlockLever;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -11,8 +8,6 @@ import ru.givler.mbo.waterlogging.WaterloggedBlockSupport;
 import ru.givler.mbo.waterlogging.WaterloggedFlow;
 import ru.givler.mbo.waterlogging.WaterloggedFlowQueue;
 import ru.givler.mbo.waterlogging.WaterloggedWorldData;
-import ru.givler.mbo.block.BlockModels;
-import ru.givler.mbo.block.model.BlockModelCollision;
 
 public final class WaterloggingFlowHooks {
   private static final ThreadLocal<int[]> CURRENT_TICK = new ThreadLocal<int[]>();
@@ -36,11 +31,7 @@ public final class WaterloggingFlowHooks {
       Block liquid, World world, int x, int y, int z) {
     if (liquid.getMaterial() != Material.water) return false;
     Block target = world.getBlock(x, y, z);
-    return target instanceof BlockModels
-        || target instanceof BlockModelCollision
-        || target instanceof BlockLever
-        || target instanceof BlockButton
-        || target instanceof BlockBasePressurePlate;
+    return WaterloggedBlockSupport.supportsWaterlogging(target);
   }
 
   public static void onLiquidTick(Block liquid, World world, int x, int y, int z) {

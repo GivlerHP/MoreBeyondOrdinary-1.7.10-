@@ -41,7 +41,9 @@ local.properties
 /logs
 /.ref
 /docs
-/tools
+/tools/*
+!/tools/build_torture_hitboxes.py
+!/tools/import_lastdawn_models.py
 /config-examples
 /shaderpacks
 

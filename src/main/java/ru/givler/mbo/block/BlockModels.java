@@ -138,6 +138,15 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   private Item unsupportedDropItem = null;
   private final List<ModelCollisionPart> collisionParts = new ArrayList<ModelCollisionPart>();
   private float[][] collisionBoxes;
+  private final java.util.Map<String,float[][]> currentShapeCells = new java.util.HashMap<String,float[][]>();
+
+  /** Current shapes also replace the old envelope saved in existing helper tiles. */
+  public boolean hasMultipartCollisionBoxes() { return collisionBoxes != null; }
+
+  public float[][] getMultipartBoxesForCell(int x, int y, int z, int facing) {
+    float[][] result = currentShapeCells.get((facing & 3)+":"+x+","+y+","+z);
+    return result == null ? new float[0][] : result;
+  }
 
   public BlockModels withMultipartCollisionBoxes(float[][] boxes) {
     java.util.Map<String,float[][]> cells = ru.givler.mbo.block.model.CollisionShapeParts.cells(boxes);
@@ -152,7 +161,21 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
       collisionParts.add(new ModelCollisionPart(Integer.parseInt(xyz[0]),Integer.parseInt(xyz[1]),
           Integer.parseInt(xyz[2]),cell.getValue()));
     }
+    currentShapeCells.clear();
+    for (int facing=0;facing<4;facing++) {
+      currentShapeCells.put(facing+":0,0,0", rotateShape(collisionBoxes, facing));
+      for (ModelCollisionPart part : collisionParts) {
+        int[] pos=collisionPosition(0,0,0,facing,part);
+        currentShapeCells.put(facing+":"+pos[0]+","+pos[1]+","+pos[2], rotateShape(part.boxes, facing));
+      }
+    }
     return this;
+  }
+
+  private float[][] rotateShape(float[][] boxes, int facing) {
+    float[][] result=new float[boxes.length][];
+    for(int i=0;i<boxes.length;i++) result[i]=rotateBounds(boxes[i],facing);
+    return result;
   }
 
   @Override

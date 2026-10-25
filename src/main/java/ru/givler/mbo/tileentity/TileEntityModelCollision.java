@@ -27,7 +27,8 @@ public class TileEntityModelCollision extends TileEntity {
   }
 
   public float[] getBounds() {
-    if(getOwnerBlock() instanceof ru.givler.mbo.block.model.BlockDecorCage
+    if((getOwnerBlock()!=null&&getOwnerBlock().hasMultipartCollisionBoxes())
+        || getOwnerBlock() instanceof ru.givler.mbo.block.model.BlockDecorCage
         || (getOwnerBlock()!=null&&getOwnerBlock()==ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains)) {
       float[][] shape=getBoxes();
       return shape.length==0?new float[]{0,0,0,0,0,0}:ru.givler.mbo.block.model.CollisionShapeParts.envelope(shape);
@@ -36,6 +37,9 @@ public class TileEntityModelCollision extends TileEntity {
   }
   public float[][] getBoxes() {
     BlockModels owner=getOwnerBlock();
+    if(owner!=null && owner.hasMultipartCollisionBoxes())
+      return owner.getMultipartBoxesForCell(xCoord-ownerX,yCoord-ownerY,zCoord-ownerZ,
+          worldObj.getBlockMetadata(ownerX,ownerY,ownerZ)&3);
     if(owner!=null&&owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains&&worldObj!=null) {
       if(yCoord!=ownerY)return new float[0][];
       float[] platform;
@@ -94,6 +98,7 @@ public class TileEntityModelCollision extends TileEntity {
       BlockModels owner=getOwnerBlock();
       // Older saves may contain obsolete helpers above corpses or the cage roof.
       if(owner==null || (owner instanceof ru.givler.mbo.block.model.BlockDecorCage && (xCoord!=ownerX||zCoord!=ownerZ||yCoord!=ownerY+1))
+          || (owner.hasMultipartCollisionBoxes() && getBoxes().length==0)
           || owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureHangedCorpse
           || (owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains && yCoord!=ownerY)
           || (owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureSuspendedCorpse && yCoord>=ownerY+2))

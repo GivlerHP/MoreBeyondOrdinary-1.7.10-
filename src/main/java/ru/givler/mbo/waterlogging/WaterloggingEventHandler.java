@@ -164,7 +164,7 @@ public final class WaterloggingEventHandler {
     }
   }
 
-  @SubscribeEvent
+  @SubscribeEvent(priority = EventPriority.LOWEST)
   public void placeBlock(BlockEvent.PlaceEvent event) {
     if (event.world.isRemote) return;
     WaterloggedWorldData data = WaterloggedWorldData.get(event.world);
@@ -174,7 +174,7 @@ public final class WaterloggingEventHandler {
     if (!supported)
       data.set(event.world, event.x, event.y, event.z, false);
     else {
-      fillFromAdjacentSource(event.world, data, event.x, event.y, event.z);
+      preservePlacedWater(event.world, data, event.blockSnapshot);
       Block block = event.world.getBlock(event.x, event.y, event.z);
       if (block instanceof BlockDoor) {
         int baseY = (event.world.getBlockMetadata(event.x, event.y, event.z) & 8) == 0
@@ -183,6 +183,11 @@ public final class WaterloggingEventHandler {
         pendingWaterlogging.add(new PendingWater(event.world, event.x, baseY, event.z));
         pendingWaterlogging.add(new PendingWater(event.world, event.x, baseY + 1, event.z));
       }
+    }
+    if(event instanceof BlockEvent.MultiPlaceEvent) {
+      for(net.minecraftforge.common.util.BlockSnapshot snapshot:
+          ((BlockEvent.MultiPlaceEvent)event).getReplacedBlockSnapshots())
+        preservePlacedWater(event.world,data,snapshot);
     }
     if ((event.placedBlock == Blocks.water || event.placedBlock == Blocks.flowing_water)
         && event.world.getBlockMetadata(event.x, event.y, event.z) == 0) {
@@ -196,6 +201,21 @@ public final class WaterloggingEventHandler {
               event.world, x, y, z, -direction[0], -direction[1], -direction[2]);
       }
     }
+  }
+
+  /** Every cell replaced by a multiblock placement retains its original source. */
+  static void preservePlacedWater(World world, WaterloggedWorldData data,
+      net.minecraftforge.common.util.BlockSnapshot snapshot) {
+    int x=snapshot.x,y=snapshot.y,z=snapshot.z;
+    data.clearDrain(x,y,z);
+    if(!WaterloggedBlockSupport.canWaterlog(world,x,y,z)) {
+      data.set(world,x,y,z,false);
+      return;
+    }
+    if(snapshot.getReplacedBlock().getMaterial()==Material.water && snapshot.meta==0)
+      data.set(world,x,y,z,true);
+    else fillFromAdjacentSource(world,data,x,y,z);
+    WaterloggedFlowQueue.scheduleAround(world,x,y,z);
   }
 
   private static void fillFromAdjacentSource(

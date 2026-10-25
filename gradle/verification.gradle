@@ -14,6 +14,14 @@ task verifyProductionTransformers(type: JavaExec, dependsOn: testClasses) {
 task verifyWaterloggedStorage(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.waterlogging.WaterloggedStorageSmoke'
+    doLast {
+        javaexec {
+            classpath = sourceSets.test.runtimeClasspath
+            main = 'ru.givler.mbo.waterlogging.WaterloggedSupportSmoke'
+            if(project.hasProperty('waterloggedExtraJars'))
+                classpath += files(project.property('waterloggedExtraJars').toString().split(';'))
+        }
+    }
 }
 
 task verifyBoatRiderRender(type: JavaExec, dependsOn: testClasses) {
@@ -129,6 +137,7 @@ task verifyTextureInterpolationStandalone(type: JavaExec, dependsOn: testClasses
 apply from: 'gradle/verifyNativeResources.gradle'
 
 tasks.check.dependsOn(
+        'verifyTortureHitboxes',
         'verifyProductionTransformers',
         'verifySkeletonCombat',
         'verifyColoredLight',
@@ -145,3 +154,16 @@ tasks.check.dependsOn(
         'verifyTextureInterpolation',
         'verifyTextureInterpolationStandalone'
 )
+task verifyTortureHitboxes(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.decor.TortureHitboxesSmoke'
+    doLast {
+        ['ru.givler.mbo.decor.CollisionHelperLifecycleSmoke',
+         'ru.givler.mbo.movingplatform.PlatformDecorSmoke'].each { smoke ->
+            javaexec {
+                classpath = sourceSets.test.runtimeClasspath
+                main = smoke
+            }
+        }
+    }
+}

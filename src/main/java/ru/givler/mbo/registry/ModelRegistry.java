@@ -540,54 +540,174 @@ public class ModelRegistry {
         ModelStatue.addVerticalCollisionUsingBaseBounds(1);
 
         registerTortureModels();
-        ImportedDecorShapes.configure();
     }
 
     private static void registerTortureModels() {
         ModelTortureCorpseTruck = new BlockModels(Material.wood, "ModelTortureCorpseTruck", "instruments_of_torture/corpse_truck", "instruments_of_torture/corpse_truck");
-        ModelTortureCorpseTruck.withMultipartBounds(-0.1250F, 0.0000F, -0.9375F, 1.2500F, 1.2500F, 1.3750F);
+        ModelTortureCorpseTruck.withMultipartCollisionBoxes(new float[][] {
+            {-0.125000F, 0.000000F, -0.500000F, 0.000000F, 1.000000F, 0.250000F},
+            {-0.125000F, 0.125000F, -0.625000F, 0.000000F, 0.875000F, -0.500000F},
+            {-0.125000F, 0.125000F, 0.250000F, 0.000000F, 0.875000F, 0.375000F},
+            {0.000000F, 0.375000F, -0.250000F, 0.125000F, 0.625000F, 0.000000F},
+            {0.000000F, 0.562500F, -0.937500F, 1.250000F, 0.687500F, 0.687500F},
+            {0.000000F, 0.562500F, 0.687500F, 0.125000F, 0.687500F, 1.375000F},
+            {0.109375F, 0.441078F, -0.296240F, 0.390625F, 0.853717F, 0.521979F},
+            {0.125000F, 0.437500F, -0.187500F, 1.125000F, 0.562500F, -0.062500F},
+            {0.359375F, 0.671875F, -0.390625F, 0.890625F, 0.953125F, 0.390625F},
+            {0.360293F, 0.417402F, 0.262622F, 0.664605F, 1.092543F, 1.069328F},
+            {0.451756F, 0.402724F, -0.879034F, 1.065997F, 1.020939F, -0.214145F},
+            {0.622644F, 0.402687F, 0.297826F, 0.886675F, 0.817568F, 1.084158F},
+            {0.859375F, 0.813936F, -0.506424F, 1.140625F, 1.251471F, 0.316229F},
+            {1.125000F, 0.375000F, -0.250000F, 1.250000F, 0.625000F, 0.000000F},
+            {1.125000F, 0.562500F, 0.687500F, 1.250000F, 0.687500F, 1.375000F},
+            {1.250000F, 0.000000F, -0.500000F, 1.375000F, 1.000000F, 0.250000F},
+            {1.250000F, 0.125000F, -0.625000F, 1.375000F, 0.875000F, -0.500000F},
+            {1.250000F, 0.125000F, 0.250000F, 1.375000F, 0.875000F, 0.375000F},
+        });
 
         ModelTortureBag = new BlockModels(Material.cloth, "ModelTortureBag", "instruments_of_torture/bag", "instruments_of_torture/bag");
         ModelTortureBag.withModelOffsetY(-0.1250F);
-        ModelTortureBag.withRotatingBounds(0.2500F, 0.0000F, 0.3750F, 0.7500F, 0.4375F, 0.7500F);
+        ModelTortureBag.withMultipartCollisionBoxes(new float[][] {
+            {0.250000F, 0.000000F, 0.375000F, 0.625000F, 0.375000F, 0.750000F},
+            {0.312500F, 0.375000F, 0.437500F, 0.562500F, 0.437500F, 0.687500F},
+            {0.517453F, 0.384662F, 0.425486F, 0.709677F, 0.386662F, 0.587014F},
+            {0.552004F, 0.376932F, 0.530250F, 0.737097F, 0.421509F, 0.594750F},
+        });
         ModelTortureBag.setCollisionEnabled(false);
 
         ModelTortureBedOnChains = new BlockModels(Material.wood, "ModelTortureBedOnChains", "instruments_of_torture/bed_on_chains", "instruments_of_torture/bed_on_chains");
         ModelTortureBedOnChains.withModelOffsetY(0.2625F);
         ModelTortureBedOnChains.withSleepingNoRespawn(0.3875F,1,.7F,.5625F);
-        ModelTortureBedOnChains.withMultipartBounds(0.1250F, 0.2625F, 0.0000F, 1.8750F, 0.3875F, 0.8750F);
+        ModelTortureBedOnChains.withMultipartCollisionBoxes(new float[][] {
+            {0.125F, 0.2625F, 0.0F, 1.875F, 0.3875F, 0.875F},
+        });
 
         ModelTortureBeheading = new BlockModels(Material.wood, "ModelTortureBeheading", "instruments_of_torture/beheading", "instruments_of_torture/beheading");
-        ModelTortureBeheading.withMultipartBounds(-0.5000F, 0.0000F, 0.5000F, 1.0000F, 1.7500F, 1.7500F);
+        ModelTortureBeheading.withMultipartCollisionBoxes(new float[][] {
+            {-0.786633F, 1.201307F, 0.768750F, 0.540284F, 1.817903F, 0.856250F},
+            {0.000000F, 0.000000F, 0.500000F, 0.250000F, 0.750000F, 1.000000F},
+            {0.076416F, 0.563051F, 0.811500F, 1.011116F, 1.430101F, 0.813500F},
+            {0.085668F, -0.012500F, 0.966208F, 0.934934F, 0.075000F, 1.815473F},
+            {0.085668F, 0.050000F, 0.966208F, 0.415252F, 0.512500F, 1.600214F},
+            {0.143410F, 0.050000F, 1.509808F, 0.661932F, 0.512500F, 1.791556F},
+            {0.250000F, 0.000000F, 0.500000F, 0.750000F, 0.500000F, 1.000000F},
+            {0.250000F, 0.500000F, 0.500000F, 0.750000F, 0.750000F, 0.875000F},
+            {0.290723F, 0.237513F, 1.054079F, 0.790723F, 0.890794F, 1.707360F},
+            {0.358670F, 0.050000F, 0.990125F, 0.877191F, 0.512500F, 1.271874F},
+            {0.476116F, 1.088143F, 0.750000F, 0.721097F, 1.333124F, 0.875000F},
+            {0.605350F, 0.050000F, 1.181467F, 0.934934F, 0.512500F, 1.815473F},
+            {0.750000F, 0.000000F, 0.500000F, 1.000000F, 0.750000F, 1.000000F},
+        });
 
         ModelTortureBench = new BlockModels(Material.wood, "ModelTortureBench", "instruments_of_torture/bench", "instruments_of_torture/bench");
-        ModelTortureBench.withMultipartBounds(-0.5000F, 0.0000F, 0.1250F, 1.5000F, 0.5000F, 0.8750F);
+        ModelTortureBench.withMultipartCollisionBoxes(new float[][] {
+            {-0.500000F, 0.375000F, 0.125000F, 1.500000F, 0.500000F, 0.875000F},
+            {-0.375000F, 0.000000F, 0.250000F, -0.250000F, 0.375000F, 0.750000F},
+            {-0.250000F, 0.125000F, 0.437500F, 1.250000F, 0.250000F, 0.562500F},
+            {1.250000F, 0.000000F, 0.250000F, 1.375000F, 0.375000F, 0.750000F},
+        });
         ModelTortureBench.withSeats(new float[]{0F,.5F,.5F},new float[]{1F,.5F,.5F});
 
         ModelTortureBundleOfKeys = new BlockModels(Material.iron, "ModelTortureBundleOfKeys", "instruments_of_torture/bundle_of_keys", "instruments_of_torture/bundle_of_keys");
-        ModelTortureBundleOfKeys.withRotatingBounds(0.3125F, 0.0000F, 0.0000F, 0.6875F, 0.8750F, 0.1875F);
+        ModelTortureBundleOfKeys.withMultipartCollisionBoxes(new float[][] {
+            {0.328125F, 0.000000F, -0.006250F, 0.703125F, 0.875000F, 0.056250F},
+            {0.359375F, 0.437500F, 0.056250F, 0.671875F, 0.500000F, 0.118750F},
+            {0.359375F, 0.500000F, 0.056250F, 0.421875F, 0.687500F, 0.118750F},
+            {0.359375F, 0.687500F, 0.056250F, 0.671875F, 0.750000F, 0.118750F},
+            {0.382398F, 0.337500F, -0.009883F, 0.511893F, 0.525000F, 0.187262F},
+            {0.409375F, 0.675000F, 0.043750F, 0.621875F, 0.762500F, 0.131250F},
+            {0.433880F, 0.086500F, 0.058512F, 0.484329F, 0.338500F, 0.176610F},
+            {0.453125F, 0.625000F, 0.056250F, 0.578125F, 0.687500F, 0.118750F},
+            {0.546875F, 0.343750F, -0.006250F, 0.609375F, 0.531250F, 0.181250F},
+            {0.577125F, 0.092750F, 0.055250F, 0.579125F, 0.344750F, 0.182250F},
+            {0.609375F, 0.500000F, 0.056250F, 0.671875F, 0.687500F, 0.118750F},
+        });
         ModelTortureBundleOfKeys.setCollisionEnabled(false);
 
         ModelTortureBagsOnTheFeet = new BlockModels(Material.cloth, "ModelTortureBagsOnTheFeet", "instruments_of_torture/bags_on_the_feet", "instruments_of_torture/bags_on_the_feet");
-        ModelTortureBagsOnTheFeet.withRotatingBounds(0.3125F, 0.0000F, 0.3125F, 0.6875F, 0.5000F, 0.6875F);
+        ModelTortureBagsOnTheFeet.withMultipartCollisionBoxes(new float[][] {
+            {0.312500F, 0.000000F, 0.312500F, 0.687500F, 0.375000F, 0.687500F},
+            {0.375000F, 0.406250F, 0.375000F, 0.625000F, 0.531250F, 0.625000F},
+            {0.437500F, 0.375000F, 0.437500F, 0.562500F, 0.437500F, 0.562500F},
+        });
         ModelTortureBagsOnTheFeet.setCollisionEnabled(false);
 
         ModelTortureDeathHorse = new BlockModels(Material.wood, "ModelTortureDeathHorse", "instruments_of_torture/death_horse", "instruments_of_torture/death_horse");
-        ModelTortureDeathHorse.withMultipartBounds(0.1875F, 0.0000F, 0.0000F, 0.8125F, 1.2500F, 1.5000F);
+        ModelTortureDeathHorse.withMultipartCollisionBoxes(new float[][] {
+            {0.187500F, 0.000000F, 0.000000F, 0.312500F, 0.625000F, 0.187500F},
+            {0.187500F, 0.000000F, 0.812500F, 0.312500F, 0.625000F, 1.000000F},
+            {0.187500F, 0.625000F, 0.000000F, 0.812500F, 0.875000F, 0.187500F},
+            {0.187500F, 0.625000F, 0.812500F, 0.812500F, 0.875000F, 1.000000F},
+            {0.312500F, 0.187500F, 0.062500F, 0.687500F, 0.375000F, 0.125000F},
+            {0.312500F, 0.187500F, 0.875000F, 0.687500F, 0.375000F, 0.937500F},
+            {0.375000F, 0.625000F, 0.000000F, 0.625000F, 0.875000F, 1.000000F},
+            {0.687500F, 0.000000F, 0.000000F, 0.812500F, 0.625000F, 0.187500F},
+            {0.687500F, 0.000000F, 0.812500F, 0.812500F, 0.625000F, 1.000000F},
+        });
 
         ModelTortureEmbalmedCorpse = new BlockModels(Material.cloth, "ModelTortureEmbalmedCorpse", "instruments_of_torture/embalmed_corpse", "instruments_of_torture/embalmed_corpse");
-        ModelTortureEmbalmedCorpse.withMultipartBounds(-0.1250F, 0.0000F, -1.0000F, 1.1250F, 0.3750F, 1.3750F);
+        ModelTortureEmbalmedCorpse.withMultipartCollisionBoxes(new float[][] {
+            {-0.126000F, 0.000000F, -1.001000F, 1.126000F, 0.001000F, 1.376000F},
+            {0.037500F, 0.000000F, -0.337500F, 0.962500F, 0.275000F, 0.462500F},
+            {0.225000F, 0.000000F, -0.837500F, 0.775000F, 0.400000F, -0.287500F},
+            {0.225000F, 0.000000F, 0.412500F, 0.775000F, 0.275000F, 1.212500F},
+        });
         ModelTortureEmbalmedCorpse.setCollisionEnabled(false);
 
         ModelTortureGrave = new BlockModels(Material.rock, "ModelTortureGrave", "instruments_of_torture/grave", "instruments_of_torture/grave");
-        ModelTortureGrave.withMultipartBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 0.1250F, 2.0000F);
+        ModelTortureGrave.withMultipartCollisionBoxes(new float[][] {
+            {-0.251000F, 0.005250F, -0.251000F, 1.251000F, 0.007250F, 2.001000F},
+            {0.000000F, 0.000000F, 0.000000F, 1.000000F, 0.006250F, 1.750000F},
+            {0.542826F, 0.000000F, 0.155250F, 0.977658F, 0.378032F, 0.157250F},
+            {0.786792F, 0.288640F, 0.112500F, 0.901116F, 0.402964F, 0.200000F},
+            {0.803124F, 0.304972F, 0.125000F, 1.195715F, 1.137284F, 0.187500F},
+            {1.073805F, 0.981550F, 0.112500F, 1.212047F, 1.153617F, 0.200000F},
+        });
 
         ModelTortureGuillotine = new BlockModels(Material.iron, "ModelTortureGuillotine", "instruments_of_torture/guillotine", "instruments_of_torture/guillotine");
         ModelTortureGuillotine.withModelOffsetY(1.0000F);
-        ModelTortureGuillotine.withMultipartBounds(-0.3750F, 0.0000F, 0.0000F, 1.3125F, 3.0000F, 1.0000F);
+        ModelTortureGuillotine.withMultipartCollisionBoxes(new float[][] {
+            {-0.375000F, 0.781250F, 0.312500F, -0.187500F, 0.968750F, 0.687500F},
+            {-0.325000F, 0.643750F, 0.800000F, -0.237500F, 0.731250F, 1.012500F},
+            {-0.312500F, 0.656250F, 0.750000F, -0.250000F, 0.843750F, 0.812500F},
+            {-0.312500F, 0.843750F, 0.687500F, -0.250000F, 0.906250F, 0.812500F},
+            {-0.250000F, 0.937500F, 0.468750F, -0.187500F, 2.937500F, 0.531250F},
+            {-0.187500F, 0.000000F, 0.000000F, 0.062500F, 0.125000F, 0.375000F},
+            {-0.187500F, 0.000000F, 0.375000F, 0.062500F, 2.875000F, 0.625000F},
+            {-0.187500F, 0.000000F, 0.625000F, 0.062500F, 0.125000F, 1.000000F},
+            {-0.187500F, 2.875000F, 0.406250F, -0.062500F, 3.000000F, 0.593750F},
+            {-0.063500F, 0.124000F, -0.001000F, -0.061500F, 0.876000F, 1.001000F},
+            {-0.062500F, 2.875000F, 0.468750F, 0.500000F, 2.937500F, 0.531250F},
+            {0.061500F, 1.936500F, 0.499000F, 1.063500F, 2.438500F, 0.501000F},
+            {0.062500F, 0.000000F, 0.437500F, 1.062500F, 0.500000F, 0.562500F},
+            {0.062500F, 0.500000F, 0.375000F, 1.062500F, 0.625000F, 0.625000F},
+            {0.062500F, 0.625000F, 0.375000F, 1.062500F, 0.875000F, 0.625000F},
+            {0.062500F, 0.875000F, 0.375000F, 1.062500F, 1.125000F, 0.625000F},
+            {0.062500F, 1.125000F, 0.375000F, 1.062500F, 1.250000F, 0.625000F},
+            {0.062500F, 2.437500F, 0.437500F, 1.062500F, 2.625000F, 0.562500F},
+            {0.062500F, 2.687500F, 0.375000F, 1.062500F, 2.875000F, 0.625000F},
+            {0.500000F, 2.625000F, 0.437500F, 0.625000F, 2.687500F, 0.562500F},
+            {0.500000F, 2.875000F, 0.406250F, 0.625000F, 3.000000F, 0.593750F},
+            {1.062500F, 0.000000F, 0.000000F, 1.312500F, 0.125000F, 0.375000F},
+            {1.062500F, 0.000000F, 0.375000F, 1.312500F, 2.875000F, 0.625000F},
+            {1.062500F, 0.000000F, 0.625000F, 1.312500F, 0.125000F, 1.000000F},
+            {1.186500F, 0.124000F, -0.001000F, 1.188500F, 0.876000F, 1.001000F},
+        });
 
         ModelTortureHandcuffs = new BlockModels(Material.iron, "ModelTortureHandcuffs", "instruments_of_torture/handcuffs", "instruments_of_torture/handcuffs");
-        ModelTortureHandcuffs.withRotatingBounds(0.0000F, 0.1250F, 0.0000F, 1.0000F, 1.0000F, 0.1875F);
+        ModelTortureHandcuffs.withMultipartCollisionBoxes(new float[][] {
+            {0.000000F, 0.750000F, 0.000000F, 1.000000F, 1.000000F, 0.062500F},
+            {0.050000F, 0.118750F, 0.050000F, 0.325000F, 0.393750F, 0.200000F},
+            {0.119795F, 0.380250F, 0.057295F, 0.255205F, 0.569750F, 0.192705F},
+            {0.119795F, 0.630250F, 0.057295F, 0.255205F, 0.819750F, 0.192705F},
+            {0.186500F, 0.505250F, 0.030250F, 0.188500F, 0.694750F, 0.219750F},
+            {0.186500F, 0.755250F, 0.030250F, 0.188500F, 0.944750F, 0.219750F},
+            {0.675000F, 0.112500F, 0.050000F, 0.950000F, 0.387500F, 0.200000F},
+            {0.744795F, 0.374000F, 0.057295F, 0.880205F, 0.563500F, 0.192705F},
+            {0.744795F, 0.624000F, 0.057295F, 0.880205F, 0.813500F, 0.192705F},
+            {0.811500F, 0.499000F, 0.030250F, 0.813500F, 0.688500F, 0.219750F},
+            {0.811500F, 0.749000F, 0.030250F, 0.813500F, 0.938500F, 0.219750F},
+        });
         ModelTortureHandcuffs.setCollisionEnabled(false);
 
         ModelTortureHangedCorpse = new BlockModels(Material.cloth, "ModelTortureHangedCorpse", "instruments_of_torture/hanged_corpse", "instruments_of_torture/hanged_corpse");
@@ -600,38 +720,212 @@ public class ModelRegistry {
         ModelTortureHook.setCollisionEnabled(false);
 
         ModelTortureHourglass = new BlockModels(Material.iron, "ModelTortureHourglass", "instruments_of_torture/hourglass", "instruments_of_torture/hourglass");
-        ModelTortureHourglass.withRotatingBounds(0.1875F, 0.0000F, 0.1875F, 0.8125F, 0.8750F, 0.8125F);
+        ModelTortureHourglass.withMultipartCollisionBoxes(new float[][] {
+            {0.187500F, 0.000000F, 0.187500F, 0.812500F, 0.125000F, 0.812500F},
+            {0.187500F, 0.125000F, 0.187500F, 0.312500F, 0.750000F, 0.312500F},
+            {0.187500F, 0.125000F, 0.687500F, 0.312500F, 0.750000F, 0.812500F},
+            {0.187500F, 0.750000F, 0.187500F, 0.812500F, 0.875000F, 0.812500F},
+            {0.300000F, 0.112500F, 0.300000F, 0.700000F, 0.387500F, 0.700000F},
+            {0.300000F, 0.487500F, 0.300000F, 0.700000F, 0.762500F, 0.700000F},
+            {0.437500F, 0.375000F, 0.437500F, 0.562500F, 0.500000F, 0.562500F},
+            {0.687500F, 0.125000F, 0.187500F, 0.812500F, 0.750000F, 0.312500F},
+            {0.687500F, 0.125000F, 0.687500F, 0.812500F, 0.750000F, 0.812500F},
+        });
 
         ModelTortureIronBall = new BlockModels(Material.iron, "ModelTortureIronBall", "instruments_of_torture/iron_ball", "instruments_of_torture/iron_ball");
-        ModelTortureIronBall.withMultipartBounds(0.4375F, 0.0000F, 0.3125F, 1.7500F, 0.3750F, 0.6875F);
+        ModelTortureIronBall.withMultipartCollisionBoxes(new float[][] {
+            {0.437500F, 0.125000F, 0.312500F, 0.812500F, 0.250000F, 0.687500F},
+            {0.749000F, 0.092750F, 0.499000F, 0.938500F, 0.282250F, 0.501000F},
+            {0.874000F, 0.119795F, 0.432295F, 1.063500F, 0.255205F, 0.567705F},
+            {0.999000F, 0.092750F, 0.499000F, 1.188500F, 0.282250F, 0.501000F},
+            {1.124000F, 0.119795F, 0.432295F, 1.313500F, 0.255205F, 0.567705F},
+            {1.242417F, 0.000000F, 0.102252F, 1.772748F, 0.375000F, 0.632583F},
+        });
 
         ModelTortureIronCage = new ru.givler.mbo.block.model.BlockDecorCage();
 
         ModelTortureIronCollar = new BlockModels(Material.iron, "ModelTortureIronCollar", "instruments_of_torture/iron_collar", "instruments_of_torture/iron_collar");
-        ModelTortureIronCollar.withRotatingBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 1.0000F, 1.0000F);
+        ModelTortureIronCollar.withMultipartCollisionBoxes(new float[][] {
+            {-0.049010F, 0.067750F, 0.109815F, 0.933525F, 0.069750F, 1.092350F},
+            {0.000000F, 0.750000F, 0.000000F, 1.000000F, 1.000000F, 0.062500F},
+            {0.099285F, -0.006250F, 0.258110F, 0.785230F, 0.143750F, 0.944055F},
+            {0.432295F, 0.130250F, 0.145683F, 0.567705F, 0.319750F, 0.281094F},
+            {0.432295F, 0.380250F, 0.057295F, 0.567705F, 0.569750F, 0.192705F},
+            {0.432295F, 0.630250F, 0.057295F, 0.567705F, 0.819750F, 0.192705F},
+            {0.499000F, 0.005250F, 0.155250F, 0.501000F, 0.194750F, 0.344750F},
+            {0.499000F, 0.255250F, 0.030250F, 0.501000F, 0.444750F, 0.219750F},
+            {0.499000F, 0.505250F, 0.030250F, 0.501000F, 0.694750F, 0.219750F},
+            {0.499000F, 0.755250F, 0.030250F, 0.501000F, 0.944750F, 0.219750F},
+        });
         ModelTortureIronCollar.setCollisionEnabled(false);
 
         ModelTortureIronMaiden = new BlockModels(Material.iron, "ModelTortureIronMaiden", "instruments_of_torture/iron_maiden", "instruments_of_torture/iron_maiden");
         ModelTortureIronMaiden.withModelOffsetY(0.8750F);
-        ModelTortureIronMaiden.withMultipartBounds(-0.8125F, 0.0000F, 0.0000F, 0.6875F, 2.8750F, 1.0000F);
+        ModelTortureIronMaiden.withMultipartCollisionBoxes(new float[][] {
+            {-0.812500F, 0.000000F, 0.000000F, 0.687500F, 0.187500F, 1.000000F},
+            {-0.812500F, 0.187500F, 0.437500F, -0.687500F, 1.937500F, 0.562500F},
+            {-0.751000F, 1.936500F, 0.499000F, 0.626000F, 2.876000F, 0.501000F},
+            {-0.687500F, 0.187500F, 0.125000F, -0.562500F, 1.937500F, 0.500000F},
+            {-0.687500F, 0.187500F, 0.500000F, -0.562500F, 1.562500F, 0.750000F},
+            {-0.687500F, 0.187500F, 0.750000F, -0.062500F, 1.562500F, 0.875000F},
+            {-0.687500F, 1.562500F, 0.500000F, -0.562500F, 1.937500F, 0.875000F},
+            {-0.562500F, 0.187500F, 0.125000F, 0.437500F, 1.937500F, 0.250000F},
+            {-0.562500F, 1.562500F, 0.750000F, -0.062500F, 1.937500F, 0.875000F},
+            {-0.562500F, 1.812500F, 0.250000F, -0.312500F, 1.937500F, 0.500000F},
+            {-0.562500F, 1.812500F, 0.500000F, -0.312500F, 1.937500F, 0.750000F},
+            {-0.437500F, 1.937500F, 0.125000F, -0.312500F, 2.562500F, 0.500000F},
+            {-0.437500F, 1.937500F, 0.500000F, -0.312500F, 2.562500F, 0.750000F},
+            {-0.437500F, 1.937500F, 0.750000F, 0.312500F, 2.562500F, 0.875000F},
+            {-0.376000F, 0.874000F, 0.436500F, -0.374000F, 1.001000F, 0.813500F},
+            {-0.376000F, 1.249000F, 0.436500F, -0.374000F, 1.376000F, 0.813500F},
+            {-0.376000F, 1.624000F, 0.374000F, -0.374000F, 1.751000F, 0.751000F},
+            {-0.313500F, 1.186500F, 0.186500F, -0.311500F, 1.313500F, 0.563500F},
+            {-0.313500F, 1.624000F, 0.124000F, -0.311500F, 1.751000F, 0.501000F},
+            {-0.312500F, 1.937500F, 0.125000F, 0.187500F, 2.562500F, 0.250000F},
+            {-0.312500F, 2.437500F, 0.250000F, 0.187500F, 2.562500F, 0.500000F},
+            {-0.312500F, 2.437500F, 0.500000F, 0.187500F, 2.562500F, 0.750000F},
+            {-0.251000F, 0.811500F, 0.124000F, -0.249000F, 0.938500F, 0.501000F},
+            {-0.188500F, 1.936500F, 0.311500F, -0.186500F, 2.063500F, 0.688500F},
+            {-0.126000F, 0.686500F, 0.499000F, -0.124000F, 0.813500F, 0.876000F},
+            {-0.126000F, 1.124000F, 0.499000F, -0.124000F, 1.251000F, 0.876000F},
+            {-0.126000F, 2.249000F, 0.436500F, -0.124000F, 2.376000F, 0.813500F},
+            {-0.063500F, 1.499000F, 0.186500F, -0.061500F, 1.626000F, 0.563500F},
+            {-0.062500F, 0.187500F, 0.750000F, 0.437500F, 1.937500F, 0.875000F},
+            {-0.001000F, 0.936500F, 0.374000F, 0.001000F, 1.063500F, 0.751000F},
+            {0.061500F, 1.311500F, 0.436500F, 0.063500F, 1.438500F, 0.813500F},
+            {0.061500F, 1.624000F, 0.436500F, 0.063500F, 1.751000F, 0.813500F},
+            {0.061500F, 1.749000F, 0.061500F, 0.063500F, 1.876000F, 0.438500F},
+            {0.061500F, 2.061500F, 0.311500F, 0.063500F, 2.188500F, 0.688500F},
+            {0.186500F, 0.874000F, 0.186500F, 0.188500F, 1.001000F, 0.563500F},
+            {0.186500F, 1.249000F, 0.124000F, 0.188500F, 1.376000F, 0.501000F},
+            {0.187500F, 1.812500F, 0.250000F, 0.437500F, 1.937500F, 0.500000F},
+            {0.187500F, 1.818750F, 0.500000F, 0.437500F, 1.937500F, 0.750000F},
+            {0.187500F, 1.937500F, 0.125000F, 0.312500F, 2.562500F, 0.500000F},
+            {0.187500F, 1.937500F, 0.500000F, 0.312500F, 2.562500F, 0.750000F},
+            {0.249000F, 0.686500F, 0.436500F, 0.251000F, 0.813500F, 0.813500F},
+            {0.311500F, 1.186500F, 0.374000F, 0.313500F, 1.313500F, 0.751000F},
+            {0.437500F, 0.187500F, 0.125000F, 0.562500F, 1.937500F, 0.500000F},
+            {0.437500F, 0.187500F, 0.500000F, 0.562500F, 1.937500F, 0.875000F},
+            {0.562500F, 0.187500F, 0.437500F, 0.687500F, 1.937500F, 0.562500F},
+        });
 
         ModelTortureKeys = new BlockModels(Material.iron, "ModelTortureKeys", "instruments_of_torture/keys", "instruments_of_torture/keys");
-        ModelTortureKeys.withRotatingBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 0.8750F, 0.1250F);
+        ModelTortureKeys.withMultipartCollisionBoxes(new float[][] {
+            {-0.002541F, 0.376536F, 0.092750F, 0.219060F, 0.658598F, 0.094750F},
+            {0.000000F, 0.187500F, 0.000000F, 1.000000F, 0.500000F, 0.062500F},
+            {0.000000F, 0.562500F, 0.000000F, 1.000000F, 0.875000F, 0.062500F},
+            {0.047798F, 0.604442F, 0.062500F, 0.296972F, 0.853616F, 0.125000F},
+            {0.247459F, 0.376536F, 0.092750F, 0.469060F, 0.658598F, 0.094750F},
+            {0.297798F, 0.604442F, 0.062500F, 0.546972F, 0.853616F, 0.125000F},
+            {0.372459F, 0.001536F, 0.092750F, 0.594060F, 0.283598F, 0.094750F},
+            {0.422798F, 0.229442F, 0.062500F, 0.671972F, 0.478616F, 0.125000F},
+            {0.684959F, 0.376536F, 0.092750F, 0.906560F, 0.658598F, 0.094750F},
+            {0.735298F, 0.604442F, 0.062500F, 0.984472F, 0.853616F, 0.125000F},
+        });
         ModelTortureKeys.setCollisionEnabled(false);
 
         ModelTorturePileOfRottingCorpses = new BlockModels(Material.cloth, "ModelTorturePileOfRottingCorpses", "instruments_of_torture/pile_of_rotting_corpses", "instruments_of_torture/pile_of_rotting_corpses");
         ModelTorturePileOfRottingCorpses.withModelOffsetY(0.1875F);
-        ModelTorturePileOfRottingCorpses.withRotatingBounds(0.1250F, 0.0000F, 0.0000F, 1.0000F, 0.9375F, 1.0000F);
+        ModelTorturePileOfRottingCorpses.withMultipartCollisionBoxes(new float[][] {
+            {0.089787F, 0.109308F, 0.514342F, 0.504492F, 0.388714F, 0.654967F},
+            {0.089787F, 0.109308F, 0.633092F, 0.504492F, 0.388714F, 0.773717F},
+            {0.134309F, 0.186500F, 0.321809F, 0.490691F, 0.688500F, 0.678191F},
+            {0.242188F, 0.117188F, 0.242188F, 0.382812F, 0.257812F, 0.632812F},
+            {0.259309F, 0.436500F, 0.071809F, 0.615691F, 0.938500F, 0.428191F},
+            {0.297601F, 0.242188F, 0.259346F, 0.712306F, 0.382812F, 0.538752F},
+            {0.316265F, 0.003765F, -0.015625F, 0.683735F, 0.371235F, 0.265625F},
+            {0.345436F, 0.242188F, 0.374830F, 0.807977F, 0.382812F, 0.769722F},
+            {0.365661F, 0.117188F, 0.569101F, 0.645067F, 0.257812F, 0.983806F},
+            {0.367188F, 0.117188F, 0.242188F, 0.632812F, 0.257812F, 0.632812F},
+            {0.384309F, 0.186500F, 0.696809F, 0.740691F, 0.688500F, 1.053191F},
+            {0.441107F, 0.242188F, 0.605800F, 0.855812F, 0.382812F, 0.885207F},
+            {0.475371F, 0.117188F, 0.523657F, 0.754778F, 0.257812F, 0.938362F},
+            {0.617188F, 0.117188F, 0.242188F, 0.757812F, 0.257812F, 0.632812F},
+            {0.634309F, 0.374000F, 0.384309F, 0.990691F, 0.876000F, 0.740691F},
+            {0.690625F, 0.128765F, 0.285015F, 0.971875F, 0.496235F, 0.652485F},
+        });
         ModelTorturePileOfRottingCorpses.setCollisionEnabled(false);
         ModelTorturePileOfRottingCorpses.withAnimatedTexture(6, 50);
 
         ModelTorturePlaceOfSleep = new BlockModels(Material.wood, "ModelTorturePlaceOfSleep", "instruments_of_torture/place_of_sleep", "instruments_of_torture/place_of_sleep");
-        ModelTorturePlaceOfSleep.withMultipartBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 0.1250F, 2.0000F);
+        ModelTorturePlaceOfSleep.withMultipartCollisionBoxes(new float[][] {
+            {-0.001000F, 0.000000F, 0.499000F, 1.001000F, 0.001000F, 2.001000F},
+            {0.125000F, 0.000000F, 0.125000F, 0.875000F, 0.125000F, 0.500000F},
+        });
         ModelTorturePlaceOfSleep.withSleepingNoRespawn(.125F,2,.5F,.3125F);
 
         ModelTorturePrisonWagon = new BlockModels(Material.wood, "ModelTorturePrisonWagon", "instruments_of_torture/prison_wagon", "instruments_of_torture/prison_wagon");
         ModelTorturePrisonWagon.withModelOffsetY(0.8750F);
-        ModelTorturePrisonWagon.withMultipartBounds(-0.3750F, 0.0000F, -1.0000F, 1.3750F, 2.5000F, 2.0000F);
+        ModelTorturePrisonWagon.withMultipartCollisionBoxes(new float[][] {
+            {-0.375000F, 0.000000F, -0.375000F, -0.250000F, 1.000000F, 0.375000F},
+            {-0.375000F, 0.000000F, 1.125000F, -0.250000F, 1.000000F, 1.875000F},
+            {-0.375000F, 0.125000F, -0.500000F, -0.250000F, 0.875000F, -0.375000F},
+            {-0.375000F, 0.125000F, 0.375000F, -0.250000F, 0.875000F, 0.500000F},
+            {-0.375000F, 0.125000F, 1.000000F, -0.250000F, 0.875000F, 1.125000F},
+            {-0.375000F, 0.125000F, 1.875000F, -0.250000F, 0.875000F, 2.000000F},
+            {-0.375000F, 2.250000F, -0.375000F, 1.375000F, 2.500000F, 1.875000F},
+            {-0.250000F, 0.375000F, -0.250000F, 1.250000F, 0.750000F, 0.250000F},
+            {-0.250000F, 0.375000F, 1.250000F, 1.250000F, 0.750000F, 1.750000F},
+            {-0.250000F, 0.500000F, -0.875000F, 0.000000F, 0.750000F, 1.437500F},
+            {-0.250000F, 0.750000F, -0.625000F, 1.250000F, 0.875000F, -0.250000F},
+            {-0.250000F, 0.750000F, -0.250000F, 1.250000F, 0.875000F, 1.750000F},
+            {-0.250000F, 0.750000F, 1.750000F, 1.250000F, 0.875000F, 2.000000F},
+            {-0.250000F, 0.875000F, -0.250000F, -0.125000F, 1.625000F, 1.750000F},
+            {-0.250000F, 1.625000F, -0.250000F, -0.125000F, 2.250000F, 0.750000F},
+            {-0.250000F, 1.625000F, 0.750000F, -0.125000F, 1.750000F, 1.625000F},
+            {-0.250000F, 1.625000F, 1.625000F, -0.125000F, 2.250000F, 1.750000F},
+            {-0.250000F, 1.750000F, 0.750000F, -0.125000F, 2.250000F, 0.875000F},
+            {-0.250000F, 1.750000F, 1.500000F, -0.125000F, 2.250000F, 1.625000F},
+            {-0.218750F, 1.750000F, 0.968750F, -0.156250F, 2.250000F, 1.031250F},
+            {-0.218750F, 1.750000F, 1.156250F, -0.156250F, 2.250000F, 1.218750F},
+            {-0.218750F, 1.750000F, 1.343750F, -0.156250F, 2.250000F, 1.406250F},
+            {-0.187500F, 0.500000F, -1.000000F, -0.062500F, 0.750000F, -0.875000F},
+            {-0.125000F, 0.875000F, -0.250000F, 1.125000F, 1.625000F, -0.125000F},
+            {-0.125000F, 0.875000F, 1.625000F, 0.000000F, 2.250000F, 1.750000F},
+            {-0.125000F, 1.625000F, -0.250000F, 0.062500F, 2.250000F, -0.125000F},
+            {-0.062500F, 1.375000F, 1.750000F, 0.062500F, 1.625000F, 1.812500F},
+            {0.000000F, 0.500000F, -0.625000F, 1.000000F, 0.750000F, -0.187500F},
+            {0.000000F, 0.875000F, 1.625000F, 1.000000F, 1.625000F, 1.750000F},
+            {0.000000F, 1.625000F, 1.625000F, 1.000000F, 1.750000F, 1.750000F},
+            {0.000000F, 1.750000F, 1.625000F, 0.187500F, 2.250000F, 1.750000F},
+            {0.062500F, 1.625000F, -0.250000F, 0.937500F, 1.750000F, -0.125000F},
+            {0.062500F, 1.750000F, -0.250000F, 0.187500F, 2.250000F, -0.125000F},
+            {0.156250F, 1.875000F, 1.656250F, 0.281250F, 1.937500F, 1.718750F},
+            {0.156250F, 2.062500F, 1.656250F, 0.281250F, 2.125000F, 1.718750F},
+            {0.281250F, 1.750000F, -0.218750F, 0.343750F, 2.250000F, -0.156250F},
+            {0.281250F, 1.750000F, 1.656250F, 0.343750F, 2.250000F, 1.718750F},
+            {0.343750F, 1.875000F, 1.656250F, 0.468750F, 1.937500F, 1.718750F},
+            {0.343750F, 2.062500F, 1.656250F, 0.468750F, 2.125000F, 1.718750F},
+            {0.468750F, 1.750000F, -0.218750F, 0.531250F, 2.250000F, -0.156250F},
+            {0.468750F, 1.750000F, 1.656250F, 0.531250F, 2.250000F, 1.718750F},
+            {0.531250F, 1.875000F, 1.656250F, 0.656250F, 1.937500F, 1.718750F},
+            {0.531250F, 2.062500F, 1.656250F, 0.656250F, 2.125000F, 1.718750F},
+            {0.656250F, 1.750000F, -0.218750F, 0.718750F, 2.250000F, -0.156250F},
+            {0.656250F, 1.750000F, 1.656250F, 0.718750F, 2.250000F, 1.718750F},
+            {0.718750F, 1.875000F, 1.656250F, 0.843750F, 1.937500F, 1.718750F},
+            {0.718750F, 2.062500F, 1.656250F, 0.843750F, 2.125000F, 1.718750F},
+            {0.812500F, 1.750000F, -0.250000F, 0.937500F, 2.250000F, -0.125000F},
+            {0.812500F, 1.750000F, 1.625000F, 1.000000F, 2.250000F, 1.750000F},
+            {0.937500F, 1.625000F, -0.250000F, 1.125000F, 2.250000F, -0.125000F},
+            {1.000000F, 0.500000F, -0.875000F, 1.250000F, 0.750000F, 1.437500F},
+            {1.000000F, 0.875000F, 1.625000F, 1.125000F, 2.250000F, 1.750000F},
+            {1.062500F, 0.500000F, -1.000000F, 1.187500F, 0.750000F, -0.875000F},
+            {1.125000F, 0.875000F, -0.250000F, 1.250000F, 1.625000F, 1.750000F},
+            {1.125000F, 1.625000F, -0.250000F, 1.250000F, 2.250000F, 0.750000F},
+            {1.125000F, 1.625000F, 0.750000F, 1.250000F, 1.750000F, 1.625000F},
+            {1.125000F, 1.625000F, 1.625000F, 1.250000F, 2.250000F, 1.750000F},
+            {1.125000F, 1.750000F, 0.750000F, 1.250000F, 2.250000F, 0.875000F},
+            {1.125000F, 1.750000F, 1.500000F, 1.250000F, 2.250000F, 1.625000F},
+            {1.156250F, 1.750000F, 0.968750F, 1.218750F, 2.250000F, 1.031250F},
+            {1.156250F, 1.750000F, 1.156250F, 1.218750F, 2.250000F, 1.218750F},
+            {1.156250F, 1.750000F, 1.343750F, 1.218750F, 2.250000F, 1.406250F},
+            {1.250000F, 0.000000F, -0.375000F, 1.375000F, 1.000000F, 0.375000F},
+            {1.250000F, 0.000000F, 1.125000F, 1.375000F, 1.000000F, 1.875000F},
+            {1.250000F, 0.125000F, -0.500000F, 1.375000F, 0.875000F, -0.375000F},
+            {1.250000F, 0.125000F, 0.375000F, 1.375000F, 0.875000F, 0.500000F},
+            {1.250000F, 0.125000F, 1.000000F, 1.375000F, 0.875000F, 1.125000F},
+            {1.250000F, 0.125000F, 1.875000F, 1.375000F, 0.875000F, 2.000000F},
+        });
 
         ModelTortureRope = new BlockConnectedRope("ModelTortureRope", "instruments_of_torture/rope");
 
@@ -650,68 +944,312 @@ public class ModelRegistry {
         ModelTortureRopeAroundTheNeck.setCollisionEnabled(true);
 
         ModelTortureRopeCore = new BlockModels(Material.cloth, "ModelTortureRopeCore", "instruments_of_torture/rope_core", "instruments_of_torture/rope_core");
-        ModelTortureRopeCore.withRotatingBounds(0.1250F, 0.0000F, 0.1875F, 0.8750F, 0.5625F, 0.9375F);
+        ModelTortureRopeCore.withMultipartCollisionBoxes(new float[][] {
+            {0.12500000F, 0.00000000F, 0.25000000F, 0.87500000F, 0.50000000F, 0.37500000F},
+            {0.62500000F, 0.18750000F, 0.18750000F, 0.75000000F, 0.56250000F, 0.31250000F},
+            {0.12500000F, 0.00000000F, 0.81250000F, 0.87500000F, 0.50000000F, 0.93750000F},
+            {0.75000000F, 0.00000000F, 0.37500000F, 0.87500000F, 0.50000000F, 0.81250000F},
+            {0.12500000F, 0.00000000F, 0.37500000F, 0.25000000F, 0.50000000F, 0.81250000F},
+        });
         ModelTortureRopeCore.setCollisionEnabled(true);
 
         ModelTortureSharpenedInThePads = new BlockModels(Material.wood, "ModelTortureSharpenedInThePads", "instruments_of_torture/sharpened_in_the_pads", "instruments_of_torture/sharpened_in_the_pads");
-        ModelTortureSharpenedInThePads.withModelOffsetY(1.1875F);
-        ModelTortureSharpenedInThePads.withMultipartBounds(0.0000F, 0.0000F, -0.6875F, 1.5000F, 2.1875F, 1.3750F);
+        ModelTortureSharpenedInThePads.withMultipartCollisionBoxes(new float[][] {
+            {-0.062500F, 1.375000F, 0.389343F, 0.062500F, 1.625000F, 0.514343F},
+            {0.000000F, 1.121064F, 0.235734F, 0.062500F, 1.366044F, 0.480715F},
+            {0.030250F, 1.292985F, 0.306181F, 0.032250F, 1.540578F, 0.553774F},
+            {0.062500F, 0.000000F, -0.048157F, 0.312500F, 0.250000F, 0.951843F},
+            {0.062500F, 0.937500F, 0.326843F, 1.312500F, 1.062500F, 0.576843F},
+            {0.062500F, 1.062500F, 0.326843F, 1.312500F, 1.312500F, 0.576843F},
+            {0.062500F, 1.312500F, 0.326843F, 1.312500F, 1.562500F, 0.576843F},
+            {0.062500F, 1.562500F, 0.326843F, 1.312500F, 1.687500F, 0.576843F},
+            {0.187500F, 0.062500F, 0.326843F, 1.187500F, 0.187500F, 0.576843F},
+            {0.562500F, 0.187500F, 0.326843F, 0.812500F, 0.937500F, 0.576843F},
+            {1.062500F, 0.000000F, -0.048157F, 1.312500F, 0.250000F, 0.951843F},
+        });
 
         ModelTortureStoneGrave = new BlockModels(Material.rock, "ModelTortureStoneGrave", "instruments_of_torture/stone_grave", "instruments_of_torture/stone_grave");
-        ModelTortureStoneGrave.withMultipartBounds(0.0000F, 0.0000F, 0.0000F, 1.0000F, 0.1250F, 2.0000F);
+        ModelTortureStoneGrave.withMultipartCollisionBoxes(new float[][] {
+            {-0.250000F, 0.000000F, -0.250000F, 1.250000F, 0.187500F, 0.000000F},
+            {-0.250000F, 0.000000F, 0.000000F, 0.000000F, 0.187500F, 1.750000F},
+            {-0.250000F, 0.000000F, 1.750000F, 1.250000F, 0.187500F, 2.000000F},
+            {0.000000F, 0.000000F, 0.000000F, 1.000000F, 0.125000F, 1.750000F},
+            {1.000000F, 0.000000F, 0.000000F, 1.250000F, 0.187500F, 1.750000F},
+        });
 
         ModelTortureStretchingTable = new BlockModels(Material.wood, "ModelTortureStretchingTable", "instruments_of_torture/stretching_table", "instruments_of_torture/stretching_table");
-        ModelTortureStretchingTable.withMultipartBounds(-0.1250F, 0.0000F, -0.8750F, 1.1250F, 1.0000F, 1.8125F);
+        ModelTortureStretchingTable.withMultipartCollisionBoxes(new float[][] {
+            {-0.200000F, 0.498407F, -0.907843F, -0.112500F, 0.754733F, -0.651517F},
+            {-0.200000F, 0.498407F, -0.598483F, -0.112500F, 0.754733F, -0.342157F},
+            {-0.200000F, 0.807767F, -0.907843F, -0.112500F, 1.064093F, -0.651517F},
+            {-0.200000F, 0.807767F, -0.598483F, -0.112500F, 1.064093F, -0.342157F},
+            {-0.187500F, 0.648667F, -0.757583F, -0.125000F, 0.913833F, -0.492417F},
+            {-0.125000F, 0.000000F, -0.750000F, 0.000000F, 1.000000F, -0.500000F},
+            {-0.125000F, 0.000000F, 1.562500F, 0.000000F, 0.687500F, 1.812500F},
+            {-0.125000F, 0.375000F, -0.750000F, 1.125000F, 0.562500F, 1.812500F},
+            {-0.045483F, 0.550000F, -0.131660F, 0.313822F, 0.700000F, 0.227645F},
+            {0.000000F, 0.625000F, -0.781250F, 1.000000F, 0.937500F, -0.468750F},
+            {0.050000F, 0.612500F, -0.793750F, 0.950000F, 0.950000F, -0.456250F},
+            {0.050000F, 0.612500F, -0.481250F, 0.137500F, 0.637500F, -0.081250F},
+            {0.061500F, 0.624000F, -0.501000F, 0.938500F, 0.626000F, 0.001000F},
+            {0.237500F, 0.550000F, 1.362500F, 0.762500F, 0.825000F, 1.575000F},
+            {0.726598F, 0.550000F, -0.273402F, 1.085902F, 0.700000F, 0.085902F},
+            {0.862500F, 0.612500F, -0.481250F, 0.950000F, 0.637500F, -0.206250F},
+            {1.000000F, 0.000000F, -0.750000F, 1.125000F, 1.000000F, -0.500000F},
+            {1.000000F, 0.000000F, 1.562500F, 1.125000F, 0.687500F, 1.812500F},
+            {1.112500F, 0.498407F, -0.907843F, 1.200000F, 0.754733F, -0.651517F},
+            {1.112500F, 0.498407F, -0.598483F, 1.200000F, 0.754733F, -0.342157F},
+            {1.112500F, 0.807767F, -0.907843F, 1.200000F, 1.064093F, -0.651517F},
+            {1.112500F, 0.807767F, -0.598483F, 1.200000F, 1.064093F, -0.342157F},
+            {1.125000F, 0.648667F, -0.757583F, 1.187500F, 0.913833F, -0.492417F},
+        });
 
         ModelTortureSuspendedCorpse = new BlockModels(Material.cloth, "ModelTortureSuspendedCorpse", "instruments_of_torture/suspended_corpse", "instruments_of_torture/suspended_corpse");
         ModelTortureSuspendedCorpse.withModelOffsetY(0.1875F);
-        ModelTortureSuspendedCorpse.withMultipartBounds(0.0000F, 0.0000F, 0.1875F, 1.0000F, 2.0000F, 0.8750F);
+        ModelTortureSuspendedCorpse.withMultipartCollisionBoxes(new float[][] {
+            {0.25000000F, 1.33984375F, 0.20507812F, 0.75000000F, 1.99609375F, 0.85742188F},
+            {0.25000000F, 0.75000000F, 0.43945312F, 0.75000000F, 1.50000000F, 0.68945312F},
+            {0.49218750F, 1.35546875F, 0.43945312F, 1.01171875F, 2.00000000F, 0.68945312F},
+            {0.49218750F, 0.00000000F, 0.43945312F, 0.74218750F, 0.75000000F, 0.68945312F},
+            {0.25781250F, 0.00000000F, 0.43945312F, 0.50781250F, 0.75000000F, 0.68945312F},
+            {0.24218750F, 0.00000000F, 0.43945312F, 0.49218750F, 0.75000000F, 0.68945312F},
+            {0.12500000F, 1.87500000F, 0.37695312F, 0.87500000F, 2.00000000F, 0.75195312F},
+            {-0.01171875F, 1.35546875F, 0.43945312F, 0.50781250F, 2.00000000F, 0.68945312F},
+        });
         ModelTortureSuspendedCorpse.setCollisionEnabled(false);
 
         ModelTortureToolsForOversupply = new BlockModels(Material.iron, "ModelTortureToolsForOversupply", "instruments_of_torture/tools_for_oversupply", "instruments_of_torture/tools_for_oversupply");
-        ModelTortureToolsForOversupply.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.0625F, 0.9375F);
+        ModelTortureToolsForOversupply.withMultipartCollisionBoxes(new float[][] {
+            {-0.001000F, 0.000000F, 0.061500F, 1.001000F, 0.001000F, 0.938500F},
+            {0.193330F, 0.036500F, 0.138097F, 0.464841F, 0.038500F, 0.443433F},
+            {0.224357F, 0.006250F, 0.211157F, 0.521277F, 0.068750F, 0.812499F},
+            {0.513770F, 0.006250F, 0.578223F, 0.667183F, 0.068750F, 0.833111F},
+            {0.526474F, 0.036500F, 0.206544F, 0.869738F, 0.038500F, 0.685107F},
+            {0.527780F, 0.006250F, 0.554305F, 0.609440F, 0.068750F, 0.635965F},
+            {0.643265F, 0.006250F, 0.602141F, 0.724925F, 0.068750F, 0.683801F},
+        });
         ModelTortureToolsForOversupply.setCollisionEnabled(false);
 
         ModelTortureToolsForOversupply1 = new BlockModels(Material.iron, "ModelTortureToolsForOversupply1", "instruments_of_torture/tools_for_oversupply_1", "instruments_of_torture/tools_for_oversupply_1");
-        ModelTortureToolsForOversupply1.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.0625F, 0.9375F);
+        ModelTortureToolsForOversupply1.withMultipartCollisionBoxes(new float[][] {
+            {-0.001000F, 0.000000F, 0.061500F, 1.001000F, 0.001000F, 0.938500F},
+            {0.125000F, 0.006250F, 0.187500F, 0.187500F, 0.068750F, 0.437500F},
+            {0.125000F, 0.006250F, 0.562500F, 0.187500F, 0.068750F, 0.812500F},
+            {0.187500F, 0.006250F, 0.187500F, 0.250000F, 0.068750F, 0.250000F},
+            {0.187500F, 0.006250F, 0.375000F, 0.250000F, 0.068750F, 0.437500F},
+            {0.187500F, 0.006250F, 0.562500F, 0.250000F, 0.068750F, 0.625000F},
+            {0.187500F, 0.006250F, 0.750000F, 0.250000F, 0.068750F, 0.812500F},
+            {0.250000F, 0.006250F, 0.187500F, 0.312500F, 0.068750F, 0.437500F},
+            {0.250000F, 0.006250F, 0.562500F, 0.312500F, 0.068750F, 0.812500F},
+            {0.311500F, 0.036500F, 0.186500F, 0.876000F, 0.038500F, 0.438500F},
+            {0.311500F, 0.036500F, 0.561500F, 0.876000F, 0.038500F, 0.813500F},
+        });
         ModelTortureToolsForOversupply1.setCollisionEnabled(false);
 
         ModelTortureToolsForOversupply2 = new BlockModels(Material.iron, "ModelTortureToolsForOversupply2", "instruments_of_torture/tools_for_oversupply_2", "instruments_of_torture/tools_for_oversupply_2");
-        ModelTortureToolsForOversupply2.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.1250F, 0.9375F);
+        ModelTortureToolsForOversupply2.withMultipartCollisionBoxes(new float[][] {
+            {-0.001000F, 0.000000F, 0.061500F, 1.001000F, 0.001000F, 0.938500F},
+            {0.155250F, 0.049000F, 0.186500F, 0.469750F, 0.051000F, 0.438500F},
+            {0.187500F, 0.018750F, 0.500000F, 0.250000F, 0.081250F, 0.812500F},
+            {0.206250F, 0.006250F, 0.362500F, 0.418750F, 0.093750F, 0.575000F},
+            {0.375000F, 0.018750F, 0.500000F, 0.437500F, 0.081250F, 0.812500F},
+            {0.562814F, 0.012500F, 0.215616F, 0.759959F, 0.075000F, 0.345112F},
+            {0.586732F, 0.012500F, 0.321194F, 0.668392F, 0.075000F, 0.402855F},
+            {0.610649F, 0.012500F, 0.331101F, 0.807794F, 0.075000F, 0.460597F},
+            {0.625000F, 0.012500F, 0.437500F, 0.687500F, 0.075000F, 0.812500F},
+            {0.663582F, 0.012500F, 0.418340F, 0.864831F, 0.075000F, 0.788712F},
+        });
         ModelTortureToolsForOversupply2.setCollisionEnabled(false);
 
         ModelTortureToolsForOversupply3 = new BlockModels(Material.iron, "ModelTortureToolsForOversupply3", "instruments_of_torture/tools_for_oversupply_3", "instruments_of_torture/tools_for_oversupply_3");
-        ModelTortureToolsForOversupply3.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.1250F, 0.9375F);
+        ModelTortureToolsForOversupply3.withMultipartCollisionBoxes(new float[][] {
+            {-0.001000F, 0.000000F, 0.061500F, 1.001000F, 0.001000F, 0.938500F},
+            {0.160227F, 0.006250F, 0.189848F, 0.727744F, 0.131250F, 0.520593F},
+            {0.194051F, 0.037500F, 0.299530F, 0.467053F, 0.100000F, 0.843130F},
+            {0.279815F, 0.006250F, 0.478561F, 0.847333F, 0.131250F, 0.809305F},
+            {0.540506F, 0.037500F, 0.156024F, 0.813508F, 0.100000F, 0.699623F},
+        });
         ModelTortureToolsForOversupply3.setCollisionEnabled(false);
 
         ModelTortureToolsForOversupply4 = new BlockModels(Material.iron, "ModelTortureToolsForOversupply4", "instruments_of_torture/tools_for_oversupply_4", "instruments_of_torture/tools_for_oversupply_4");
-        ModelTortureToolsForOversupply4.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.1875F, 0.9375F);
+        ModelTortureToolsForOversupply4.withMultipartCollisionBoxes(new float[][] {
+            {-0.001000F, 0.000000F, 0.061500F, 1.001000F, 0.001000F, 0.938500F},
+            {0.177855F, 0.006250F, 0.240747F, 0.432742F, 0.068750F, 0.394160F},
+            {0.177855F, 0.006250F, 0.355840F, 0.432742F, 0.068750F, 0.509253F},
+            {0.177855F, 0.049590F, 0.343750F, 0.432742F, 0.203003F, 0.406250F},
+            {0.186500F, 0.036500F, 0.280250F, 0.376000F, 0.038500F, 0.469750F},
+            {0.186500F, 0.036500F, 0.374000F, 0.376000F, 0.163500F, 0.376000F},
+            {0.360465F, 0.006250F, 0.616647F, 0.557610F, 0.068750F, 0.746143F},
+            {0.375000F, 0.006250F, 0.312500F, 0.500000F, 0.131250F, 0.437500F},
+            {0.500000F, 0.037500F, 0.343750F, 0.562500F, 0.100000F, 0.406250F},
+            {0.521733F, -0.025000F, 0.539941F, 0.685054F, 0.100000F, 0.703261F},
+            {0.562500F, 0.006250F, 0.312500F, 0.625000F, 0.131250F, 0.437500F},
+            {0.625259F, -0.056250F, 0.439316F, 0.870240F, 0.131250F, 0.684297F},
+        });
         ModelTortureToolsForOversupply4.setCollisionEnabled(false);
 
         ModelTortureToolsForOversupply5 = new BlockModels(Material.iron, "ModelTortureToolsForOversupply5", "instruments_of_torture/tools_for_oversupply_5", "instruments_of_torture/tools_for_oversupply_5");
-        ModelTortureToolsForOversupply5.withRotatingBounds(0.0000F, 0.0000F, 0.0625F, 1.0000F, 0.1250F, 0.9375F);
+        ModelTortureToolsForOversupply5.withMultipartCollisionBoxes(new float[][] {
+            {-0.001000F, 0.000000F, 0.061500F, 1.001000F, 0.001000F, 0.938500F},
+            {0.205757F, 0.006250F, 0.285022F, 0.335253F, 0.068750F, 0.482167F},
+            {0.277511F, 0.006250F, 0.410414F, 0.474656F, 0.068750F, 0.539909F},
+            {0.321242F, 0.006250F, 0.237186F, 0.450738F, 0.068750F, 0.434331F},
+            {0.349264F, 0.006250F, 0.583641F, 0.594244F, 0.068750F, 0.828622F},
+            {0.359171F, 0.006250F, 0.492074F, 0.464749F, 0.068750F, 0.631476F},
+            {0.487226F, -0.042192F, 0.162215F, 0.684371F, 0.145308F, 0.291710F},
+            {0.568886F, 0.020308F, 0.243875F, 0.841888F, 0.082808F, 0.787475F},
+            {0.672142F, 0.007808F, 0.516255F, 0.858220F, 0.095308F, 0.803807F},
+        });
         ModelTortureToolsForOversupply5.setCollisionEnabled(false);
 
         ModelTortureTortureTable = new BlockModels(Material.wood, "ModelTortureTortureTable", "instruments_of_torture/torture_table", "instruments_of_torture/torture_table");
-        ModelTortureTortureTable.withMultipartBounds(-0.6250F, 0.0000F, -0.4375F, 1.6250F, 1.0000F, 1.8125F);
+        ModelTortureTortureTable.withMultipartCollisionBoxes(new float[][] {
+            {-0.625000F, 0.375000F, 0.062500F, 0.125000F, 0.562500F, 0.562500F},
+            {-0.500000F, 0.562500F, 0.187500F, 0.250000F, 0.812500F, 0.437500F},
+            {-0.387500F, 0.550000F, 0.112500F, -0.175000F, 0.825000F, 0.512500F},
+            {-0.375000F, 0.000000F, 0.187500F, -0.187500F, 0.375000F, 0.437500F},
+            {0.125000F, 0.375000F, -0.437500F, 0.875000F, 0.562500F, 1.812500F},
+            {0.237500F, 0.550000F, 1.425000F, 0.762500F, 0.825000F, 1.637500F},
+            {0.250000F, 0.000000F, -0.312500F, 0.750000F, 0.375000F, -0.125000F},
+            {0.250000F, 0.000000F, 1.437500F, 0.750000F, 0.375000F, 1.625000F},
+            {0.250000F, 0.377772F, -0.348311F, 0.750000F, 1.031053F, 0.304971F},
+            {0.250000F, 0.562500F, 0.187500F, 0.750000F, 0.812500F, 0.937500F},
+            {0.250000F, 0.562500F, 0.937500F, 0.500000F, 0.812500F, 1.687500F},
+            {0.500000F, 0.562500F, 0.937500F, 0.750000F, 0.812500F, 1.687500F},
+            {0.750000F, 0.562500F, 0.187500F, 1.500000F, 0.812500F, 0.437500F},
+            {0.875000F, 0.375000F, 0.062500F, 1.625000F, 0.562500F, 0.562500F},
+            {1.175000F, 0.550000F, 0.112500F, 1.387500F, 0.825000F, 0.512500F},
+            {1.187500F, 0.000000F, 0.187500F, 1.375000F, 0.375000F, 0.437500F},
+        });
 
         ModelTortureTortureTable1 = new BlockModels(Material.wood, "ModelTortureTortureTable1", "instruments_of_torture/torture_table_1", "instruments_of_torture/torture_table_1");
-        ModelTortureTortureTable1.withMultipartBounds(0.0000F, 0.0000F, -1.0000F, 1.0000F, 0.9375F, 1.2500F);
+        ModelTortureTortureTable1.withMultipartCollisionBoxes(new float[][] {
+            {0.000000F, 0.000000F, -0.875000F, 0.250000F, 0.375000F, -0.625000F},
+            {0.000000F, 0.000000F, 0.875000F, 0.250000F, 0.375000F, 1.125000F},
+            {0.000000F, 0.375000F, -1.000000F, 1.000000F, 0.562500F, 1.250000F},
+            {0.000000F, 0.562500F, -0.375000F, 0.250000F, 0.812500F, 0.375000F},
+            {0.062500F, 0.125000F, -0.625000F, 0.125000F, 0.250000F, 0.875000F},
+            {0.250000F, 0.125000F, -0.812500F, 0.750000F, 0.250000F, -0.750000F},
+            {0.250000F, 0.125000F, 1.000000F, 0.750000F, 0.250000F, 1.062500F},
+            {0.250000F, 0.437500F, -0.875000F, 0.750000F, 0.937500F, -0.375000F},
+            {0.250000F, 0.562500F, -0.375000F, 0.750000F, 0.812500F, 0.375000F},
+            {0.750000F, 0.000000F, -0.875000F, 1.000000F, 0.375000F, -0.625000F},
+            {0.750000F, 0.000000F, 0.875000F, 1.000000F, 0.375000F, 1.125000F},
+            {0.750000F, 0.562500F, -0.375000F, 1.000000F, 0.812500F, 0.375000F},
+            {0.875000F, 0.125000F, -0.625000F, 0.937500F, 0.250000F, 0.875000F},
+        });
 
         ModelTortureTortureWithCoals = new BlockModels(Material.iron, "ModelTortureTortureWithCoals", "instruments_of_torture/torture_with_coals", "instruments_of_torture/torture_with_coals");
-        ModelTortureTortureWithCoals.withRotatingBounds(0.1250F, 0.0000F, 0.1250F, 0.8750F, 1.0000F, 0.8750F);
+        ModelTortureTortureWithCoals.withMultipartCollisionBoxes(new float[][] {
+            {0.125000F, 0.000000F, 0.125000F, 0.875000F, 0.250000F, 0.875000F},
+            {0.125000F, 0.500000F, 0.125000F, 0.875000F, 0.875000F, 0.875000F},
+            {0.125000F, 0.875000F, 0.125000F, 0.250000F, 1.000000F, 0.875000F},
+            {0.250000F, 0.250000F, 0.250000F, 0.750000F, 0.500000F, 0.750000F},
+            {0.250000F, 0.875000F, 0.125000F, 0.750000F, 1.000000F, 0.250000F},
+            {0.250000F, 0.875000F, 0.750000F, 0.750000F, 1.000000F, 0.875000F},
+            {0.296875F, 0.819503F, 0.371035F, 0.453125F, 1.023654F, 0.575185F},
+            {0.476115F, 0.804077F, 0.546875F, 0.680266F, 1.008227F, 0.703125F},
+            {0.549234F, 0.771908F, 0.296875F, 0.753385F, 0.976059F, 0.453125F},
+            {0.750000F, 0.875000F, 0.125000F, 0.875000F, 1.000000F, 0.875000F},
+            {0.859257F, 0.681140F, 0.206250F, 0.997499F, 0.853207F, 0.418750F},
+            {0.907092F, 0.565655F, 0.143750F, 1.045334F, 0.737722F, 0.481250F},
+            {0.971260F, 0.466502F, 0.187500F, 1.076838F, 0.605905F, 0.437500F},
+            {1.019095F, 0.004562F, 0.187500F, 1.268179F, 0.490420F, 0.250000F},
+            {1.019095F, 0.004562F, 0.375000F, 1.268179F, 0.490420F, 0.437500F},
+        });
 
         ModelTortureWheeledCorpse = new BlockModels(Material.cloth, "ModelTortureWheeledCorpse", "instruments_of_torture/wheeled_corpse", "instruments_of_torture/wheeled_corpse");
         ModelTortureWheeledCorpse.withModelOffsetY(0.3750F);
-        ModelTortureWheeledCorpse.withMultipartBounds(-0.1875F, 0.0000F, -0.5625F, 1.5000F, 1.2500F, 1.3125F);
+        ModelTortureWheeledCorpse.withMultipartCollisionBoxes(new float[][] {
+            {-0.187500F, 0.375000F, -0.062500F, 1.312500F, 0.500000F, 1.187500F},
+            {-0.062500F, 0.375000F, -0.187500F, 1.187500F, 0.500000F, -0.062500F},
+            {-0.062500F, 0.375000F, 1.187500F, 1.187500F, 0.500000F, 1.312500F},
+            {-0.060660F, 0.501350F, 0.025402F, 0.646447F, 0.751350F, 0.732509F},
+            {0.202035F, 0.654199F, 0.343750F, 0.855316F, 1.307481F, 0.843750F},
+            {0.437500F, 0.500000F, 0.437500F, 0.687500F, 0.875000F, 0.687500F},
+            {0.558058F, 0.501350F, -0.062986F, 1.441942F, 0.751350F, 0.820897F},
+            {0.911612F, 0.044243F, -0.593316F, 1.161612F, 0.751350F, 0.113790F},
+            {1.088388F, 0.001350F, 0.644120F, 1.441942F, 0.751350F, 0.997674F},
+            {1.265165F, 0.063850F, 0.394120F, 1.515165F, 0.813850F, 0.644120F},
+        });
         ModelTortureWheeledCorpse.setCollisionEnabled(false);
 
         ModelTortureWheeling = new BlockModels(Material.wood, "ModelTortureWheeling", "instruments_of_torture/wheeling", "instruments_of_torture/wheeling");
         ModelTortureWheeling.withModelOffsetY(1.0000F);
-        ModelTortureWheeling.withMultipartBounds(0.0000F, 0.0000F, 0.1250F, 2.0000F, 2.6250F, 1.9375F);
+        ModelTortureWheeling.withMultipartCollisionBoxes(new float[][] {
+            {0.000000F, 0.000000F, 0.875000F, 0.500000F, 0.250000F, 1.125000F},
+            {0.124000F, 0.061500F, 0.999000F, 0.626000F, 0.626000F, 1.001000F},
+            {0.437500F, 1.250000F, 0.937500F, 1.500000F, 1.375000F, 1.062500F},
+            {0.499000F, 1.374000F, 0.936500F, 0.751000F, 1.501000F, 0.938500F},
+            {0.499000F, 1.374000F, 1.061500F, 0.751000F, 1.501000F, 1.063500F},
+            {0.500000F, 0.000000F, 0.125000F, 0.750000F, 0.250000F, 1.875000F},
+            {0.500000F, 0.250000F, 0.812500F, 0.750000F, 1.500000F, 1.187500F},
+            {0.548843F, 1.521788F, 1.108161F, 1.450487F, 1.742187F, 1.455834F},
+            {0.624000F, 0.061500F, 0.249000F, 0.626000F, 0.626000F, 1.751000F},
+            {0.625000F, 1.386409F, 1.093670F, 0.875000F, 2.174990F, 1.611652F},
+            {0.737500F, 1.164963F, 1.501249F, 1.262500F, 1.252463F, 1.963749F},
+            {0.737500F, 1.575040F, 1.478192F, 1.262500F, 1.832871F, 1.938971F},
+            {0.737500F, 2.022577F, 1.276943F, 1.262500F, 2.280408F, 1.737722F},
+            {0.750000F, 0.000000F, 0.250000F, 1.250000F, 0.250000F, 1.750000F},
+            {0.750000F, 0.802463F, 1.701249F, 1.000000F, 1.552463F, 1.951249F},
+            {0.750000F, 1.456792F, 1.433266F, 1.250000F, 2.245373F, 1.951249F},
+            {0.750000F, 1.996226F, 1.020799F, 1.250000F, 2.703332F, 1.727906F},
+            {0.798097F, 0.187500F, 0.817258F, 0.961418F, 0.312500F, 0.980578F},
+            {0.831922F, 0.187500F, 1.110597F, 0.995242F, 0.312500F, 1.273918F},
+            {0.875000F, 0.187500F, 0.875000F, 1.000000F, 0.312500F, 1.000000F},
+            {0.875000F, 0.380413F, 0.135563F, 1.000000F, 2.244587F, 1.864437F},
+            {0.875000F, 0.448063F, 0.067913F, 1.000000F, 1.650748F, 0.661752F},
+            {0.875000F, 0.974252F, 1.338248F, 1.000000F, 2.176937F, 1.932087F},
+            {0.995242F, 0.178247F, 0.937500F, 1.158563F, 0.341567F, 1.062500F},
+            {1.000000F, 0.187500F, 1.312500F, 1.125000F, 0.312500F, 1.437500F},
+            {1.000000F, 0.380413F, 0.135563F, 1.125000F, 2.244587F, 1.864437F},
+            {1.000000F, 0.448063F, 0.067913F, 1.125000F, 1.650748F, 0.661752F},
+            {1.000000F, 0.802463F, 1.701249F, 1.250000F, 1.552463F, 1.951249F},
+            {1.000000F, 0.974252F, 1.338248F, 1.125000F, 2.176937F, 1.932087F},
+            {1.125000F, 1.386409F, 1.093670F, 1.375000F, 2.174990F, 1.611652F},
+            {1.249000F, 1.374000F, 0.936500F, 1.501000F, 1.501000F, 0.938500F},
+            {1.249000F, 1.374000F, 1.061500F, 1.501000F, 1.501000F, 1.063500F},
+            {1.250000F, 0.000000F, 0.125000F, 1.500000F, 0.250000F, 1.875000F},
+            {1.250000F, 0.250000F, 0.812500F, 1.500000F, 1.500000F, 1.187500F},
+            {1.374000F, 0.061500F, 0.999000F, 1.876000F, 0.626000F, 1.001000F},
+            {1.374000F, 0.249000F, 0.249000F, 1.376000F, 0.813500F, 1.751000F},
+            {1.500000F, 0.000000F, 0.875000F, 2.000000F, 0.250000F, 1.125000F},
+            {1.500000F, 0.937500F, 0.937500F, 1.562500F, 1.375000F, 1.062500F},
+            {1.537500F, 0.975000F, 0.943750F, 1.962500F, 1.087500F, 1.056250F},
+        });
 
         ModelTortureWitchSChair = new BlockModels(Material.wood, "ModelTortureWitchSChair", "instruments_of_torture/witch_s_chair", "instruments_of_torture/witch_s_chair");
-        ModelTortureWitchSChair.withMultipartBounds(-0.8750F, 0.0000F, 0.0000F, 1.0000F, 1.6250F, 1.0000F);
+        ModelTortureWitchSChair.withMultipartCollisionBoxes(new float[][] {
+            {0.000000F, 0.000000F, 0.000000F, 1.000000F, 0.125000F, 1.000000F},
+            {0.000000F, 0.812500F, 0.187500F, 0.250000F, 1.062500F, 0.312500F},
+            {0.055626F, 0.314814F, 0.000000F, 0.209039F, 0.569701F, 0.062500F},
+            {0.062500F, 0.125000F, 0.187500F, 0.187500F, 0.375000F, 0.375000F},
+            {0.062500F, 0.125000F, 0.750000F, 0.187500F, 0.375000F, 0.937500F},
+            {0.062500F, 0.375000F, 0.062500F, 0.937500F, 0.625000F, 0.187500F},
+            {0.062500F, 0.375000F, 0.187500F, 0.937500F, 0.625000F, 0.937500F},
+            {0.062500F, 0.625000F, 0.187500F, 0.187500F, 0.875000F, 0.937500F},
+            {0.062500F, 0.760005F, 0.590182F, 0.937500F, 1.018997F, 0.984473F},
+            {0.062500F, 0.875000F, 0.812500F, 0.187500F, 1.562500F, 0.937500F},
+            {0.124000F, 0.374000F, 0.186500F, 0.251000F, 0.376000F, 0.313500F},
+            {0.186500F, 0.624000F, 0.186500F, 0.813500F, 0.751000F, 0.188500F},
+            {0.186500F, 0.624000F, 0.311500F, 0.813500F, 0.751000F, 0.313500F},
+            {0.186500F, 0.624000F, 0.436500F, 0.813500F, 0.751000F, 0.438500F},
+            {0.186500F, 0.624000F, 0.561500F, 0.813500F, 0.751000F, 0.563500F},
+            {0.186500F, 0.624000F, 0.686500F, 0.813500F, 0.751000F, 0.688500F},
+            {0.186500F, 0.724776F, 0.690951F, 0.813500F, 0.775224F, 0.809049F},
+            {0.186500F, 0.974776F, 0.690951F, 0.813500F, 1.025224F, 0.809049F},
+            {0.186500F, 1.099776F, 0.690951F, 0.813500F, 1.150224F, 0.809049F},
+            {0.186500F, 1.224776F, 0.690951F, 0.813500F, 1.275224F, 0.809049F},
+            {0.186500F, 1.349776F, 0.690951F, 0.813500F, 1.400224F, 0.809049F},
+            {0.187500F, 0.625000F, 0.812500F, 0.812500F, 1.625000F, 0.937500F},
+            {0.749000F, 0.374000F, 0.186500F, 0.876000F, 0.376000F, 0.313500F},
+            {0.750000F, 0.812500F, 0.187500F, 1.000000F, 1.062500F, 0.312500F},
+            {0.790961F, 0.314814F, 0.000000F, 0.944374F, 0.569701F, 0.062500F},
+            {0.812500F, 0.125000F, 0.187500F, 0.937500F, 0.375000F, 0.375000F},
+            {0.812500F, 0.125000F, 0.750000F, 0.937500F, 0.375000F, 0.937500F},
+            {0.812500F, 0.625000F, 0.187500F, 0.937500F, 0.875000F, 0.937500F},
+            {0.812500F, 0.875000F, 0.812500F, 0.937500F, 1.562500F, 0.937500F},
+        });
 
     }
 

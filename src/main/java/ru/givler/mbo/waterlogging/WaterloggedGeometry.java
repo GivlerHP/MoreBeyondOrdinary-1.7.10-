@@ -42,7 +42,8 @@ public final class WaterloggedGeometry {
   public static boolean[] freeCells(World world, int x, int y, int z) {
     boolean[] free = new boolean[8];
     Block block = world.getBlock(x, y, z);
-    if (block instanceof BlockChest || block instanceof BlockCampfire) {
+    if (block instanceof BlockChest || block instanceof BlockCampfire
+        || WaterloggedBlockSupport.isWaterPermeableModel(block)) {
       for (int i = 0; i < free.length; i++) free[i] = true;
       return free;
     }
@@ -78,7 +79,20 @@ public final class WaterloggedGeometry {
   }
 
   public static boolean[] waterCellsForRender(World world, int x, int y, int z) {
-    return waterCellsForFlow(world, x, y, z);
+    // A closed hatch blocks a half-cell for flow routing, but is only 3/16 thick.
+    // Reusing that routing mask draws a false water/air wall beside wet buttons.
+    // The renderer clips these cells to the actual horizontal hatch surface.
+    if(!(world.getBlock(x,y,z) instanceof BlockTrapDoor)) return waterCellsForFlow(world,x,y,z);
+    boolean owned=beginScope(world);
+    try {
+      long key=cellKey(x,y,z);
+      boolean[] rendered=SCOPE.get().renderCells.get(key);
+      if(rendered==null) {
+        rendered=freeCells(world,x,y,z);
+        SCOPE.get().renderCells.put(key,rendered);
+      }
+      return rendered;
+    } finally { if(owned) endScope(); }
   }
 
   public static boolean[] waterCellsForFlow(World world, int x, int y, int z) {
@@ -102,10 +116,11 @@ public final class WaterloggedGeometry {
     Scope previous;
     boolean oversized;
     final java.util.Map<Long,boolean[]> cells = new java.util.HashMap<Long,boolean[]>();
+    final java.util.Map<Long,boolean[]> renderCells = new java.util.HashMap<Long,boolean[]>();
     final java.util.Map<String,Boolean> reachable = new java.util.HashMap<String,Boolean>();
     final java.util.Map<String,Boolean> supply = new java.util.HashMap<String,Boolean>();
-    boolean small() {return !oversized && cells.size()<=256 && reachable.size()<=256 && supply.size()<=256;}
-    void clear() {oversized |= !small();cells.clear();reachable.clear();supply.clear();}
+    boolean small() {return !oversized && cells.size()<=256 && renderCells.size()<=256 && reachable.size()<=256 && supply.size()<=256;}
+    void clear() {oversized |= !small();cells.clear();renderCells.clear();reachable.clear();supply.clear();}
   }
   public static boolean beginScope(World world) {
     Scope current = SCOPE.get();
@@ -169,6 +184,7 @@ public final class WaterloggedGeometry {
   public static boolean isFaceOpen(
       World world, int x, int y, int z, int directionX, int directionY, int directionZ) {
     Block block = world.getBlock(x, y, z);
+    if(WaterloggedBlockSupport.isWaterPermeableModel(block)) return true;
     List<AxisAlignedBB> collision = new ArrayList<AxisAlignedBB>();
     block.addCollisionBoxesToList(
         world,
@@ -260,6 +276,7 @@ public final class WaterloggedGeometry {
       World world, int x, int y, int z, byte ingressMask, int outX, int outY, int outZ) {
     if (ingressMask == 0) return false;
     Block block = world.getBlock(x, y, z);
+    if(WaterloggedBlockSupport.isWaterPermeableModel(block)) return true;
     List<AxisAlignedBB> boxes = new ArrayList<AxisAlignedBB>();
     block.addCollisionBoxesToList(
         world,
