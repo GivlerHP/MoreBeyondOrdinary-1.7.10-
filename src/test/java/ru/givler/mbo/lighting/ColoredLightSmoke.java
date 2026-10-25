@@ -277,6 +277,10 @@ public final class ColoredLightSmoke {
     for (String category : new String[]{"blocks", "items"}) for (Map.Entry<String, com.google.gson.JsonElement> rule : full.getAsJsonObject(category).entrySet())
       ColoredLightRule.parse(rule.getKey(), rule.getValue(), category.equals("blocks"));
     com.google.gson.JsonObject blocks = full.getAsJsonObject("blocks");
+    ColoredLightRule nitor = ColoredLightRule.parse("Thaumcraft:blockAiry:1",blocks.get("Thaumcraft:blockAiry:1"),true);
+    equal(1,nitor.metadata);
+    equal(ColoredLightApi.emission(0xFFD6A0,15),nitor.emission(15));
+    check(!blocks.has("Thaumcraft:blockAiry")&&!blocks.has("Thaumcraft:blockAiry:0"),"Nitor color must not affect aura nodes");
     ColoredLightRule campfire = ColoredLightRule.parse("mbo:Campfire", blocks.get("mbo:Campfire"), true);
     equal(0, campfire.emission(0)); equal(ColoredLightApi.emission(0xFFD6A0,15), campfire.emission(15));
     int[] bulbLevels = {15,12,8,4};

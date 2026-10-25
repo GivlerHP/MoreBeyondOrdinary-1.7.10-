@@ -67,7 +67,8 @@ public final class ColoredLightConfig {
         JsonObject category=category(root,name), additions=name.equals("blocks")?defaults:defaultItems;
         for(java.util.Map.Entry<String,JsonElement> entry:additions.entrySet()) {
           String id=entry.getKey();
-          boolean present=name.equals("blocks")?net.minecraft.block.Block.blockRegistry.containsKey(id):net.minecraft.item.Item.itemRegistry.containsKey(id);
+          String registryId=ru.givler.mbo.lighting.ColoredLightRule.parse(id,entry.getValue(),name.equals("blocks")).name;
+          boolean present=name.equals("blocks")?net.minecraft.block.Block.blockRegistry.containsKey(registryId):net.minecraft.item.Item.itemRegistry.containsKey(registryId);
           if(present && !category.has(id))category.add(id,entry.getValue());
         }
         if(category.entrySet().size()>0)root.add(name,category);
@@ -147,6 +148,9 @@ public final class ColoredLightConfig {
   }
   private static void both(JsonObject blocks,JsonObject items,String id,String color) { add(blocks,id,color); add(items,id,color); }
   private static void extraSources(JsonObject blocks,JsonObject items) {
+    // Only metadata 1 is nitor; the same block also contains aura nodes and other effects.
+    add(blocks,"Thaumcraft:blockAiry:1","#FFD6A0");
+    add(items,"Thaumcraft:blockAiry:1","#FFD6A0",15);
     for(String id:new String[]{"customnpcs:npcCandle","customnpcs:npcCampfire","customnpcs:npcLamp","GardenStuff:candle","customnpcs:npcShortLamp","customnpcs:npcTallLamp"})both(blocks,items,id,"#FFD6A0");
     both(blocks,items,"minecraft:ender_chest","#80FFD0");
     // Cold forge items remain dark; only the active world blocks emit light.
