@@ -86,6 +86,7 @@ public class MoreBeyondOrdinary {
     FMLCommonHandler.instance().bus().register(new ru.givler.mbo.handler.HangingEvents());
     IntegrationConfig.load(event.getModConfigurationDirectory());
     GameplayConfig.load(event.getModConfigurationDirectory());
+    ru.givler.mbo.config.ParticleConfig.load(event.getModConfigurationDirectory());
     MobSpawnConfig.load(event.getModConfigurationDirectory());
     FaunaCaveAbyss.init();
     FMLCommonHandler.instance().bus().register(new FaunaAquaticSpawner());

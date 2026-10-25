@@ -7,6 +7,7 @@ import java.util.function.*;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import ru.givler.mbo.config.ColoredLightConfig;
+import ru.givler.mbo.config.ParticleConfig;
 import ru.givler.mbo.client.lighting.ColoredLightClient;
 import ru.givler.mbo.client.lighting.ColoredEntityLightHooks;
 
@@ -22,6 +23,7 @@ public final class AngelicaColoredLightOptions {
       for(Object page:pages)if("RGB-MBO".equals(page.getClass().getMethod("getName").invoke(page)))return true;
       AngelicaGuiScale.replace(pages);
       AngelicaWindowOptions.attach(pages);
+      attachCubicParticles(pages);
       pages.add(createPage());
       pages.add(AngelicaCtmOptions.createPage());
       screen.getClass().getMethod("rebuildGUI").invoke(screen);
@@ -33,6 +35,7 @@ public final class AngelicaColoredLightOptions {
     values.put("enabled",ColoredLightConfig.enabled);values.put("entities",ColoredLightConfig.entityLighting);
     values.put("dynamic",ColoredLightConfig.dynamicLights);values.put("saturation",Math.round(ColoredLightConfig.strength*100));
     values.put("brightness",Math.round(ColoredLightConfig.brightnessGain*100));values.put("speed",ColoredLightConfig.updateSpeed);
+    values.put("particles",ParticleConfig.rgbLighting);
     Class<?> storageType=Class.forName(ROOT+"storage.OptionStorage");
     Object storage=Proxy.newProxyInstance(storageType.getClassLoader(),new Class<?>[]{storageType},(proxy,method,args)->{
       if(method.getName().equals("getData"))return values;
@@ -46,6 +49,7 @@ public final class AngelicaColoredLightOptions {
     add(group,storage,storageType,"saturation",Integer.class,100,"offHint");
     add(group,storage,storageType,"brightness",Integer.class,200,"offHint");
     add(group,storage,storageType,"entities",Boolean.class,1,"offHint");
+    add(group,storage,storageType,"particles",Boolean.class,1,"particlesHint");
     add(group,storage,storageType,"dynamic",Boolean.class,1,"dynamicHint");
     add(group,storage,storageType,"speed",Integer.class,2,"speedHint");
     Object built=group.getClass().getMethod("build").invoke(group);
@@ -82,9 +86,49 @@ public final class AngelicaColoredLightOptions {
     boolean dynamicChanged=dynamic!=ColoredLightConfig.dynamicLights;
     ColoredLightConfig.enabled=enabled;ColoredLightConfig.entityLighting=entities;ColoredLightConfig.dynamicLights=dynamic;
     ColoredLightConfig.strength=saturation;ColoredLightConfig.brightnessGain=brightness;ColoredLightConfig.updateSpeed=(Integer)values.get("speed");
+    ParticleConfig.rgbLighting=(Boolean)values.get("particles");ParticleConfig.save();
     if(!entities)ColoredEntityLightHooks.release();
     ColoredLightConfig.saveUserOptions();
     if(rebuild)ColoredLightClient.INSTANCE.applyOptions();
     else if(dynamicChanged)ColoredLightClient.INSTANCE.applyDynamicOptions();
+  }
+
+  /** Insert the independent cube toggle immediately after Angelica's particle quantity. */
+  public static void attachCubicParticles(List<Object> pages)throws ReflectiveOperationException {
+    for(int index=0;index<pages.size();index++) {
+      Object page=pages.get(index);
+      boolean found=false;
+      for(Object option:(List<?>)page.getClass().getMethod("getOptions").invoke(page)) {
+        Object label=option.getClass().getMethod("getName").invoke(option);
+        if(I18n.format("mbo.light.cubicParticles").equals(label)) return;
+        if(I18n.format("options.particles").equals(label)) found=true;
+      }
+      if(!found) continue;
+      Map<String,Object> values=new HashMap<String,Object>();values.put("cubicParticles",ParticleConfig.cubicParticles);
+      Class<?> storageType=Class.forName(ROOT+"storage.OptionStorage");
+      Object storage=Proxy.newProxyInstance(storageType.getClassLoader(),new Class<?>[]{storageType},(proxy,method,args)->{
+        if(method.getName().equals("getData"))return values;
+        if(method.getName().equals("save")) {
+          ParticleConfig.cubicParticles=(Boolean)values.get("cubicParticles");ParticleConfig.save();return null;
+        }
+        if(method.getName().equals("hashCode"))return System.identityHashCode(proxy);
+        if(method.getName().equals("equals"))return proxy==args[0];return "MBO particle geometry options";
+      });
+      List<Object> groups=new ArrayList<Object>();
+      for(Object group:(List<?>)page.getClass().getMethod("getGroups").invoke(page)) {
+        Object builder=Class.forName(ROOT+"OptionGroup").getMethod("createBuilder").invoke(null);
+        Method append=builder.getClass().getMethod("add",Class.forName(ROOT+"Option"));
+        for(Object option:(List<?>)group.getClass().getMethod("getOptions").invoke(group)) {
+          append.invoke(builder,option);
+          if(I18n.format("options.particles").equals(option.getClass().getMethod("getName").invoke(option)))
+            add(builder,storage,storageType,"cubicParticles",Boolean.class,1,"cubicParticlesHint");
+        }
+        groups.add(builder.getClass().getMethod("build").invoke(builder));
+      }
+      pages.set(index,page.getClass().getConstructor(String.class,ImmutableList.class).newInstance(
+          page.getClass().getMethod("getName").invoke(page),ImmutableList.copyOf(groups)));
+      return;
+    }
+    throw new IllegalStateException("Angelica particle quantity option not found");
   }
 }

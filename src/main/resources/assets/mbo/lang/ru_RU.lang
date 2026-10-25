@@ -1939,3 +1939,8 @@ mbo.window.pause=Пауза при потере фокуса
 mbo.window.pause.hint=Выключи, чтобы Alt+Tab и скриншоты Windows не ставили игру на паузу.
 mbo.window.unavailable=Для режима без рамок нужен LWJGL3ify. Настройка паузы работает и без него.
 mbo.window.apply=Применить
+
+mbo.light.particles=Свет на частицах
+mbo.light.particlesHint=Цветное освещение для обычных и 3D-частиц.
+mbo.light.cubicParticles=3D-частицы
+mbo.light.cubicParticlesHint=Объёмные частицы разрушения полных блоков.

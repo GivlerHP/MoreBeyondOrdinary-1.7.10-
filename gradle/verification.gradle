@@ -1,5 +1,11 @@
 // Feature checks and optional renderer audits. Existing task names and check dependencies are retained.
 
+task verifyParticles(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.ParticleSmoke'
+}
+check.dependsOn verifyParticles
+
 task verifyProductionTransformers(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.core.ProductionTransformersSmoke'
@@ -80,6 +86,7 @@ task verifyUndeadVariants(type: JavaExec, dependsOn: testClasses) {
 task verifyAngelicaOptions(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.lighting.AngelicaOptionsSmoke'
+    if (project.hasProperty('angelicaRgbOnly')) args 'rgb'
     if (project.hasProperty('angelicaAuditJar')) classpath += files(project.property('angelicaAuditJar').toString().split(';'))
     else onlyIf { false }
     if (project.hasProperty('angelicaAuditJava')) executable = project.property('angelicaAuditJava')

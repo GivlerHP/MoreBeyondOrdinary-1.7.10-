@@ -28,7 +28,26 @@ public final class AngelicaOptionsSmoke { public static final class ScaleValue {
     Object page=AngelicaColoredLightOptions.createPage();
     if(!"RGB-MBO".equals(page.getClass().getMethod("getName").invoke(page)))throw new AssertionError("Page title");
     List<?> options=(List<?>)page.getClass().getMethod("getOptions").invoke(page);
-    if(options.size()!=6)throw new AssertionError("Missing RGB options");
+    if(options.size()!=7)throw new AssertionError("Missing RGB options");
+    Object particleLight=options.get(4);
+    if(!"mbo.light.particles".equals(particleLight.getClass().getMethod("getName").invoke(particleLight)))throw new AssertionError("Particle light is not in RGB tab");
+    String root="me.jellysquid.mods.sodium.client.gui.options.";
+    Class<?> optionType=Class.forName(root+"Option");
+    Object quantityGroup=Class.forName(root+"OptionGroup").getMethod("createBuilder").invoke(null);
+    // Reuse a native option with the vanilla quantity label to exercise page reconstruction.
+    Field nameField=particleLight.getClass().getDeclaredField("name");nameField.setAccessible(true);
+    nameField.set(particleLight,"options.particles");
+    quantityGroup.getClass().getMethod("add",optionType).invoke(quantityGroup,particleLight);
+    Object builtGroup=quantityGroup.getClass().getMethod("build").invoke(quantityGroup);
+    List<Object> pages=new ArrayList<Object>();
+    pages.add(Class.forName(root+"OptionPage").getConstructor(String.class,com.google.common.collect.ImmutableList.class)
+        .newInstance("General",com.google.common.collect.ImmutableList.of(builtGroup)));
+    AngelicaColoredLightOptions.attachCubicParticles(pages);
+    List<?> general=(List<?>)pages.get(0).getClass().getMethod("getOptions").invoke(pages.get(0));
+    if(general.size()!=2||!"mbo.light.cubicParticles".equals(general.get(1).getClass().getMethod("getName").invoke(general.get(1))))throw new AssertionError("3D toggle must follow particle quantity");
+    AngelicaColoredLightOptions.attachCubicParticles(pages);
+    if(((List<?>)pages.get(0).getClass().getMethod("getOptions").invoke(pages.get(0))).size()!=2)throw new AssertionError("Duplicate 3D toggle");
+    nameField.set(particleLight,"mbo.light.particles");
     Object enabled=options.get(0);Class<?> type=enabled.getClass();
     boolean initial=ColoredLightConfig.enabled;
     type.getMethod("setValue",Object.class).invoke(enabled,!initial);
@@ -36,10 +55,10 @@ public final class AngelicaOptionsSmoke { public static final class ScaleValue {
     type.getMethod("reset").invoke(enabled);
     if(!Boolean.FALSE.equals(type.getMethod("hasChanged").invoke(enabled)))throw new AssertionError("Undo failed");
     for(Object option:options)if(option.getClass().getMethod("getControl").invoke(option)==null)throw new AssertionError("Native control missing");
-    Object speed=options.get(5),control=speed.getClass().getMethod("getControl").invoke(speed);
+    Object speed=options.get(6),control=speed.getClass().getMethod("getControl").invoke(speed);
     Field formatter=control.getClass().getDeclaredField("mode");formatter.setAccessible(true);
     Class<?> formatterType=Class.forName("me.jellysquid.mods.sodium.client.gui.options.control.ControlValueFormatter");
     for(int i=0;i<3;i++)if(formatterType.getMethod("format",int.class).invoke(formatter.get(control),i)==null)throw new AssertionError("Speed label missing");
-    System.out.println("Actual Angelica API: RGB-MBO native page, six controls, pending Apply/Undo semantics and speed labels passed");
+    System.out.println("Actual Angelica API: RGB-MBO native page, seven controls, pending Apply/Undo semantics and speed labels passed");
   }
 }

@@ -1649,3 +1649,8 @@ mbo.window.pause=Pause when unfocused
 mbo.window.pause.hint=Turn off to keep playing during Alt+Tab and Windows screenshots.
 mbo.window.unavailable=Borderless fullscreen requires LWJGL3ify. The pause option works without it.
 mbo.window.apply=Apply
+
+mbo.light.particles=Particle lighting
+mbo.light.particlesHint=Colored lighting for flat and 3D particles.
+mbo.light.cubicParticles=3D particles
+mbo.light.cubicParticlesHint=Render debris from full blocks as textured cubes.
