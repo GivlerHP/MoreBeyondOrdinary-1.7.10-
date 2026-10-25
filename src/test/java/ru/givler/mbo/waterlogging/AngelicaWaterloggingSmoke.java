@@ -17,6 +17,8 @@ import ru.givler.mbo.client.render.WaterloggedLiquidHeightHooks;
 /** No Angelica or GL classes are required: the absent-mod path is tested by the same suite. */
 public final class AngelicaWaterloggingSmoke {
   static class Pane extends BlockPane { Pane(){super("glass","glass",Material.glass,false);} }
+  static class Solid extends Block { Solid(){super(Material.rock);} public boolean canRenderInPass(int pass){return pass==0;} }
+  static class SpyRenderer extends RenderBlocks { int draws; SpyRenderer(IBlockAccess view){super(view);} public boolean renderBlockByRenderType(Block block,int x,int y,int z){draws++;return true;} }
   static class Water extends BlockStaticLiquid { Water(){super(Material.water);} }
   static class View implements IBlockAccess,WaterloggingRenderHooks.ClientView {
     Set<ClientWaterloggedBlocks.Position> snapshot;
@@ -53,6 +55,13 @@ public final class AngelicaWaterloggingSmoke {
       if(!WaterloggingRenderHooks.isWaterlogged(wet,-1,-64,-1) || WaterloggingRenderHooks.isWaterlogged(dry,-1,-64,-1))
         throw new AssertionError("Non-World/ChunkCache view ignored");
       Pane pane=new Pane();Water water=new Water();
+      SpyRenderer spy=new SpyRenderer(dry);Solid solid=new Solid();
+      if(!WaterloggedPaneChunkHooks.renderAngelica(spy,solid,0,0,0,1,true)||spy.draws!=1)
+        throw new AssertionError("Shader translucent override discarded base geometry");
+      if(WaterloggedPaneChunkHooks.renderAngelica(spy,solid,0,0,0,1,false)||spy.draws!=1)
+        throw new AssertionError("Extra water pass duplicated base geometry");
+      if(!WaterloggedPaneChunkHooks.renderAngelica(spy,solid,0,0,0,0,false)||spy.draws!=2)
+        throw new AssertionError("Ordinary block pass discarded");
       if(!WaterloggedPaneChunkHooks.filterAngelicaPass(false,pane,1,wet,-1,-64,-1)
           || WaterloggedPaneChunkHooks.filterAngelicaPass(false,pane,0,wet,-1,-64,-1)
           || WaterloggedPaneChunkHooks.filterAngelicaPass(false,pane,1,dry,-1,-64,-1)

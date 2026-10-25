@@ -8,6 +8,8 @@ public final class AngelicaClientRegistration {
   private static java.lang.reflect.Method shaderPackInUse;
   private static Object irisApi;
   private static boolean handStateLogged;
+  private final ru.givler.mbo.client.render.ShaderPipelineChanges pipelineChanges=
+      new ru.givler.mbo.client.render.ShaderPipelineChanges();
   private AngelicaClientRegistration() {}
   public static void register() {
     if(!cpw.mods.fml.common.Loader.isModLoaded("angelica"))return;
@@ -39,9 +41,12 @@ public final class AngelicaClientRegistration {
       Class<?> api=Class.forName("net.irisshaders.iris.api.v0.IrisApi");
       irisApi=api.getMethod("getInstance").invoke(null);
       shaderPackInUse=api.getMethod("isShaderPackInUse");
-      net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new AngelicaClientRegistration());
+      AngelicaClientRegistration events=new AngelicaClientRegistration();
+      net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(events);
+      cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(events);
       ru.givler.mbo.client.render.WaterloggedBlockRenderer.enableAngelicaChunkWater();
       net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new AngelicaTextureReport());
+      net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.diagnostics.BlockColorProbe());
       net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.diagnostics.TileEntityTraceCommand());
       cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(ru.givler.mbo.client.diagnostics.TileEntityRenderTrace.INSTANCE);
       HandRenderTrace.enabled=true;
@@ -50,6 +55,20 @@ public final class AngelicaClientRegistration {
     } catch(ReflectiveOperationException error) {
       throw new IllegalStateException("MBO cannot configure the installed Angelica rendering API",error);
     }
+  }
+  @cpw.mods.fml.common.eventhandler.SubscribeEvent
+  public void tick(cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent event) {
+    if(event.phase!=cpw.mods.fml.common.gameevent.TickEvent.Phase.END)return;
+    boolean shaders=ru.givler.mbo.client.render.ShaderPackState.isActive();
+    Object revision=ru.givler.mbo.client.render.ShaderPackState.revision();
+    boolean changed=pipelineChanges.update(shaders,revision);
+    net.minecraft.client.Minecraft mc=net.minecraft.client.Minecraft.getMinecraft();
+    if(!changed || mc.theWorld==null)return;
+    ru.givler.mbo.client.lighting.ColoredLightShaderBridge.resetPrograms();
+    ru.givler.mbo.client.lighting.ColoredLightClient.INSTANCE.reloadInputs();
+    ru.givler.mbo.client.lighting.ColoredDynamicLights.INSTANCE.clear(mc);
+    if(mc.renderGlobal!=null)mc.renderGlobal.loadRenderers();
+    System.out.println("[MBO] Shader pipeline changed: RGB inputs and baked terrain invalidated; shaders="+shaders+", revision="+revision);
   }
   /** Establish the vanilla foreground state before other mods can own RenderHandEvent. */
   @cpw.mods.fml.common.eventhandler.SubscribeEvent(priority=cpw.mods.fml.common.eventhandler.EventPriority.HIGHEST)

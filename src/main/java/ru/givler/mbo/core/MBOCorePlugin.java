@@ -12,6 +12,8 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.core.TextureInterpolationTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaPackSettingsTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaSkyTransformer",
+      "ru.givler.mbo.integration.angelica.core.AngelicaColorStateTransformer",
+      "ru.givler.mbo.integration.angelica.core.AngelicaShaderCompatTransformer",
       "ru.givler.mbo.core.RandomMobTextureTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaCtmTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaRenderTransformer",
@@ -87,7 +89,9 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
     return null;
   }
 
-  public void injectData(Map<String, Object> data) {}
+  public void injectData(Map<String, Object> data) {
+    ru.givler.mbo.integration.angelica.core.AngelicaColorMixinExtension.install();
+  }
 
   public String getAccessTransformerClass() {
     return null;

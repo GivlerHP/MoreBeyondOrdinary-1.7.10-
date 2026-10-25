@@ -19,7 +19,7 @@ apply from: 'gradle/formatting.gradle'
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
-version = "1.26.37"
+version = "1.26.46"
 group = "ru.givler.mbo"
 archivesBaseName = "MoreBeyondOrdinary"
 

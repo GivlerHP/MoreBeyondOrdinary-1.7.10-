@@ -63,6 +63,7 @@ public final class AngelicaPackSettingsTransformer implements IClassTransformer,
           InsnList gate=new InsnList();gate.add(new FieldInsnNode(GETSTATIC,node.name,"active","Z"));
           gate.add(new FieldInsnNode(GETSTATIC,CONFIG+"BetterSkies","enabled","Z"));gate.add(new InsnNode(IAND));
           gate.add(new FieldInsnNode(GETSTATIC,MASTER,"enableMCPatcherForgeFeatures","Z"));gate.add(new InsnNode(IAND));
+          gate.add(new MethodInsnNode(INVOKESTATIC,"ru/givler/mbo/integration/angelica/client/AngelicaSkyHooks","enabled","()Z",false));gate.add(new InsnNode(IAND));
           gate.add(new FieldInsnNode(PUTSTATIC,node.name,"active","Z"));m.instructions.insertBefore(i,gate);changed=true;
         }
       }

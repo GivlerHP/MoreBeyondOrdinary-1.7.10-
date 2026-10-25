@@ -17,7 +17,8 @@ public final class AngelicaSkyHooks {
   private static Field properties,brightness,speed;
   private static Method values,errorMethod;
   private static Field skyboxEnabled,skyEnabled,packEnabled;
-  private static boolean enabled() {
+  public static boolean enabled() {
+    if(ru.givler.mbo.client.render.ShaderPackState.isActive())return false;
     try {
       if(skyboxEnabled==null) {
         Class<?> type=Class.forName("jss.notfine.config.MCPatcherForgeConfig$BetterSkies");
@@ -58,7 +59,11 @@ public final class AngelicaSkyHooks {
     synchronized(rules){for(State state:rules.values()){state.lastWorld=null;state.position=Float.NaN;}}
   }
   public static int prepare(Object layer) {
-    if(!enabled())return 0;
+    if(!enabled()) {
+      try { bind(layer); brightness.setFloat(layer,0); }
+      catch(ReflectiveOperationException error){throw new IllegalStateException("Cannot disable sky layer",error);}
+      return 0;
+    }
     State state=rules.get(layer);if(state==null)return -1;
     World current=world;if(current==null)return 0;
     Entity eye=Minecraft.getMinecraft().renderViewEntity;if(eye==null)return 0;

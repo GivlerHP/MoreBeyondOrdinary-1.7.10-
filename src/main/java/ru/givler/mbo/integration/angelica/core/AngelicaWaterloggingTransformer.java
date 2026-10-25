@@ -92,8 +92,11 @@ public final class AngelicaWaterloggingTransformer implements IClassTransformer,
         if(!c.name.equals("renderBlockByRenderType") && !c.name.equals("func_147805_b"))continue;
         Type[] args=Type.getArgumentTypes(m.desc);
         if(args.length<8 || !args[6].getClassName().equals("net.minecraft.client.renderer.Tessellator"))throw new IllegalStateException("Angelica renderBlock arguments changed");
-        m.instructions.insertBefore(i,new VarInsnNode(ILOAD,6));
-        m.instructions.set(i,new MethodInsnNode(INVOKESTATIC,HOOK,"renderAngelica","(Lnet/minecraft/client/renderer/RenderBlocks;Lnet/minecraft/block/Block;IIII)Z",false));renders++;
+        if(args.length<16 || args[15].getSort()!=Type.BOOLEAN)throw new IllegalStateException("Angelica shader layer override argument changed");
+        int overrideLocal=1;for(int a=0;a<15;a++)overrideLocal+=args[a].getSize();
+        InsnList extra=new InsnList();extra.add(new VarInsnNode(ILOAD,6));
+        extra.add(new VarInsnNode(ILOAD,overrideLocal));m.instructions.insertBefore(i,extra);
+        m.instructions.set(i,new MethodInsnNode(INVOKESTATIC,HOOK,"renderAngelica","(Lnet/minecraft/client/renderer/RenderBlocks;Lnet/minecraft/block/Block;IIIIZ)Z",false));renders++;
       }
     }
     if(gates!=1 || renders!=1)throw new IllegalStateException("Angelica water mesh anchors: "+gates+"/"+renders);
