@@ -1,6 +1,9 @@
 package ru.givler.mbo.recipes.registry;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.Loader;
+import net.minecraft.item.Item;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -13,6 +16,8 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 
 public class BlockRecipeRegistry {
     public static void init() {
+        registerHoneycomb("BiomesOPlenty", "food", 9);
+        registerHoneycomb("Growthcraft|Bees", "grc.honeyCombFilled", 0);
         GameRegistry.addShapelessRecipe(new ItemStack(BlockRegistry.FramelessGlass), Blocks.glass);
         for (int color = 0; color < 16; color++)
             GameRegistry.addShapelessRecipe(new ItemStack(BlockRegistry.FramelessStainedGlass, 1, color),
@@ -43,8 +48,10 @@ public class BlockRecipeRegistry {
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(BlockRegistry.CopperBulbs[0], 4),
                 " C ", "CBC", " R ", 'C', new ItemStack(BlockRegistry.CopperBlock),
                 'B', Items.blaze_rod, 'R', "dustRedstone"));
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ItemRegistry.Honeycomb),
-                " S ", "SLS", " S ", 'S', Items.sugar, 'L', Items.slime_ball));
+        if (!Loader.isModLoaded("BiomesOPlenty") && !Loader.isModLoaded("Growthcraft|Bees")) {
+            GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ItemRegistry.Honeycomb),
+                    " S ", "SLS", " S ", 'S', Items.sugar, 'L', Items.slime_ball));
+        }
         for (int stage = 0; stage < 4; stage++) {
             addWaxRecipe(new ItemStack(BlockRegistry.CopperBlock, 1, stage),
                     new ItemStack(BlockRegistry.CopperBlock, 1, stage + 8));
@@ -163,5 +170,11 @@ public class BlockRecipeRegistry {
 
     private static void addWaxRecipe(ItemStack input, ItemStack output) {
         GameRegistry.addRecipe(new ShapelessOreRecipe(output, input, "materialHoneycomb"));
+    }
+
+    private static void registerHoneycomb(String modId, String name, int metadata) {
+        Item item = GameRegistry.findItem(modId, name);
+        if (item != null)
+            OreDictionary.registerOre("materialHoneycomb", new ItemStack(item, 1, metadata));
     }
 }
