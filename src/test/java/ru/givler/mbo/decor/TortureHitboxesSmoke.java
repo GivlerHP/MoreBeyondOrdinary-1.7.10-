@@ -39,6 +39,7 @@ public final class TortureHitboxesSmoke {
         TestWorld world=(TestWorld)((sun.misc.Unsafe)access.get(null)).allocateInstance(TestWorld.class);
         Method register=ru.givler.mbo.registry.ModelRegistry.class.getDeclaredMethod("registerTortureModels");
         register.setAccessible(true);register.invoke(null);
+        checkDescriptions();
         int count=0;
         java.util.Set<String> special=new java.util.HashSet<String>(java.util.Arrays.asList(
             "ModelTortureBedOnChains", "ModelTortureIronCage", "ModelTortureRopeCore", "ModelTortureSuspendedCorpse"));
@@ -123,6 +124,27 @@ public final class TortureHitboxesSmoke {
         old.checkOwner();
         require(world.removed,"Obsolete saved helper must be removed");
         System.out.println("PASS 34 torture shapes, four rotations, open gaps, ray targeting and saved helper migration");
+    }
+
+    private static void checkDescriptions() throws Exception {
+        for (String language : new String[]{"ru_RU", "en_US"}) {
+            try (java.io.InputStream input = TortureHitboxesSmoke.class.getResourceAsStream("/assets/mbo/lang/" + language + ".lang")) {
+                net.minecraft.util.StringTranslate.inject(input);
+            }
+            for (BlockModels model : BlockModels.getAllModels()) {
+                java.util.List<String> lines = new ArrayList<String>();
+                ru.givler.mbo.item.ItemBlockModels.addModelDescription(model, lines);
+                require(!lines.isEmpty(), "Missing model description: " + language + "/" + model.getUnlocalizedName());
+                for (String line : lines) require(!line.contains("\\n") && !line.contains(".desc"), "Unresolved description: " + line);
+            }
+            java.util.List<String> lines = new ArrayList<String>();
+            ru.givler.mbo.item.ItemBlockModels.addModelDescription(
+                ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains, lines);
+            require(lines.size() == 2, "Sleep instructions must contain two tooltip lines");
+            lines.clear();
+            ru.givler.mbo.item.ItemBlockModels.addModelDescription(new PlacementBlock(false), lines);
+            require(lines.isEmpty(), "Missing description must not expose a localization key");
+        }
     }
 
     private static double volume(float[][] boxes) {

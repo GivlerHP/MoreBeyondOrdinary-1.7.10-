@@ -5,11 +5,28 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import java.util.List;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import ru.givler.mbo.block.BlockModels;
 import ru.givler.mbo.block.model.BlockConnectedRope;
 
 public class ItemBlockModels extends ItemBlock {
     public ItemBlockModels(Block block) { super(block); }
+
+    @Override
+    public void addInformation(ItemStack stack, EntityPlayer player, List lines, boolean advanced) {
+        super.addInformation(stack, player, lines, advanced);
+        addModelDescription(field_150939_a, lines);
+    }
+
+    public static void addModelDescription(Block block, List lines) {
+        String key = block.getUnlocalizedName() + ".desc";
+        if (!StatCollector.canTranslate(key)) return;
+        for (String line : StatCollector.translateToLocal(key).replace("\\n", "\n").split("\n")) {
+            if (!line.isEmpty()) lines.add(EnumChatFormatting.GRAY + line);
+        }
+    }
 
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world,
