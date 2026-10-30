@@ -9,5 +9,9 @@ public final class MagicModule {
 
   public static void preInit(FMLPreInitializationEvent event) {
     MagicSpells.register();
+    cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(ru.givler.mbo.magic.possession.PossessionManager.INSTANCE);
+    net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(ru.givler.mbo.magic.possession.PossessionManager.INSTANCE);
+    net.minecraftforge.common.ForgeChunkManager.setForcedChunkLoadingCallback(ru.givler.mbo.MoreBeyondOrdinary.instance,
+        (tickets,world)->{for(net.minecraftforge.common.ForgeChunkManager.Ticket ticket:tickets)net.minecraftforge.common.ForgeChunkManager.releaseTicket(ticket);});
   }
 }

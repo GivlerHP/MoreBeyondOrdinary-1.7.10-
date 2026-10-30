@@ -141,6 +141,21 @@ public final class ItemSpellScroll extends Item {
     return stack;
   }
 
+  /** Entity right-clicks must cast before the animal can open its own interface. */
+  public boolean possessEntity(ItemStack stack, EntityPlayer player,
+      net.minecraft.entity.EntityLivingBase target) {
+    Spell spell = getSpell(stack);
+    if (spell == null || !SpellRegistry.id("mind_control").equals(spell.id())) return false;
+    if (player.isPotionActive(PotionRegistry.ArcaneJammer)) return true;
+    SpellResult result = spell.cast(new SpellContext(player.worldObj, player, target, stack, 0, 1, 1, 1, 1));
+    if (result.consumesResources() && !player.worldObj.isRemote && !player.capabilities.isCreativeMode) {
+      stack.stackSize--;
+      if (stack.stackSize <= 0) player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+      player.inventoryContainer.detectAndSendChanges();
+    }
+    return true;
+  }
+
   @Override
   public void onUsingTick(ItemStack stack, EntityPlayer player, int count) {
     Spell spell = getSpell(stack);

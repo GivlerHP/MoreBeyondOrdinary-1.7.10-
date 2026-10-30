@@ -74,6 +74,8 @@ public class CommonProxy {
   }
 
   public void recordColoredFire(Entity entity, int color, int remaining) {}
+  public void possessionState(ru.givler.mbo.network.packet.PacketPossessionState state) {}
+  public boolean possessionTurn(Entity entity,float x,float y) { return false; }
 
   public void openAdminFireColorGui(ItemStack stack) {}
 

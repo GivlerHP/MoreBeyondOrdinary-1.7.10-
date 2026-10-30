@@ -467,23 +467,11 @@ public class PotionEvents {
     }
 
     private static void controlMind(EntityLiving controlled) {
-        EntityLivingBase owner = MindControl.getController(controlled);
-        if (owner == null) {
-            controlled.setAttackTarget(null);
-            return;
-        }
-        double range = controlled.getEntityAttribute(SharedMonsterAttributes.followRange).getAttributeValue();
-        List nearby = controlled.worldObj.getEntitiesWithinAABB(EntityLivingBase.class,
-                controlled.boundingBox.expand(range, range, range));
-        EntityLivingBase closest = null;
-        for (Object object : nearby) {
-            EntityLivingBase candidate = (EntityLivingBase) object;
-            if (candidate == controlled || candidate == owner || !candidate.isEntityAlive()) continue;
-            if (closest == null || controlled.getDistanceSqToEntity(candidate)
-                    < controlled.getDistanceSqToEntity(closest)) closest = candidate;
-        }
-        controlled.setAttackTarget(closest);
-        if (controlled instanceof EntityCreature) ((EntityCreature) controlled).setTarget(closest);
+        // Retire combat effects from older saves; possession is now a transient server session.
+        controlled.removePotionEffect(PotionRegistry.MindControl.id);
+        controlled.setAttackTarget(null);
+        if (controlled instanceof EntityCreature) ((EntityCreature) controlled).setTarget(null);
+        controlled.getEntityData().removeTag("mboMagicController");
     }
 
     private static void runAway(EntityCreature creature, EntityLivingBase feared) {

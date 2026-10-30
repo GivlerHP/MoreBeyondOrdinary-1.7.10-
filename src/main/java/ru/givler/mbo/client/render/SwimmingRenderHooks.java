@@ -27,6 +27,7 @@ public final class SwimmingRenderHooks {
 
   public static float cameraEyeHeight() {
     Entity view = Minecraft.getMinecraft().renderViewEntity;
+    if (view != null && !(view instanceof EntityPlayer)) return view.yOffset + view.getEyeHeight();
     return view instanceof EntityPlayer && SwimmingHooks.isSwimming((EntityPlayer) view)
         ? SwimmingHooks.cameraEyeHeight((EntityPlayer) view) : 1.62F;
   }

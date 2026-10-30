@@ -132,7 +132,7 @@ public class EntityMBOCamel extends EntityHorse {
     if (worldObj != null) playSound("mbo:entity.camel." + (value ? "sit" : "stand"), 1, 1);
   }
 
-  private boolean canStand() {
+  public boolean canStand() {
     return worldObj
         .getCollidingBoundingBoxes(
             this,

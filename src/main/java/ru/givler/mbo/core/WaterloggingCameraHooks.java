@@ -60,6 +60,7 @@ public final class WaterloggingCameraHooks {
   }
 
   private static float cameraEyeHeight(Entity view) {
+    if (!(view instanceof net.minecraft.entity.player.EntityPlayer)) return view.yOffset + view.getEyeHeight();
     return view instanceof net.minecraft.entity.player.EntityPlayer
         && ru.givler.mbo.swimming.SwimmingHooks.isSwimming(
             (net.minecraft.entity.player.EntityPlayer) view) ? 0.4F : 1.62F;

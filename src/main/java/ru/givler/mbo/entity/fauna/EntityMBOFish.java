@@ -325,7 +325,7 @@ public abstract class EntityMBOFish extends EntityWaterMob implements IBucketabl
     }
   }
 
-  private void setPuff(int value) {
+  public void setPuff(int value) {
     dataWatcher.updateObject(21, Byte.valueOf((byte) value));
     setSize(
         .35F * (value == 0 ? .5F : value == 1 ? 1F : 1.5F),

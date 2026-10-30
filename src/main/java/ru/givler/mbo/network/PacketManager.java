@@ -65,6 +65,8 @@ public class PacketManager {
   public static int nextID = 0;
 
   public static void registerCommonPackets() {
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketPossessionInput.Handler.class,ru.givler.mbo.network.packet.PacketPossessionInput.class,nextID++,Side.SERVER);
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketPossessionState.Handler.class,ru.givler.mbo.network.packet.PacketPossessionState.class,nextID++,Side.CLIENT);
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketHangingEscape.Handler.class,
         ru.givler.mbo.network.packet.PacketHangingEscape.class, nextID++, Side.SERVER);
     INSTANCE.registerMessage(PacketCamelDash.Handler.class,PacketCamelDash.class,nextID++,Side.SERVER);

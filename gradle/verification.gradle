@@ -1,5 +1,11 @@
 // Feature checks and optional renderer audits. Existing task names and check dependencies are retained.
 
+task verifyPossession(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.magic.possession.PossessionSmoke'
+}
+check.dependsOn verifyPossession
+
 task verifyParticles(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.core.ParticleSmoke'

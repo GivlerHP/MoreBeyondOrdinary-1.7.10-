@@ -227,6 +227,13 @@ public class ClientProxy extends CommonProxy {
     Minecraft.getMinecraft().displayGuiScreen(new GuiAdminFireColor(stack));
   }
 
+  @Override public void possessionState(ru.givler.mbo.network.packet.PacketPossessionState state) {
+    ru.givler.mbo.client.handler.PossessionClient.INSTANCE.state(state);
+  }
+  @Override public boolean possessionTurn(net.minecraft.entity.Entity entity,float x,float y) {
+    return ru.givler.mbo.client.handler.PossessionClient.INSTANCE.turn(entity,x,y);
+  }
+
   public void preInit(FMLPreInitializationEvent event) {
     super.preInit(event);
     PlayerPingConfig.load(event.getModConfigurationDirectory());
@@ -236,6 +243,8 @@ public class ClientProxy extends CommonProxy {
 
   public void init(FMLInitializationEvent event) {
     super.init(event);
+    FMLCommonHandler.instance().bus().register(ru.givler.mbo.client.handler.PossessionClient.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.handler.PossessionClient.INSTANCE);
     ru.givler.mbo.config.ColoredLightSources.reload();
     net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.lighting.ColoredLightCommand());
     FMLCommonHandler.instance().bus().register(ru.givler.mbo.client.lighting.ColoredLightClient.INSTANCE);

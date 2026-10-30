@@ -113,6 +113,7 @@ public final class EntityMBOFox extends EntityAnimal {
   public boolean trusts(UUID id) {
     return id != null && (id.equals(trusted1) || id.equals(trusted2));
   }
+  public boolean hasTrustedPlayers() { return trusted1 != null || trusted2 != null; }
 
   public void trust(UUID id) {
     if (id == null || trusts(id)) return;
