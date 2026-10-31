@@ -47,6 +47,11 @@ task prepareAngelicaDev(type: JavaExec, dependsOn: compileAngelicaDevTools) {
 
 afterEvaluate {
     tasks.matching { it.name == 'runClient' || it.name == 'run' }.all {
+        // ForgeGradle 1.2's GradleStart requires the Java 8 URLClassLoader.
+        // Select the game's JVM independently of the terminal/Gradle daemon JVM.
+        javaLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(8)
+        }
         jvmArgs '-noverify'
         if (file('.angelica-dev/natives/OpenAL64.dll').exists()) {
             systemProperty 'org.lwjgl.librarypath', file('.angelica-dev/natives').absolutePath
@@ -65,5 +70,16 @@ afterEvaluate {
         if (project.hasProperty('memoryProfile')) {
             jvmArgs '-XX:NativeMemoryTracking=summary'
         }
+    }
+}
+
+task verifyDevClientJava {
+    group = 'verification'
+    description = 'Checks the game JVM without opening a client.'
+    doLast {
+        def launcher = tasks.runClient.javaLauncher.get()
+        if (launcher.metadata.languageVersion.asInt() != 8)
+            throw new GradleException('The development client must use Java 8')
+        logger.lifecycle("runClient Java 8: ${launcher.executablePath}")
     }
 }

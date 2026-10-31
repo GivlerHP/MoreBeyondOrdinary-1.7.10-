@@ -57,6 +57,10 @@ public final class PossessionManager {
     net.minecraft.entity.ai.attributes.IAttributeInstance attribute=animal.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
     return attribute==null?0:Math.max(0,attribute.getAttributeValue());
   }
+  static float walkingInput(EntityLivingBase animal) { return (float)movementSpeed(animal)*.98F; }
+  static void pauseStaleInput(Session s) {
+    if(s.age-s.lastInput>20){s.forward=s.strafe=0;s.jump=s.sneak=false;s.exit=0;}
+  }
   static void freeMovement(EntityLivingBase animal,float forward,float strafe,float vertical) {
     double length=Math.max(1,Math.sqrt(forward*forward+strafe*strafe+vertical*vertical));
     double speed=movementSpeed(animal)/length,angle=Math.toRadians(animal.rotationYaw);
@@ -150,7 +154,10 @@ public final class PossessionManager {
         s.jumpCooldown=10;
       }
       animal.setAIMoveSpeed((float)movementSpeed(animal));
-      animal.moveEntityWithHeading(strafe,forward);
+      // EntityLiving.setAIMoveSpeed also sets native AI's moveForward to this speed.
+      // Unit player input would otherwise make a sheep roughly four times too fast.
+      float input=walkingInput(animal)/(float)Math.max(1,Math.sqrt(strafe*strafe+forward*forward));
+      animal.moveEntityWithHeading(strafe*input,forward*input);
       if(animal instanceof EntityChicken&&animal.motionY<0)animal.motionY*=.6;
     }
     animal.limbSwingAmount+=(Math.min(1F,(float)Math.sqrt(animal.motionX*animal.motionX+animal.motionZ*animal.motionZ)*4)-animal.limbSwingAmount)*.4F;
@@ -162,8 +169,9 @@ public final class PossessionManager {
       s.age++;
       if(!s.player.isEntityAlive()||!s.player.playerNetServerHandler.netManager.isChannelOpen()||s.player.worldObj!=s.animal.worldObj
           ||s.player.ridingEntity!=null||!s.animal.isEntityAlive()){end(s,s.active&&!s.animal.isEntityAlive());continue;}
-      if(s.active&&(s.age-s.lastInput>100||!eligible(s.player,s.animal)||s.animal.riddenByEntity!=null||s.animal.ridingEntity!=null
+      if(s.active&&(!eligible(s.player,s.animal)||s.animal.riddenByEntity!=null||s.animal.ridingEntity!=null
           ||!s.animal.worldObj.loadedEntityList.contains(s.animal))){end(s,false);continue;}
+      pauseStaleInput(s);
       s.player.setPosition(s.x,s.y,s.z);s.player.motionX=s.player.motionY=s.player.motionZ=0;
       s.player.rotationYaw=s.yaw;s.player.rotationPitch=s.pitch;
       if(!s.active&&s.age>=ATTEMPT_TICKS) {

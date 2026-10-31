@@ -149,6 +149,12 @@ task verifyTextureInterpolationStandalone(type: JavaExec, dependsOn: testClasses
 
 apply from: 'gradle/verifyNativeResources.gradle'
 
+task verifyBatVision(type: JavaExec, dependsOn: [testClasses, extractNativeResourceTestLibraries]) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.render.BatVisionSmoke'
+    systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
+}
+
 tasks.check.dependsOn(
         'verifyTortureHitboxes',
         'verifyProductionTransformers',

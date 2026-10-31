@@ -27,7 +27,7 @@ public final class PossessionClient extends Gui {
   public static final PossessionClient INSTANCE=new PossessionClient();
   private final Map<Integer,PacketPossessionState> revealed=new HashMap<Integer,PacketPossessionState>();
   private final Map<UUID,EntityOtherPlayerMP> ghosts=new HashMap<UUID,EntityOtherPlayerMP>();
-  private long token;private int target=-1,attempt,exit,flash,waiting,silence;private boolean active,mouseHeld,exitArmed;
+  private long token;private int target=-1,attempt,exit,flash;private boolean active,mouseHeld,exitArmed;
   private double bodyX,bodyY,bodyZ;private float bodyYaw,bodyPitch,health,maxHealth;private int air;
   private float lookYaw,lookPitch;
   private net.minecraft.world.World world;
@@ -40,36 +40,37 @@ public final class PossessionClient extends Gui {
     if(p.kind==PacketPossessionState.HIDE){PacketPossessionState old=revealed.get(p.id);if(old!=null&&old.token==p.token){revealed.remove(p.id);ghosts.remove(old.owner);}return;}
     if(!mc.thePlayer.getUniqueID().equals(p.owner))return;
     if(p.kind==PacketPossessionState.ATTEMPT) {
-      clearControl();world=mc.theWorld;token=p.token;target=p.id;attempt=PossessionManager.ATTEMPT_TICKS;waiting=0;silence=0;
+      clearControl();world=mc.theWorld;token=p.token;target=p.id;attempt=PossessionManager.ATTEMPT_TICKS;
       bodyX=mc.thePlayer.posX;bodyY=mc.thePlayer.posY;bodyZ=mc.thePlayer.posZ;bodyYaw=mc.thePlayer.rotationYaw;bodyPitch=mc.thePlayer.rotationPitch;return;
     }
     if(p.token!=token)return;
-    silence=0;
+
     if(p.kind==PacketPossessionState.STOP){boolean failed=!active;clearControl();flash=failed?12:6;return;}
-    if(p.kind==PacketPossessionState.START){active=true;attempt=0;waiting=0;exitArmed=false;lookYaw=MathHelper.wrapAngleTo180_float(p.yaw);lookPitch=p.pitch;}
+    if(p.kind==PacketPossessionState.START){active=true;attempt=0;exitArmed=false;lookYaw=MathHelper.wrapAngleTo180_float(p.yaw);lookPitch=p.pitch;}
     if(active) {
       health=p.health;maxHealth=p.maxHealth;air=p.air;Entity e=mc.theWorld.getEntityByID(target);
       if(e instanceof EntityLivingBase){e.setPositionAndRotation2(p.x,p.y,p.z,lookYaw,lookPitch,1);((EntityLivingBase)e).setHealth(p.health);mc.renderViewEntity=(EntityLivingBase)e;applyLook((EntityLivingBase)e);}
     }
   }
   private void clearControl() {
+    ru.givler.mbo.client.render.BatVisionRenderer.release();
     Minecraft mc=Minecraft.getMinecraft();
     if(mc.thePlayer!=null) {
       mc.renderViewEntity=mc.thePlayer;if(active){mc.thePlayer.rotationYaw=bodyYaw;mc.thePlayer.rotationPitch=bodyPitch;}
       if(ownVision!=null&&mc.thePlayer.getActivePotionEffect(Potion.nightVision)==ownVision){mc.thePlayer.removePotionEffectClient(Potion.nightVision.id);if(priorVision!=null&&priorVision.getDuration()>0)mc.thePlayer.addPotionEffect(priorVision);}
     }
-    ownVision=priorVision=null;active=false;token=0;target=-1;attempt=exit=waiting=silence=0;mouseHeld=false;
+    ownVision=priorVision=null;active=false;token=0;target=-1;attempt=exit=0;mouseHeld=false;
   }
   private static boolean key(net.minecraft.client.settings.KeyBinding k){int c=k.getKeyCode();return c<0?Mouse.isButtonDown(c+100):c>0&&Keyboard.isKeyDown(c);}
   @SubscribeEvent public void tick(TickEvent.ClientTickEvent e) {
     if(e.phase!=TickEvent.Phase.END)return;Minecraft mc=Minecraft.getMinecraft();
     if(mc.theWorld!=world){clearControl();revealed.clear();ghosts.clear();world=mc.theWorld;}
     if(flash>0)flash--;if(token==0)return;
-    if(mc.thePlayer==null||mc.theWorld==null||!mc.thePlayer.isEntityAlive()||++silence>120){clearControl();return;}
+    if(mc.thePlayer==null||mc.theWorld==null||!mc.thePlayer.isEntityAlive()){clearControl();return;}
     if(attempt>0)attempt--;if(!active)return;
     Entity entity=mc.theWorld.getEntityByID(target);
-    if(!(entity instanceof EntityLivingBase)){if(++waiting>100)clearControl();return;}
-    waiting=0;EntityLivingBase animal=(EntityLivingBase)entity;mc.renderViewEntity=animal;
+    if(!(entity instanceof EntityLivingBase)){PacketManager.INSTANCE.sendToServer(new PacketPossessionInput(token,0,0,lookYaw,lookPitch,0));return;}
+    EntityLivingBase animal=(EntityLivingBase)entity;mc.renderViewEntity=animal;
     boolean gui=mc.currentScreen!=null;
     float forward=gui?0:(key(mc.gameSettings.keyBindForward)?1:0)-(key(mc.gameSettings.keyBindBack)?1:0);
     float strafe=gui?0:(key(mc.gameSettings.keyBindLeft)?1:0)-(key(mc.gameSettings.keyBindRight)?1:0);
@@ -92,7 +93,12 @@ public final class PossessionClient extends Gui {
   @SubscribeEvent public void fog(EntityViewRenderEvent.FogDensity e) {
     if(active&&e.entity==Minecraft.getMinecraft().renderViewEntity&&e.entity.isInWater()) {e.density=.02F;e.setCanceled(true);}
   }
-  @SubscribeEvent public void overlay(RenderGameOverlayEvent.Pre e){if(active)switch(e.type){case HOTBAR:case HEALTH:case ARMOR:case FOOD:case AIR:case EXPERIENCE:case HEALTHMOUNT:case JUMPBAR:e.setCanceled(true);break;default:break;}}
+  @SubscribeEvent public void overlay(RenderGameOverlayEvent.Pre e) {
+    if(!active)return;
+    if(e.type==RenderGameOverlayEvent.ElementType.ALL&&Minecraft.getMinecraft().renderViewEntity instanceof EntityBat)
+      ru.givler.mbo.client.render.BatVisionRenderer.render();
+    switch(e.type){case HOTBAR:case HEALTH:case ARMOR:case FOOD:case AIR:case EXPERIENCE:case HEALTHMOUNT:case JUMPBAR:e.setCanceled(true);break;default:break;}
+  }
   @SubscribeEvent public void hud(RenderGameOverlayEvent.Post e) {
     if(e.type!=RenderGameOverlayEvent.ElementType.ALL)return;Minecraft mc=Minecraft.getMinecraft();int w=e.resolution.getScaledWidth(),h=e.resolution.getScaledHeight();
     if(active) {

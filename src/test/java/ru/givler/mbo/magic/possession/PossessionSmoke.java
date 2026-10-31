@@ -72,6 +72,10 @@ public final class PossessionSmoke {
     EntityMBOFox fox=new EntityMBOFox(world);fox.trust(UUID.randomUUID());require(!PossessionManager.eligible(player,fox),"Foreign fox accepted");fox.trust(OWNER);require(PossessionManager.eligible(player,fox),"Trusted fox rejected");
     EntitySheep sheep=new EntitySheep(world);sheep.worldObj=world;
     PossessionManager.Session s=link(player,sheep);
+    s.age=1000000;s.lastInput=0;s.forward=1;s.exit=12;
+    PossessionManager.pauseStaleInput(s);
+    require(PossessionManager.isControlling(player)&&PossessionManager.isControlled(sheep)&&s.forward==0&&s.exit==0,"Stale input must stop movement without expiring possession");
+    s.age=10;s.lastInput=0;
     sheep.setPosition(100,20,200);
     require(PossessionManager.viewX(player)==100&&PossessionManager.viewZ(player)==200&&player.posX==0&&player.posZ==0,"Camera streaming moved the real body");
     PossessionManager.input(player,s.token+1,1,0,0,0,4);require(s.exit==0,"Stale token accepted");
@@ -137,6 +141,10 @@ public final class PossessionSmoke {
     }
   }
   static void movementControl(World world) {
+    EntitySheep sheep=new EntitySheep(world);
+    float original=(float)sheep.getEntityAttribute(SharedMonsterAttributes.movementSpeed).getAttributeValue();
+    sheep.setAIMoveSpeed(original);
+    require(Math.abs(PossessionManager.walkingInput(sheep)-sheep.moveForward*.98F)<1e-6,"Possession does not match native sheep walking input");
     for(EntityLivingBase animal:new EntityLivingBase[]{new EntityMBOCod(world),new EntityBat(world),new EntitySheep(world)}) {
       animal.rotationYaw=90;
       net.minecraft.entity.ai.attributes.IAttributeInstance speed=animal.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
