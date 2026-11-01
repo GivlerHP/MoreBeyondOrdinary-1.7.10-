@@ -53,6 +53,20 @@ public final class ModelMBOPolarBear extends ModelBase {
   @Override
   public void render(
       Entity entity, float phase, float amount, float age, float yaw, float pitch, float scale) {
+    setRotationAngles(phase,amount,age,yaw,pitch,scale,entity);
+    GL11.glPushMatrix();
+    if (!cub) {
+      GL11.glTranslatef(0, -.3F, 0);
+      GL11.glScalef(1.2F, 1.2F, 1.2F);
+    }
+    head.render(scale);
+    body.render(scale);
+    for (ModelRenderer leg : legs) leg.render(scale);
+    GL11.glPopMatrix();
+  }
+
+  @Override
+  public void setRotationAngles(float phase,float amount,float age,float yaw,float pitch,float scale,Entity entity) {
     EntityMBOPolarBear bear = (EntityMBOPolarBear) entity;
     float stand = bear.standScale(age - bear.ticksExisted);
     stand *= stand;
@@ -71,24 +85,18 @@ public final class ModelMBOPolarBear extends ModelBase {
               * 1.4F
               * amount;
     }
-    body.rotateAngleX -= stand * (float) Math.PI * .35F;
+    float turn=-stand * (float) Math.PI * .35F;
+    float neckY=head.rotationPointY-body.rotationPointY,neckZ=head.rotationPointZ-body.rotationPointZ;
+    body.rotateAngleX += turn;
     body.rotationPointY += stand * (cub ? .5F : 1F) * 2;
     for (int i = 2; i < 4; i++) {
       legs[i].rotationPointY -= stand * (cub ? .5F : 1F) * 20;
       legs[i].rotationPointZ += stand * (cub ? .5F : 1F) * 4;
       legs[i].rotateAngleX -= stand * (float) Math.PI * .45F;
     }
-    head.rotationPointY -= stand * 24;
-    head.rotationPointZ += stand * 13;
+    // Follow the neck around the torso pivot, including the cub's own proportions.
+    head.rotationPointY=body.rotationPointY+neckY*MathHelper.cos(turn)-neckZ*MathHelper.sin(turn);
+    head.rotationPointZ=body.rotationPointZ+neckY*MathHelper.sin(turn)+neckZ*MathHelper.cos(turn);
     head.rotateAngleX += stand * (float) Math.PI * .15F;
-    GL11.glPushMatrix();
-    if (!cub) {
-      GL11.glTranslatef(0, -.3F, 0);
-      GL11.glScalef(1.2F, 1.2F, 1.2F);
-    }
-    head.render(scale);
-    body.render(scale);
-    for (ModelRenderer leg : legs) leg.render(scale);
-    GL11.glPopMatrix();
   }
 }

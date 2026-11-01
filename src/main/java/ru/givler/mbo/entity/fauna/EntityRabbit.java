@@ -108,6 +108,8 @@ public class EntityRabbit extends EntityAnimal {
   }
 
   public float getJumpCompletion(float p_175521_1_) {
+    if(ridingEntity instanceof ru.givler.mbo.entity.boat.EntityMBOBoat
+        || ridingEntity instanceof ru.givler.mbo.entity.boat.EntityMBOBoatSeat)return 0;
     return jumpDuration == 0 ? 0.0F : (jumpTicks + p_175521_1_) / jumpDuration;
   }
 

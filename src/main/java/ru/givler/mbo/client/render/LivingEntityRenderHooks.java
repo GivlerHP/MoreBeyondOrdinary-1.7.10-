@@ -6,8 +6,19 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.MathHelper;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
 
-public final class BoatRiderRenderHooks {
-  private BoatRiderRenderHooks() {}
+public final class LivingEntityRenderHooks {
+  private LivingEntityRenderHooks() {}
+
+  public static float modelHeadYaw(EntityLivingBase animal,float original,float body,float partial) {
+    if(!ru.givler.mbo.magic.possession.PossessionManager.isControlled(animal))return original;
+    float torso=bodyYaw(animal,body,partial);
+    // EntityLookHelper's normal horizontal limit, relative to the rendered torso.
+    return torso+MathHelper.clamp_float(MathHelper.wrapAngleTo180_float(original-torso),-75F,75F);
+  }
+
+  public static float modelHeadPitch(EntityLivingBase animal,float original) {
+    return ru.givler.mbo.magic.possession.PossessionManager.isControlled(animal)?MathHelper.clamp_float(original,-90F,90F):original;
+  }
 
   private static EntityMBOBoat driverBoat(Entity rider) {
     if (rider == null || !(rider.ridingEntity instanceof EntityMBOBoat)) return null;

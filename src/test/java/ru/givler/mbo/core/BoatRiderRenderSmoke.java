@@ -11,7 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.client.model.ModelBiped;
 import ru.givler.mbo.entity.boat.EntityMBOBoat;
 import ru.givler.mbo.entity.boat.EntityMBOBoatSeat;
-import ru.givler.mbo.client.render.BoatRiderRenderHooks;
+import ru.givler.mbo.client.render.LivingEntityRenderHooks;
 import sun.misc.Unsafe;
 
 public final class BoatRiderRenderSmoke {
@@ -32,12 +32,12 @@ public final class BoatRiderRenderSmoke {
     rider.rotationYaw = 70F;
     ru.givler.mbo.entity.boat.MBOBoatRiderView.clampView(rider);
     equal(-260F, rider.rotationYaw);
-    equal(180F, BoatRiderRenderHooks.bodyYaw(rider, 50F, 0.5F));
+    equal(180F, LivingEntityRenderHooks.bodyYaw(rider, 50F, 0.5F));
     ModelBiped model = new ModelBiped();
     model.bipedBody.rotateAngleY = 0.4F;
     model.bipedHead.rotateAngleY = 1F; model.bipedRightArm.rotateAngleY = 0.8F;
     model.bipedRightLeg.rotateAngleX = -1.25F;
-    BoatRiderRenderHooks.pose(model, rider);
+    LivingEntityRenderHooks.pose(model, rider);
     equal(0F, model.bipedBody.rotateAngleY);
     equal(1F, model.bipedHead.rotateAngleY);
     equal(0.8F, model.bipedRightArm.rotateAngleY);
@@ -46,13 +46,14 @@ public final class BoatRiderRenderSmoke {
     rider.rotationYaw = 70F;
     ru.givler.mbo.entity.boat.MBOBoatRiderView.clampView(rider);
     equal(70F, rider.rotationYaw);
-    equal(50F, BoatRiderRenderHooks.bodyYaw(rider, 50F, 0.5F));
+    equal(50F, LivingEntityRenderHooks.bodyYaw(rider, 50F, 0.5F));
     model.bipedBody.rotateAngleY = 0.4F;
-    BoatRiderRenderHooks.pose(model, rider);
+    LivingEntityRenderHooks.pose(model, rider);
     equal(0.4F, model.bipedBody.rotateAngleY);
     verify("net.minecraft.client.model.ModelBiped");
     verify("net.minecraft.entity.Entity");
     verify("net.minecraft.client.renderer.entity.RendererLivingEntity");
+    verify("net.minecraft.client.renderer.EntityRenderer");
     verifyLens();
     System.out.println("Boat driver pose, passenger freedom and ASM checks passed.");
   }
@@ -85,6 +86,15 @@ public final class BoatRiderRenderSmoke {
     byte[] result = new BoatRiderRenderTransformer().transform(name, name, source);
     result = new mods.battlegear2.coremod.transformers.HorseRiderRenderTransformer().transform(name, name, result);
     ClassNode node = new ClassNode(); new ClassReader(result).accept(node, 0);
+    if(name.endsWith("RendererLivingEntity")) {
+      int yawHooks=0,pitchHooks=0;
+      for(MethodNode method:node.methods)for(AbstractInsnNode instruction:method.instructions.toArray())if(instruction instanceof MethodInsnNode) {
+        MethodInsnNode call=(MethodInsnNode)instruction;
+        if(call.name.equals("modelHeadYaw"))yawHooks++;
+        if(call.name.equals("modelHeadPitch"))pitchHooks++;
+      }
+      if(yawHooks==0||pitchHooks==0)throw new AssertionError("Missing possession head pose hooks");
+    }
     for (MethodNode method : node.methods) if (!method.name.startsWith("<"))
       new Analyzer(new BasicVerifier()).analyze(node.name, method);
   }

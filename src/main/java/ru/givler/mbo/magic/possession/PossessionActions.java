@@ -1,17 +1,63 @@
 package ru.givler.mbo.magic.possession;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.*;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.DamageSource;
 import ru.givler.mbo.entity.fauna.*;
 import ru.givler.mbo.magic.possession.PossessionManager.Session;
 
-/** Cosmetic actions deliberately bypass feeding, drops, combat and block modification. */
+/** Non-combat animal abilities. Sheep grazing follows vanilla terrain and wool rules. */
 public final class PossessionActions {
+  public static final int SHEEP_MEAL_LIMIT=6;
   private PossessionActions(){}
+  static boolean movementBlocked(Session s) {
+    EntityLivingBase animal=s.animal;
+    if(s.eatTicks>0)return true;
+    if(animal instanceof EntityMBOCamel&&(((EntityMBOCamel)animal).sitting()||((EntityMBOCamel)animal).transitioning()))return true;
+    if(s.pose>0&&(animal instanceof EntityMBOPanda||animal instanceof EntityMBOFox||animal instanceof EntityMBOAxolotl||animal instanceof EntityMBOGoat))return true;
+    // Horse's native predicate blocks AI whenever a saddle has a rider. A passenger
+    // must not block possession; eating/rearing still retain their native locks.
+    if(animal instanceof EntityHorse){EntityHorse horse=(EntityHorse)animal;return horse.isEatingHaystack()||horse.isRearing()&&!horse.isHorseJumping();}
+    return animal instanceof PossessionAnimal&&((PossessionAnimal)animal).mbo$movementBlocked()
+        &&!(animal instanceof EntityHorse&&((EntityHorse)animal).isHorseJumping());
+  }
+  public static float jumpCharge(int ticks) {
+    return ticks<=0?0:ticks<10?ticks*.1F:.8F+.2F/(ticks-9);
+  }
+  static int updateCharge(Session s,boolean blocked) {
+    if(blocked){s.horseCharge=0;s.jumpHeld=s.jump;return -1;}
+    int release=-1;
+    if(s.jump&&s.animal.onGround)s.horseCharge=Math.min(1000,s.horseCharge+1);
+    else if(!s.jump&&s.jumpHeld&&s.animal.onGround&&s.horseCharge>0)release=(int)(jumpCharge(s.horseCharge)*100);
+    if(!s.jump||!s.animal.onGround)s.horseCharge=0;
+    s.jumpHeld=s.jump;return release;
+  }
+  /** Scope steering to the native horse travel call; never actually mount or move the mage. */
+  static void travelHorse(Session s,float strafe,float forward,int charge) {
+    EntityHorse horse=(EntityHorse)s.animal;
+    net.minecraft.entity.Entity oldRider=horse.riddenByEntity;
+    boolean saddle=horse.isHorseSaddled(),tame=horse.isTame();
+    float oldForward=s.player.moveForward,oldStrafe=s.player.moveStrafing,oldYaw=s.player.rotationYaw,oldPitch=s.player.rotationPitch;
+    try {
+      s.steering=true;
+      horse.riddenByEntity=s.player;horse.setHorseSaddled(true);horse.setHorseTamed(true);
+      s.player.moveForward=forward*PossessionManager.walkingInput(s.sprint);s.player.moveStrafing=strafe*PossessionManager.walkingInput(s.sprint);
+      s.player.rotationYaw=s.lookYaw;s.player.rotationPitch=s.lookPitch;
+      if(charge>=0){horse.setJumpPower(charge);s.actionTicks=20;if(horse instanceof EntityMBOCamel)s.dashCooldown=((EntityMBOCamel)horse).dashCooldown();}
+      horse.moveEntityWithHeading(strafe,forward);
+    } finally {
+      s.steering=false;
+      horse.riddenByEntity=oldRider;horse.setHorseSaddled(saddle);horse.setHorseTamed(tame);
+      s.player.moveForward=oldForward;s.player.moveStrafing=oldStrafe;s.player.rotationYaw=oldYaw;s.player.rotationPitch=oldPitch;
+    }
+  }
   public static void action(Session s) {
     EntityLivingBase a=s.animal;
-    if(a instanceof EntitySheep){a.worldObj.setEntityState(a,(byte)10);return;}
+    if(a instanceof EntitySheep){startGrazing(s);return;}
     if(a instanceof EntityMBOCamel){EntityMBOCamel c=(EntityMBOCamel)a;if(c.sitting()&&c.canStand()||!c.sitting())c.setSitting(!c.sitting());return;}
-    if(a instanceof EntityHorse){((EntityHorse)a).setRearing(true);s.actionTicks=30;return;}
+    if(a instanceof EntityHorse){((EntityHorse)a).setRearing(true);s.actionTicks=30;a.playSound(a instanceof EntityMBOZombieHorse?"mob.horse.zombie.idle":a instanceof EntityMBOSkeletonHorse?"mob.horse.skeleton.idle":"mob.horse.angry",1,1);return;}
     if(a instanceof EntityMBOPolarBear||a instanceof EntityMBOGoat||a instanceof EntityMBOFrog){s.pose=1;s.actionTicks=40;}
     else if(a instanceof EntityMBOPanda||a instanceof EntityMBOFox||a instanceof EntityMBOAxolotl){s.pose=s.pose==0?1:0;}
     else if(a instanceof EntityMBOPufferfish){s.pose=s.pose==0?1:0;}
@@ -20,10 +66,16 @@ public final class PossessionActions {
       a.playSound("mbo:entity.glow_squid.squirt",1,1);
     }
     if(a instanceof EntityMBOFrog)a.playSound("mbo:entity.frog.ambient",1,1);
+    if(a instanceof EntityMBOPolarBear)a.playSound("mbo:entity.polar_bear.warning",1,1);
+    if(a instanceof EntityMBOGoat)a.playSound(((EntityMBOGoat)a).screaming()?"mbo:entity.goat.screaming.prepare_ram":"mbo:entity.goat.prepare_ram",1,1);
+    if(a instanceof EntityMBOPanda)a.playSound("mbo:entity.panda.ambient",1,1);
+    if(a instanceof EntityMBOFox)a.playSound(s.pose>0?"mbo:entity.fox.sleep":"mbo:entity.fox.ambient",1,1);
+    if(a instanceof EntityMBOAxolotl)a.playSound(a.isInWater()?"mbo:entity.axolotl.idle_water":"mbo:entity.axolotl.idle_air",1,1);
     pose(s);
   }
   public static void pose(Session s) {
     EntityLivingBase a=s.animal;
+    if(s.eatTicks>0&&--s.eatTicks==4)finishGrazing(s);
     if(a instanceof EntityMBOCamel) {
       EntityMBOCamel camel=(EntityMBOCamel)a;
       if(camel.poseTicks()<52)camel.getDataWatcher().updateObject(27,camel.poseTicks()+1);
@@ -42,12 +94,43 @@ public final class PossessionActions {
     if(a instanceof EntityMBOPufferfish&&((EntityMBOPufferfish)a).puff()!=(s.pose>0?2:0))((EntityMBOPufferfish)a).setPuff(s.pose>0?2:0);
     if(a instanceof EntityBat)((EntityBat)a).setIsBatHanging(false);
   }
-  public static void dash(Session s) {
-    EntityMBOCamel c=(EntityMBOCamel)s.animal;
-    if(s.dashCooldown>0||c.sitting()||c.transitioning())return;
-    double angle=Math.toRadians(c.rotationYaw);
-    c.motionX=-Math.sin(angle)*c.getCamelDashSpeed();c.motionZ=Math.cos(angle)*c.getCamelDashSpeed();c.motionY=.42;
-    s.dashCooldown=55;c.beginDash();
+  static boolean grassAt(EntityLivingBase a,int x,int y,int z) {
+    return a.worldObj.getBlock(x,y,z)==Blocks.tallgrass&&a.worldObj.getBlockMetadata(x,y,z)==1
+        ||a.worldObj.getBlock(x,y-1,z)==Blocks.grass;
   }
-  public static void reset(Session s){s.pose=0;s.actionTicks=0;pose(s);if(s.animal instanceof EntityHorse)((EntityHorse)s.animal).setRearing(false);}
+  static void startGrazing(Session s) {
+    EntityLivingBase a=s.animal;if(s.eatTicks>0)return;
+    int x=MathHelper.floor_double(a.posX),y=MathHelper.floor_double(a.boundingBox.minY),z=MathHelper.floor_double(a.posZ);
+    if(!a.onGround||!grassAt(a,x,y,z)){a.playSound("mob.sheep.say",.6F,1);return;}
+    s.eatX=x;s.eatY=y;s.eatZ=z;s.eatTicks=40;s.actionCooldown=40;
+    a.worldObj.setEntityState(a,(byte)10);a.playSound("mob.sheep.say",.6F,1);
+  }
+  public static int sheepMeals(EntityLivingBase sheep) {
+    net.minecraft.nbt.NBTTagCompound data=sheep.getEntityData();
+    long elapsed=Math.max(0,sheep.worldObj.getTotalWorldTime()-data.getLong("MBOLastGrassMeal"));
+    return (int)Math.max(0,data.getInteger("MBOGrassMeals")-Math.min(Integer.MAX_VALUE,elapsed/200));
+  }
+  static boolean recordMeal(EntitySheep sheep) {
+    int meals=sheepMeals(sheep)+1;
+    sheep.getEntityData().setInteger("MBOGrassMeals",meals);
+    sheep.getEntityData().setLong("MBOLastGrassMeal",sheep.worldObj.getTotalWorldTime());
+    return meals>=SHEEP_MEAL_LIMIT;
+  }
+  static void finishGrazing(Session s) {
+    EntitySheep sheep=(EntitySheep)s.animal;int x=s.eatX,y=s.eatY,z=s.eatZ;
+    if(MathHelper.floor_double(sheep.posX)!=x||MathHelper.floor_double(sheep.boundingBox.minY)!=y
+        ||MathHelper.floor_double(sheep.posZ)!=z||!grassAt(sheep,x,y,z))return;
+    if(sheep.worldObj.getGameRules().getGameRuleBooleanValue("mobGriefing")) {
+      Block block=sheep.worldObj.getBlock(x,y,z);
+      if(block==Blocks.tallgrass&&sheep.worldObj.getBlockMetadata(x,y,z)==1)sheep.worldObj.setBlockToAir(x,y,z);
+      else {sheep.worldObj.playAuxSFX(2001,x,y-1,z,Block.getIdFromBlock(Blocks.grass));sheep.worldObj.setBlock(x,y-1,z,Blocks.dirt,0,3);}
+    }
+    sheep.eatGrassBonus();sheep.playSound("dig.grass",1,1);
+    if(recordMeal(sheep)) {
+      if(sheep.worldObj instanceof net.minecraft.world.WorldServer)((net.minecraft.world.WorldServer)sheep.worldObj).func_147487_a("largeexplode",sheep.posX,sheep.posY+.4,sheep.posZ,1,0,0,0,0);
+      sheep.playSound("random.explode",.7F,1.4F);
+      sheep.attackEntityFrom(DamageSource.magic,sheep.getMaxHealth()*10);
+    }
+  }
+  public static void reset(Session s){s.pose=0;s.actionTicks=0;s.eatTicks=0;pose(s);if(s.animal instanceof EntityHorse)((EntityHorse)s.animal).setRearing(false);}
 }

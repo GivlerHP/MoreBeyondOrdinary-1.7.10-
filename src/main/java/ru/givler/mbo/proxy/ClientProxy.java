@@ -233,6 +233,8 @@ public class ClientProxy extends CommonProxy {
   @Override public boolean possessionTurn(net.minecraft.entity.Entity entity,float x,float y) {
     return ru.givler.mbo.client.handler.PossessionClient.INSTANCE.turn(entity,x,y);
   }
+  @Override public net.minecraft.entity.player.EntityPlayer possessionListener(net.minecraft.entity.player.EntityPlayer player){return ru.givler.mbo.client.handler.PossessionClient.INSTANCE.listener(player);}
+  @Override public EntityLivingBase possessionView(net.minecraft.entity.player.EntityPlayer player){return ru.givler.mbo.client.handler.PossessionClient.INSTANCE.view(player);}
 
   public void preInit(FMLPreInitializationEvent event) {
     super.preInit(event);

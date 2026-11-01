@@ -29,6 +29,8 @@ public class EntityMBOBoatSeat extends Entity {
         }
     }
 
+    public EntityMBOBoat getBoat() { return boat; }
+
     @Override
     public void onUpdate() {
         if (boat == null) {

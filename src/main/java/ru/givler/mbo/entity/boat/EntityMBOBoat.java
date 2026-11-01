@@ -30,7 +30,7 @@ public class EntityMBOBoat extends Entity {
   private static final int GUARDIAN_LOCK = 26;
   private static final int[] PADDLES = {24, 25};
   private final float[] paddlePositions = new float[2];
-  private float momentum, deltaRotation, outOfControlTicks;
+  private float momentum, deltaRotation, outOfControlTicks, landFriction;
   private double waterLevel, lastYd;
   private Status status, previousStatus;
   private boolean leftInput, rightInput, forwardInput, backInput;
@@ -120,6 +120,41 @@ public class EntityMBOBoat extends Entity {
     return secondSeat;
   }
 
+  /** Occupied creatures use the same width and creature-category limits as modern boats. */
+  public boolean canCarryPossessed(EntityLivingBase animal) {
+    return animal.width < width && !(animal instanceof net.minecraft.entity.passive.EntityHorse)
+        && !(animal instanceof net.minecraft.entity.passive.EntityAmbientCreature)
+        && !(animal instanceof net.minecraft.entity.passive.EntityWaterMob)
+        && !(animal instanceof ru.givler.mbo.entity.fauna.EntityMBOFish);
+  }
+
+  public boolean canCarryPossessed(EntityLivingBase animal, boolean creative) {
+    return creative && animal instanceof ru.givler.mbo.entity.fauna.EntityMBOPolarBear
+        || canCarryPossessed(animal);
+  }
+
+  public boolean boardPossessed(EntityLivingBase animal, boolean creative) {
+    if(isDead || worldObj.isRemote || animal.worldObj!=worldObj || animal.isDead || animal.ridingEntity!=null
+        || animal.riddenByEntity!=null || outOfControlTicks>=60 || !canCarryPossessed(animal,creative))return false;
+    Entity seat;
+    if(creative && riddenByEntity==null)seat=this;
+    else {
+      if(!hasSecondSeat())return false;
+      if(secondSeat==null || secondSeat.isDead) {
+        EntityMBOBoatSeat created=new EntityMBOBoatSeat(worldObj,this);
+        created.copyLocationAndAnglesFrom(this);
+        if(!worldObj.spawnEntityInWorld(created)){secondSeat=null;return false;}
+      }
+      if(secondSeat.riddenByEntity!=null)return false;
+      seat=secondSeat;
+    }
+    animal.mountEntity(seat);seat.updateRiderPosition();return true;
+  }
+
+  public void possessionInputs(float strafe,float forward) {
+    updateInputs(strafe>0,strafe<0,forward>0,forward<0);
+  }
+
   public void setSecondSeat(EntityMBOBoatSeat seat) {
     secondSeat = seat;
   }
@@ -169,6 +204,7 @@ public class EntityMBOBoat extends Entity {
     prevPosZ = posZ;
     super.onUpdate();
     tickLerp();
+    if(!worldObj.isRemote)pickUpNearbyAnimals();
 
     if (!worldObj.isRemote && ticksExisted % 5 == 0) refreshGuardianLock();
     boolean localDriver = !worldObj.isRemote || riddenByEntity instanceof EntityClientPlayerMP && !isGuardianLocked();
@@ -181,7 +217,8 @@ public class EntityMBOBoat extends Entity {
             player.moveStrafing < 0,
             player.moveForward > 0,
             player.moveForward < 0);
-      } else updateInputs(false, false, false, false);
+      } else if(!ru.givler.mbo.magic.possession.PossessionManager.steerBoat(this))
+        updateInputs(false, false, false, false);
       controlBoat();
       moveEntity(motionX, motionY, motionZ);
     } else {
@@ -220,6 +257,16 @@ public class EntityMBOBoat extends Entity {
           motionX * 0.25D,
           0.05D,
           motionZ * 0.25D);
+    }
+  }
+
+  private void pickUpNearbyAnimals() {
+    if(!hasSecondSeat() || secondSeat!=null && secondSeat.riddenByEntity!=null)return;
+    for(Object entry:worldObj.getEntitiesWithinAABB(net.minecraft.entity.passive.EntityAnimal.class,boundingBox.expand(.2,-.01,.2))) {
+      EntityLivingBase animal=(EntityLivingBase)entry;
+      if(animal.isEntityAlive() && animal.canBePushed()
+          && !ru.givler.mbo.magic.possession.PossessionManager.isControlled(animal)
+          && boardPossessed(animal,false))return;
     }
   }
 
@@ -305,7 +352,7 @@ public class EntityMBOBoat extends Entity {
         buoyancy = 0.01D;
         momentum = 0.45F;
       } else if (status == Status.IN_AIR) momentum = 0.9F;
-      else if (status == Status.ON_LAND) momentum = 0.45F;
+      else if (status == Status.ON_LAND) momentum = landFriction;
       motionX *= momentum;
       motionZ *= momentum;
       deltaRotation *= momentum;
@@ -324,12 +371,22 @@ public class EntityMBOBoat extends Entity {
       return underwater;
     }
     if (checkInWater()) return Status.IN_WATER;
-    Block below =
-        worldObj.getBlock(
-            MathHelper.floor_double(posX),
-            MathHelper.floor_double(boundingBox.minY - 0.01D),
-            MathHelper.floor_double(posZ));
-    return below.getMaterial().isSolid() ? Status.ON_LAND : Status.IN_AIR;
+    landFriction=getLandFriction();
+    return landFriction>0 ? Status.ON_LAND : Status.IN_AIR;
+  }
+
+  private float getLandFriction() {
+    AxisAlignedBB contact=AxisAlignedBB.getBoundingBox(boundingBox.minX,boundingBox.minY-.01D,boundingBox.minZ,
+        boundingBox.maxX,boundingBox.minY+.001D,boundingBox.maxZ);
+    int y=MathHelper.floor_double(boundingBox.minY-.01D),count=0;
+    float total=0;
+    for(int x=MathHelper.floor_double(contact.minX);x<MathHelper.ceiling_double_int(contact.maxX);x++)
+      for(int z=MathHelper.floor_double(contact.minZ);z<MathHelper.ceiling_double_int(contact.maxZ);z++) {
+        Block block=worldObj.getBlock(x,y,z);
+        AxisAlignedBB box=block.getCollisionBoundingBoxFromPool(worldObj,x,y,z);
+        if(box!=null&&box.intersectsWith(contact)){total+=block.slipperiness;count++;}
+      }
+    return count==0?0:total/count;
   }
 
   private boolean checkInWater() {
@@ -402,6 +459,17 @@ public class EntityMBOBoat extends Entity {
         posZ + vector.zCoord);
     passenger.rotationYaw += deltaRotation;
     MBOBoatRiderView.clampView(passenger);
+    if(passenger instanceof EntityLivingBase && !(passenger instanceof EntityPlayer)) {
+      // Boat displacement is not walking. Clear both samples to avoid render interpolation
+      // resurrecting a stride after the passenger's normal living tick.
+      EntityLivingBase living=(EntityLivingBase)passenger;
+      living.limbSwing=living.limbSwingAmount=living.prevLimbSwingAmount=0;
+      if(passenger instanceof net.minecraft.entity.passive.EntityChicken) {
+        net.minecraft.entity.passive.EntityChicken chicken=(net.minecraft.entity.passive.EntityChicken)passenger;
+        chicken.destPos=chicken.field_70884_g=0;
+        chicken.field_70886_e=chicken.field_70888_h=chicken.field_70889_i=0;
+      }
+    }
   }
 
   public double getMountedYOffset() {

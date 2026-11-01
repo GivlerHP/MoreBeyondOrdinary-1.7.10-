@@ -39,7 +39,8 @@ public final class PacketCamelDash implements IMessage {
             @Override
             public void run() {
               Entity animal = player.worldObj.getEntityByID(packet.id);
-              if (animal instanceof EntityMBOCamel && animal.riddenByEntity == player) {
+              if (animal instanceof EntityMBOCamel && animal.riddenByEntity == player
+                  && !ru.givler.mbo.magic.possession.PossessionManager.isControlled(animal)) {
                 EntityMBOCamel camel = (EntityMBOCamel) animal;
                 if (camel.isTame()
                     && camel.isHorseSaddled()

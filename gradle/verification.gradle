@@ -155,6 +155,12 @@ task verifyBatVision(type: JavaExec, dependsOn: [testClasses, extractNativeResou
     systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
 }
 
+task verifyBoatWaterMask(type: JavaExec, dependsOn: [testClasses, extractNativeResourceTestLibraries]) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.render.BoatWaterMaskSmoke'
+    systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
+}
+
 tasks.check.dependsOn(
         'verifyTortureHitboxes',
         'verifyProductionTransformers',

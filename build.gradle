@@ -52,6 +52,10 @@ dependencies {
 }
 
 tasks.withType(JavaCompile) {
+    // source/target 8 alone still link newer JDK APIs (e.g. ByteBuffer.flip).
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
     options.encoding = 'UTF-8'
     options.compilerArgs << '-Xlint:unchecked'
 }

@@ -70,6 +70,19 @@ afterEvaluate {
         if (project.hasProperty('memoryProfile')) {
             jvmArgs '-XX:NativeMemoryTracking=summary'
         }
+        doFirst {
+            // ForgeGradle runs from the main jar, which build/reobf can replace mid-game.
+            def launchRoot = file("build/dev-client-runtime/${java.util.UUID.randomUUID()}")
+            def mainOutputs = sourceSets.main.output.files.collect { it.canonicalFile }.toSet()
+            mainOutputs.add(tasks.jar.archiveFile.get().asFile.canonicalFile)
+            classpath = files(classpath.files.collect { entry ->
+                if (!mainOutputs.contains(entry.canonicalFile)) return entry
+                def snapshot = new File(launchRoot, entry.name)
+                if (entry.isDirectory()) copy { from entry; into snapshot }
+                else copy { from entry; into launchRoot }
+                return snapshot
+            })
+        }
     }
 }
 
@@ -81,5 +94,11 @@ task verifyDevClientJava {
         if (launcher.metadata.languageVersion.asInt() != 8)
             throw new GradleException('The development client must use Java 8')
         logger.lifecycle("runClient Java 8: ${launcher.executablePath}")
+        tasks.withType(JavaCompile).each { compile ->
+            def compiler = compile.javaCompiler.get()
+            if (compiler.metadata.languageVersion.asInt() != 8)
+                throw new GradleException("${compile.name} must compile against Java 8 APIs")
+            logger.lifecycle("${compile.name} Java 8: ${compiler.executablePath}")
+        }
     }
 }
