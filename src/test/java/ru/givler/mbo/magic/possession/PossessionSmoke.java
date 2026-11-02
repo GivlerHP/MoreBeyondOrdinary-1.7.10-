@@ -23,6 +23,7 @@ import ru.givler.mbo.network.packet.PacketPossessionState;
 public final class PossessionSmoke {
   static final UUID OWNER=UUID.fromString("00000000-0000-0000-0000-000000000001");
   static class TestPlayer extends EntityPlayerMP {
+    float receivedMagic;boolean linkedWhenHit;
     UUID identity;
     TestPlayer(){super(null,null,new GameProfile(OWNER,"mage"),null);}
     @Override public UUID getUniqueID(){return identity==null?OWNER:identity;}
@@ -30,9 +31,10 @@ public final class PossessionSmoke {
     @Override public void setHealth(float value){getDataWatcher().updateObject(6,value);}
     @Override public boolean isEntityAlive(){return getHealth()>0;}
     @Override public boolean isPotionActive(net.minecraft.potion.Potion potion){return false;}
+    @Override public boolean attackEntityFrom(DamageSource source,float amount){linkedWhenHit=PossessionManager.isControlling(this);receivedMagic=amount;setHealth(Math.max(0,getHealth()-amount));return true;}
   }
   public static class TestWorld extends World {
-    long time;net.minecraft.block.Block ground;int sounds,states;boolean obstacle;
+    long time;net.minecraft.block.Block ground;int sounds,states;boolean obstacle,batCeiling;
     java.util.List nearbyBoats;
     java.util.List nearbyAnimals;
     final net.minecraft.world.GameRules rules=new net.minecraft.world.GameRules();
@@ -42,7 +44,7 @@ public final class PossessionSmoke {
     public Entity getEntityByID(int id){return null;}
     public java.util.List getEntitiesWithinAABB(Class type,net.minecraft.util.AxisAlignedBB box){if(nearbyAnimals!=null&&type==EntityAnimal.class)return nearbyAnimals;return nearbyBoats!=null&&type==ru.givler.mbo.entity.boat.EntityMBOBoat.class?nearbyBoats:super.getEntitiesWithinAABB(type,box);}
     public long getTotalWorldTime(){return time;}
-    public net.minecraft.block.Block getBlock(int x,int y,int z){return y==0?ground:obstacle&&y==1&&z==2?net.minecraft.init.Blocks.stone:net.minecraft.init.Blocks.air;}
+    public net.minecraft.block.Block getBlock(int x,int y,int z){return batCeiling&&x==0&&y==4&&z==0?net.minecraft.init.Blocks.stone:y==0?ground:obstacle&&y==1&&z==2?net.minecraft.init.Blocks.stone:net.minecraft.init.Blocks.air;}
     public int getBlockMetadata(int x,int y,int z){return 0;}
     public net.minecraft.world.GameRules getGameRules(){return rules==null?RULES:rules;}
     public boolean setBlock(int x,int y,int z,net.minecraft.block.Block block,int meta,int flags){if(y==0)ground=block;return true;}
@@ -138,9 +140,11 @@ public final class PossessionSmoke {
     io.netty.buffer.ByteBuf buffer=Unpooled.buffer();packet.toBytes(buffer);PacketPossessionState restored=new PacketPossessionState();restored.fromBytes(buffer);buffer.release();
     require(restored.token==s.token&&restored.owner.equals(OWNER)&&restored.id==sheep.getEntityId(),"State packet roundtrip");players().clear();animals().clear();
     scrollInteraction(player,sheep);
+    visionAndExorcism(player,world);
     movementControl(world);
     surfaceSwimming(player,world);
     grazing(player,world);
+    batCeiling(player,world);
     horseControls(player,world);
     equineVariants(player,world);
     passengers(unsafe,player,world);
@@ -151,7 +155,20 @@ public final class PossessionSmoke {
     bearNeck(world);
     activeChunks(unsafe,player,world);
     lookControl(unsafe,player);
-    verifyAsm();System.out.println("Possession: direct scroll/entity interaction, species whitelist, pet ownership, packet validation, held exit, nonlethal backlash, damage cleanup and ASM PASS");
+    verifyAsm();spellCatalog();System.out.println("Possession: direct scroll/entity interaction, species whitelist, pet ownership, packet validation, held exit, nonlethal backlash, damage cleanup and ASM PASS");
+  }
+  static void spellCatalog()throws Exception {
+    Field field=ru.givler.mbo.magic.registry.SpellRegistry.class.getDeclaredField("SPELLS");field.setAccessible(true);((Map<?,?>)field.get(null)).clear();
+    ru.givler.mbo.magic.registry.MagicSpells.register();
+    ru.givler.mbo.item.magic.ItemSpellScroll scroll=new ru.givler.mbo.item.magic.ItemSpellScroll();
+    List<net.minecraft.item.ItemStack> stacks=new ArrayList<net.minecraft.item.ItemStack>();scroll.getSubItems(scroll,null,stacks);
+    boolean vision=false,exorcism=false;
+    for(net.minecraft.item.ItemStack stack:stacks) {
+      ru.givler.mbo.magic.api.Spell spell=scroll.getSpell(stack);
+      vision|=spell==ru.givler.mbo.magic.registry.MagicSpells.VISION_CONTROL;
+      exorcism|=spell==ru.givler.mbo.magic.registry.MagicSpells.EXORCISM;
+    }
+    require(vision&&exorcism,"New spirit spells missing from creative scroll catalog");
   }
   static void scrollInteraction(TestPlayer player,EntitySheep target)throws Exception {
     final int[] calls={0},syncs={0};
@@ -176,7 +193,7 @@ public final class PossessionSmoke {
     require(calls[0]==3&&stack.stackSize==1,"Creative scroll consumed");
   }
   static void verifyAsm()throws Exception {
-    String[] names={"net.minecraft.util.MovementInputFromOptions","net.minecraft.world.World","net.minecraftforge.common.util.ChunkCoordComparator","net.minecraft.entity.Entity","net.minecraft.entity.EntityLivingBase","net.minecraft.entity.passive.EntitySheep","net.minecraft.entity.passive.EntityHorse",
+    String[] names={"net.minecraft.client.renderer.EntityRenderer","net.minecraft.util.MovementInputFromOptions","net.minecraft.world.World","net.minecraftforge.common.util.ChunkCoordComparator","net.minecraft.entity.Entity","net.minecraft.entity.EntityLivingBase","net.minecraft.entity.passive.EntitySheep","net.minecraft.entity.passive.EntityHorse",
       "net.minecraft.server.management.PlayerManager","net.minecraft.entity.EntityTrackerEntry",
       "net.minecraft.network.NetHandlerPlayServer","minefantasy.mf2.mechanics.HorseMovement","minefantasy.mf2.network.packet.PacketHorseMove$Pending","net.minecraft.client.audio.SoundManager","net.minecraft.server.management.ServerConfigurationManager","ru.givler.mbo.entity.fauna.EntityMBOFish","ru.givler.mbo.entity.fauna.EntityMBOCamel","ru.givler.mbo.entity.fauna.EntityMBOGoat"};
     for(String name:names) {
@@ -186,6 +203,26 @@ public final class PossessionSmoke {
       StringWriter errors=new StringWriter();CheckClassAdapter.verify(new ClassReader(patched),false,new PrintWriter(errors));require(errors.toString().isEmpty(),name+": "+errors);
       if(name.endsWith("NetHandlerPlayServer")){ClassNode node=new ClassNode();new ClassReader(patched).accept(node,0);int hooks=0;for(MethodNode m:node.methods)for(AbstractInsnNode ins:m.instructions.toArray())if(ins instanceof MethodInsnNode&&((MethodInsnNode)ins).name.equals("isControlling"))hooks++;require(hooks>=7,"Incomplete inventory/action packet guards");}
     }
+  }
+  static void visionAndExorcism(TestPlayer player,TestWorld world)throws Exception {
+    EntityWolf wolf=new EntityWolf(world);wolf.setSitting(true);wolf.rotationYaw=40;wolf.rotationPitch=15;wolf.motionX=.12;
+    EntitySheep target=new EntitySheep(world);wolf.setAttackTarget(target);
+    PossessionManager.Session s=link(player,wolf);s.observing=true;
+    require(!PossessionManager.isControlled(wolf)&&!PossessionManager.living(wolf),"Vision control suppressed animal AI");
+    PossessionManager.input(player,s.token,1,1,90,60,1|2|8|16|32);
+    require(wolf.rotationYaw==40&&wolf.rotationPitch==15&&wolf.motionX==.12&&wolf.isSitting()&&wolf.getAttackTarget()==target,"Observation changed animal behavior");
+    require(s.forward==0&&s.strafe==0&&s.pose==0,"Observation accepted movement or actions");
+    PacketPossessionState state=new PacketPossessionState(s,PacketPossessionState.START);
+    io.netty.buffer.ByteBuf bytes=Unpooled.buffer();state.toBytes(bytes);PacketPossessionState copy=new PacketPossessionState();copy.fromBytes(bytes);bytes.release();require(copy.observing,"Observation mode lost in packet");
+    float animalHealth=wolf.getHealth();player.setHealth(20);player.receivedMagic=0;
+    require(PossessionManager.exorcise(wolf,target,6),"Exorcism failed to break observation");
+    require(!PossessionManager.isControlling(player)&&!player.linkedWhenHit&&player.receivedMagic==6&&player.getHealth()==14,"Exorcism failed damage/cleanup order");
+    require(wolf.getHealth()==animalHealth&&wolf.isSitting()&&wolf.getAttackTarget()==target,"Exorcism changed observed animal");
+    require(!PossessionManager.exorcise(wolf,target,6)&&player.getHealth()==14,"Exorcism damaged unlinked caster twice");
+    s=link(player,wolf);player.setHealth(5);require(PossessionManager.exorcise(wolf,target,6)&&player.getHealth()==0,"Exorcism magic damage was silently nonlethal");
+    player.setHealth(20);s=link(player,wolf);s.observing=true;
+    for(int i=0;i<PossessionManager.EXIT_TICKS;i++){s.age++;PossessionManager.input(player,s.token,1,1,90,60,4|8);}
+    require(!PossessionManager.isControlling(player)&&wolf.isSitting(),"Observation exit changed animal state");
   }
   static void movementControl(World world) {
     EntitySheep sheep=new EntitySheep(world);
@@ -240,6 +277,30 @@ public final class PossessionSmoke {
     require(bat.motionY>0,"Bat cannot climb");
     for(int i=0;i<40;i++)PossessionManager.batMovement(bat,1,0,0);
     require(Math.abs(bat.motionY)<.00001,"Bat keeps climbing after release");
+  }
+  static void batCeiling(TestPlayer player,TestWorld world)throws Exception {
+    EntityBat bat=new EntityBat(world);bat.setPosition(.5,2,.5);bat.setIsBatHanging(false);
+    PossessionManager.Session s=link(player,bat);s.lookPitch=-90;
+    world.batCeiling=true;
+    try {
+      PossessionActions.action(s);require(s.batTarget&&!s.batHanging,"Ceiling click did not start flight to target");
+      require(bat.posY==2,"Ceiling click teleported bat");
+      for(int i=0;i<40&&!s.batHanging;i++)PossessionManager.living(bat);
+      require(s.batHanging&&bat.getIsBatHanging()&&Math.abs(bat.posY+bat.height-4)<1e-5,"Bat failed to hang from selected ceiling");
+      double x=bat.posX,y=bat.posY,z=bat.posZ;s.forward=1;s.lookYaw=90;
+      for(int i=0;i<20;i++)PossessionManager.living(bat);
+      require(bat.posX==x&&bat.posY==y&&bat.posZ==z,"Looking around or holding forward moved hanging bat");
+      PacketPossessionState packet=new PacketPossessionState(s,PacketPossessionState.UPDATE);
+      io.netty.buffer.ByteBuf buffer=Unpooled.buffer();packet.toBytes(buffer);PacketPossessionState restored=new PacketPossessionState();restored.fromBytes(buffer);buffer.release();
+      require(restored.batHanging,"Ceiling state was not synchronized to camera");
+      s.jump=true;PossessionManager.living(bat);require(!s.batHanging&&!bat.getIsBatHanging(),"Jump failed to release ceiling");
+      s.jump=false;s.forward=0;bat.setPosition(.5,2,.5);s.lookYaw=0;s.lookPitch=-90;
+      PossessionActions.action(s);require(s.batTarget,"Could not choose ceiling again");
+      world.batCeiling=false;PossessionManager.living(bat);require(!s.batTarget&&!s.batHanging,"Bat stayed attached to missing ceiling");
+      s.lookPitch=90;PossessionActions.action(s);require(!s.batTarget,"Bat attached to upper face of floor");
+      world.batCeiling=true;s.lookPitch=-90;bat.setPosition(.5,2,.5);PossessionActions.action(s);
+      PossessionActions.action(s);require(!s.batTarget&&!s.batHanging,"Second click did not cancel landing");
+    } finally {world.batCeiling=false;players().clear();animals().clear();}
   }
   static void horseControls(TestPlayer player,TestWorld world)throws Exception {
     int originalSlot=player.inventory.currentItem;player.inventory.currentItem=2;
@@ -477,7 +538,7 @@ public final class PossessionSmoke {
       require(ru.givler.mbo.client.render.LivingEntityRenderHooks.modelHeadYaw(animal,150,30,.5F)==150&&ru.givler.mbo.client.render.LivingEntityRenderHooks.modelHeadPitch(animal,70)==70,"Wild animal head tracking changed");
     }
     EntityBat bat=new EntityBat(world);bat.getEntityData().setBoolean("MBOPossessed",true);bat.setIsBatHanging(true);
-    require(PossessionManager.clientBatMovement(bat)&&!bat.getIsBatHanging(),"Controlled bat still uses client gravity/hanging");
+    require(PossessionManager.clientBatMovement(bat)&&bat.getIsBatHanging(),"Client physics guard destroyed ceiling attachment");
     bat.getEntityData().setBoolean("MBOPossessed",false);
     require(!PossessionManager.clientBatMovement(bat),"Wild bat movement suppressed");
     for(EntityHorse horse:new EntityHorse[]{new EntityHorse(world),new EntityMBOCamel(world),new EntityMBOZombieHorse(world),new EntityMBOSkeletonHorse(world)}) {
@@ -574,6 +635,15 @@ public final class PossessionSmoke {
       require(mc.thePlayer.posX==0&&mc.thePlayer.posZ==0,"Audio listener moved the real body");listener.set(instance,null);
       ru.givler.mbo.client.handler.PossessionClient.INSTANCE.turn(mc.thePlayer,0,-100000);
       require(animal.rotationPitch==90,"Pitch was not clamped");
+      Field observe=client.getDeclaredField("observing");observe.setAccessible(true);boolean oldObserve=observe.getBoolean(instance);
+      try {
+        observe.setBoolean(instance,true);
+        float animalYaw=animal.rotationYaw,animalPitch=animal.rotationPitch,animalHead=animal.rotationYawHead;
+        ru.givler.mbo.client.handler.PossessionClient.INSTANCE.turn(mc.thePlayer,40,20);
+        require(animal.rotationYaw==animalYaw&&animal.rotationPitch==animalPitch&&animal.rotationYawHead==animalHead,"Observation mouse look turned the animal");
+        require(ru.givler.mbo.client.handler.PossessionClient.viewYaw(animal,animalYaw)==yaw.getFloat(instance)&&ru.givler.mbo.client.handler.PossessionClient.viewPitch(animal,animalPitch)==pitch.getFloat(instance),"Observation camera did not use independent look angles");
+        require(ru.givler.mbo.client.handler.PossessionClient.viewYaw(body,37)==37,"Observation affected abandoned body's angles");
+      } finally {observe.setBoolean(instance,oldObserve);}
       active.setBoolean(instance,false);require(!ru.givler.mbo.client.handler.PossessionClient.INSTANCE.turn(mc.thePlayer,20,20),"Normal mouse control intercepted outside possession");
     } finally {singleton.set(null,oldMc);active.setBoolean(instance,oldActive);yaw.setFloat(instance,oldYaw);pitch.setFloat(instance,oldPitch);}
   }

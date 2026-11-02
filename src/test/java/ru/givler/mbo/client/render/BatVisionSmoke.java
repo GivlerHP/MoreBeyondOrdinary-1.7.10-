@@ -28,6 +28,23 @@ public final class BatVisionSmoke {
       Field texture=BatVisionRenderer.class.getDeclaredField("texture");texture.setAccessible(true);int id=texture.getInt(null);
       require(GL11.glIsTexture(id),"Screen texture was not created");BatVisionRenderer.release();require(!GL11.glIsTexture(id),"Screen texture leaked after exit");
       require(GL11.glGetError()==GL11.GL_NO_ERROR,"OpenGL error in bat vision pass");
+      Object control=ru.givler.mbo.client.handler.PossessionClient.INSTANCE;
+      Class<?> type=control.getClass();Field active=type.getDeclaredField("active"),roll=type.getDeclaredField("batRoll"),previous=type.getDeclaredField("previousBatRoll");
+      active.setAccessible(true);roll.setAccessible(true);previous.setAccessible(true);
+      boolean oldActive=active.getBoolean(control);float oldRoll=roll.getFloat(control),oldPrevious=previous.getFloat(control);
+      try {
+        active.setBoolean(control,true);roll.setFloat(control,1);previous.setFloat(control,0);
+        mc.renderViewEntity=new net.minecraft.entity.passive.EntityBat(null);
+        require(ru.givler.mbo.client.handler.PossessionClient.cameraRoll(0)==0&&ru.givler.mbo.client.handler.PossessionClient.cameraRoll(.5F)==90&&ru.givler.mbo.client.handler.PossessionClient.cameraRoll(1)==180,"Camera flip did not interpolate smoothly");
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);GL11.glLoadIdentity();ru.givler.mbo.client.handler.PossessionClient.rollCamera(1);
+        java.nio.FloatBuffer matrix=BufferUtils.createFloatBuffer(16);GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX,matrix);
+        require(Math.abs(matrix.get(0)+1)<1e-5&&Math.abs(matrix.get(5)+1)<1e-5&&Math.abs(matrix.get(10)-1)<1e-5,"Hanging camera was not upside down around view axis");
+        roll.setFloat(control,0);previous.setFloat(control,1);
+        require(ru.givler.mbo.client.handler.PossessionClient.cameraRoll(1)==0,"Detach failed to restore upright camera");
+        mc.renderViewEntity=new net.minecraft.entity.passive.EntitySheep(null);
+        require(ru.givler.mbo.client.handler.PossessionClient.cameraRoll(0)==0,"Bat camera roll leaked to another creature");
+      } finally {active.setBoolean(control,oldActive);roll.setFloat(control,oldRoll);previous.setFloat(control,oldPrevious);}
+      System.out.println("Bat ceiling camera: smooth flip, actual upside-down GL matrix, upright return and creature isolation PASS");
       System.out.println("Bat vision real OpenGL: shader compilation, muted colors, cold tint, resize, state restoration and texture cleanup PASS");
     }finally{BatVisionRenderer.release();singleton.set(null,old);buffer.destroy();}
   }

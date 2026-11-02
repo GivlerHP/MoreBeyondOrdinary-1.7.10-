@@ -122,6 +122,8 @@ public final class MagicSpells {
   public static Spell WHIRLWIND;
   public static Spell BANISH;
   public static Spell MIND_CONTROL;
+  public static Spell VISION_CONTROL;
+  public static Spell EXORCISM;
   public static Spell FORCE_ORB;
   public static Spell ICE_CHARGE;
   public static Spell FIREBALL;
@@ -517,6 +519,8 @@ public final class MagicSpells {
             40,
             150,
             new MindControlExecutor());
+    VISION_CONTROL=register("vision_control",MagicElement.NECROMANCY,SpellTier.APPRENTICE,20,80,new MindControlExecutor(true));
+    EXORCISM=register("exorcism",MagicElement.NECROMANCY,SpellTier.APPRENTICE,15,40,new ru.givler.mbo.magic.spell.ExorcismExecutor());
     FORCE_ORB =
         register(
             "force_orb",

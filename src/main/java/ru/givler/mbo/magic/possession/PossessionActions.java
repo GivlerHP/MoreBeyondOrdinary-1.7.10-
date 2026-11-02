@@ -55,6 +55,7 @@ public final class PossessionActions {
   }
   public static void action(Session s) {
     EntityLivingBase a=s.animal;
+    if(a instanceof EntityBat){batAction(s);return;}
     if(a instanceof EntitySheep){startGrazing(s);return;}
     if(a instanceof EntityMBOCamel){EntityMBOCamel c=(EntityMBOCamel)a;if(c.sitting()&&c.canStand()||!c.sitting())c.setSitting(!c.sitting());return;}
     if(a instanceof EntityHorse){((EntityHorse)a).setRearing(true);s.actionTicks=30;a.playSound(a instanceof EntityMBOZombieHorse?"mob.horse.zombie.idle":a instanceof EntityMBOSkeletonHorse?"mob.horse.skeleton.idle":"mob.horse.angry",1,1);return;}
@@ -92,7 +93,50 @@ public final class PossessionActions {
     if(a instanceof EntityMBOFrog)a.getDataWatcher().updateObject(21,(byte)(s.pose>0?2:0));
     if(a instanceof EntityMBOAxolotl)a.getDataWatcher().updateObject(21,s.pose>0?100:0);
     if(a instanceof EntityMBOPufferfish&&((EntityMBOPufferfish)a).puff()!=(s.pose>0?2:0))((EntityMBOPufferfish)a).setPuff(s.pose>0?2:0);
-    if(a instanceof EntityBat)((EntityBat)a).setIsBatHanging(false);
+    if(a instanceof EntityBat)((EntityBat)a).setIsBatHanging(s.batHanging);
+  }
+  private static void releaseBat(Session s) {
+    s.batTarget=s.batHanging=false;
+    ((EntityBat)s.animal).setIsBatHanging(false);
+    s.animal.motionX=s.animal.motionZ=0;s.animal.motionY=-.06;
+  }
+  static void batAction(Session s) {
+    if(s.batHanging||s.batTarget){releaseBat(s);return;}
+    EntityLivingBase bat=s.animal;
+    net.minecraft.util.Vec3 start=net.minecraft.util.Vec3.createVectorHelper(bat.posX,bat.posY+bat.getEyeHeight(),bat.posZ);
+    double yaw=Math.toRadians(s.lookYaw),pitch=Math.toRadians(s.lookPitch),cos=Math.cos(pitch);
+    net.minecraft.util.Vec3 end=start.addVector(-Math.sin(yaw)*cos*4,-Math.sin(pitch)*4,Math.cos(yaw)*cos*4);
+    net.minecraft.util.MovingObjectPosition hit=bat.worldObj.rayTraceBlocks(start,end);
+    if(hit==null||hit.sideHit!=0||!bat.worldObj.getBlock(hit.blockX,hit.blockY,hit.blockZ).isNormalCube())return;
+    s.batX=hit.blockX;s.batY=hit.blockY;s.batZ=hit.blockZ;
+    double half=bat.width*.5D;
+    s.batAnchorX=Math.max(s.batX+half,Math.min(s.batX+1-half,hit.hitVec.xCoord));
+    s.batAnchorY=s.batY-bat.height;
+    s.batAnchorZ=Math.max(s.batZ+half,Math.min(s.batZ+1-half,hit.hitVec.zCoord));
+    net.minecraft.util.AxisAlignedBB box=bat.boundingBox.getOffsetBoundingBox(s.batAnchorX-bat.posX,s.batAnchorY-bat.posY,s.batAnchorZ-bat.posZ);
+    if(bat.worldObj.getCollidingBoundingBoxes(bat,box).isEmpty()){s.batTarget=true;bat.playSound("mob.bat.idle",.5F,1);}
+  }
+  static boolean batTravel(Session s) {
+    if(!s.batTarget&&!s.batHanging)return false;
+    EntityBat bat=(EntityBat)s.animal;
+    if(s.jump||!bat.worldObj.getBlock(s.batX,s.batY,s.batZ).isNormalCube()) {
+      releaseBat(s);s.jump=false;return true;
+    }
+    if(s.batHanging) {
+      bat.setPosition(s.batAnchorX,s.batAnchorY,s.batAnchorZ);
+      bat.motionX=bat.motionY=bat.motionZ=0;bat.setIsBatHanging(true);return true;
+    }
+    double dx=s.batAnchorX-bat.posX,dy=s.batAnchorY-bat.posY,dz=s.batAnchorZ-bat.posZ;
+    double distance=Math.sqrt(dx*dx+dy*dy+dz*dz),factor=distance==0?0:Math.min(1,.12/distance);
+    double x=bat.posX,y=bat.posY,z=bat.posZ;
+    bat.moveEntity(dx*factor,dy*factor,dz*factor);
+    bat.motionX=bat.motionY=bat.motionZ=0;
+    if(Math.abs(bat.posX-x-dx*factor)>1e-5||Math.abs(bat.posY-y-dy*factor)>1e-5||Math.abs(bat.posZ-z-dz*factor)>1e-5){releaseBat(s);return true;}
+    if(distance<=.12) {
+      s.batTarget=false;s.batHanging=true;bat.setIsBatHanging(true);
+      bat.setPosition(s.batAnchorX,s.batAnchorY,s.batAnchorZ);
+    }
+    return true;
   }
   static boolean grassAt(EntityLivingBase a,int x,int y,int z) {
     return a.worldObj.getBlock(x,y,z)==Blocks.tallgrass&&a.worldObj.getBlockMetadata(x,y,z)==1
@@ -132,5 +176,5 @@ public final class PossessionActions {
       sheep.attackEntityFrom(DamageSource.magic,sheep.getMaxHealth()*10);
     }
   }
-  public static void reset(Session s){s.pose=0;s.actionTicks=0;s.eatTicks=0;pose(s);if(s.animal instanceof EntityHorse)((EntityHorse)s.animal).setRearing(false);}
+  public static void reset(Session s){s.pose=0;s.actionTicks=0;s.eatTicks=0;s.batTarget=s.batHanging=false;pose(s);if(s.animal instanceof EntityHorse)((EntityHorse)s.animal).setRearing(false);}
 }

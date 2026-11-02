@@ -21,7 +21,7 @@ final class SpellTargeting {
         Vec3.createVectorHelper(caster.posX, caster.posY + caster.getEyeHeight(), caster.posZ);
     Vec3 look = caster.getLookVec();
     Vec3 end = start.addVector(look.xCoord * range, look.yCoord * range, look.zCoord * range);
-    MovingObjectPosition blockHit = caster.worldObj.rayTraceBlocks(start, end);
+    MovingObjectPosition blockHit = caster.worldObj.rayTraceBlocks(Vec3.createVectorHelper(start.xCoord, start.yCoord, start.zCoord), end);
     double closest = blockHit == null ? range : start.distanceTo(blockHit.hitVec);
     EntityLivingBase result = null;
     AxisAlignedBB search =
@@ -61,7 +61,7 @@ final class SpellTargeting {
         Vec3.createVectorHelper(caster.posX, caster.posY + caster.getEyeHeight(), caster.posZ);
     Vec3 look = caster.getLookVec().normalize();
     Vec3 end = start.addVector(look.xCoord * range, look.yCoord * range, look.zCoord * range);
-    MovingObjectPosition blockHit = caster.worldObj.rayTraceBlocks(start, end);
+    MovingObjectPosition blockHit = caster.worldObj.rayTraceBlocks(Vec3.createVectorHelper(start.xCoord, start.yCoord, start.zCoord), end);
     double visibleRange = blockHit == null ? range : start.distanceTo(blockHit.hitVec);
     AxisAlignedBB search =
         caster

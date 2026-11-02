@@ -31,6 +31,9 @@ public final class PossessionClient extends Gui {
   private double bodyX,bodyY,bodyZ;private float bodyYaw,bodyPitch,health,maxHealth;private int air;
   private EntityOtherPlayerMP audioListener;
   private float lookYaw,lookPitch,torsoYaw;
+  private boolean batHanging;
+  private boolean observing;
+  private float batRoll,previousBatRoll;
   private int bodySlot;
   private float horseCharge;
   private boolean forwardHeld,sprintLatched;
@@ -41,21 +44,23 @@ public final class PossessionClient extends Gui {
   public void state(PacketPossessionState p) {
     Minecraft mc=Minecraft.getMinecraft();
     if(mc.theWorld==null||mc.thePlayer==null||mc.thePlayer.dimension!=p.dimension)return;
-    if(p.kind==PacketPossessionState.REVEAL){revealed.put(p.id,p);markControlled(p.id,true);return;}
+    if(p.kind==PacketPossessionState.REVEAL){revealed.put(p.id,p);markControlled(p.id,!p.observing);return;}
     if(p.kind==PacketPossessionState.HIDE){PacketPossessionState old=revealed.get(p.id);if(old!=null&&old.token==p.token){markControlled(p.id,false);revealed.remove(p.id);ghosts.remove(old.owner);}return;}
     if(!mc.thePlayer.getUniqueID().equals(p.owner))return;
     if(p.kind==PacketPossessionState.ATTEMPT) {
       clearControl();world=mc.theWorld;token=p.token;target=p.id;attempt=PossessionManager.ATTEMPT_TICKS;
       bodySlot=p.slot;
+      observing=p.observing;
       bodyX=mc.thePlayer.posX;bodyY=mc.thePlayer.posY;bodyZ=mc.thePlayer.posZ;bodyYaw=mc.thePlayer.rotationYaw;bodyPitch=mc.thePlayer.rotationPitch;return;
     }
     if(p.token!=token)return;
 
     if(p.kind==PacketPossessionState.STOP){boolean failed=!active;clearControl();flash=failed?12:6;return;}
-    if(p.kind==PacketPossessionState.START){active=true;attempt=0;exitArmed=false;lookYaw=MathHelper.wrapAngleTo180_float(p.yaw);lookPitch=p.pitch;torsoYaw=lookYaw;markControlled(p.id,true);}
+    if(p.kind==PacketPossessionState.START){active=true;observing=p.observing;attempt=0;exitArmed=false;lookYaw=MathHelper.wrapAngleTo180_float(p.yaw);lookPitch=p.pitch;torsoYaw=lookYaw;markControlled(p.id,!observing);}
     if(active) {
-      health=p.health;maxHealth=p.maxHealth;air=p.air;horseCharge=p.jumpCharge;Entity e=mc.theWorld.getEntityByID(target);
-      if(e instanceof EntityLivingBase){if(e.ridingEntity==null)e.setPositionAndRotation2(p.x,p.y,p.z,lookYaw,lookPitch,1);((EntityLivingBase)e).setHealth(p.health);e.onGround=p.grounded;mc.renderViewEntity=(EntityLivingBase)e;applyLook((EntityLivingBase)e);}
+      health=p.health;maxHealth=p.maxHealth;air=p.air;horseCharge=p.jumpCharge;batHanging=p.batHanging;Entity e=mc.theWorld.getEntityByID(target);
+      if(!observing&&e instanceof EntityBat)((EntityBat)e).setIsBatHanging(batHanging);
+      if(e instanceof EntityLivingBase){if(!observing){if(e.ridingEntity==null)e.setPositionAndRotation2(p.x,p.y,p.z,lookYaw,lookPitch,1);((EntityLivingBase)e).setHealth(p.health);e.onGround=p.grounded;}mc.renderViewEntity=(EntityLivingBase)e;applyLook((EntityLivingBase)e);}
     }
   }
   private void clearControl() {
@@ -69,14 +74,14 @@ public final class PossessionClient extends Gui {
       if(token!=0&&mc.thePlayer.inventory!=null)mc.thePlayer.inventory.currentItem=bodySlot;
       if(ownVision!=null&&mc.thePlayer.getActivePotionEffect(Potion.nightVision)==ownVision){mc.thePlayer.removePotionEffectClient(Potion.nightVision.id);if(priorVision!=null&&priorVision.getDuration()>0)mc.thePlayer.addPotionEffect(priorVision);}
     }
-    ownVision=priorVision=null;audioListener=null;active=false;token=0;target=-1;attempt=exit=0;mouseHeld=false;
-    forwardHeld=sprintLatched=false;controlTicks=0;lastForwardPress=-1000;
+    ownVision=priorVision=null;audioListener=null;active=false;token=0;target=-1;attempt=exit=0;mouseHeld=false;batHanging=false;batRoll=previousBatRoll=0;
+    forwardHeld=sprintLatched=false;controlTicks=0;lastForwardPress=-1000;observing=false;
   }
   private static boolean key(net.minecraft.client.settings.KeyBinding k){int c=k.getKeyCode();return c<0?Mouse.isButtonDown(c+100):c>0&&Keyboard.isKeyDown(c);}
   @SubscribeEvent public void tick(TickEvent.ClientTickEvent e) {
     if(e.phase!=TickEvent.Phase.END)return;Minecraft mc=Minecraft.getMinecraft();
     if(mc.theWorld!=world){clearControl();revealed.clear();ghosts.clear();world=mc.theWorld;}
-    for(Integer id:revealed.keySet())markControlled(id,true);
+    for(PacketPossessionState reveal:revealed.values())markControlled(reveal.id,!reveal.observing);
     if(flash>0)flash--;if(token==0)return;
     if(mc.thePlayer==null||mc.theWorld==null||!mc.thePlayer.isEntityAlive()){clearControl();return;}
     lockBody(mc.thePlayer);
@@ -84,6 +89,8 @@ public final class PossessionClient extends Gui {
     Entity entity=mc.theWorld.getEntityByID(target);
     if(!(entity instanceof EntityLivingBase)){PacketManager.INSTANCE.sendToServer(new PacketPossessionInput(token,0,0,lookYaw,lookPitch,0));return;}
     EntityLivingBase animal=(EntityLivingBase)entity;mc.renderViewEntity=animal;
+    previousBatRoll=batRoll;
+    batRoll=MathHelper.clamp_float(batRoll+(batHanging&&animal instanceof EntityBat?1F:-1F)/12F,0,1);
     boolean gui=mc.currentScreen!=null;
     float forward=gui?0:(key(mc.gameSettings.keyBindForward)?1:0)-(key(mc.gameSettings.keyBindBack)?1:0);
     float strafe=gui?0:(key(mc.gameSettings.keyBindLeft)?1:0)-(key(mc.gameSettings.keyBindRight)?1:0);
@@ -96,6 +103,7 @@ public final class PossessionClient extends Gui {
     boolean right=!gui&&Mouse.isButtonDown(1),left=!gui&&Mouse.isButtonDown(0);
     if(!right)exitArmed=true;exit=right&&exitArmed?Math.min(PossessionManager.EXIT_TICKS,exit+1):0;
     int flags=(!gui&&key(mc.gameSettings.keyBindJump)?1:0)|(!gui&&key(mc.gameSettings.keyBindSneak)?2:0)|(exit>0?4:0)|(left&&!mouseHeld?8:0)|(sprintLatched?16:0)|(right&&exitArmed&&!rightHeld?32:0);mouseHeld=left;rightHeld=right;
+    if(observing){forward=strafe=0;flags&=4;}
     PacketManager.INSTANCE.sendToServer(new PacketPossessionInput(token,forward,strafe,lookYaw,lookPitch,flags));
     mc.thePlayer.setPosition(bodyX,bodyY,bodyZ);mc.thePlayer.motionX=mc.thePlayer.motionY=mc.thePlayer.motionZ=0;
     if(animal instanceof EntityBat) {
@@ -124,7 +132,7 @@ public final class PossessionClient extends Gui {
     if(active) {
       mc.getTextureManager().bindTexture(icons);int hearts=Math.min(40,(int)Math.ceil(maxHealth/2)),rows=(hearts+19)/20;
       for(int i=0;i<hearts;i++){int x=w/2-Math.min(20,hearts)*4+(i%20)*8,y=h-30-(rows-1-i/20)*10;drawTexturedModalRect(x,y,16,0,9,9);if(health>i*2)drawTexturedModalRect(x,y,health>=i*2+2?52:61,0,9,9);}
-      if(mc.renderViewEntity instanceof net.minecraft.entity.passive.EntityHorse) {
+      if(!observing&&mc.renderViewEntity instanceof net.minecraft.entity.passive.EntityHorse) {
         drawTexturedModalRect(w/2-91,h-15,0,84,182,5);
         int fill=(int)(MathHelper.clamp_float(horseCharge,0,1)*183);
         if(fill>0)drawTexturedModalRect(w/2-91,h-15,0,89,fill,5);
@@ -143,6 +151,9 @@ public final class PossessionClient extends Gui {
   /** Vanilla already applies mouse sensitivity before setAngles; preserve its 0.15 degree scale. */
   public boolean turn(Entity entity,float x,float y) {
     Minecraft mc=Minecraft.getMinecraft();if(!active||entity!=mc.thePlayer)return false;
+    double roll=Math.toRadians(cameraRoll(1));
+    float mouseX=(float)(x*Math.cos(roll)-y*Math.sin(roll));
+    y=(float)(x*Math.sin(roll)+y*Math.cos(roll));x=mouseX;
     lookYaw=MathHelper.wrapAngleTo180_float(lookYaw+x*.15F);
     lookPitch=MathHelper.clamp_float(lookPitch-y*.15F,-90,90);
     torsoYaw=PossessionManager.torsoYaw(torsoYaw,lookYaw,false);
@@ -150,8 +161,24 @@ public final class PossessionClient extends Gui {
     return true;
   }
   private void applyLook(EntityLivingBase animal) {
+    if(observing)return;
     animal.rotationYaw=animal.prevRotationYaw=lookYaw;animal.rotationPitch=animal.prevRotationPitch=lookPitch;
     animal.rotationYawHead=animal.prevRotationYawHead=lookYaw;animal.renderYawOffset=animal.prevRenderYawOffset=torsoYaw;
+  }
+  public static float viewYaw(Entity entity,float original) {
+    return INSTANCE.active&&INSTANCE.observing&&entity==Minecraft.getMinecraft().renderViewEntity?INSTANCE.lookYaw:original;
+  }
+  public static float viewPitch(Entity entity,float original) {
+    return INSTANCE.active&&INSTANCE.observing&&entity==Minecraft.getMinecraft().renderViewEntity?INSTANCE.lookPitch:original;
+  }
+  public static float cameraRoll(float partial) {
+    Minecraft mc=Minecraft.getMinecraft();
+    if(!INSTANCE.active||!(mc.renderViewEntity instanceof EntityBat))return 0;
+    float progress=INSTANCE.previousBatRoll+(INSTANCE.batRoll-INSTANCE.previousBatRoll)*MathHelper.clamp_float(partial,0,1);
+    return progress*progress*(3-2*progress)*180F;
+  }
+  public static void rollCamera(float partial) {
+    float roll=cameraRoll(partial);if(roll!=0)GL11.glRotatef(roll,0,0,1);
   }
   public EntityPlayer listener(EntityPlayer original) {
     Minecraft mc=Minecraft.getMinecraft();

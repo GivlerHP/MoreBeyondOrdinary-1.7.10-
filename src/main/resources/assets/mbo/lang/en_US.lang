@@ -1834,3 +1834,9 @@ tile.ModelTortureRope3.desc=Right-click a rope to add an anchor.\nConnects to ne
 tile.ModelTortureRope4.desc=Connects to neighboring ropes.\nRight-click a rope with a rope to add a knot or noose.\nSneak while placing on the floor to lay a floor rope.\nWarning: right-clicking a noose hangs the player and causes suffocation.
 tile.ModelTortureRope5.desc=Connects to neighboring ropes.\nRight-click a rope with a rope to add a knot or noose.\nSneak while placing on the floor to lay a floor rope.\nWarning: right-clicking a noose hangs the player and causes suffocation.
 tile.ModelTortureIronCage.desc=Right-click the door or from inside to open or close the cage.\nThe door cannot close while a living creature blocks it.
+
+mbo.spell.vision_control=Vision Control
+mbo.spell.vision_control.desc=Observe through an animal's eyes without controlling its behavior. Your body remains vulnerable. Look around; hold right-click to return. Caster damage breaks the link. The animal's death costs 6 HP but leaves at least half a heart.
+mbo.spell.exorcism=Exorcism
+mbo.spell.exorcism.desc=Break possession or vision control on the targeted animal. Return the linked caster to their body and deal 6 magic damage to them. The animal is unharmed.
+mbo.possession.vision_failed=Vision link failed: the creature is unavailable or the link was interrupted.

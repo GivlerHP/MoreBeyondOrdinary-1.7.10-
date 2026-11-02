@@ -19,11 +19,12 @@ public final class PossessionTransformer implements IClassTransformer,Opcodes {
     boolean activeWorld=mapped.equals("net.minecraft.world.World");
     boolean chunkOrder=mapped.equals("net.minecraftforge.common.util.ChunkCoordComparator");
     boolean input=mapped.equals("net.minecraft.util.MovementInputFromOptions");
+    boolean camera=mapped.equals("net.minecraft.client.renderer.EntityRenderer");
     boolean equine=mapped.equals("net.minecraft.entity.passive.EntityHorse")||mapped.equals("ru.givler.mbo.entity.fauna.EntityMBOCamel");
     boolean mfHorse=mapped.equals("minefantasy.mf2.mechanics.HorseMovement");
     boolean mfPending=mapped.equals("minefantasy.mf2.network.packet.PacketHorseMove$Pending");
     boolean stream=mapped.equals("net.minecraft.server.management.PlayerManager")||mapped.equals("net.minecraft.entity.EntityTrackerEntry");
-    if(!living&&!player&&!stream&&!mouse&&!sound&&!broadcast&&!activeWorld&&!chunkOrder&&!input&&!mfHorse&&!mfPending)return bytes;
+    if(!living&&!player&&!stream&&!mouse&&!sound&&!broadcast&&!activeWorld&&!chunkOrder&&!input&&!mfHorse&&!mfPending&&!camera)return bytes;
     ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);int count=0;
     String api="ru/givler/mbo/magic/possession/PossessionAnimal";
     if(mapped.equals("net.minecraft.entity.EntityLivingBase")&&!node.interfaces.contains(api)) {
@@ -41,6 +42,19 @@ public final class PossessionTransformer implements IClassTransformer,Opcodes {
       boolean patched=false;for(AbstractInsnNode ins:method.instructions.toArray())if(ins instanceof MethodInsnNode&&(((MethodInsnNode)ins).owner.equals(HOOK)||((MethodInsnNode)ins).owner.equals(CLIENT)))patched=true;
       if(patched)continue;
       String m=FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(node.name,method.name,method.desc);
+      if(camera&&method.desc.equals("(F)V")&&(method.name.equals("orientCamera")||method.name.equals("func_78467_g")||m.equals("func_78467_g"))) {
+        InsnList hook=new InsnList();hook.add(new VarInsnNode(FLOAD,1));hook.add(new MethodInsnNode(INVOKESTATIC,CLIENT,"rollCamera","(F)V",false));method.instructions.insert(hook);count++;
+        for(AbstractInsnNode instruction:method.instructions.toArray())if(instruction instanceof FieldInsnNode&&instruction.getOpcode()==GETFIELD) {
+          FieldInsnNode field=(FieldInsnNode)instruction;
+          String mappedField=FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(field.owner,field.name,field.desc);
+          boolean yaw=mappedField.equals("rotationYaw")||mappedField.equals("prevRotationYaw")||mappedField.equals("field_70177_z")||mappedField.equals("field_70126_B");
+          boolean pitch=mappedField.equals("rotationPitch")||mappedField.equals("prevRotationPitch")||mappedField.equals("field_70125_A")||mappedField.equals("field_70127_C");
+          if((yaw||pitch)&&field.desc.equals("F")) {
+            method.instructions.insertBefore(field,new InsnNode(DUP));
+            method.instructions.insert(field,new MethodInsnNode(INVOKESTATIC,CLIENT,yaw?"viewYaw":"viewPitch","(Lnet/minecraft/entity/Entity;F)F",false));count++;
+          }
+        }
+      }
       if(mapped.equals("net.minecraft.entity.EntityLivingBase")&&method.desc.equals("(FF)V")&&(method.name.equals("moveEntityWithHeading")||method.name.equals("func_70612_e")||m.equals("func_70612_e"))){guard(method,0,"clientBatMovement","(Lnet/minecraft/entity/EntityLivingBase;)Z",false);count++;}
       if(equine&&method.desc.equals("(FF)V")&&(method.name.equals("moveEntityWithHeading")||method.name.equals("func_70612_e")||m.equals("func_70612_e"))){guard(method,0,"clientHorse","(Lnet/minecraft/entity/passive/EntityHorse;)Z",false);count++;}
       if(equine&&method.desc.equals("(I)V")&&(method.name.equals("setJumpPower")||method.name.equals("func_110206_u")||m.equals("func_110206_u"))){guard(method,0,"blockRiderJump","(Lnet/minecraft/entity/passive/EntityHorse;)Z",false);count++;}

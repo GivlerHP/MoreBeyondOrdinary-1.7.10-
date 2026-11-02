@@ -45,6 +45,8 @@ public final class WaterloggingCameraHooks {
     if(view==null || mc.gameSettings.thirdPersonView==0)return;
     float yaw=view.prevRotationYaw+(view.rotationYaw-view.prevRotationYaw)*partialTicks;
     float pitch=view.prevRotationPitch+(view.rotationPitch-view.prevRotationPitch)*partialTicks;
+    yaw=ru.givler.mbo.client.handler.PossessionClient.viewYaw(view,yaw);
+    pitch=ru.givler.mbo.client.handler.PossessionClient.viewPitch(view,pitch);
     if(mc.gameSettings.thirdPersonView==2)pitch+=180F;
     pendingCamera=thirdPersonPosition(view,partialTicks,distance,yaw,pitch);
     pendingEntity=view;

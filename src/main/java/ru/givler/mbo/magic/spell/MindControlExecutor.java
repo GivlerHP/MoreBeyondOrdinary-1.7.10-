@@ -6,6 +6,9 @@ import ru.givler.mbo.magic.api.SpellExecutor;
 import ru.givler.mbo.magic.api.SpellResult;
 
 public final class MindControlExecutor implements SpellExecutor {
+  private final boolean observing;
+  public MindControlExecutor(){this(false);}
+  public MindControlExecutor(boolean observing){this.observing=observing;}
   @Override
   public SpellResult cast(SpellContext context) {
     EntityLivingBase target = context.target();
@@ -20,7 +23,7 @@ public final class MindControlExecutor implements SpellExecutor {
     if (!context.world().isRemote) {
       if (!(context.caster() instanceof net.minecraft.entity.player.EntityPlayerMP)) return SpellResult.BLOCKED;
       if (!ru.givler.mbo.magic.possession.PossessionManager.attempt(
-          (net.minecraft.entity.player.EntityPlayerMP) context.caster(), target)) return SpellResult.BLOCKED;
+          (net.minecraft.entity.player.EntityPlayerMP) context.caster(), target,observing)) return SpellResult.BLOCKED;
       SpellEffects.sparkleBurst(target, 20, 0.6F, 0.1F, 0.8F);
       context.world().playSoundAtEntity(target, "mbo:darkaura", 1.0F, 1.0F);
       context.caster().swingItem();

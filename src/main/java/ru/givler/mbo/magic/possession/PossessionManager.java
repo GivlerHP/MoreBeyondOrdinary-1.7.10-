@@ -33,6 +33,7 @@ public final class PossessionManager {
   public static final class Session {
     public final EntityPlayerMP player;
     public final EntityLivingBase animal;
+    public boolean observing;
     public final long token=++nextToken;
     public final double x,y,z;
     public final float yaw,pitch;
@@ -42,6 +43,10 @@ public final class PossessionManager {
     int age,lastInput,exit,actionCooldown,jumpCooldown,pose,actionTicks,dashCooldown,eatTicks,eatX,eatY,eatZ,horseCharge;
     float forward,strafe,lookYaw,lookPitch,torsoYaw;
     boolean jump,sneak,sprint,active,wasSitting,jumpHeld,steering;
+    boolean batTarget,batHanging;
+    int batX,batY,batZ;
+    double batAnchorX,batAnchorY,batAnchorZ;
+    public boolean batHanging(){return batHanging;}
     ForgeChunkManager.Ticket ticket;
     public float jumpCharge(){return PossessionActions.jumpCharge(horseCharge);}
     Session(EntityPlayerMP p,EntityLivingBase a) {
@@ -62,7 +67,7 @@ public final class PossessionManager {
     if(moving)torso+=MathHelper.wrapAngleTo180_float(head-torso)*.3F;
     return head-MathHelper.clamp_float(MathHelper.wrapAngleTo180_float(head-torso),-75F,75F);
   }
-  public static boolean isControlled(Entity e){return e!=null&&(e.worldObj!=null&&e.worldObj.isRemote?e.getEntityData().getBoolean("MBOPossessed"):ANIMALS.containsKey(e));}
+  public static boolean isControlled(Entity e){if(e==null)return false;if(e.worldObj!=null&&e.worldObj.isRemote)return e.getEntityData().getBoolean("MBOPossessed");Session s=ANIMALS.get(e);return s!=null&&!s.observing;}
   public static boolean passenger(Entity entity) {
     if(!(entity instanceof EntityPlayer))return false;
     Entity mount=entity.ridingEntity;
@@ -83,7 +88,6 @@ public final class PossessionManager {
   public static boolean clientBatMovement(EntityLivingBase animal){
     if(!(animal instanceof EntityBat)||!animal.worldObj.isRemote||!isControlled(animal))return false;
     // Keep native network interpolation, but don't apply client gravity between server updates.
-    ((EntityBat)animal).setIsBatHanging(false);
     return true;
   }
   private static EntityMBOBoat boatMount(Entity animal) {
@@ -93,7 +97,7 @@ public final class PossessionManager {
   }
   public static boolean steerBoat(EntityMBOBoat boat) {
     Session s=ANIMALS.get(boat.riddenByEntity);
-    if(s==null||!s.active||!s.player.capabilities.isCreativeMode||s.animal.ridingEntity!=boat)return false;
+    if(s==null||!s.active||s.observing||!s.player.capabilities.isCreativeMode||s.animal.ridingEntity!=boat)return false;
     boat.possessionInputs(s.strafe,s.forward);return true;
   }
   private static boolean permittedBoatMount(EntityLivingBase animal) {
@@ -171,7 +175,7 @@ public final class PossessionManager {
         ||animal instanceof EntityMBOGoat||animal instanceof EntityMBOPanda||animal instanceof EntityMBOFox
         ||animal instanceof EntityMBOAxolotl||animal instanceof EntityMBOGlowSquid
         ||(animal instanceof EntityMBOCamel&&!(animal instanceof EntityMBOCamelHusk))||animal instanceof EntityMBOUndeadHorse;
-    if(!(vanilla||mbo)||!animal.isEntityAlive()||animal.ridingEntity!=null&&!(isControlled(animal)&&permittedBoatMount(animal)))return false;
+    if(!(vanilla||mbo)||!animal.isEntityAlive()||animal.ridingEntity!=null&&!(ANIMALS.containsKey(animal)&&permittedBoatMount(animal)))return false;
     if(animal.riddenByEntity!=null&&(!(animal instanceof EntityHorse)||!(animal.riddenByEntity instanceof EntityPlayer)||animal.riddenByEntity==player))return false;
     if(animal instanceof EntityTameable&&((EntityTameable)animal).isTamed()
         &&!player.getUniqueID().toString().equals(((EntityTameable)animal).func_152113_b()))return false;
@@ -183,8 +187,17 @@ public final class PossessionManager {
     return true;
   }
   public static boolean attempt(EntityPlayerMP player,EntityLivingBase animal) {
+    return attempt(player,animal,false);
+  }
+  public static boolean attempt(EntityPlayerMP player,EntityLivingBase animal,boolean observing) {
     if(isControlling(player)||player.ridingEntity!=null||player.isPlayerSleeping()||!player.isEntityAlive())return false;
-    Session s=new Session(player,animal);PLAYERS.put(player.getUniqueID(),s);send(s,PacketPossessionState.ATTEMPT);return true;
+    Session s=new Session(player,animal);s.observing=observing;PLAYERS.put(player.getUniqueID(),s);send(s,PacketPossessionState.ATTEMPT);return true;
+  }
+  public static boolean exorcise(EntityLivingBase animal,EntityLivingBase caster,float damage) {
+    Session s=ANIMALS.get(animal);if(s==null||!s.active)return false;
+    end(s,false);
+    s.player.attackEntityFrom(DamageSource.causeIndirectMagicDamage(caster,caster),damage);
+    return true;
   }
   public static void input(EntityPlayerMP player,long token,float forward,float strafe,float yaw,float pitch,int flags) {
     Session s=PLAYERS.get(player.getUniqueID());
@@ -193,6 +206,12 @@ public final class PossessionManager {
     if(s.lastInput==s.age)return;
     s.forward=MathHelper.clamp_float(forward,-1,1);s.strafe=MathHelper.clamp_float(strafe,-1,1);
     s.lookYaw=MathHelper.wrapAngleTo180_float(yaw);s.lookPitch=MathHelper.clamp_float(pitch,-90,90);
+    if(s.observing) {
+      s.forward=s.strafe=0;s.lastInput=s.age;
+      s.exit=(flags&4)!=0?s.exit+1:0;
+      if(s.exit>=EXIT_TICKS)end(s,false);
+      return;
+    }
     boolean dismount=(flags&2)!=0&&!s.sneak;
     s.jump=(flags&1)!=0;s.sneak=(flags&2)!=0;s.sprint=(flags&16)!=0;s.lastInput=s.age;
     if(dismount&&boatMount(s.animal)!=null)s.animal.mountEntity(null);
@@ -212,22 +231,22 @@ public final class PossessionManager {
     for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)ForgeChunkManager.forceChunk(s.ticket,new ChunkCoordIntPair(cx+dx,cz+dz));
     s.active=true;s.lastInput=s.age;ANIMALS.put(s.animal,s);
     s.player.setSneaking(false);s.player.setSprinting(false);
-    if(s.animal instanceof EntityTameable)((EntityTameable)s.animal).setSitting(false);
-    if(s.animal instanceof EntityLiving){((EntityLiving)s.animal).getNavigator().clearPathEntity();((EntityLiving)s.animal).setAttackTarget(null);}
+    if(!s.observing&&s.animal instanceof EntityTameable)((EntityTameable)s.animal).setSitting(false);
+    if(!s.observing&&s.animal instanceof EntityLiving){((EntityLiving)s.animal).getNavigator().clearPathEntity();((EntityLiving)s.animal).setAttackTarget(null);}
     send(s,PacketPossessionState.START);broadcast(s,PacketPossessionState.REVEAL);
   }
   private static void end(Session s,boolean death) {
     if(PLAYERS.remove(s.player.getUniqueID())!=s)return;
-    ANIMALS.remove(s.animal);if(s.active)PossessionActions.reset(s);
-    s.animal.stepHeight=s.originalStepHeight;
+    ANIMALS.remove(s.animal);if(s.active&&!s.observing)PossessionActions.reset(s);
+    if(!s.observing)s.animal.stepHeight=s.originalStepHeight;
     if(s.player.inventory!=null)s.player.inventory.currentItem=s.slot;
-    if(s.active&&s.animal instanceof EntityTameable)((EntityTameable)s.animal).setSitting(s.wasSitting);
+    if(s.active&&!s.observing&&s.animal instanceof EntityTameable)((EntityTameable)s.animal).setSitting(s.wasSitting);
     if(s.ticket!=null)ForgeChunkManager.releaseTicket(s.ticket);
     if(death&&s.player.isEntityAlive())s.player.setHealth(Math.max(1F,s.player.getHealth()-6F));
     if(s.player.playerNetServerHandler==null)return;
     s.player.playerNetServerHandler.sendPacket(new net.minecraft.network.play.server.S09PacketHeldItemChange(s.slot));
     if(!s.active&&s.player.playerNetServerHandler.netManager.isChannelOpen())
-      s.player.addChatMessage(new ChatComponentTranslation("mbo.possession.failed"));
+      s.player.addChatMessage(new ChatComponentTranslation(s.observing?"mbo.possession.vision_failed":"mbo.possession.failed"));
     if(s.player.worldObj==s.animal.worldObj&&s.player.isEntityAlive())
       s.player.playerNetServerHandler.setPlayerLocation(s.x,s.y,s.z,s.yaw,s.pitch);
     send(s,PacketPossessionState.STOP);broadcast(s,PacketPossessionState.HIDE);
@@ -236,7 +255,7 @@ public final class PossessionManager {
   /** Replaces only living movement/AI; environmental damage and entity death keep their normal ticks. */
   public static boolean living(EntityLivingBase animal) {
     if(animal.worldObj.isRemote)return false;
-    Session s=ANIMALS.get(animal);if(s==null)return false;
+    Session s=ANIMALS.get(animal);if(s==null||s.observing)return false;
     if(net.minecraftforge.common.ForgeHooks.onLivingUpdate(animal)||ANIMALS.get(animal)!=s)return true;
     s.torsoYaw=torsoYaw(s.torsoYaw,s.lookYaw,Math.abs(s.forward)+Math.abs(s.strafe)>0);
     animal.rotationYaw=s.lookYaw;animal.rotationPitch=s.lookPitch;animal.rotationYawHead=s.lookYaw;animal.renderYawOffset=s.torsoYaw;
@@ -244,6 +263,7 @@ public final class PossessionManager {
     if(s.jumpCooldown>0)s.jumpCooldown--;if(s.dashCooldown>0)s.dashCooldown--;
     PossessionActions.pose(s);
     if(ANIMALS.get(animal)!=s)return true;
+    if(animal instanceof EntityBat&&PossessionActions.batTravel(s))return true;
     if(boatMount(animal)!=null){animal.motionX=animal.motionY=animal.motionZ=0;return true;}
     boolean water=animal.isInWater(),aquatic=animal instanceof EntityWaterMob||animal instanceof EntityMBOFish
         ||animal instanceof EntityMBOTadpole||animal instanceof EntityMBOAxolotl||animal instanceof EntityMBOTurtle;
@@ -283,8 +303,8 @@ public final class PossessionManager {
       if(!s.player.isEntityAlive()||!s.player.playerNetServerHandler.netManager.isChannelOpen()||s.player.worldObj!=s.animal.worldObj
           ||s.player.ridingEntity!=null||!s.animal.isEntityAlive()){end(s,s.active&&!s.animal.isEntityAlive());continue;}
       EntityMBOBoat mount=boatMount(s.animal);
-      if(mount!=null&&!mount.canCarryPossessed(s.animal,s.player.capabilities.isCreativeMode))s.animal.mountEntity(null);
-      if(mount!=null&&s.animal.ridingEntity==mount&&!s.player.capabilities.isCreativeMode) {
+      if(!s.observing&&mount!=null&&!mount.canCarryPossessed(s.animal,s.player.capabilities.isCreativeMode))s.animal.mountEntity(null);
+      if(!s.observing&&mount!=null&&s.animal.ridingEntity==mount&&!s.player.capabilities.isCreativeMode) {
         s.animal.mountEntity(null);mount.boardPossessed(s.animal,false);
       }
       if(s.active&&(!eligible(s.player,s.animal)
