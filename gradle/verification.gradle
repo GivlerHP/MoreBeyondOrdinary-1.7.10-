@@ -192,3 +192,10 @@ task verifyTortureHitboxes(type: JavaExec, dependsOn: testClasses) {
         }
     }
 }
+
+// Actual GTNH NEI dispatch, without opening a Minecraft window.
+task verifyNeiCategories(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.integration.nei.NeiCategorySmoke'
+}
+check.dependsOn verifyNeiCategories

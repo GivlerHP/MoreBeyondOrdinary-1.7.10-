@@ -12,6 +12,13 @@ import ru.givler.mbo.recipes.stonecutter.StonecutterRecipe;
 import ru.givler.mbo.recipes.stonecutter.StonecutterRecipes;
 
 public final class StonecutterRecipeHandler extends TemplateRecipeHandler {
+    @Override
+    public void loadTransferRects() {
+        transferRects.add(new RecipeTransferRect(new java.awt.Rectangle(28, 31, 16, 20), getOverlayIdentifier()));
+    }
+
+  private static final int ITEMS_PER_PAGE = 12;
+
   public final class CachedStonecutterRecipe extends CachedRecipe {
     private final PositionedStack input;
     private final PositionedStack selectedResult;
@@ -37,6 +44,11 @@ public final class StonecutterRecipeHandler extends TemplateRecipeHandler {
     }
 
     @Override
+    public List<PositionedStack> getIngredients() {
+      return selectedResult != null ? outputs : super.getIngredients();
+    }
+
+    @Override
     public PositionedStack getResult() {
       return selectedResult != null ? selectedResult : (outputs.isEmpty() ? null : outputs.get(0));
     }
@@ -44,7 +56,7 @@ public final class StonecutterRecipeHandler extends TemplateRecipeHandler {
     @Override
     public List<PositionedStack> getOtherStacks() {
       return selectedResult != null
-          ? outputs
+          ? java.util.Collections.<PositionedStack>emptyList()
           : (outputs.size() < 2
               ? java.util.Collections.<PositionedStack>emptyList()
               : outputs.subList(1, outputs.size()));
@@ -88,7 +100,11 @@ public final class StonecutterRecipeHandler extends TemplateRecipeHandler {
             if (result == null) result = output;
             break;
           }
-      if (result != null) arecipes.add(new CachedStonecutterRecipe(ingredients, result));
+      if (result != null) {
+        for (int i = 0; i < ingredients.size(); i += ITEMS_PER_PAGE)
+          arecipes.add(new CachedStonecutterRecipe(
+              ingredients.subList(i, Math.min(i + ITEMS_PER_PAGE, ingredients.size())), result));
+      }
       return;
     }
     super.loadCraftingRecipes(outputId, results);
@@ -100,7 +116,7 @@ public final class StonecutterRecipeHandler extends TemplateRecipeHandler {
       ItemStack wanted = (ItemStack) ingredients[0];
       for (Group group : groups())
         if (matchesInput(group.input, wanted))
-          arecipes.add(new CachedStonecutterRecipe(group.input, group.outputs));
+          addGroup(group);
       return;
     }
     super.loadUsageRecipes(inputId, ingredients);
@@ -108,7 +124,13 @@ public final class StonecutterRecipeHandler extends TemplateRecipeHandler {
 
   private void addAllGroups() {
     for (Group group : groups())
-      arecipes.add(new CachedStonecutterRecipe(group.input, group.outputs));
+      addGroup(group);
+  }
+
+  private void addGroup(Group group) {
+    for (int i = 0; i < group.outputs.size(); i += ITEMS_PER_PAGE)
+      arecipes.add(new CachedStonecutterRecipe(group.input,
+          group.outputs.subList(i, Math.min(i + ITEMS_PER_PAGE, group.outputs.size()))));
   }
 
   private static List<Group> groups() {

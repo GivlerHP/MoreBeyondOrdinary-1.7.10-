@@ -16,6 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArcanumRecipeHandler extends TemplateRecipeHandler {
+    @Override
+    public void loadTransferRects() {
+        transferRects.add(new RecipeTransferRect(new java.awt.Rectangle(109, 27, 18, 18), getOverlayIdentifier()));
+    }
+
 
     public class CachedMagicFurnaceRecipe extends CachedRecipe {
         List<PositionedStack> inputStacks = new ArrayList<>();
@@ -117,12 +122,7 @@ public class ArcanumRecipeHandler extends TemplateRecipeHandler {
     public void drawExtras(int recipeIndex) {
         CachedMagicFurnaceRecipe recipe = (CachedMagicFurnaceRecipe) arecipes.get(recipeIndex);
 
-        int guiLeft = (Minecraft.getMinecraft().currentScreen.width - 200) / 2;
-        int guiTop = (Minecraft.getMinecraft().currentScreen.height - 220) / 2;
-
-        int x = 25;
-        int y = 73;
-        int width = (int) ((float) (cycleticks % recipe.cookTime) / recipe.cookTime * 80);
+        drawProgressBar(25, 73, 0, 220, 80, 16, Math.max(1, recipe.cookTime), 0);
 
     }
 
