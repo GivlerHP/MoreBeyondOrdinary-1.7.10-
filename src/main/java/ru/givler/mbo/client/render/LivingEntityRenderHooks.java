@@ -35,6 +35,7 @@ public final class LivingEntityRenderHooks {
   }
 
   public static void pose(ModelBiped model, Entity rider) {
+    ru.givler.mbo.client.render.light.PortableCarry.pose(model,rider);
     boolean hanging = rider.ridingEntity instanceof ru.givler.mbo.entity.EntityHangingAnchor;
     if (!hanging && driverBoat(rider) == null) return;
     // Keep vanilla head/aimed-arm animation, but remove attack swing's torso twist.

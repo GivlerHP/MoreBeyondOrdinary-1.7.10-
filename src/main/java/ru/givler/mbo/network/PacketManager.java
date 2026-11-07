@@ -223,6 +223,7 @@ public class PacketManager {
         PacketColoredBurning.Handler.class, PacketColoredBurning.class, nextID++, Side.CLIENT);
     INSTANCE.registerMessage(
         PacketTickRate.Handler.class, PacketTickRate.class, nextID++, Side.CLIENT);
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketLanternBeltVisual.Handler.class, ru.givler.mbo.network.packet.PacketLanternBeltVisual.class, nextID++, Side.CLIENT);
   }
 
   /** Registers outgoing client-bound packet IDs without loading client-only handlers. */
@@ -251,7 +252,8 @@ public class PacketManager {
       PacketTrapdoorLatchDelta.class,
       PacketTrapdoorLatchSnapshot.class,
       PacketColoredBurning.class,
-      PacketTickRate.class
+      PacketTickRate.class,
+      ru.givler.mbo.network.packet.PacketLanternBeltVisual.class
     };
     try {
       FMLIndexedMessageToMessageCodec codec =

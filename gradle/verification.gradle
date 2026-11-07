@@ -199,3 +199,15 @@ task verifyNeiCategories(type: JavaExec, dependsOn: testClasses) {
     main = 'ru.givler.mbo.integration.nei.NeiCategorySmoke'
 }
 check.dependsOn verifyNeiCategories
+
+task verifyPortableLights(type: JavaExec, dependsOn: [testClasses, extractNativeResourceTestLibraries]) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.render.light.PortableLightSmoke'
+    systemProperty 'portableLightMappings', new File(gradle.gradleUserHomeDir, 'caches/minecraft/de/oceanlabs/mcp/mcp_stable/12').absolutePath
+    systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
+}
+
+task verifyPortableCarryHooks(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.PortableCarryTransformerSmoke'
+}

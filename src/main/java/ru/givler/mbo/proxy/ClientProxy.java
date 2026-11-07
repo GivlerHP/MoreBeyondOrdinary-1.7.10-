@@ -674,6 +674,7 @@ public class ClientProxy extends CommonProxy {
   public void postInit(FMLPostInitializationEvent event) {
     super.postInit(event);
     ru.givler.mbo.client.lighting.GardenLanternLight.register();
+    ru.givler.mbo.client.render.light.PortableLights.register();
     ModernFontSupport.install();
   }
 }

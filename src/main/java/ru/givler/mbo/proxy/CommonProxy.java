@@ -110,6 +110,9 @@ public class CommonProxy {
     MinecraftForge.EVENT_BUS.register(new PotionEvents());
     MinecraftForge.EVENT_BUS.register(new RabbitEvents());
     MinecraftForge.EVENT_BUS.register(new BeltEvents());
+    ru.givler.mbo.handler.LanternBeltVisualSync lanternVisualSync = new ru.givler.mbo.handler.LanternBeltVisualSync();
+    MinecraftForge.EVENT_BUS.register(lanternVisualSync);
+    FMLCommonHandler.instance().bus().register(lanternVisualSync);
     FMLCommonHandler.instance().bus().register(new BeltEvents());
     MinecraftForge.EVENT_BUS.register(new RingEvents());
     MinecraftForge.EVENT_BUS.register(new SpectralItemEvents());
