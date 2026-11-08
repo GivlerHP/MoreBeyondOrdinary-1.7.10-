@@ -75,6 +75,8 @@ public final class ColoredLightApi {
     }
     ItemProvider provider = ITEMS.get(stack.getItem());
     if (provider != null) return provider.getEmission(stack, holder);
+      int lantern=ru.givler.mbo.client.lighting.ColoredLightAuto.lanternEmission(stack);
+      if(lantern!=0)return lantern;
     if (block != null && block == BlockRegistry.ColourFire) return emission(BlockColourFire.COLORS[stack.getItemDamage() & 15], 15);
     return 0;
   }

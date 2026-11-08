@@ -81,9 +81,11 @@ public final class ColoredLightRenderHooks {
     if (state.depth == 0 || state.untinted!=0) return packedColor;
     Frame frame = state.frames[state.depth - 1];
     if (!frame.active) return packedColor;
+    float strength=ColoredLightConfig.strength * skyColorWeight(brightness, ColoredLightClient.skyDarkness);
+    if(strength<=0)return packedColor;
     int rgb = vertexRGB(frame, x, y, z);
     if (rgb == 0) return packedColor;
-    return tintColor(packedColor, rgb, ColoredLightConfig.strength * skyColorWeight(brightness, ColoredLightClient.skyDarkness), LITTLE_ENDIAN);
+    return tintColor(packedColor, rgb, strength, LITTLE_ENDIAN);
   }
 
   /** Night retains sky level 4 in vanilla; that ambient floor must not wash out RGB. */
@@ -128,6 +130,8 @@ public final class ColoredLightRenderHooks {
     double fa = a - 0.5 - ia, fb = b - 0.5 - ib;
     int c00 = faceSample(frame, ia, ib), c10 = faceSample(frame, ia + 1, ib);
     int c01 = faceSample(frame, ia, ib + 1), c11 = faceSample(frame, ia + 1, ib + 1);
+    // Constant fields (especially unlit terrain) need no interpolation at all.
+    if(c00==c10 && c00==c01 && c00==c11)return c00;
     double w00 = (1 - fa) * (1 - fb), w10 = fa * (1 - fb), w01 = (1 - fa) * fb, w11 = fa * fb;
     int rgb = 0;
     for (int shift = 0; shift <= 16; shift += 8) {

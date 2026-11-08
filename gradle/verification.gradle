@@ -106,6 +106,11 @@ task verifyDynamicSourceLifecycle(type: JavaExec, dependsOn: testClasses) {
     main = 'ru.givler.mbo.core.DynamicSourceLifecycleSmoke'
 }
 
+task verifyDynamicSampleCache(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.DynamicSampleCacheSmoke'
+}
+
 task verifySwimmingAsm(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.swimming.SwimmingAsmSmoke'

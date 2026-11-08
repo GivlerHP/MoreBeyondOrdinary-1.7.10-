@@ -53,7 +53,7 @@ public final class ColoredDynamicLights {
     for (java.lang.ref.WeakReference<Query> reference : allocatedQueries) {
       Query query = reference.get();
       if (query == null) allocatedQueries.remove(reference);
-      else { query.values = new HashMap<>(); query.snapshot = null; }
+      // Worker-owned cache contents are reset lazily on the next published snapshot.
     }
   }
 
@@ -155,9 +155,8 @@ public final class ColoredDynamicLights {
     if(px<snapshot.minX || px>snapshot.maxX || py<snapshot.minY || py>snapshot.maxY || pz<snapshot.minZ || pz>snapshot.maxZ)return 0;
     Query query = queries.get();
     if (query.snapshot != snapshot) { query.snapshot = snapshot; query.values.clear(); }
-    Map<Cell,Integer> values = query.values;
-    query.probe.x = x; query.probe.y = y; query.probe.z = z;
-    Integer cached = values.get(query.probe); if (cached != null) return cached;
+    DynamicLightSampleCache values = query.values;
+    int cached = values.get(x,y,z); if (cached >= 0) return cached;
     int rgb = 0;
     for (Source source : snapshot.sources) {
       double dx = x + 0.5 - source.x, dy = y + 0.5 - source.y, dz = z + 0.5 - source.z;
@@ -170,7 +169,7 @@ public final class ColoredDynamicLights {
       rgb = ru.givler.mbo.lighting.ColoredLightVolume.merge(rgb, value);
     }
     if (!ColoredLightConfig.enabled || published != snapshot) return 0;
-    if (values.size() < 32768) values.put(new Cell(x, y, z), rgb);
+    values.put(x,y,z,rgb);
     return rgb;
   }
   public void invalidateGeometry() {
@@ -188,20 +187,19 @@ public final class ColoredDynamicLights {
       minX=ax;minY=ay;minZ=az;maxX=bx;maxY=by;maxZ=bz;
     }
   }
-  private static final class Query { Published snapshot; final Cell probe = new Cell(0, 0, 0); volatile Map<Cell, Integer> values = new HashMap<>(); }
+  private static final class Query { Published snapshot; final DynamicLightSampleCache values = new DynamicLightSampleCache(); }
   private boolean visible(World sampledWorld, Source source, double x, double y, double z, double distance) {
     int steps = Math.max(1, (int) Math.ceil(distance * 2));
+    int previousX=0,previousY=0,previousZ=0;boolean previous=false;
     for (int i = 1; i < steps; i++) {
       double t = i / (double) steps;
       int bx = (int) Math.floor(source.x + (x - source.x) * t), by = (int) Math.floor(source.y + (y - source.y) * t), bz = (int) Math.floor(source.z + (z - source.z) * t);
+      // The half-block ray step often visits the same voxel more than once.
+      // Preserve the exact original ray, but query each consecutive voxel once.
+      if(previous && bx==previousX && by==previousY && bz==previousZ)continue;
+      previous=true;previousX=bx;previousY=by;previousZ=bz;
       if (!sampledWorld.blockExists(bx, by,bz) || sampledWorld.getBlock(bx,by,bz).getLightOpacity(sampledWorld,bx,by,bz) >= 15) return false;
     }
     return true;
-  }
-  private static final class Cell {
-    int x, y, z;
-    Cell(int x, int y, int z) { this.x = x; this.y = y; this.z = z; }
-    @Override public int hashCode() { return (x * 31 + y) * 31 + z; }
-    @Override public boolean equals(Object o) { if (!(o instanceof Cell)) return false; Cell c = (Cell) o; return x == c.x && y == c.y && z == c.z; }
   }
 }

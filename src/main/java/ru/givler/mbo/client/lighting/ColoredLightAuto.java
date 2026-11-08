@@ -43,6 +43,13 @@ public final class ColoredLightAuto {
     }
     return level > 0 ? Math.min(15, level) : stack.getItem() instanceof ItemBlock ? 0 : 15;
   }
+  /** Optional MF2 lantern fallback; explicit user RGB rules still take precedence. */
+  public static int lanternEmission(ItemStack stack) {
+    if(stack==null)return 0;
+    resolve();
+    if(lanternType==null || !lanternType.isInstance(stack.getItem()))return 0;
+    return ColoredLightApi.emission(0xFFD08A,invokeLevel(lanternLevel,stack));
+  }
   public static int heldEmission(EntityLivingBase entity) {
     int packed = ColoredLightApi.itemEmission(entity.getHeldItem(), entity);
     if (entity instanceof EntityPlayer) {
