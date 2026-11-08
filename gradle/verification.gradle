@@ -1,4 +1,14 @@
 // Feature checks and optional renderer audits. Existing task names and check dependencies are retained.
+task verifySpeedLifecycle(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.command.SpeedLifecycleSmoke'
+}
+task verifyCrucibleCompatibility(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath + files(project.findProperty('caveAbyssClasses') ?: '../CaveAbyss/build/classes/java/main')
+    main = 'ru.givler.mbo.core.CrucibleCompatibilitySmoke'
+    args new File(gradle.gradleUserHomeDir, 'caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/srgs').absolutePath,
+        file(project.findProperty('crucibleInput') ?: 'build/crucible-input').absolutePath
+}
 
 task verifyPossession(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath

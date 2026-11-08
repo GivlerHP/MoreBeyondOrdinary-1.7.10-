@@ -44,6 +44,7 @@ local.properties
 /tools/*
 !/tools/build_torture_hitboxes.py
 !/tools/import_lastdawn_models.py
+!/tools/ExtractCrucible.java
 /config-examples
 /shaderpacks
 

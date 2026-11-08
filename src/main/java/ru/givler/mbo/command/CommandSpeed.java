@@ -77,13 +77,11 @@ public final class CommandSpeed extends CommandBase {
     }
 
     private static void restoreNormalSpeed(EntityPlayerMP player) {
-        player.capabilities.setPlayerWalkSpeed(0.1F);
-        player.capabilities.setFlySpeed(0.05F);
+        PlayerSpeedAccess.set(player.capabilities, 0.1F, 0.05F);
     }
 
     private static void apply(EntityPlayerMP player, SpeedSettings settings) {
-        player.capabilities.setPlayerWalkSpeed(scaleWalk(settings.walk));
-        player.capabilities.setFlySpeed(scaleFly(settings.fly));
+        PlayerSpeedAccess.set(player.capabilities, scaleWalk(settings.walk), scaleFly(settings.fly));
         player.sendPlayerAbilities();
     }
 

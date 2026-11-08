@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 
 /** Replaces vanilla's instant air reset after leaving water. */
 public final class AirRefillTransformer implements IClassTransformer, Opcodes {
@@ -34,6 +35,18 @@ public final class AirRefillTransformer implements IClassTransformer, Opcodes {
       }
       for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null;
           insn = insn.getNext()) {
+        if (insn instanceof FieldInsnNode && insn.getOpcode() == GETFIELD) {
+          FieldInsnNode field=(FieldInsnNode)insn;
+          AbstractInsnNode next=insn.getNext();
+          while(next!=null && next.getOpcode()<0)next=next.getNext();
+          if(field.name.equals("maxAirTicks") && field.desc.equals("I") && next instanceof MethodInsnNode
+              && ((MethodInsnNode)next).desc.equals("(I)V")) {
+            InsnList hook=new InsnList();hook.add(new VarInsnNode(ALOAD,0));
+            hook.add(new MethodInsnNode(INVOKESTATIC,HOOKS,"refillToLimit",
+                "(ILnet/minecraft/entity/EntityLivingBase;)I",false));
+            method.instructions.insert(insn,hook);patched++;
+          }
+        }
         if (insn instanceof MethodInsnNode) {
           MethodInsnNode call = (MethodInsnNode) insn;
           String mapped = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(call.owner, call.name, call.desc);

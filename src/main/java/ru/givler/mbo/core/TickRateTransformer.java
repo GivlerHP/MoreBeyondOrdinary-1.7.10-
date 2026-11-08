@@ -17,7 +17,16 @@ public final class TickRateTransformer implements IClassTransformer, Opcodes {
     if (!server && !timer) return bytes;
     ClassNode node = new ClassNode();
     new ClassReader(bytes).accept(node, 0);
-    int clocks = 0, sleeps = 0, rates = 0, limits = 0;
+    boolean crucible = false;
+    for (MethodNode method : node.methods)
+      if (method.name.equals("run") && method.desc.equals("()V"))
+        for (AbstractInsnNode insn : method.instructions.toArray())
+          if (insn instanceof MethodInsnNode) {
+            MethodInsnNode call = (MethodInsnNode) insn;
+            if (call.owner.equals("io/github/crucible/CrucibleConfigs")
+                && call.name.equals("getTickTime") && call.desc.equals("()I")) crucible = true;
+          }
+    int clocks = 0, sleeps = 0, rates = 0, limits = 0, intervals = 0;
     for (MethodNode method : node.methods) {
       String mapped = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(node.name, method.name, method.desc);
       if (!method.desc.equals("()V")
@@ -27,6 +36,16 @@ public final class TickRateTransformer implements IClassTransformer, Opcodes {
         AbstractInsnNode next = insn.getNext();
         if (server && insn instanceof MethodInsnNode) {
           MethodInsnNode call = (MethodInsnNode) insn;
+          if (crucible) {
+            if (call.owner.equals("io/github/crucible/CrucibleConfigs")
+                && call.name.equals("getTickTime") && call.desc.equals("()I")) {
+              method.instructions.insert(call, new MethodInsnNode(INVOKESTATIC, HOOKS,
+                  "crucibleTickNanos", "(I)I", false));
+              ++intervals;
+            }
+            insn = next;
+            continue;
+          }
           String called = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(call.owner, call.name, call.desc);
           if (call.getOpcode() == INVOKESTATIC && call.desc.equals("()J")
               && (called.equals("getSystemTimeMillis") || called.equals("func_130071_aq"))) {
@@ -50,7 +69,7 @@ public final class TickRateTransformer implements IClassTransformer, Opcodes {
         insn = next;
       }
     }
-    if (server ? clocks != 2 || sleeps != 1 : rates != 1 || limits != 2)
+    if (server ? (crucible ? intervals != 1 : clocks != 2 || sleeps != 1) : rates != 1 || limits != 2)
       throw new IllegalStateException("MBO tick rate anchors missing in " + transformedName);
     ClassWriter writer = SafeClassWriter.create();
     node.accept(writer);

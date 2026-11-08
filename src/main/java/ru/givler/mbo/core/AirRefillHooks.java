@@ -26,4 +26,8 @@ public final class AirRefillHooks {
   public static int refill(EntityLivingBase entity) {
     return Math.min(300, entity.getAir() + 4);
   }
+
+  public static int refillToLimit(int limit, EntityLivingBase entity) {
+    return Math.min(limit, entity.getAir() + 4);
+  }
 }

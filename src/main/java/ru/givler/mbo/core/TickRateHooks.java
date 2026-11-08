@@ -14,6 +14,12 @@ public final class TickRateHooks {
 
   public static int getServerRate() { return SERVER.getRate(); }
 
+  /** Crucible paces ticks in nanoseconds; keep its clock, catch-up and TPS accounting intact. */
+  public static int crucibleTickNanos(int configuredNanos) {
+    return (int)Math.max(1L, Math.min(Integer.MAX_VALUE,
+        (long)configuredNanos * 20L / getServerRate()));
+  }
+
   public static void setServerRate(int rate) { SERVER.setRate(rate, System.nanoTime()); }
 
   public static void setClientRate(int rate) {

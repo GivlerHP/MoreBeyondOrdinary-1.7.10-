@@ -13,6 +13,9 @@ public final class BoatRiderRenderTransformer implements IClassTransformer, Opco
     boolean entity = "net.minecraft.entity.Entity".equals(transformedName);
     boolean world = "net.minecraft.client.renderer.EntityRenderer".equals(transformedName);
     if (bytes == null || !render && !model && !entity && !world) return bytes;
+    // setAngles is client-only and is stripped from dedicated-server Entity classes.
+    if (entity && cpw.mods.fml.relauncher.FMLLaunchHandler.side() == cpw.mods.fml.relauncher.Side.SERVER)
+      return bytes;
     ClassNode node = new ClassNode(); new ClassReader(bytes).accept(node, 0);
     int changes = 0;
     for (MethodNode method : node.methods) {
