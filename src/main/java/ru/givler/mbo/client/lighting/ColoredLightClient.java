@@ -262,7 +262,16 @@ public final class ColoredLightClient {
     probe.x = x >> 4; probe.y = y >> 4; probe.z = z >> 4;
     if (!dirty.contains(probe)) dirty.add(new Section(probe.x, probe.y, probe.z));
   }
-  void flushDynamicRebuilds(Minecraft mc) { rebuild(mc); }
+  void flushDynamicRebuilds(Minecraft mc) {
+    if(AngelicaDynamicLightBridge.available()) {
+      java.util.Iterator<Section> sections=dirty.iterator();
+      while(sections.hasNext()) {
+        Section s=sections.next();
+        if(AngelicaDynamicLightBridge.schedule(s.x,s.y,s.z))sections.remove();
+      }
+    }
+    rebuild(mc);
+  }
   private void rebuild(Minecraft mc) {
     for (Section s : dirty) if (mc.renderGlobal != null) mc.renderGlobal.markBlockRangeForRenderUpdate(s.x * 16 + 1, s.y * 16 + 1, s.z * 16 + 1, s.x * 16 + 14, s.y * 16 + 14, s.z * 16 + 14);
     // Vanilla skips markDirty for a renderer already queued. Explicitly notify it again so

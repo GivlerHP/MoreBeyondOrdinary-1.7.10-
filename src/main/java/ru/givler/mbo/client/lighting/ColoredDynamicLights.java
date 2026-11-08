@@ -58,6 +58,12 @@ public final class ColoredDynamicLights {
   }
 
   public void tick(Minecraft mc) {
+    if (AngelicaDynamicLightBridge.available()) {
+      if (!AngelicaDynamicLightBridge.enabled() || !ColoredLightConfig.dynamicLights) {
+        if (!sources.isEmpty()) clear(mc);
+      }
+      return;
+    }
     if (ColoredDynamicLightBridge.available()) {
       if (!ColoredDynamicLightBridge.enabled() || !ColoredLightConfig.dynamicLights) {
         if (!sources.isEmpty()) clear(mc);
@@ -95,36 +101,58 @@ public final class ColoredDynamicLights {
     if (!ColoredLightConfig.enabled || !ColoredLightConfig.dynamicLights) next = new ArrayList<>();
     next.sort(Comparator.comparingDouble(s -> s.entity.getDistanceSqToEntity(mc.renderViewEntity)));
     if (next.size() > ColoredLightConfig.dynamicLimit) next = new ArrayList<>(next.subList(0, Math.max(0, ColoredLightConfig.dynamicLimit)));
-    publish(mc, next, .000001);
+    publish(mc, next, .1);
   }
   private void publish(Minecraft mc, List<Source> next, double movementThreshold) {
-    boolean changed = invalidated || next.size() != sources.size(); invalidated = false;
-    if (!changed) for (int i = 0; i < next.size(); i++) {
-      Source a = next.get(i), b = sources.get(i);
-      if (a.entity != b.entity || a.packed != b.packed || Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z) > movementThreshold) { changed = true; break; }
+    boolean force=invalidated;
+    boolean changed = force || next.size() != sources.size(); invalidated = false;
+    // Distance sorting can change when the camera moves. Match source identity,
+    // retain its last accepted position, and rebuild only sources that changed.
+    List<Source> dirtySources=new ArrayList<>();
+    for(int i=0;i<next.size();i++) {
+      Source incoming=next.get(i),previous=find(sources,incoming.entity);
+      if(previous!=null && previous.packed==incoming.packed &&
+          !DynamicLightGeometry.moved(incoming.x,incoming.y,incoming.z,previous.x,previous.y,previous.z,movementThreshold)) {
+        next.set(i,previous);
+        if(force)dirtySources.add(previous);
+      } else {
+        changed=true;
+        if(previous!=null)dirtySources.add(previous);
+        dirtySources.add(incoming);
+      }
     }
+    for(Source previous:sources)if(find(next,previous.entity)==null){changed=true;dirtySources.add(previous);}
     if (changed) {
       ColoredLightDiagnostics.dynamicUpdate();
-      List<Source> previous = sources;
       sources = Collections.unmodifiableList(next); generation++;
       published = new Published(world, sources);
       // This fallback rebuilds only nearby sections, at a configurable cadence.
       if (!ColoredLightShaderBridge.active) {
-        for (Source source : previous) mark(mc, source);
-        for (Source source : next) mark(mc, source);
+        for (Source source : dirtySources) mark(mc, source);
       }
     }
   }
+  private static Source find(List<Source> list,Entity entity) {
+    for(Source source:list)if(source.entity==entity)return source;
+    return null;
+  }
   private void mark(Minecraft mc, Source source) {
     if (mc.renderGlobal == null) return;
-    int r = (int) Math.ceil(source.radius) + 2; // Include face/interpolation samples across section edges.
-    int x = (int) Math.floor(source.x), y = (int) Math.floor(source.y), z = (int) Math.floor(source.z);
-    ColoredLightClient.INSTANCE.markRange(x-r,y-r,z-r,x+r,y+r,z+r);
+    double r=source.radius+1;
+    for(int sy=((int)Math.floor(source.y-r))>>4;sy<=((int)Math.floor(source.y+r))>>4;sy++)
+      for(int sz=((int)Math.floor(source.z-r))>>4;sz<=((int)Math.floor(source.z+r))>>4;sz++)
+        for(int sx=((int)Math.floor(source.x-r))>>4;sx<=((int)Math.floor(source.x+r))>>4;sx++)
+          if(DynamicLightGeometry.affects(source.x,source.y,source.z,source.radius,sx,sy,sz))
+            ColoredLightClient.INSTANCE.markRange(sx*16,sy*16,sz*16,sx*16,sy*16,sz*16);
   }
   public int sample(int x, int y, int z) {
     Published snapshot = published;
     World sampledWorld = snapshot.world;
     if (snapshot.sources.isEmpty() || sampledWorld == null || !ColoredLightConfig.enabled || !ColoredLightConfig.dynamicLights) return 0;
+    // Most terrain samples are nowhere near a moving light. Do not allocate cache
+    // keys, touch ThreadLocal state or evaluate visibility for those cells.
+    double px=x+.5,py=y+.5,pz=z+.5;
+    if(px<snapshot.minX || px>snapshot.maxX || py<snapshot.minY || py>snapshot.maxY || pz<snapshot.minZ || pz>snapshot.maxZ)return 0;
     Query query = queries.get();
     if (query.snapshot != snapshot) { query.snapshot = snapshot; query.values.clear(); }
     Map<Cell,Integer> values = query.values;
@@ -133,8 +161,10 @@ public final class ColoredDynamicLights {
     int rgb = 0;
     for (Source source : snapshot.sources) {
       double dx = x + 0.5 - source.x, dy = y + 0.5 - source.y, dz = z + 0.5 - source.z;
-      double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-      if (distance >= source.radius || !visible(sampledWorld, source, x + 0.5, y + 0.5, z + 0.5, distance)) continue;
+      double distanceSquared=dx*dx+dy*dy+dz*dz;
+      if(distanceSquared>=source.radius*source.radius)continue;
+      double distance = Math.sqrt(distanceSquared);
+      if (!visible(sampledWorld, source, x + 0.5, y + 0.5, z + 0.5, distance)) continue;
       int base = ColoredLightApi.rgb(source.packed); float scale = (float) (1 - distance / source.radius);
       int value = Math.round((base >>> 16) * scale) << 16 | Math.round((base >> 8 & 255) * scale) << 8 | Math.round((base & 255) * scale);
       rgb = ru.givler.mbo.lighting.ColoredLightVolume.merge(rgb, value);
@@ -149,7 +179,14 @@ public final class ColoredDynamicLights {
   public void invalidate() { generation++; published = new Published(world,sources); invalidated = true; }
   private static final class Published {
     final World world; final List<Source> sources;
-    Published(World world,List<Source> sources){this.world=world;this.sources=sources;}
+    final double minX,minY,minZ,maxX,maxY,maxZ;
+    Published(World world,List<Source> sources){
+      this.world=world;this.sources=sources;
+      double ax=Double.POSITIVE_INFINITY,ay=ax,az=ax,bx=Double.NEGATIVE_INFINITY,by=bx,bz=bx;
+      for(Source s:sources){ax=Math.min(ax,s.x-s.radius);ay=Math.min(ay,s.y-s.radius);az=Math.min(az,s.z-s.radius);
+        bx=Math.max(bx,s.x+s.radius);by=Math.max(by,s.y+s.radius);bz=Math.max(bz,s.z+s.radius);}
+      minX=ax;minY=ay;minZ=az;maxX=bx;maxY=by;maxZ=bz;
+    }
   }
   private static final class Query { Published snapshot; final Cell probe = new Cell(0, 0, 0); volatile Map<Cell, Integer> values = new HashMap<>(); }
   private boolean visible(World sampledWorld, Source source, double x, double y, double z, double distance) {

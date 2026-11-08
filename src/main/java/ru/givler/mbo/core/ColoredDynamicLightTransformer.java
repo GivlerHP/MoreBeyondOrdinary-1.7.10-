@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.*;
 /** Combine OF returns and MF2's helper: its early return is inserted after MBO in some installations. */
 public final class ColoredDynamicLightTransformer implements IClassTransformer, Opcodes {
   @Override public byte[] transform(String name, String transformedName, byte[] bytes) {
+    if(bytes!=null && "com.gtnewhorizons.angelica.dynamiclights.DynamicLights".equals(transformedName))return integrateAngelica(bytes);
     if (bytes != null && transformedName.startsWith("com.falsepattern.falsetweaks.modules.dynlights.base."))
       return integrateFalseTweaks(transformedName, bytes);
     boolean mf2 = "mods.battlegear2.client.utils.DynamicLightHook".equals(transformedName);
@@ -28,6 +29,20 @@ public final class ColoredDynamicLightTransformer implements IClassTransformer, 
     ClassWriter writer = SafeClassWriter.create(); node.accept(writer); return writer.toByteArray();
   }
   private static final String BRIDGE="ru/givler/mbo/client/lighting/ColoredDynamicLightBridge";
+  private byte[] integrateAngelica(byte[] bytes) {
+    ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);
+    for(MethodNode m:node.methods)if(m.name.equals("mbo$unifiedDynamicLights"))return bytes;
+    int count=0;
+    for(MethodNode m:node.methods)if(m.name.equals("updateAll") && m.desc.equals("(Lcom/gtnewhorizons/angelica/dynamiclights/IDynamicLightWorldRenderer;)V")) {
+      for(AbstractInsnNode i:m.instructions.toArray())if(i.getOpcode()==RETURN){
+        m.instructions.insertBefore(i,new MethodInsnNode(INVOKESTATIC,"ru/givler/mbo/client/lighting/AngelicaDynamicLightBridge","sync","()V",false));count++;
+      }
+    }
+    if(count==0)throw new IllegalStateException("Angelica dynamic-light updateAll anchor missing");
+    MethodNode marker=new MethodNode(ACC_PUBLIC|ACC_STATIC|ACC_SYNTHETIC,"mbo$unifiedDynamicLights","()V",null,null);
+    marker.instructions.add(new InsnNode(RETURN));node.methods.add(marker);
+    ClassWriter writer=new ClassWriter(ClassWriter.COMPUTE_MAXS);node.accept(writer);return writer.toByteArray();
+  }
   private byte[] integrateFalseTweaks(String name, byte[] bytes) {
     boolean manager=name.endsWith(".DynamicLights"), source=name.endsWith(".DynamicLight");
     if(!manager && !source)return bytes;

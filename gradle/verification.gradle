@@ -89,6 +89,23 @@ task verifyUnifiedDynamicLights(type: JavaExec, dependsOn: testClasses) {
     } else onlyIf { false }
 }
 
+task verifyAngelicaDynamicLights(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.AngelicaDynamicLightSmoke'
+    if (project.hasProperty('angelicaJar')) args project.property('angelicaJar')
+    else onlyIf { false }
+}
+
+task verifyDynamicLightGeometry(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.DynamicLightGeometrySmoke'
+}
+
+task verifyDynamicSourceLifecycle(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.core.DynamicSourceLifecycleSmoke'
+}
+
 task verifySwimmingAsm(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.swimming.SwimmingAsmSmoke'

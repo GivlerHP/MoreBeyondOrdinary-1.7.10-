@@ -15,6 +15,7 @@ public final class AngelicaClientRegistration {
     if(!cpw.mods.fml.common.Loader.isModLoaded("angelica"))return;
     try {
       Class<?> config=Class.forName("com.gtnewhorizons.angelica.config.AngelicaConfig");
+      ru.givler.mbo.client.lighting.AngelicaDynamicLightBridge.available();
       final Field natural=config.getField("enableNaturalTextures");
       final Field packFeatures=config.getField("enableMCPatcherForgeFeatures");
       final Field paneCtm=Class.forName("jss.notfine.config.MCPatcherForgeConfig$ConnectedTextures").getField("glassPane");
@@ -46,6 +47,7 @@ public final class AngelicaClientRegistration {
       cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(events);
       ru.givler.mbo.client.render.WaterloggedBlockRenderer.enableAngelicaChunkWater();
       net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new AngelicaTextureReport());
+      net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.diagnostics.ChunkRenderCostProbe());
       net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.diagnostics.BlockColorProbe());
       net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.diagnostics.TileEntityTraceCommand());
       cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(ru.givler.mbo.client.diagnostics.TileEntityRenderTrace.INSTANCE);
