@@ -85,6 +85,22 @@ public class RenderBanner extends TileEntitySpecialRenderer implements net.minec
     return location;
   }
 
+  /** Identity on_shelf item pose, vertically centered using the standing model's bounds. */
+  public void renderOnShelf(TileEntityBanner banner) {
+    GL11.glPushMatrix();
+    try {
+      // Standing model spans y=-1/2..4/3 after the banner's canonical 2/3 scale.
+      GL11.glTranslatef(0, -5F / 12F, 0);
+      GL11.glScalef(2F / 3F, -2F / 3F, -2F / 3F);
+      model.stand.showModel = true;
+      model.slate.rotateAngleX = 0;
+      bindTexture(texture(banner));
+      model.renderAll();
+    } finally {
+      GL11.glPopMatrix();
+    }
+  }
+
   @Override
   public void renderTileEntityAt(TileEntity entity, double x, double y, double z, float partial) {
     TileEntityBanner banner = (TileEntityBanner) entity;

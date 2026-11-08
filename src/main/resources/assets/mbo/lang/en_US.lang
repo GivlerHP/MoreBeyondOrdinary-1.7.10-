@@ -1840,3 +1840,11 @@ mbo.spell.vision_control.desc=Observe through an animal's eyes without controlli
 mbo.spell.exorcism=Exorcism
 mbo.spell.exorcism.desc=Break possession or vision control on the targeted animal. Return the linked caster to their body and deal 6 magic damage to them. The animal is unharmed.
 mbo.possession.vision_failed=Vision link failed: the creature is unavailable or the link was interrupted.
+
+# Display shelves
+tile.oak_shelf.name=Oak Shelf
+tile.spruce_shelf.name=Spruce Shelf
+tile.birch_shelf.name=Birch Shelf
+tile.jungle_shelf.name=Jungle Shelf
+tile.acacia_shelf.name=Acacia Shelf
+tile.dark_oak_shelf.name=Dark Oak Shelf

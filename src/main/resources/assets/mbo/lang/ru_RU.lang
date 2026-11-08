@@ -102,12 +102,12 @@ tile.BooksheelSkullCandle.name=Книжная полка со свечой и ч
 tile.BooksheelCandle.name=Книжная полка со свечой
 tile.BooksheelVoid.name=Полупустая книжная полка
 
-tile.DebarkedOak.name=Окоренный дуб
-tile.DebarkedSpruce.name=Окоренная ель
-tile.DebarkedBirch.name=Окоренная берёза
-tile.DebarkedJungle.name=Окоренное тропическое дерево
-tile.DebarkedAcacia.name=Окоренная акация
-tile.DebarkedBigOak.name=Окоренный тёмный дуб
+tile.DebarkedOak.name=Обтёсанный дуб
+tile.DebarkedSpruce.name=Обтёсанная ель
+tile.DebarkedBirch.name=Обтёсанная берёза
+tile.DebarkedJungle.name=Обтёсанное тропическое дерево
+tile.DebarkedAcacia.name=Обтёсанная акация
+tile.DebarkedBigOak.name=Обтёсанный тёмный дуб
 
 tile.WoodTotemOak.name=Тотемный дуб
 tile.WoodTotemSpruce.name=Тотемная ель
@@ -2130,3 +2130,11 @@ mbo.spell.vision_control.desc=Наблюдение глазами животно
 mbo.spell.exorcism=Изгнание духа
 mbo.spell.exorcism.desc=Разрывает вселение или контроль зрения у выбранного животного. Возвращает мага в тело и наносит ему 6 единиц магического урона. Само животное не получает урона.
 mbo.possession.vision_failed=Установить зрительную связь не удалось: существо недоступно или связь была прервана.
+
+# Display shelves
+tile.oak_shelf.name=Дубовая полка
+tile.spruce_shelf.name=Еловая полка
+tile.birch_shelf.name=Берёзовая полка
+tile.jungle_shelf.name=Тропическая полка
+tile.acacia_shelf.name=Акациевая полка
+tile.dark_oak_shelf.name=Тёмно-дубовая полка

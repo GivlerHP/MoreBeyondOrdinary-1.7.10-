@@ -111,7 +111,8 @@ public final class WaterloggedBlockSupport {
   public static boolean supportsWaterlogging(Block block) {
     if(block==null || block.getMaterial()==Material.lava) return false;
     if (block instanceof BlockStairs) return true;
-    if (block instanceof BlockChest || block instanceof BlockCampfire) return true;
+    if (block instanceof BlockChest || block instanceof BlockCampfire
+        || block instanceof ru.givler.mbo.block.BlockShelf) return true;
     if (block instanceof BlockSlab) return !block.isOpaqueCube();
     if(block instanceof BlockAnvil || block instanceof BlockCactus || isPartialTile(block)
         || block instanceof BlockPistonBase || block instanceof BlockPistonExtension

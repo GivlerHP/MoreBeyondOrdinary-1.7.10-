@@ -243,3 +243,9 @@ task verifyPortableCarryHooks(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.core.PortableCarryTransformerSmoke'
 }
+
+
+task verifyShelves(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.block.ShelfSmoke'
+}

@@ -252,6 +252,9 @@ public class ClientProxy extends CommonProxy {
     FMLCommonHandler.instance().bus().register(ru.givler.mbo.client.lighting.ColoredLightClient.INSTANCE);
     MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.lighting.ColoredLightClient.INSTANCE);
     MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.client.lighting.ColoredLightMenu());
+    ru.givler.mbo.block.BlockShelf.renderId = RenderingRegistry.getNextAvailableRenderId();
+    RenderingRegistry.registerBlockHandler(new ru.givler.mbo.client.render.RenderShelf());
+    ClientRegistry.bindTileEntitySpecialRenderer(ru.givler.mbo.tileentity.TileEntityShelf.class, new ru.givler.mbo.client.render.RenderShelfItems());
     registerFenceRenderer();
     registerBarrierRenderer();
     int adminFireRenderId = RenderingRegistry.getNextAvailableRenderId();

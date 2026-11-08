@@ -132,6 +132,7 @@ public class CommonProxy {
     MinecraftForge.EVENT_BUS.register(new IllusoryWallHitHandler());
     MinecraftForge.EVENT_BUS.register(new ColoredBurning());
     MinecraftForge.EVENT_BUS.register(new DaylightDetectorEvents());
+    MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.handler.LogStrippingEvents());
     FenceConnectionEvents fenceConnectionEvents = new FenceConnectionEvents();
     MinecraftForge.EVENT_BUS.register(fenceConnectionEvents);
     FMLCommonHandler.instance().bus().register(fenceConnectionEvents);
@@ -167,6 +168,7 @@ public class CommonProxy {
     GameRegistry.registerTileEntity(TileEntityLootContainer.class, "loot_container_tile");
     GameRegistry.registerTileEntity(TileEntityBarrel.class, "mbo_barrel");
     GameRegistry.registerTileEntity(TileEntityCampfire.class, "mbo_campfire");
+    GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileEntityShelf.class, "mbo:shelf");
     GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileEntityBanner.class, "mbo_banner");
     GameRegistry.registerTileEntity(TileEntityLockableChest.class, "mbo_lockable_chest");
     GameRegistry.registerTileEntity(TileEntityLockableDoor.class, "mbo_lockable_door");

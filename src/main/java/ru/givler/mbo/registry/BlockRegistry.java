@@ -28,6 +28,7 @@ import ru.givler.mbo.item.fauna.ItemFrogspawn;
 import ru.givler.mbo.movingplatform.BlockPlatformStation;
 
 public class BlockRegistry {
+    public static final BlockShelf[] Shelves = new BlockShelf[6];
     public static Block powderSnow, turtleEgg;
     public static Block frogspawn, froglight;
     public static BlockSeagrass seagrassBlock;
@@ -105,6 +106,11 @@ public class BlockRegistry {
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
         registerFaunaBlocks();
+        String[] shelfWoods = {"oak", "spruce", "birch", "jungle", "acacia", "dark_oak"};
+        for (int i = 0; i < shelfWoods.length; i++) {
+            Shelves[i] = new BlockShelf(shelfWoods[i]);
+            GameRegistry.registerBlock(Shelves[i], shelfWoods[i] + "_shelf");
+        }
         // Keep vanilla attenuation so grass cannot spread beneath water.
         Blocks.water.setLightOpacity(3);
         Blocks.flowing_water.setLightOpacity(3);
@@ -249,12 +255,12 @@ public class BlockRegistry {
 
         TotemStone = new BlockMultiTexture(Material.rock, "TotemStone", "stone/stone_slab_top", "stone/totem_truesight");
 
-        DebarkedOak = new BlockRotatableWood("DebarkedOak", "wood/log_oak_top", "wood/scratched_log_oak_side");
-        DebarkedSpruce = new BlockRotatableWood("DebarkedSpruce", "wood/log_spruce_top", "wood/scratched_log_spruce_side");
-        DebarkedBirch = new BlockRotatableWood("DebarkedBirch", "wood/log_birch_top", "wood/scratched_log_birch_side");
-        DebarkedJungle = new BlockRotatableWood("DebarkedJungle", "wood/log_jungle_top", "wood/scratched_log_jungle_side");
-        DebarkedAcacia = new BlockRotatableWood("DebarkedAcacia", "wood/log_acacia_top", "wood/scratched_log_acacia_side");
-        DebarkedBigOak = new BlockRotatableWood("DebarkedBigOak", "wood/log_big_oak_top", "wood/scratched_log_dark_oak_side");
+        DebarkedOak = new BlockRotatableWood("DebarkedOak", "wood/stripped_oak_log_top", "wood/stripped_oak_log");
+        DebarkedSpruce = new BlockRotatableWood("DebarkedSpruce", "wood/stripped_spruce_log_top", "wood/stripped_spruce_log");
+        DebarkedBirch = new BlockRotatableWood("DebarkedBirch", "wood/stripped_birch_log_top", "wood/stripped_birch_log");
+        DebarkedJungle = new BlockRotatableWood("DebarkedJungle", "wood/stripped_jungle_log_top", "wood/stripped_jungle_log");
+        DebarkedAcacia = new BlockRotatableWood("DebarkedAcacia", "wood/stripped_acacia_log_top", "wood/stripped_acacia_log");
+        DebarkedBigOak = new BlockRotatableWood("DebarkedBigOak", "wood/stripped_dark_oak_log_top", "wood/stripped_dark_oak_log");
 
         WoodTotemOak = new BlockRotatableWood("WoodTotemOak", "wood/log_oak_top", "wood/carved_log_oak_side");
         WoodTotemSpruce = new BlockRotatableWood("WoodTotemSpruce", "wood/log_spruce_top", "wood/carved_log_spruce_side");
@@ -401,6 +407,12 @@ public class BlockRegistry {
     }
 
     public static void initRecipe() {
+        Block[] shelfLogs = {DebarkedOak, DebarkedSpruce, DebarkedBirch,
+                DebarkedJungle, DebarkedAcacia, DebarkedBigOak};
+        for (int i = 0; i < Shelves.length; i++) {
+            GameRegistry.addRecipe(new ItemStack(Shelves[i], 6), "LLL", "   ", "LLL",
+                    'L', new ItemStack(shelfLogs[i], 1, OreDictionary.WILDCARD_VALUE));
+        }
         BlockMetaSlab.addStandardRecipes(SlabRoofStandart,  (BlockMeta) RoofStandart);
         BlockMetaSlab.addStandardRecipes(SlabRoofLaminated, (BlockMeta) RoofLaminated);
         BlockMetaSlab.addStandardRecipes(SlabRoofSheet,     (BlockMeta) RoofSheet);
