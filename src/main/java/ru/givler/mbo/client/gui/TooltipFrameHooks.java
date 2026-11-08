@@ -1,4 +1,4 @@
-package ru.givler.mbo.core;
+package ru.givler.mbo.client.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

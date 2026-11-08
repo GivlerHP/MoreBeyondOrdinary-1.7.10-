@@ -425,6 +425,7 @@ public class ClientProxy extends CommonProxy {
         new ru.givler.mbo.client.render.boat.RenderMBOBoatSeat());
     MinecraftForge.EVENT_BUS.register(new DenseFogRenderEvents());
     MinecraftForge.EVENT_BUS.register(new TooltipEvents());
+    MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.client.handler.BottomBossBar());
     MinecraftForge.EVENT_BUS.register(new SpectatorClientHandler());
   }
 

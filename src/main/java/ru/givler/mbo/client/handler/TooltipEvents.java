@@ -7,7 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import ru.givler.mbo.core.TooltipFrameHooks;
+import ru.givler.mbo.client.gui.TooltipFrameHooks;
 import ru.givler.mbo.client.font.TooltipElements;
 
 public class TooltipEvents {

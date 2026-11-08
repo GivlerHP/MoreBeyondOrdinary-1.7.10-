@@ -8,7 +8,7 @@ import org.objectweb.asm.tree.*;
 /** Installs the ornamental frame in every GUI using GuiScreen.drawHoveringText. */
 public final class TooltipFrameTransformer implements IClassTransformer, Opcodes {
   private static final String TARGET = "net.minecraft.client.gui.GuiScreen";
-  private static final String HOOK = "ru/givler/mbo/core/TooltipFrameHooks";
+  private static final String HOOK = "ru/givler/mbo/client/gui/TooltipFrameHooks";
   private static final String DESC = "(Ljava/util/List;IILnet/minecraft/client/gui/FontRenderer;)V";
 
   @Override

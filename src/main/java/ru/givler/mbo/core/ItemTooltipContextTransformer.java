@@ -8,7 +8,7 @@ import org.objectweb.asm.tree.*;
 /** Marks the tooltip method itself, preserving GuiContainer instruction patterns used by NEI. */
 public final class ItemTooltipContextTransformer implements IClassTransformer, Opcodes {
   private static final String TARGET = "net.minecraft.client.gui.GuiScreen";
-  private static final String HOOK = "ru/givler/mbo/core/TooltipFrameHooks";
+  private static final String HOOK = "ru/givler/mbo/client/gui/TooltipFrameHooks";
   private static final String TOOLTIP_DESC =
       "(Lnet/minecraft/item/ItemStack;II)V";
 

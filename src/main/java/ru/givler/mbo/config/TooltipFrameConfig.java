@@ -13,6 +13,7 @@ import java.util.Map;
 
 /** Per-item ornamental tooltip frames. */
 public final class TooltipFrameConfig {
+    public static boolean bossBarAtBottom = true;
     private static final String CATEGORY = "custom_frames";
     private static final String COLOR_CATEGORY = "background_colors";
     private static final ResourceLocation DEFAULT_FRAME = frame("ramka1");
@@ -26,6 +27,8 @@ public final class TooltipFrameConfig {
         Configuration cfg = new Configuration(new File(configDir, "MoreBeyondOrdinary/tooltip.cfg"));
         try {
             cfg.load();
+            bossBarAtBottom = cfg.get("hud", "bossBarAtBottom", true,
+                    "Move the boss health bar above the hotbar, health and air HUD.").getBoolean(true);
             cfg.get(CATEGORY, "mbo:DragonSlayer", "ramka2",
                     "Item registry name = frame texture beside textures/gui/tooltip/ramka1.png");
             cfg.get(COLOR_CATEGORY, "mbo:DragonSlayer", "#06181B",

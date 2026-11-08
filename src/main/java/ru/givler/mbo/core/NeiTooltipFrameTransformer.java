@@ -7,7 +7,7 @@ import org.objectweb.asm.tree.*;
 /** Patches the tooltip box actually used by NEI/CodeChickenLib. */
 public final class NeiTooltipFrameTransformer implements IClassTransformer, Opcodes {
     private static final String TARGET = "codechicken.lib.gui.GuiDraw";
-    private static final String HOOK = "ru/givler/mbo/core/TooltipFrameHooks";
+    private static final String HOOK = "ru/givler/mbo/client/gui/TooltipFrameHooks";
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
@@ -16,7 +16,8 @@ public final class NeiTooltipFrameTransformer implements IClassTransformer, Opco
         new ClassReader(bytes).accept(node, 0);
         boolean patched = false;
         for (MethodNode method : node.methods) {
-            if (!"drawTooltipBox".equals(method.name) || !"(IIII)V".equals(method.desc)) continue;
+            if (!"drawTooltipBox".equals(method.name)
+                    || (!"(IIII)V".equals(method.desc) && !"(IIIIIIII)V".equals(method.desc))) continue;
             method.instructions.clear();
             method.tryCatchBlocks.clear();
             method.localVariables = null;
@@ -27,7 +28,6 @@ public final class NeiTooltipFrameTransformer implements IClassTransformer, Opco
             method.instructions.add(new MethodInsnNode(INVOKESTATIC, HOOK, "drawNeiTooltipBox", "(IIII)V", false));
             method.instructions.add(new InsnNode(RETURN));
             patched = true;
-            break;
         }
         if (!patched) {
             System.err.println("[MBO ASM] CodeChickenLib tooltip box was not found");
