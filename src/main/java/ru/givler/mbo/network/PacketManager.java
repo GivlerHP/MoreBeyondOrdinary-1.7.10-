@@ -74,6 +74,7 @@ public class PacketManager {
         PacketAdminFireColor.Handler.class, PacketAdminFireColor.class, nextID++, Side.SERVER);
     INSTANCE.registerMessage(
         PacketActivateAmulet.Handler.class, PacketActivateAmulet.class, nextID++, Side.SERVER);
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketActivateBelt.Handler.class, ru.givler.mbo.network.packet.PacketActivateBelt.class, nextID++, Side.SERVER);
     INSTANCE.registerMessage(
         PacketLootContainerConfig.Handler.class,
         PacketLootContainerConfig.class,

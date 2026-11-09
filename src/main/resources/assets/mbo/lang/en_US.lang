@@ -1848,3 +1848,5 @@ tile.birch_shelf.name=Birch Shelf
 tile.jungle_shelf.name=Jungle Shelf
 tile.acacia_shelf.name=Acacia Shelf
 tile.dark_oak_shelf.name=Dark Oak Shelf
+
+key.mbo.belt.desc=Activate belt

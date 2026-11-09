@@ -13,6 +13,10 @@ public class ClientKeyEvents {
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END || Minecraft.getMinecraft().currentScreen != null) return;
 
+        if (Minecraft.getMinecraft().thePlayer == null) return;
+        if (ClientProxy.activateBeltKey.isPressed()) {
+            PacketManager.INSTANCE.sendToServer(new ru.givler.mbo.network.packet.PacketActivateBelt());
+        }
         if (ClientProxy.activateAmuletKey.isPressed()) {
             PacketManager.INSTANCE.sendToServer(new PacketActivateAmulet());
         }

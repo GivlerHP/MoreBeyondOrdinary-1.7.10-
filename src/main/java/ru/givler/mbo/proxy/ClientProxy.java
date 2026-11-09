@@ -201,6 +201,7 @@ public class ClientProxy extends CommonProxy {
   }
 
   public static KeyBinding activateAmuletKey;
+  public static KeyBinding activateBeltKey;
 
   public static final Map<String, BlockModels> MODEL_REGISTRY = new HashMap<>();
 
@@ -370,6 +371,8 @@ public class ClientProxy extends CommonProxy {
     FMLCommonHandler.instance().bus().register(new MovingPlatformClientEvents());
     activateAmuletKey = new KeyBinding("key.mbo.amulet.desc", Keyboard.KEY_R, "MoreBeyondOrdinary");
     ClientRegistry.registerKeyBinding(activateAmuletKey);
+    activateBeltKey = new KeyBinding("key.mbo.belt.desc", Keyboard.KEY_NONE, "MoreBeyondOrdinary");
+    ClientRegistry.registerKeyBinding(activateBeltKey);
     FMLCommonHandler.instance().bus().register(new ClientKeyEvents());
       SwimmingInputHandler swimmingInput =
           new SwimmingInputHandler();

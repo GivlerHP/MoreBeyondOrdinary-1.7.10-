@@ -2138,3 +2138,5 @@ tile.birch_shelf.name=Берёзовая полка
 tile.jungle_shelf.name=Тропическая полка
 tile.acacia_shelf.name=Акациевая полка
 tile.dark_oak_shelf.name=Тёмно-дубовая полка
+
+key.mbo.belt.desc=Активировать пояс
