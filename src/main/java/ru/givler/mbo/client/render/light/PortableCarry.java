@@ -133,8 +133,10 @@ public final class PortableCarry {
       GL11.glColor4f(1,1,1,1);
       RenderHelper.enableStandardItemLighting();
       float age=player.ticksExisted+partial;
+      float progress=side>0?player.getSwingProgress(partial):MF2PortableCarryBridge.swing(player,partial);
+      swingTranslation(side,progress);
       beforeArm(!render.isTorch(),side,equip,age);
-      vanillaArm(side);
+      vanillaArm(side,progress);
       if(!player.isInvisible()) {
         firstPersonArm=true;
         try {
@@ -159,14 +161,29 @@ public final class PortableCarry {
     }
     return true;
   }
+  /** Vanilla attack/place timing, mirrored for the left hand. */
+  static void swingTranslation(int side,float progress) {
+    if(progress<=0 || progress>=1)return;
+    float root=MathHelper.sqrt_float(progress);
+    GL11.glTranslatef(-side*MathHelper.sin(root*(float)Math.PI)*.4F,
+        MathHelper.sin(root*(float)Math.PI*2)*.2F,-MathHelper.sin(progress*(float)Math.PI)*.2F);
+  }
+  static void swingRotation(int side,float progress) {
+    if(progress<=0 || progress>=1)return;
+    float arc=MathHelper.sin(MathHelper.sqrt_float(progress)*(float)Math.PI);
+    GL11.glRotatef(-side*MathHelper.sin(progress*progress*(float)Math.PI)*20,0,1,0);
+    GL11.glRotatef(-side*arc*20,0,0,1);GL11.glRotatef(-arc*80,1,0,0);
+  }
   static void beforeArm(boolean lantern,int side,float equip,float age) {
     GL11.glTranslatef(0,(float)Math.sin(age*.1)*.007F*side,0);GL11.glRotatef(.15F*MathHelper.sin(age*.15F)*side,0,1,0);
     GL11.glTranslatef(0,-.1F,.1F);
     if(lantern){GL11.glTranslatef(0,.1F,0);GL11.glTranslatef(.1F*side,0,-.1F);GL11.glRotatef(10,1,0,0);}
     GL11.glTranslatef(side,-equip*.3F,.3F);GL11.glRotatef(45*side,0,1,0);GL11.glRotatef(-40*side,0,0,1);GL11.glRotatef(30,1,0,0);GL11.glScalef(.9F,.9F,.9F);
   }
-  static void vanillaArm(int side) {
+  static void vanillaArm(int side) {vanillaArm(side,0);}
+  static void vanillaArm(int side,float progress) {
     GL11.glTranslatef(side*.64000005F,-.6F,-.71999997F);GL11.glRotatef(side*45,0,1,0);
+    swingRotation(side,progress);
     GL11.glTranslatef(-side,3.6F,3.5F);GL11.glRotatef(side*120,0,0,1);GL11.glRotatef(200,1,0,0);GL11.glRotatef(side*-135,0,1,0);GL11.glTranslatef(side*5.6F,0,0);
   }
   static void block(boolean lantern,int side,float sway) {

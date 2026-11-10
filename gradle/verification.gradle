@@ -249,3 +249,9 @@ task verifyShelves(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.block.ShelfSmoke'
 }
+
+task verifyGuiScaleClipping(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    if (project.hasProperty('guiScaleAuditJar')) classpath += files(project.property('guiScaleAuditJar'))
+    main = 'ru.givler.mbo.lighting.GuiScaleClippingSmoke'
+}

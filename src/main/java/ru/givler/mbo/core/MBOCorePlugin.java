@@ -11,6 +11,7 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
     return new String[] {
       "ru.givler.mbo.core.TextureInterpolationTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaPackSettingsTransformer",
+      "ru.givler.mbo.integration.angelica.core.AngelicaGuiScaleTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaSkyTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaColorStateTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaShaderCompatTransformer",

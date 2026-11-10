@@ -27,7 +27,8 @@ final class MF2PortableCarryBridge {
     IOffhandRender r=(IOffhandRender)renderer;
     return 1-(r.getPrevEquippedProgress()+(r.getEquippedProgress()-r.getPrevEquippedProgress())*partial);
   }
-  static float swing(EntityPlayer player) {return player instanceof IBattlePlayer?((IBattlePlayer)player).getOffSwingProgress(1):0;}
+  static float swing(EntityPlayer player) {return swing(player,1);}
+  static float swing(EntityPlayer player,float partial) {return player instanceof IBattlePlayer?((IBattlePlayer)player).getOffSwingProgress(partial):0;}
   static void renderRemaining(ItemRenderer renderer,float partial) {
     BattlegearRenderHelper.renderItemInFirstPerson(partial,Minecraft.getMinecraft(),renderer);
   }

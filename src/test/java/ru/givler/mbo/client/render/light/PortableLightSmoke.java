@@ -32,6 +32,7 @@ public final class PortableLightSmoke {
     net.minecraft.init.Bootstrap.func_151354_b();
     Pbuffer context=new Pbuffer(256,256,new PixelFormat(8,24,0),null,null);context.makeCurrent();
     try {
+      verifySwing();
       Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe unsafe=(Unsafe)f.get(null);
       net.minecraft.client.renderer.OpenGlHelper.defaultTexUnit=GL13.GL_TEXTURE0;
       net.minecraft.client.renderer.OpenGlHelper.lightmapTexUnit=GL13.GL_TEXTURE1;
@@ -82,6 +83,27 @@ public final class PortableLightSmoke {
       GL11.glDeleteTextures(texture);
       System.out.println("PORTABLE_LIGHTS_OK: four real hand draws, GL state, icons and belt packet");
     } finally {context.destroy();}
+  }
+  static void verifySwing() {
+    GL11.glMatrixMode(GL11.GL_MODELVIEW);GL11.glPushMatrix();
+    try {
+      for(int side:new int[]{-1,1})for(float progress:new float[]{0,.1F,.25F,.5F,.75F,.9F,.98F,1}) {
+        GL11.glLoadIdentity();PortableCarry.swingTranslation(side,progress);PortableCarry.vanillaArm(side,progress);
+        FloatBuffer actual=BufferUtils.createFloatBuffer(16);GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX,actual);
+        GL11.glLoadIdentity();
+        // Reference: vanilla translation -> base placement/yaw -> swing rotations -> arm mesh placement.
+        float root=net.minecraft.util.MathHelper.sqrt_float(progress),arc=net.minecraft.util.MathHelper.sin(root*(float)Math.PI);
+        if(progress>0 && progress<1)GL11.glTranslatef(-side*arc*.4F,net.minecraft.util.MathHelper.sin(root*(float)Math.PI*2)*.2F,-net.minecraft.util.MathHelper.sin(progress*(float)Math.PI)*.2F);
+        GL11.glTranslatef(side*.64000005F,-.6F,-.71999997F);GL11.glRotatef(side*45,0,1,0);
+        if(progress>0 && progress<1) {
+          GL11.glRotatef(-side*net.minecraft.util.MathHelper.sin(progress*progress*(float)Math.PI)*20,0,1,0);
+          GL11.glRotatef(-side*arc*20,0,0,1);GL11.glRotatef(-arc*80,1,0,0);
+        }
+        GL11.glTranslatef(-side,3.6F,3.5F);GL11.glRotatef(side*120,0,0,1);GL11.glRotatef(200,1,0,0);GL11.glRotatef(side*-135,0,1,0);GL11.glTranslatef(side*5.6F,0,0);
+        FloatBuffer expected=BufferUtils.createFloatBuffer(16);GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX,expected);
+        for(int i=0;i<16;i++)check(Math.abs(actual.get(i)-expected.get(i))<1e-5,"Vanilla swing matrix at "+progress+" side "+side);
+      }
+    } finally {GL11.glPopMatrix();}
   }
   public static class ParticleWorld extends net.minecraft.client.multiplayer.WorldClient {
     long time;

@@ -9,6 +9,18 @@ import net.minecraft.client.resources.I18n;
 public final class AngelicaGuiScale {
   private static final String ROOT="me.jellysquid.mods.sodium.client.gui.options.";
   private AngelicaGuiScale() {}
+  private static final Method FRACTIONAL_FACTOR=findFactor();
+  private static Method findFactor() {
+    try{return Class.forName("com.github.basdxz.rightproperguiscale.mixin.interfaces.client.minecraft.IScaledResolutionMixin").getMethod("scaleFactor");}
+    catch(ReflectiveOperationException | LinkageError absent){return null;}
+  }
+  public static double factor(net.minecraft.client.gui.ScaledResolution resolution) {
+    if(FRACTIONAL_FACTOR!=null && FRACTIONAL_FACTOR.getDeclaringClass().isInstance(resolution)) {
+      try{return ((Number)FRACTIONAL_FACTOR.invoke(resolution)).doubleValue();}
+      catch(ReflectiveOperationException failure){throw new IllegalStateException("Cannot read fractional GUI scale",failure);}
+    }
+    return resolution.getScaleFactor();
+  }
   public static void replace(List<Object> pages)throws ReflectiveOperationException {
     Class<?> scale;
     try{scale=Class.forName("com.github.basdxz.rightproperguiscale.GUIScale");}catch(ClassNotFoundException absent){return;}
