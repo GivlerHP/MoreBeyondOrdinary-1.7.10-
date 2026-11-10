@@ -270,3 +270,10 @@ task verifyAuditRefactor(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.lootcontainer.action.AuditRefactorSmoke'
 }
+
+task verifyOpeningLayer(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.OpeningLayerSmoke'
+    if (project.hasProperty('angelicaJar')) args project.property('angelicaJar')
+    else onlyIf { false }
+}

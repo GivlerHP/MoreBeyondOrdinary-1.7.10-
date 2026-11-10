@@ -29,6 +29,7 @@ public final class SmoothOpeningRenderer {
   private static boolean thaumcraftLoaded, carpenters;
   private static boolean neodymiumLoaded;
   private static volatile boolean renderedBeforeTranslucent;
+  private static float framePartialTicks;
   private static final long DURATION = 400L;
   private static final long RESTORE_GRACE = 150L;
 
@@ -459,6 +460,21 @@ public final class SmoothOpeningRenderer {
     WaterloggedBlockRenderer.renderInTranslucentPass((float) partialTicks);
   }
 
+  @SubscribeEvent
+  public void frame(TickEvent.RenderTickEvent event) {
+    if(event.phase==TickEvent.Phase.START) {
+      framePartialTicks=event.renderTickTime;
+      renderedBeforeTranslucent=false;
+    }
+  }
+
+  /** Called after Angelica's last opaque/cutout terrain layer, before its water/depth pass. */
+  public static void renderAfterAngelicaOpaqueLayer(Object layer) {
+    if(!(layer instanceof Enum) || !"CUTOUT_MIPPED".equals(((Enum<?>)layer).name()))return;
+    renderedBeforeTranslucent=true;
+    renderDynamicBlocks(Minecraft.getMinecraft().renderViewEntity,framePartialTicks);
+  }
+
   public static void renderBeforeNeodymiumTranslucent(int renderPass, double partialTicks) {
     if (renderPass != 1) return;
     renderedBeforeTranslucent = true;
@@ -509,14 +525,21 @@ public final class SmoothOpeningRenderer {
       GL11.glEnable(GL11.GL_DEPTH_TEST);
       GL11.glDepthFunc(GL11.GL_LEQUAL);
       GL11.glDepthMask(true);
+      GL11.glDisable(GL11.GL_BLEND);
+      GL11.glEnable(GL11.GL_ALPHA_TEST);
+      GL11.glAlphaFunc(GL11.GL_GREATER,.1F);
+      ForgeHooksClient.setRenderPass(0);
       for (State state : STATES.values()) {
         if (!state.visibleDuringRestore(now)) continue;
         if (isCarpenterBlock(state.block)) {
           ForgeHooksClient.setRenderPass(0);
           renderDynamicState(renderer, state);
           GL11.glDepthMask(false);
+          GL11.glEnable(GL11.GL_BLEND);
+          GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE_MINUS_SRC_ALPHA);
           ForgeHooksClient.setRenderPass(1);
           renderDynamicState(renderer, state);
+          GL11.glDisable(GL11.GL_BLEND);
           GL11.glDepthMask(true);
         } else renderDynamicState(renderer, state);
       }

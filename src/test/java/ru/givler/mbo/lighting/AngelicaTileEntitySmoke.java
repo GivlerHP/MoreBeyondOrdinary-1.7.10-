@@ -42,6 +42,8 @@ public final class AngelicaTileEntitySmoke implements Opcodes {
     m.visitVarInsn(ALOAD,0);m.visitInsn(ACONST_NULL);
     m.visitMethodInsn(INVOKESPECIAL,"org/embeddedt/embeddium/impl/render/terrain/SimpleWorldRenderer","renderBlockEntities","(Ljava/lang/Object;)I",false);
     m.visitInsn(IRETURN);m.visitMaxs(0,0);m.visitEnd();
+    m=w.visitMethod(ACC_PUBLIC,"drawChunkLayer","(Lcom/gtnewhorizons/angelica/rendering/celeritas/BlockRenderLayer;DDD)V",null,null);
+    m.visitCode();m.visitInsn(RETURN);m.visitMaxs(0,0);m.visitEnd();
     w.visitEnd();
     AngelicaRenderTransformer transformer=new AngelicaRenderTransformer();
     byte[] patched=transformer.transform(owner.replace('/','.'),owner.replace('/','.'),w.toByteArray());

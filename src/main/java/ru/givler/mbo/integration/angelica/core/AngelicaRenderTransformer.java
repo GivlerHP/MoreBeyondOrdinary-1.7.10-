@@ -8,7 +8,7 @@ import org.objectweb.asm.tree.*;
 public final class AngelicaRenderTransformer implements IClassTransformer, Opcodes {
   @Override public byte[] transform(String name, String transformedName, byte[] bytes) {
     if (bytes == null) return bytes;
-    if ("com.gtnewhorizons.angelica.rendering.celeritas.CeleritasWorldRenderer".equals(transformedName)) return patchTiles(bytes);
+    if ("com.gtnewhorizons.angelica.rendering.celeritas.CeleritasWorldRenderer".equals(transformedName)) return patchOpeningLayer(patchTiles(bytes));
     if (!"com.gtnewhorizons.angelica.rendering.celeritas.world.WorldSlice".equals(transformedName)) return bytes;
     ClassNode node = new ClassNode(); new ClassReader(bytes).accept(node, 0);
     String coordinates="ru/givler/mbo/client/lighting/ColoredLightRenderHooks$WorldCoordinates";
@@ -21,6 +21,26 @@ public final class AngelicaRenderTransformer implements IClassTransformer, Opcod
     ClassWriter writer=new ClassWriter(ClassWriter.COMPUTE_MAXS); node.accept(writer);
     System.out.println("[MBO] Angelica WorldSlice: world-space colored light enabled");
     return writer.toByteArray();
+  }
+  /** Angelica overwrites vanilla sortAndRender, so its actual terrain boundary owns this draw. */
+  private static byte[] patchOpeningLayer(byte[] bytes) {
+    ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);
+    String hook="ru/givler/mbo/client/render/SmoothOpeningRenderer";
+    int patched=0;
+    for(MethodNode m:node.methods)if(m.name.equals("drawChunkLayer")
+        && m.desc.equals("(Lcom/gtnewhorizons/angelica/rendering/celeritas/BlockRenderLayer;DDD)V")) {
+      for(AbstractInsnNode i:m.instructions.toArray())if(i instanceof MethodInsnNode) {
+        MethodInsnNode call=(MethodInsnNode)i;
+        if(call.owner.equals(hook) && call.name.equals("renderAfterAngelicaOpaqueLayer"))return bytes;
+      }
+      for(AbstractInsnNode i:m.instructions.toArray())if(i.getOpcode()==RETURN) {
+        InsnList code=new InsnList();code.add(new VarInsnNode(ALOAD,1));
+        code.add(new MethodInsnNode(INVOKESTATIC,hook,"renderAfterAngelicaOpaqueLayer","(Ljava/lang/Object;)V",false));
+        m.instructions.insertBefore(i,code);patched++;
+      }
+    }
+    if(patched==0)throw new IllegalStateException("Angelica opaque opening layer boundary missing");
+    ClassWriter writer=new ClassWriter(ClassWriter.COMPUTE_MAXS);node.accept(writer);return writer.toByteArray();
   }
   private static byte[] patchTiles(byte[] bytes) {
     ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);
