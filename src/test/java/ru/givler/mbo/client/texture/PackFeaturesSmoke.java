@@ -29,6 +29,7 @@ public final class PackFeaturesSmoke implements Opcodes {
     RandomMobRule expanded=new RandomMobRule(shortWeights,1);check(expanded.choose(4)==3,"missing weights expand using mean");
     verifyMobResources();
     verifyLiveSettings();
+    verifySkySettingsWithShaders();
     if(new java.io.File(args[0]).isFile()&&new java.io.File(args[1]).isFile())verifyPackAndE7(args[0],args[1]);
     verifyAsm(args[2]);
     System.out.println("PASS: sky/weather/day/location rules, mob variants/weights/names/professions and actual backend bytecode");
@@ -99,7 +100,22 @@ public final class PackFeaturesSmoke implements Opcodes {
         net.minecraft.launchwrapper.IClassTransformer patch=new ru.givler.mbo.integration.angelica.core.AngelicaPackSettingsTransformer();
         byte[] out=patch.transform(target,target,bytes);check(!Arrays.equals(bytes,out),"live settings installed: "+target);
         check(Arrays.equals(out,patch.transform(target,target,out)),"live settings patch idempotent");
-        if(target.endsWith("SkyRenderer"))out=new ru.givler.mbo.integration.angelica.core.AngelicaSkyTransformer().transform(target,target,out);
+        if(target.endsWith("SkyRenderer")) {
+          net.minecraft.launchwrapper.IClassTransformer skyPatch=new ru.givler.mbo.integration.angelica.core.AngelicaSkyTransformer();
+          out=skyPatch.transform(target,target,out);
+          check(Arrays.equals(out,skyPatch.transform(target,target,out)),"combined sky patch is idempotent");
+          ClassNode combined=new ClassNode();new ClassReader(out).accept(combined,0);
+          int setupCalls=0,enabledCalls=0;
+          for(MethodNode method:combined.methods)for(AbstractInsnNode insn:method.instructions.toArray())if(insn instanceof MethodInsnNode) {
+            MethodInsnNode call=(MethodInsnNode)insn;
+            if(call.owner.equals("ru/givler/mbo/integration/angelica/client/AngelicaSkyHooks")) {
+              if(call.name.equals("setup"))setupCalls++;
+              if(call.name.equals("enabled"))enabledCalls++;
+            }
+          }
+          check(setupCalls==1 && enabledCalls>0,"live settings must not suppress per-frame sky world setup");
+          System.out.println("PASS: combined pack-settings + sky transformers retain world setup and settings gates");
+        }
         ClassNode c=new ClassNode();new ClassReader(out).accept(c,0);
         for(MethodNode m:c.methods)if((m.access&(ACC_NATIVE|ACC_ABSTRACT))==0)new Analyzer(new BasicVerifier()).analyze(c.name,m);
       }
@@ -112,6 +128,53 @@ public final class PackFeaturesSmoke implements Opcodes {
         for(MethodNode m:c.methods)if((m.access&(ACC_NATIVE|ACC_ABSTRACT))==0)new Analyzer(new BasicVerifier()).analyze(c.name,m);
       }
     }
+  }
+  static void verifySkySettingsWithShaders()throws Exception {
+    final Map<String,byte[]> classes=new HashMap<>();
+    String hook="ru.givler.mbo.integration.angelica.client.AngelicaSkyHooks";
+    String shader="ru.givler.mbo.client.render.ShaderPackState";
+    String sky="jss.notfine.config.MCPatcherForgeConfig$BetterSkies";
+    String master="com.gtnewhorizons.angelica.config.AngelicaConfig";
+    try(java.io.InputStream in=PackFeaturesSmoke.class.getClassLoader().getResourceAsStream(hook.replace('.','/')+".class")) {
+      java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();byte[] b=new byte[8192];for(int n;(n=in.read(b))>=0;)out.write(b,0,n);classes.put(hook,out.toByteArray());
+    }
+    for(String type:new String[]{sky,master,shader}) {
+      ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);w.visit(V1_8,ACC_PUBLIC,type.replace('.','/'),null,"java/lang/Object",null);
+      if(type.equals(shader)) {
+        MethodVisitor m=w.visitMethod(ACC_PUBLIC|ACC_STATIC,"isActive","()Z",null,null);m.visitCode();m.visitInsn(ICONST_1);m.visitInsn(IRETURN);m.visitMaxs(0,0);m.visitEnd();
+      } else for(String f:type.equals(sky)?new String[]{"enabled","skybox"}:new String[]{"enableMCPatcherForgeFeatures"})w.visitField(ACC_PUBLIC|ACC_STATIC,f,"Z",null,null).visitEnd();
+      w.visitEnd();classes.put(type,w.toByteArray());
+    }
+    String api="net/irisshaders/iris/api/v0/IrisApi",config="net/irisshaders/iris/api/v0/IrisApiConfig";
+    for(String type:new String[]{config,api}) {
+      boolean isApi=type.equals(api);String parent=isApi?config:"java/lang/Object";
+      ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);w.visit(V1_8,ACC_PUBLIC,type,null,parent,null);
+      MethodVisitor m=w.visitMethod(ACC_PUBLIC,"<init>","()V",null,null);m.visitCode();m.visitVarInsn(ALOAD,0);m.visitMethodInsn(INVOKESPECIAL,parent,"<init>","()V",false);m.visitInsn(RETURN);m.visitMaxs(0,0);m.visitEnd();
+      if(isApi) {
+        m=w.visitMethod(ACC_PUBLIC|ACC_STATIC,"getInstance","()L"+api+";",null,null);m.visitCode();m.visitTypeInsn(NEW,api);m.visitInsn(DUP);m.visitMethodInsn(INVOKESPECIAL,api,"<init>","()V",false);m.visitInsn(ARETURN);m.visitMaxs(0,0);m.visitEnd();
+        m=w.visitMethod(ACC_PUBLIC,"getConfig","()L"+config+";",null,null);m.visitCode();m.visitVarInsn(ALOAD,0);m.visitInsn(ARETURN);m.visitMaxs(0,0);m.visitEnd();
+      } else {
+        w.visitField(ACC_PUBLIC|ACC_STATIC,"enabled","Z",null,null).visitEnd();
+        m=w.visitMethod(ACC_PUBLIC,"areShadersEnabled","()Z",null,null);m.visitCode();m.visitFieldInsn(GETSTATIC,config,"enabled","Z");m.visitInsn(IRETURN);m.visitMaxs(0,0);m.visitEnd();
+      }
+      w.visitEnd();classes.put(type.replace('/','.'),w.toByteArray());
+    }
+    ClassLoader loader=new ClassLoader(PackFeaturesSmoke.class.getClassLoader()) {
+      protected synchronized Class<?> loadClass(String n,boolean resolve)throws ClassNotFoundException {
+        if(!classes.containsKey(n))return super.loadClass(n,resolve);
+        Class<?> c=findLoadedClass(n);if(c==null){byte[] b=classes.get(n);c=defineClass(n,b,0,b.length);}if(resolve)resolveClass(c);return c;
+      }
+    };
+    Class<?> settings=loader.loadClass(sky),global=loader.loadClass(master);Method enabled=loader.loadClass(hook).getMethod("enabled");
+    for(int mask=0;mask<8;mask++) {
+      settings.getField("enabled").setBoolean(null,(mask&1)!=0);settings.getField("skybox").setBoolean(null,(mask&2)!=0);global.getField("enableMCPatcherForgeFeatures").setBoolean(null,(mask&4)!=0);
+      Class<?> shaderSettings=loader.loadClass(config.replace('/','.'));
+      shaderSettings.getField("enabled").setBoolean(null,true);
+      check(!(Boolean)enabled.invoke(null),"active shader suppresses resource-pack sky, mask="+mask);
+      shaderSettings.getField("enabled").setBoolean(null,false);
+      check((Boolean)enabled.invoke(null)==(mask==7),"disabled shaders preserve resource-pack sky, mask="+mask);
+    }
+    System.out.println("PASS: active shaders suppress custom sky for all native settings combinations");
   }
   static void verifyLiveSettings()throws Exception {
     // Isolate native configuration stubs so toggling can be tested without booting Forge/GL.
