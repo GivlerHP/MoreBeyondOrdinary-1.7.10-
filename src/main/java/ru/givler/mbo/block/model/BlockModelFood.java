@@ -8,10 +8,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.tileentity.ModelTileBase;
 
-public class BlockModelFood extends BlockModels {
+public class BlockModelFood extends BlockDecorModel {
 
     private int foodAmount = 4;
     private float saturationModifier = 0.3F;

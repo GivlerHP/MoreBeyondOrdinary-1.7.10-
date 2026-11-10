@@ -13,7 +13,7 @@ import net.minecraft.world.WorldProviderSurface;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 import org.objectweb.asm.tree.analysis.*;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.block.model.BlockDecorCage;
 import ru.givler.mbo.core.DecorSleepHooks;
 import ru.givler.mbo.core.DecorSleepTransformer;
@@ -66,7 +66,7 @@ public final class DecorInteractionsSmoke {
  public static void main(String[] args)throws Exception {
   Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe u=(Unsafe)f.get(null);
   TestWorld world=(TestWorld)u.allocateInstance(TestWorld.class);world.entities=new ArrayList<>();world.rand=new Random(0);field(world,World.class,"provider",new WorldProviderSurface());
-  BlockDecorCage cage=(BlockDecorCage)u.allocateInstance(BlockDecorCage.class);field(cage,BlockModels.class,"collisionParts",new ArrayList<>());field(cage,BlockModels.class,"modelName","instruments_of_torture/iron_cage");
+  BlockDecorCage cage=(BlockDecorCage)u.allocateInstance(BlockDecorCage.class);field(cage,BlockDecorModel.class,"collisionParts",new ArrayList<>());field(cage,BlockDecorModel.class,"modelName","instruments_of_torture/iron_cage");
   cage.withMultipartCollisionBoxes(BlockDecorCage.closedShape());
   java.util.Map<String,float[][]> cells=ru.givler.mbo.block.model.CollisionShapeParts.cells(BlockDecorCage.closedShape());
   check(cells.size()==2&&cells.containsKey("0,0,0")&&cells.containsKey("0,1,0"),"cage occupies more than 1x1x2 blocks");
@@ -127,7 +127,7 @@ public final class DecorInteractionsSmoke {
   }
   net.minecraft.nbt.NBTTagCompound tag=new net.minecraft.nbt.NBTTagCompound();tag.setString("model","test");tag.setString("texture","test");tag.setBoolean("cageOpen",true);
   ModelTileBase restored=new ModelTileBase();restored.readFromNBT(tag);check(restored.cageOpen,"saved cage opens on reload");
-  BlockModels bench=(BlockModels)u.allocateInstance(BlockModels.class);bench.withSeats(new float[]{0,.5F,.5F},new float[]{1,.5F,.5F});
+  BlockDecorModel bench=(BlockDecorModel)u.allocateInstance(BlockDecorModel.class);bench.withSeats(new float[]{0,.5F,.5F},new float[]{1,.5F,.5F});
   for(int meta=0;meta<4;meta++) {
    world.meta=meta;world.owner=bench;world.entities.clear();Player a=(Player)u.allocateInstance(Player.class),b=(Player)u.allocateInstance(Player.class),c=(Player)u.allocateInstance(Player.class);
    a.worldObj=b.worldObj=c.worldObj=world;DecorInteractions.sit(bench,world,0,0,0,a,0,.5F);DecorInteractions.sit(bench,world,0,0,0,b,0,.5F);DecorInteractions.sit(bench,world,0,0,0,c,0,.5F);
@@ -139,7 +139,7 @@ public final class DecorInteractionsSmoke {
    a.mountEntity(null);DecorInteractions.sit(bench,world,0,0,0,c,0,.5F);check(c.ridingEntity!=null,"vacated bench seat cannot be reused");
   }
   Player sleeper=(Player)u.allocateInstance(Player.class);sleeper.worldObj=world;field(sleeper,Entity.class,"boundingBox",AxisAlignedBB.getBoundingBox(0,0,0,1,1,1));
-  BlockModels bed=(BlockModels)u.allocateInstance(BlockModels.class);bed.withSleepingNoRespawn(.125F,0);world.owner=bed;
+  BlockDecorModel bed=(BlockDecorModel)u.allocateInstance(BlockDecorModel.class);bed.withSleepingNoRespawn(.125F,0);world.owner=bed;
   DecorSleepHooks.afterSleep(sleeper,0,0,0,EntityPlayer.EnumStatus.NOT_SAFE);check(DecorSleepHooks.setSpawnOnWake(sleeper,true),"failed sleep altered respawn");
   DecorSleepHooks.afterSleep(sleeper,0,0,0,EntityPlayer.EnumStatus.OK);check(Math.abs(sleeper.posY-.5)<.0001,"bed sleep height");
   check(!DecorSleepHooks.setSpawnOnWake(sleeper,true),"temporary bed creates respawn");check(DecorSleepHooks.setSpawnOnWake(sleeper,true),"ordinary bed is affected after waking");
@@ -170,7 +170,7 @@ public final class DecorInteractionsSmoke {
    double[] head=DecorInteractions.rotate(0,-.1875,meta);check(Math.abs(sleeper.posX-.5-head[0])<.0001&&Math.abs(sleeper.posZ-.5-head[1])<.0001,"head is not on the rotated pillow");
    check(bed.getBedDirection(world,0,0,0)==((meta+2)&3),"sleep body direction");
   }
-  BlockModels ordinary=(BlockModels)u.allocateInstance(BlockModels.class);ordinary.withSleepingNoRespawn(-1,0);world.owner=ordinary;DecorSleepHooks.afterSleep(sleeper,0,0,0,EntityPlayer.EnumStatus.OK);
+  BlockDecorModel ordinary=(BlockDecorModel)u.allocateInstance(BlockDecorModel.class);ordinary.withSleepingNoRespawn(-1,0);world.owner=ordinary;DecorSleepHooks.afterSleep(sleeper,0,0,0,EntityPlayer.EnumStatus.OK);
   check(DecorSleepHooks.setSpawnOnWake(sleeper,true),"stale saved temporary-sleep flag disabled ordinary bed respawn");
   byte[] original;try(java.io.InputStream in=EntityPlayer.class.getResourceAsStream("EntityPlayer.class")){java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();byte[] data=new byte[4096];int n;while((n=in.read(data))>=0)out.write(data,0,n);original=out.toByteArray();}
   byte[] transformed=new DecorSleepTransformer().transform(EntityPlayer.class.getName(),EntityPlayer.class.getName(),original);

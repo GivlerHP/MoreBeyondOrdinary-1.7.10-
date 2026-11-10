@@ -87,7 +87,7 @@ public class CommonProxy {
     ItemRegistry.preLoad(event);
     PotionRegistry.preLoad(event);
     EnchantmentRegistry.register();
-    ModelRegistry.preInit(event);
+    DecorBlockRegistry.preInit(event);
     DrinkRegistry.preLoad(event);
     FoodRegistry.preLoad(event);
     PlantRegistry.preLoad(event);
@@ -154,7 +154,7 @@ public class CommonProxy {
     CreativeTabRegistry.init(event);
     BoatRegistry.registerRecipes();
     moveWoodIntegrationToBoPTab();
-    ModelRegistry.init(event);
+    DecorBlockRegistry.init(event);
     if (isMineFantasyLoaded()) {
       invokeOptional("ru.givler.mbo.integration.minefantasy2.MineFantasyRegistry", "init");
     }

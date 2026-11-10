@@ -10,7 +10,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import org.lwjgl.opengl.*;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.client.render.decormodels.ChunkDecorRenderer;
 import sun.misc.Unsafe;
 
@@ -24,7 +24,7 @@ public class ChunkDecorSmoke {
  }
  static void check(boolean value,String message) { if(!value)throw new AssertionError(message); }
  static void set(Object object,String name,Object value)throws Exception {
-  Field f=BlockModels.class.getDeclaredField(name); f.setAccessible(true); f.set(object,value);
+  Field f=BlockDecorModel.class.getDeclaredField(name); f.setAccessible(true); f.set(object,value);
  }
  public static void main(String[] args)throws Exception {
   Class<?> compatibility=Class.forName("ru.givler.mbo.client.render.decormodels.DecorVertexCompatibility");
@@ -48,15 +48,15 @@ public class ChunkDecorSmoke {
   net.minecraft.client.renderer.OpenGlHelper.defaultTexUnit=GL13.GL_TEXTURE0;
   net.minecraft.client.renderer.OpenGlHelper.lightmapTexUnit=GL13.GL_TEXTURE1;
   Field f=Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);Unsafe unsafe=(Unsafe)f.get(null);
-  f=BlockModels.class.getDeclaredField("ALL_MODELS");f.setAccessible(true);
-  List<BlockModels> models=(List<BlockModels>)f.get(null);models.clear();
+  f=BlockDecorModel.class.getDeclaredField("ALL_MODELS");f.setAccessible(true);
+  List<BlockDecorModel> models=(List<BlockDecorModel>)f.get(null);models.clear();
   try(java.util.stream.Stream<Path> files=Files.list(Paths.get("src/main/resources/assets/mbo/geo"))) {
    files.filter(p->p.toString().endsWith(".geo.json")).forEach(p->{
     try {
      String name=p.getFileName().toString().replace(".geo.json","");
      Path png=Paths.get("src/main/resources/assets/mbo/textures/models/decor/"+name+".png");
      if(!Files.isRegularFile(png))return;
-     BlockModels block=(BlockModels)unsafe.allocateInstance(BlockModels.class);
+     BlockDecorModel block=(BlockDecorModel)unsafe.allocateInstance(BlockDecorModel.class);
      set(block,"modelName","instruments_of_torture/"+name);set(block,"textureName","instruments_of_torture/"+name);
      models.add(block);
     } catch(Exception e) {throw new RuntimeException(e);}
@@ -67,21 +67,21 @@ public class ChunkDecorSmoke {
   registered.set(atlas,new HashMap<>());
   ChunkDecorRenderer renderer=ChunkDecorRenderer.INSTANCE;
   renderer.stitch(new TextureStitchEvent.Pre(atlas));
-  BlockModels.decorChunkRenderId=1234;BlockModels.decorChunkRendering=true;
+  BlockDecorModel.decorChunkRenderId=1234;BlockDecorModel.decorChunkRendering=true;
   int eligible=0;
   int emitted=0,boundaries=0,boundaryEmissions=0;
-  BlockModels benchmarkBlock=null;
+  BlockDecorModel benchmarkBlock=null;
   Field raw=Tessellator.class.getDeclaredField("rawBuffer");raw.setAccessible(true);
   Field index=Tessellator.class.getDeclaredField("rawBufferIndex");index.setAccessible(true);
-  for(BlockModels block:models) {
+  for(BlockDecorModel block:models) {
    if(!block.usesDecorChunkRendering())continue;
    eligible++;
    if(benchmarkBlock==null)benchmarkBlock=block;
    System.out.println("Chunk eligible: "+block.getModelName());
    check(block.getRenderType()==1234,"chunk route");
-   BlockModels.decorInstancedRendering=true;
+   BlockDecorModel.decorInstancedRendering=true;
    check(block.getRenderType()==-1 && block.isDecorChunkReady(),"GPU overrides chunk routing without losing baked mesh");
-   BlockModels.decorInstancedRendering=false;
+   BlockDecorModel.decorInstancedRendering=false;
    check(block.getRenderType()==1234,"GPU off restores previous chunk route");
    for(final int meta:new int[]{0,1,2,3}) {
     IBlockAccess world=(IBlockAccess)Proxy.newProxyInstance(IBlockAccess.class.getClassLoader(),new Class[]{IBlockAccess.class},(p,m,a)->{
@@ -122,7 +122,7 @@ public class ChunkDecorSmoke {
   check((Boolean)boundsCheck.invoke(null,new double[]{-6,-6,-6,7,7,7},0,0,0),"visibility margin included");
   check(!(Boolean)boundsCheck.invoke(null,new double[]{-6.01,0,0,1,1,1},0,0,0),"outside visibility margin must keep TESR");
   System.out.println("Interior emissions="+emitted+", boundary chunk emissions="+boundaryEmissions+", oversized TESR fallbacks="+boundaries);
-  final BlockModels measured=benchmarkBlock;
+  final BlockDecorModel measured=benchmarkBlock;
   set(measured,"dynamicModelRender",false);
   IBlockAccess benchWorld=(IBlockAccess)Proxy.newProxyInstance(IBlockAccess.class.getClassLoader(),new Class[]{IBlockAccess.class},(p,m,a)->{
    if(m.getName().equals("getBlockMetadata"))return 0;
@@ -146,7 +146,7 @@ public class ChunkDecorSmoke {
   System.out.printf(Locale.ROOT,"1000 %s: chunk CPU %.6f ms, cached TESR geometry CPU %.6f ms%n",measured.getModelName(),chunk[0],cached[0]);
   for(int id:lists)GL11.glDeleteLists(id,1);
   renderer.setEnabled(false);
-  for(BlockModels block:models)check(block.getRenderType()==-1,"off restores TESR");
+  for(BlockDecorModel block:models)check(block.getRenderType()==-1,"off restores TESR");
   System.out.println(renderer.statistics());
   System.out.println("PASS chunk baking, four facings, lightmap, double-sided emission, dynamic/off routing");
   buffer.destroy();

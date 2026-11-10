@@ -30,7 +30,6 @@ public final class ColoredLightSmoke {
     AnimatedTrapdoorLightingSmoke.run();
     AngelicaTileEntitySmoke.run();
     AngelicaLiveTileSmoke.run();
-    TileEntityTraceSmoke.run();
     ControlsSizingSmoke.run();
     DungeonRenderSmoke.run();
     System.out.println("Colored light smoke passed");

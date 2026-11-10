@@ -68,7 +68,7 @@ public final class ColoredLightSources {
       applyOptions.run();
       ru.givler.mbo.client.lighting.GardenLanternLight.register();
       if(Block.blockRegistry.containsKey("Thaumcraft:blockAiry"))
-        ru.givler.mbo.client.lighting.ThaumcraftNodeLight.register();
+        ru.givler.mbo.integration.thaumcraft.client.ThaumcraftRgbSources.register();
       ru.givler.mbo.client.lighting.NativeRgbSources.register();
       return true;
     } catch (IOException | RuntimeException error) {

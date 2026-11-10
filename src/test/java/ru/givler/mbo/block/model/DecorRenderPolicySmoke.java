@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
 import ru.givler.mbo.tileentity.TileEntityModelCollision;
@@ -14,11 +14,11 @@ import sun.misc.Unsafe;
 public final class DecorRenderPolicySmoke {
     private static void check(boolean value,String message) { if(!value)throw new AssertionError(message); }
     private static void field(Object target,String name,Object value)throws Exception {
-        Field field=BlockModels.class.getDeclaredField(name);field.setAccessible(true);field.set(target,value);
+        Field field=BlockDecorModel.class.getDeclaredField(name);field.setAccessible(true);field.set(target,value);
     }
     public static void main(String[] args)throws Exception {
         Field access=Unsafe.class.getDeclaredField("theUnsafe");access.setAccessible(true);Unsafe unsafe=(Unsafe)access.get(null);
-        BlockModels block=(BlockModels)unsafe.allocateInstance(BlockModels.class);
+        BlockDecorModel block=(BlockDecorModel)unsafe.allocateInstance(BlockDecorModel.class);
         field(block,"textureFrameCount",1);field(block,"textureFrameSpeed",100);
         field(block,"modelName","decor_test");field(block,"textureName","decor_texture");
         Field mapping=TileEntity.class.getDeclaredField("classToNameMap");mapping.setAccessible(true);
@@ -39,7 +39,7 @@ public final class DecorRenderPolicySmoke {
         check(loaded.getFactory()!=null,"animated object requires a lazy factory");
         block.withAnimation(null,true);
         check(loaded.usesDynamicRender(),"a potentially animated block remains dynamic");
-        BlockModels textured=(BlockModels)unsafe.allocateInstance(BlockModels.class);
+        BlockDecorModel textured=(BlockDecorModel)unsafe.allocateInstance(BlockDecorModel.class);
         textured.withAnimatedTexture(6,80);loaded.blockType=textured;
         check(loaded.getFrameCount()==6&&loaded.getFrameSpeed()==80&&loaded.usesDynamicRender(),"new texture animation ignored by old tile");
         textured.withAnimatedTexture(1,100);check(loaded.usesDynamicRender(),"texture capability must remain dynamic");

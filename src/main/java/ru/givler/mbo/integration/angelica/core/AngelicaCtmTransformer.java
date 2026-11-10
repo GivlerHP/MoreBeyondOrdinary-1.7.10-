@@ -10,7 +10,6 @@ public final class AngelicaCtmTransformer implements IClassTransformer,Opcodes {
   private static final String HOOK="ru/givler/mbo/integration/angelica/client/AngelicaDefaultCtmRules";
   public byte[] transform(String name,String target,byte[] bytes) {
     if(bytes==null)return bytes;
-    if("com.prupe.mcpatcher.ctm.GlassPaneRenderer".equals(target))return paneDiagnostics(bytes);
     if("com.prupe.mcpatcher.mal.block.BlockAPI".equals(target))return legacyIds(bytes);
     if(!TARGET.equals(target))return bytes;
     ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);int count=0;
@@ -36,23 +35,6 @@ public final class AngelicaCtmTransformer implements IClassTransformer,Opcodes {
     }
     if(count!=1)throw new IllegalStateException("Angelica numeric block selector anchors: "+count);
     System.out.println("[MBO] Angelica OptiFine numeric block selectors installed");
-    ClassWriter writer=new ClassWriter(ClassWriter.COMPUTE_MAXS);node.accept(writer);return writer.toByteArray();
-  }
-  private byte[] paneDiagnostics(byte[] bytes) {
-    String hook="ru/givler/mbo/integration/angelica/client/AngelicaPaneCtmDiagnostics";
-    ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);int count=0;
-    for(MethodNode method:node.methods)if(method.name.equals("setupIcons") && cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(method.desc).equals("(Lnet/minecraft/client/renderer/RenderBlocks;Lnet/minecraft/block/Block;Lnet/minecraft/util/IIcon;III)Z")) {
-      for(AbstractInsnNode i:method.instructions.toArray())if(i instanceof MethodInsnNode && ((MethodInsnNode)i).owner.equals(hook))return bytes;
-      for(AbstractInsnNode i:method.instructions.toArray())if(i.getOpcode()==IRETURN) {
-        InsnList code=new InsnList();
-        for(int local=0;local<3;local++)code.add(new VarInsnNode(ALOAD,local));
-        for(int local=3;local<6;local++)code.add(new VarInsnNode(ILOAD,local));
-        code.add(new MethodInsnNode(INVOKESTATIC,hook,"selected","(ZLnet/minecraft/client/renderer/RenderBlocks;Lnet/minecraft/block/Block;Lnet/minecraft/util/IIcon;III)Z",false));
-        method.instructions.insertBefore(i,code);
-      }
-      count++;
-    }
-    if(count!=1)throw new IllegalStateException("Angelica pane CTM diagnostic anchors: "+count);
     ClassWriter writer=new ClassWriter(ClassWriter.COMPUTE_MAXS);node.accept(writer);return writer.toByteArray();
   }
 }

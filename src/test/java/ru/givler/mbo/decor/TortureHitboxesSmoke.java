@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.tileentity.TileEntityModelCollision;
 
 /** Checks gaps, rotated helper cells, ray targeting and saved-envelope replacement. */
@@ -37,15 +37,15 @@ public final class TortureHitboxesSmoke {
         java.lang.reflect.Field access=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
         access.setAccessible(true);
         TestWorld world=(TestWorld)((sun.misc.Unsafe)access.get(null)).allocateInstance(TestWorld.class);
-        Method register=ru.givler.mbo.registry.ModelRegistry.class.getDeclaredMethod("registerTortureModels");
+        Method register=ru.givler.mbo.registry.DecorBlockRegistry.class.getDeclaredMethod("registerTortureModels");
         register.setAccessible(true);register.invoke(null);
         checkDescriptions();
         int count=0;
         java.util.Set<String> special=new java.util.HashSet<String>(java.util.Arrays.asList(
             "ModelTortureBedOnChains", "ModelTortureIronCage", "ModelTortureRopeCore", "ModelTortureSuspendedCorpse"));
-        for(java.lang.reflect.Field field:ru.givler.mbo.registry.ModelRegistry.class.getFields()) {
+        for(java.lang.reflect.Field field:ru.givler.mbo.registry.DecorBlockRegistry.class.getFields()) {
             if(!field.getName().startsWith("ModelTorture") || special.contains(field.getName())) continue;
-            BlockModels model=(BlockModels)field.get(null);
+            BlockDecorModel model=(BlockDecorModel)field.get(null);
             if(model==null || !model.hasMultipartCollisionBoxes()) continue;
             String name=field.getName();
             double volume=volume(model.getMultipartBoxesForCell(0,0,0,0));
@@ -68,8 +68,8 @@ public final class TortureHitboxesSmoke {
         world.placementFloor=true;
         net.minecraft.entity.player.EntityPlayerMP placer=(net.minecraft.entity.player.EntityPlayerMP)
             ((sun.misc.Unsafe)access.get(null)).allocateInstance(net.minecraft.entity.player.EntityPlayerMP.class);
-        for(BlockModels model:new BlockModels[]{ru.givler.mbo.registry.ModelRegistry.ModelTortureGrave,
-                ru.givler.mbo.registry.ModelRegistry.ModelTortureEmbalmedCorpse}) {
+        for(BlockDecorModel model:new BlockDecorModel[]{ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureGrave,
+                ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureEmbalmedCorpse}) {
             for(int facing=0;facing<4;facing++) {
                 placer.rotationYaw=facing*90-180;
                 require(model.canPlaceStructureAt(world,0,1,0,placer),"Ground decoration cannot be placed on a solid floor");
@@ -84,14 +84,14 @@ public final class TortureHitboxesSmoke {
             }
         }
         world.placementFloor=false;
-        BlockModels grave=ru.givler.mbo.registry.ModelRegistry.ModelTortureGrave;
+        BlockDecorModel grave=ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureGrave;
         world.owner=grave;
         ArrayList<AxisAlignedBB> graveCollision=new ArrayList<AxisAlignedBB>();
         grave.addCollisionBoxesToList(world,0,0,0,
             AxisAlignedBB.getBoundingBox(.1,.01,.7,.4,.12,1),graveCollision,null);
         require(graveCollision.isEmpty(),"Grave mound collision must be lowered to the flat ground layer");
 
-        BlockModels horse=ru.givler.mbo.registry.ModelRegistry.ModelTortureDeathHorse;
+        BlockDecorModel horse=ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureDeathHorse;
         world.owner=horse;
         ArrayList<AxisAlignedBB> horseCollision=new ArrayList<AxisAlignedBB>();
         horse.addCollisionBoxesToList(world,0,0,0,
@@ -104,7 +104,7 @@ public final class TortureHitboxesSmoke {
             AxisAlignedBB.getBoundingBox(.4,.7,.4,.6,.8,.6),horseCollision,null);
         require(!horseCollision.isEmpty(),"Torture horse wooden body must remain solid");
 
-        BlockModels bench=ru.givler.mbo.registry.ModelRegistry.ModelTortureBench;
+        BlockDecorModel bench=ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureBench;
         world.owner=bench;
         ArrayList<AxisAlignedBB> collision=new ArrayList<AxisAlignedBB>();
         bench.addCollisionBoxesToList(world,0,0,0,AxisAlignedBB.getBoundingBox(.4,0,.2,.6,.1,.8),collision,null);
@@ -131,18 +131,18 @@ public final class TortureHitboxesSmoke {
             try (java.io.InputStream input = TortureHitboxesSmoke.class.getResourceAsStream("/assets/mbo/lang/" + language + ".lang")) {
                 net.minecraft.util.StringTranslate.inject(input);
             }
-            for (BlockModels model : BlockModels.getAllModels()) {
+            for (BlockDecorModel model : BlockDecorModel.getAllModels()) {
                 java.util.List<String> lines = new ArrayList<String>();
-                ru.givler.mbo.item.ItemBlockModels.addModelDescription(model, lines);
+                ru.givler.mbo.item.ItemBlockDecorModel.addModelDescription(model, lines);
                 require(!lines.isEmpty(), "Missing model description: " + language + "/" + model.getUnlocalizedName());
                 for (String line : lines) require(!line.contains("\\n") && !line.contains(".desc"), "Unresolved description: " + line);
             }
             java.util.List<String> lines = new ArrayList<String>();
-            ru.givler.mbo.item.ItemBlockModels.addModelDescription(
-                ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains, lines);
+            ru.givler.mbo.item.ItemBlockDecorModel.addModelDescription(
+                ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureBedOnChains, lines);
             require(lines.size() == 2, "Sleep instructions must contain two tooltip lines");
             lines.clear();
-            ru.givler.mbo.item.ItemBlockModels.addModelDescription(new PlacementBlock(false), lines);
+            ru.givler.mbo.item.ItemBlockDecorModel.addModelDescription(new PlacementBlock(false), lines);
             require(lines.isEmpty(), "Missing description must not expose a localization key");
         }
     }

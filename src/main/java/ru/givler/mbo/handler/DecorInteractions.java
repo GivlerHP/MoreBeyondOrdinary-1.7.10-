@@ -4,12 +4,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.entity.EntityDecorSeat;
 
 public final class DecorInteractions {
  private DecorInteractions(){}
- public static boolean sleep(BlockModels block,World world,int x,int y,int z,EntityPlayer player) {
+ public static boolean sleep(BlockDecorModel block,World world,int x,int y,int z,EntityPlayer player) {
   if(world.isRemote)return true;
   for(Object object:world.playerEntities) {
    EntityPlayer other=(EntityPlayer)object;
@@ -24,7 +24,7 @@ public final class DecorInteractions {
  public static double[] rotate(double x,double z,int facing) {
   switch(facing&3){case 0:return new double[]{-x,-z};case 1:return new double[]{z,-x};case 3:return new double[]{-z,x};default:return new double[]{x,z};}
  }
- public static boolean sit(BlockModels block,World world,int x,int y,int z,EntityPlayer player,float hitX,float hitZ) {
+ public static boolean sit(BlockDecorModel block,World world,int x,int y,int z,EntityPlayer player,float hitX,float hitZ) {
   if(world.isRemote)return true;
   if(player.ridingEntity!=null)return true;
   float[][] seats=block.getSeatingPositions();boolean[] occupied=new boolean[seats.length];

@@ -25,15 +25,15 @@ import ru.givler.mbo.particles.ParticleSettings;
 import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.tileentity.TileEntityTemporaryMagicBlock;
 
-/** Native MBO implementations for the remaining non-summoning spells. */
-public final class RemainingSpellExecutors {
+/** World, creature and player utility spells backed by native MBO mechanics. */
+public final class UtilitySpellExecutors {
   private static final String CLAIR_X = "mboClairvoyanceX",
       CLAIR_Y = "mboClairvoyanceY",
       CLAIR_Z = "mboClairvoyanceZ",
       CLAIR_DIM = "mboClairvoyanceDimension",
       CLAIR_SET = "mboClairvoyanceSet";
 
-  private RemainingSpellExecutors() {}
+  private UtilitySpellExecutors() {}
 
   public static SpellExecutor clairvoyance() {
     return new SpellExecutor() {
@@ -576,18 +576,8 @@ public final class RemainingSpellExecutors {
   }
 
   private static MovingObjectPosition blockTrace(SpellContext c, double range) {
-    Vec3
-        s =
-            Vec3.createVectorHelper(
-                c.caster().posX, c.caster().posY + c.caster().getEyeHeight(), c.caster().posZ),
-        l = c.caster().getLookVec();
-    return c.world()
-        .rayTraceBlocks(
-            s,
-            s.addVector(
-                l.xCoord * range * c.range(),
-                l.yCoord * range * c.range(),
-                l.zCoord * range * c.range()));
+    return SpellTargeting.blockTrace(c.world(), SpellTargeting.eyePosition(c.caster()),
+        c.caster().getLookVec(), range * c.range());
   }
 
   @SuppressWarnings("unchecked")

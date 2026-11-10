@@ -15,9 +15,10 @@ public final class PortableCarryTransformer implements IClassTransformer, Opcode
     ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);boolean changed=false;
     for(MethodNode method:node.methods) {
       String mapped=FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(node.name,method.name,method.desc);
+      String descriptor=FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(method.desc);
       boolean main=vanilla && (mapped.equals("renderItemInFirstPerson") || mapped.equals("func_78440_a")) && method.desc.equals("(F)V");
-      boolean off=battle && method.name.equals("renderItemInFirstPerson") && method.desc.equals("(FLnet/minecraft/client/Minecraft;Lnet/minecraft/client/renderer/ItemRenderer;)V");
-      boolean third=battle && method.name.equals("renderItemIn3rdPerson") && method.desc.equals("(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/client/model/ModelBiped;FLnet/minecraft/item/ItemStack;)V");
+      boolean off=battle && method.name.equals("renderItemInFirstPerson") && descriptor.equals("(FLnet/minecraft/client/Minecraft;Lnet/minecraft/client/renderer/ItemRenderer;)V");
+      boolean third=battle && method.name.equals("renderItemIn3rdPerson") && descriptor.equals("(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/client/model/ModelBiped;FLnet/minecraft/item/ItemStack;)V");
       if(!main && !off && !third)continue;
       boolean patched=false,hasMf2Tail=false;
       for(AbstractInsnNode insn:method.instructions.toArray())if(insn instanceof MethodInsnNode) {

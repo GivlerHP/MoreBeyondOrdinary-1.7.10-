@@ -1,4 +1,4 @@
-package ru.givler.mbo.client.lighting;
+package ru.givler.mbo.integration.thaumcraft.client;
 
 import java.util.Map;
 import net.minecraft.block.Block;
@@ -8,9 +8,9 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.nodes.INode;
 import ru.givler.mbo.lighting.ColoredLightApi;
 
-/** Loaded only with Thaumcraft. No polling or changes to vanilla light strength. */
-public final class ThaumcraftNodeLight {
-  private ThaumcraftNodeLight() {}
+/** Aspect-aware RGB for Thaumcraft nodes, jars and mana pods; native light strength is preserved. */
+public final class ThaumcraftRgbSources {
+  private ThaumcraftRgbSources() {}
   public static void register() {
     if(!Block.blockRegistry.containsKey("Thaumcraft:blockAiry"))return;
     final Block airy=(Block)Block.blockRegistry.getObject("Thaumcraft:blockAiry");
@@ -47,9 +47,5 @@ public final class ThaumcraftNodeLight {
       total+=weight;red+=(long)(rgb>>16&255)*weight;green+=(long)(rgb>>8&255)*weight;blue+=(long)(rgb&255)*weight;
     }
     return total==0?0xFFFFFF:(int)(red/total)<<16|(int)(green/total)<<8|(int)(blue/total);
-  }
-  public static void updated(TileEntity tile) {
-    if(tile instanceof thaumcraft.api.aspects.IAspectContainer && tile.getWorldObj()!=null && tile.getWorldObj().isRemote)
-      ColoredLightClient.INSTANCE.changed(tile.xCoord,tile.yCoord,tile.zCoord);
   }
 }

@@ -265,3 +265,8 @@ task verifyCompleteRgbCoverage(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.lighting.CompleteRgbCoverageSmoke'
 }
+
+task verifyAuditRefactor(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lootcontainer.action.AuditRefactorSmoke'
+}

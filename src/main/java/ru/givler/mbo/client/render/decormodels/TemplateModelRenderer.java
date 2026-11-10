@@ -17,9 +17,9 @@ public class TemplateModelRenderer extends GeoAnimatedBlockRenderer<ModelTileBas
 
     @Override
     protected void applyModelTransform(ModelTileBase tile) {
-        if (tile.getWorldObj() != null && tile.getBlockType() instanceof ru.givler.mbo.block.BlockModels) {
+        if (tile.getWorldObj() != null && tile.getBlockType() instanceof ru.givler.mbo.block.BlockDecorModel) {
             GlStateManager.translate(0,
-                    ((ru.givler.mbo.block.BlockModels) tile.getBlockType()).getModelOffsetY(), 0);
+                    ((ru.givler.mbo.block.BlockDecorModel) tile.getBlockType()).getModelOffsetY(), 0);
         }
         if (tile.getWorldObj() != null && tile.getBlockType() instanceof BlockConnectedRope
                 && RopeConnections.decoration(tile.getBlockMetadata()) == RopeConnections.KNOT

@@ -3,7 +3,6 @@ package ru.givler.mbo.item.glyph;
 import java.util.ArrayList;
 import java.util.List;
 
-import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -24,7 +23,7 @@ public class ItemGlyphCleansing extends ItemGlyphBasic {
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(120);
         this.maxStackSize = maxStackSize;
-        GameRegistry.registerItem(this, name);
+
     }
 
     private static int[] REMOVABLE_EFFECTS = null;

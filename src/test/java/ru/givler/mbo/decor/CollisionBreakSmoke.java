@@ -9,13 +9,13 @@ import net.minecraft.entity.player.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.world.*;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.block.model.BlockModelCollision;
 import ru.givler.mbo.tileentity.TileEntityModelCollision;
 import sun.misc.Unsafe;
 
 public final class CollisionBreakSmoke {
- static class Owner extends BlockModels {
+ static class Owner extends BlockDecorModel {
   int drops;IIcon icon;
   Owner(){super(Material.wood,"test","test","test");}
   public void dropBlockAsItemWithChance(World world,int x,int y,int z,int meta,float chance,int fortune){drops++;}

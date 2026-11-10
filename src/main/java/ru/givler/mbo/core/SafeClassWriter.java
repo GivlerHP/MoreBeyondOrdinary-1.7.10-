@@ -3,12 +3,12 @@ package ru.givler.mbo.core;
 import org.objectweb.asm.ClassWriter;
 
 /** Creates frame-computing writers that do not load classes during LaunchWrapper transformation. */
-final class SafeClassWriter extends ClassWriter {
+public final class SafeClassWriter extends ClassWriter {
   private SafeClassWriter() {
     super(COMPUTE_MAXS | COMPUTE_FRAMES);
   }
 
-  static ClassWriter create() {
+  public static ClassWriter create() {
     return new SafeClassWriter();
   }
 

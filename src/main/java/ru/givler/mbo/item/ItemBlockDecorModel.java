@@ -8,11 +8,11 @@ import net.minecraft.world.World;
 import java.util.List;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.block.model.BlockConnectedRope;
 
-public class ItemBlockModels extends ItemBlock {
-    public ItemBlockModels(Block block) { super(block); }
+public class ItemBlockDecorModel extends ItemBlock {
+    public ItemBlockDecorModel(Block block) { super(block); }
 
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List lines, boolean advanced) {
@@ -32,7 +32,7 @@ public class ItemBlockModels extends ItemBlock {
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world,
                              int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
         Block target = world.getBlock(x, y, z);
-        if (field_150939_a == ru.givler.mbo.registry.ModelRegistry.ModelTortureRope3
+        if (field_150939_a == ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureRope3
                 && target instanceof BlockConnectedRope)
             return ((BlockConnectedRope) target).trySetAnchor(stack,player,world,x,y,z,side);
         if (field_150939_a instanceof BlockConnectedRope && target instanceof BlockConnectedRope
@@ -46,7 +46,7 @@ public class ItemBlockModels extends ItemBlock {
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world,
                                 int x, int y, int z, int side,
                                 float hitX, float hitY, float hitZ, int metadata) {
-        BlockModels model = (BlockModels) field_150939_a;
+        BlockDecorModel model = (BlockDecorModel) field_150939_a;
         if (!model.canPlaceStructureAt(world, x, y, z, player)) return false;
         boolean placed=super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, metadata);
         if(placed && model instanceof BlockConnectedRope)

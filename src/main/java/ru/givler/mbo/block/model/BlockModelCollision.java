@@ -15,7 +15,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.tileentity.TileEntityModelCollision;
 
 public class BlockModelCollision extends Block implements ITileEntityProvider {
@@ -23,13 +23,13 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
   // Keep only recent client selection data; worlds are weak keys and each cache is bounded.
   private static final java.util.WeakHashMap<World,java.util.LinkedHashMap<String,ParticleSource>> particleSources=new java.util.WeakHashMap<>();
   private static final class ParticleSource {
-    BlockModels owner;int x,y,z,meta;float[] bounds;long time;
+    BlockDecorModel owner;int x,y,z,meta;float[] bounds;long time;
   }
   private ParticleSource particleSource(World world,int x,int y,int z) {
     String key=x+","+y+","+z;
     java.util.LinkedHashMap<String,ParticleSource> cache=particleSources.get(world);
     TileEntityModelCollision part=tile(world,x,y,z);
-    BlockModels owner=part==null?null:part.getOwnerBlock();
+    BlockDecorModel owner=part==null?null:part.getOwnerBlock();
     if(owner!=null) {
       ParticleSource source=new ParticleSource();source.owner=owner;
       source.x=part.getOwnerX();source.y=part.getOwnerY();source.z=part.getOwnerZ();
@@ -63,7 +63,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
       if(world.isRemote)particleSource(world,x,y,z);
       MovingObjectPosition closest=null;
       for(float[] b:part.getBoxes()) {
-        BlockModels owner=part.getOwnerBlock();
+        BlockDecorModel owner=part.getOwnerBlock();
         if(owner!=null&&!owner.includesModelCollisionBox(world,part.getOwnerX(),part.getOwnerY(),part.getOwnerZ(),b))continue;
         setBlockBounds(b[0],b[1],b[2],b[3],b[4],b[5]);
         MovingObjectPosition raw=AxisAlignedBB.getBoundingBox(x+b[0],y+b[1],z+b[2],x+b[3],y+b[4],z+b[5]).calculateIntercept(start,end);
@@ -80,7 +80,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
       java.util.List list,net.minecraft.entity.Entity entity) {
     TileEntityModelCollision part=tile(world,x,y,z);
     if(part==null) return;
-    BlockModels owner=part.getOwnerBlock();
+    BlockDecorModel owner=part.getOwnerBlock();
     if(owner==null || !owner.isModelCollisionEnabled()) return;
     for(float[] b:part.getBoxes()) {
       if(!owner.includesModelCollisionBox(world,part.getOwnerX(),part.getOwnerY(),part.getOwnerZ(),b))continue;
@@ -122,7 +122,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
   @Override
   public net.minecraft.util.IIcon getIcon(IBlockAccess world,int x,int y,int z,int side) {
     TileEntityModelCollision part=tile(world,x,y,z);
-    BlockModels owner=part==null?null:part.getOwnerBlock();
+    BlockDecorModel owner=part==null?null:part.getOwnerBlock();
     if(owner!=null)return owner.getIcon(side,world.getBlockMetadata(part.getOwnerX(),part.getOwnerY(),part.getOwnerZ()));
     if(world instanceof World) {
       ParticleSource source=particleSource((World)world,x,y,z);
@@ -160,7 +160,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
 
   public ItemStack getOwnerStack(IBlockAccess world, int x, int y, int z, EntityPlayer player) {
     TileEntityModelCollision collision = tile(world, x, y, z);
-    BlockModels owner = collision == null ? null : collision.getOwnerBlock();
+    BlockDecorModel owner = collision == null ? null : collision.getOwnerBlock();
     if (owner == null) return null;
     World ownerWorld = world instanceof World ? (World) world : null;
     if (ownerWorld == null) return new ItemStack(owner, 1, 0);
@@ -267,7 +267,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
       double my,
       double mz,
       boolean hitParticle) {
-    BlockModels owner = collision.owner;
+    BlockDecorModel owner = collision.owner;
     int meta = collision.meta;
     EntityDiggingFX particle = new EntityDiggingFX(world, x, y, z, mx, my, mz, owner, meta);
     particle.applyColourMultiplier(
@@ -289,7 +289,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
   @Override
   public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
     TileEntityModelCollision tile = tile(world, x, y, z);
-    BlockModels owner = tile == null ? null : tile.getOwnerBlock();
+    BlockDecorModel owner = tile == null ? null : tile.getOwnerBlock();
     if (owner == null || !owner.isModelCollisionEnabled()) return null;
     setBlockBoundsBasedOnState(world, x, y, z);
     return super.getCollisionBoundingBoxFromPool(world, x, y, z);
@@ -304,7 +304,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
   @Override
   public float getBlockHardness(World world, int x, int y, int z) {
     TileEntityModelCollision collision = tile(world, x, y, z);
-    BlockModels owner = collision == null ? null : collision.getOwnerBlock();
+    BlockDecorModel owner = collision == null ? null : collision.getOwnerBlock();
     return owner == null
         ? super.getBlockHardness(world, x, y, z)
         : owner.getBlockHardness(
@@ -315,7 +315,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
   public float getPlayerRelativeBlockHardness(
       EntityPlayer player, World world, int x, int y, int z) {
     TileEntityModelCollision collision = tile(world, x, y, z);
-    BlockModels owner = collision == null ? null : collision.getOwnerBlock();
+    BlockDecorModel owner = collision == null ? null : collision.getOwnerBlock();
     return owner == null
         ? super.getPlayerRelativeBlockHardness(player, world, x, y, z)
         : owner.getPlayerRelativeBlockHardness(
@@ -327,7 +327,7 @@ public class BlockModelCollision extends Block implements ITileEntityProvider {
       World world, EntityPlayer player, int x, int y, int z, boolean willHarvest) {
     TileEntityModelCollision tile = tile(world, x, y, z);
     if (tile != null && tile.getOwnerBlock() != null) {
-      BlockModels owner=tile.getOwnerBlock();
+      BlockDecorModel owner=tile.getOwnerBlock();
       int ox=tile.getOwnerX(),oy=tile.getOwnerY(),oz=tile.getOwnerZ();
       int meta=world.getBlockMetadata(ox,oy,oz);
       // The player controller already emits the break effect at the clicked part.

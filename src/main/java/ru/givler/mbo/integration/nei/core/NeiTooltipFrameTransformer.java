@@ -1,4 +1,5 @@
-package ru.givler.mbo.core;
+package ru.givler.mbo.integration.nei.core;
+import ru.givler.mbo.core.SafeClassWriter;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.*;

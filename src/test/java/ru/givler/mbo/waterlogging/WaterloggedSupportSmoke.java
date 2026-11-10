@@ -10,7 +10,7 @@ import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.block.model.BlockModelCollision;
 
 /** Eligibility against real dependency classes, submerged multiblocks and fluid geometry. */
@@ -115,7 +115,7 @@ public final class WaterloggedSupportSmoke {
       } catch(ClassNotFoundException absent) { System.out.println("Optional Biomes O' Plenty jar not supplied for "+name); }
     }
     require(!WaterloggedBlockSupport.supportsWaterlogging(new TestBlock(Material.lava)),"Lava must not become waterlogged");
-    BlockModels model=new BlockModels(Material.wood,"wet_test","test","test");
+    BlockDecorModel model=new BlockDecorModel(Material.wood,"wet_test","test","test");
     model.withMultipartCollisionBoxes(new float[][]{{0,0,0,2,1,1}});
     BlockModelCollision helper=new BlockModelCollision();
     for(Block block:new Block[]{model,helper}) {

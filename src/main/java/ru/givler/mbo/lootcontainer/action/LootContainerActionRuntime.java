@@ -57,6 +57,30 @@ final class LootContainerActionRuntime {
         return null;
     }
 
+    static void forEachLivingTarget(ru.givler.mbo.tileentity.TileEntityLootContainer tile,
+                                    float radius, java.util.function.Consumer<net.minecraft.entity.EntityLivingBase> effect) {
+        World world = tile.getWorldObj();
+        int extent = (int) Math.ceil(radius);
+        AxisAlignedBB area = AxisAlignedBB.getBoundingBox(
+                tile.xCoord - extent, tile.yCoord - extent, tile.zCoord - extent,
+                tile.xCoord + extent + 1, tile.yCoord + extent + 1, tile.zCoord + extent + 1);
+        for (Object obj : world.getEntitiesWithinAABB(net.minecraft.entity.EntityLivingBase.class, area)) {
+            net.minecraft.entity.EntityLivingBase living = (net.minecraft.entity.EntityLivingBase) obj;
+            if (living.isDead) continue;
+            double dx = living.posX - (tile.xCoord + .5D);
+            double dy = living.posY - (tile.yCoord + .5D);
+            double dz = living.posZ - (tile.zCoord + .5D);
+            if (Math.sqrt(dx * dx + dy * dy + dz * dz) <= radius) effect.accept(living);
+        }
+    }
+    static void explosionEffects(ru.givler.mbo.tileentity.TileEntityLootContainer tile,
+                                 float radius, boolean particles, boolean knockback) {
+        World world = tile.getWorldObj();
+        double x = tile.xCoord + .5D, y = tile.yCoord + 1.0D, z = tile.zCoord + .5D;
+        if (particles) playExplosionFeedback(world, x, y, z, radius);
+        if (knockback) applyExplosionKnockback(world, x, y, z, radius);
+    }
+
     static void playExplosionFeedback(World world, double x, double y, double z, float radius) {
         if (world == null) return;
         world.playSoundEffect(

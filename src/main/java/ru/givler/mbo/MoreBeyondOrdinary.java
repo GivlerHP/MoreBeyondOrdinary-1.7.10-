@@ -91,6 +91,7 @@ public class MoreBeyondOrdinary {
     FaunaCaveAbyss.init();
     FMLCommonHandler.instance().bus().register(new FaunaAquaticSpawner());
     TooltipFrameConfig.load(event.getModConfigurationDirectory());
+    ru.givler.mbo.config.HudConfig.load(event.getModConfigurationDirectory());
     LockSecurityConfig.load(event.getModConfigurationDirectory());
   }
 

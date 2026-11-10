@@ -7,7 +7,7 @@ import static ru.givler.mbo.registry.BoatRegistry.vanillaChestBoats;
 import static ru.givler.mbo.registry.DrinkRegistry.*;
 import static ru.givler.mbo.registry.FoodRegistry.*;
 import static ru.givler.mbo.registry.ItemRegistry.*;
-import static ru.givler.mbo.registry.ModelRegistry.*;
+import static ru.givler.mbo.registry.DecorBlockRegistry.*;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.relauncher.Side;

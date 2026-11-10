@@ -2,7 +2,7 @@ package ru.givler.mbo.core;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.block.Block;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 
 public final class DecorSleepHooks {
  private DecorSleepHooks(){}
@@ -12,7 +12,7 @@ public final class DecorSleepHooks {
   if(!player.isPlayerSleeping()||player.playerLocation==null)return false;
   net.minecraft.util.ChunkCoordinates p=player.playerLocation;
   Block block=player.worldObj.getBlock(p.posX,p.posY,p.posZ);
-  return block instanceof BlockModels&&((BlockModels)block).isTemporaryBed();
+  return block instanceof BlockDecorModel&&((BlockDecorModel)block).isTemporaryBed();
  }
  public static double sleepingLabelDrop(double vanilla,net.minecraft.entity.EntityLivingBase entity) {
   return isDecorSleeping(entity)?0:vanilla;
@@ -21,7 +21,7 @@ public final class DecorSleepHooks {
   if(!player.isPlayerSleeping()||player.playerLocation==null)return;
   net.minecraft.util.ChunkCoordinates p=player.playerLocation;
   Block block=player.worldObj.getBlock(p.posX,p.posY,p.posZ);
-  if(!(block instanceof BlockModels)||!((BlockModels)block).isTemporaryBed())return;
+  if(!(block instanceof BlockDecorModel)||!((BlockDecorModel)block).isTemporaryBed())return;
   afterSleep(player,p.posX,p.posY,p.posZ,EntityPlayer.EnumStatus.OK);
   player.motionX=player.motionY=player.motionZ=0;player.fallDistance=0;
   player.prevPosX=player.lastTickPosX=player.posX;
@@ -30,9 +30,9 @@ public final class DecorSleepHooks {
  }
  public static EntityPlayer.EnumStatus afterSleep(EntityPlayer player,int x,int y,int z,EntityPlayer.EnumStatus status) {
   Block block=player.worldObj.getBlock(x,y,z);
-  if(status==EntityPlayer.EnumStatus.OK&&block instanceof BlockModels&&((BlockModels)block).isTemporaryBed()) {
+  if(status==EntityPlayer.EnumStatus.OK&&block instanceof BlockDecorModel&&((BlockDecorModel)block).isTemporaryBed()) {
    player.getEntityData().setBoolean("mboTemporarySleep",true);
-   BlockModels bed=(BlockModels)block;float[] head=bed.getSleepingHeadPosition();
+   BlockDecorModel bed=(BlockDecorModel)block;float[] head=bed.getSleepingHeadPosition();
    double px=player.posX,pz=player.posZ;
    if(head!=null){double[] rotated=ru.givler.mbo.handler.DecorInteractions.rotate(head[0]-.5,head[1]-.5,player.worldObj.getBlockMetadata(x,y,z));px=x+.5+rotated[0];pz=z+.5+rotated[1];}
    // Match vanilla's head-to-body render anchor to the bed direction on both sides.

@@ -15,11 +15,11 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.gui.MboGuiType;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.item.ItemBlockLootContainer;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
 
-public class BlockDestructibleLootContainer extends BlockModels {
+public class BlockDestructibleLootContainer extends BlockDecorModel {
     public BlockDestructibleLootContainer(Material material, String name) {
         super(material, name, "jugs", "jugs");
         setCollisionEnabled(false);

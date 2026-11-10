@@ -5,7 +5,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 
 public class TileEntityModelCollision extends TileEntity {
   private int ownerX;
@@ -29,18 +29,18 @@ public class TileEntityModelCollision extends TileEntity {
   public float[] getBounds() {
     if((getOwnerBlock()!=null&&getOwnerBlock().hasMultipartCollisionBoxes())
         || getOwnerBlock() instanceof ru.givler.mbo.block.model.BlockDecorCage
-        || (getOwnerBlock()!=null&&getOwnerBlock()==ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains)) {
+        || (getOwnerBlock()!=null&&getOwnerBlock()==ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureBedOnChains)) {
       float[][] shape=getBoxes();
       return shape.length==0?new float[]{0,0,0,0,0,0}:ru.givler.mbo.block.model.CollisionShapeParts.envelope(shape);
     }
     return bounds;
   }
   public float[][] getBoxes() {
-    BlockModels owner=getOwnerBlock();
+    BlockDecorModel owner=getOwnerBlock();
     if(owner!=null && owner.hasMultipartCollisionBoxes())
       return owner.getMultipartBoxesForCell(xCoord-ownerX,yCoord-ownerY,zCoord-ownerZ,
           worldObj.getBlockMetadata(ownerX,ownerY,ownerZ)&3);
-    if(owner!=null&&owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains&&worldObj!=null) {
+    if(owner!=null&&owner==ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureBedOnChains&&worldObj!=null) {
       if(yCoord!=ownerY)return new float[0][];
       float[] platform;
       switch(worldObj.getBlockMetadata(ownerX,ownerY,ownerZ)&3) {
@@ -72,10 +72,10 @@ public class TileEntityModelCollision extends TileEntity {
     return ownerZ;
   }
 
-  public BlockModels getOwnerBlock() {
+  public BlockDecorModel getOwnerBlock() {
     if (worldObj == null) return null;
-    return worldObj.getBlock(ownerX, ownerY, ownerZ) instanceof BlockModels
-        ? (BlockModels) worldObj.getBlock(ownerX, ownerY, ownerZ)
+    return worldObj.getBlock(ownerX, ownerY, ownerZ) instanceof BlockDecorModel
+        ? (BlockDecorModel) worldObj.getBlock(ownerX, ownerY, ownerZ)
         : null;
   }
 
@@ -95,13 +95,13 @@ public class TileEntityModelCollision extends TileEntity {
             ru.givler.mbo.registry.BlockRegistry.ModelCollisionPart,20);
         return;
       }
-      BlockModels owner=getOwnerBlock();
+      BlockDecorModel owner=getOwnerBlock();
       // Older saves may contain obsolete helpers above corpses or the cage roof.
       if(owner==null || (owner instanceof ru.givler.mbo.block.model.BlockDecorCage && (xCoord!=ownerX||zCoord!=ownerZ||yCoord!=ownerY+1))
           || (owner.hasMultipartCollisionBoxes() && getBoxes().length==0)
-          || owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureHangedCorpse
-          || (owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureBedOnChains && yCoord!=ownerY)
-          || (owner==ru.givler.mbo.registry.ModelRegistry.ModelTortureSuspendedCorpse && yCoord>=ownerY+2))
+          || owner==ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureHangedCorpse
+          || (owner==ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureBedOnChains && yCoord!=ownerY)
+          || (owner==ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureSuspendedCorpse && yCoord>=ownerY+2))
         worldObj.setBlockToAir(xCoord, yCoord, zCoord);
     }
   }

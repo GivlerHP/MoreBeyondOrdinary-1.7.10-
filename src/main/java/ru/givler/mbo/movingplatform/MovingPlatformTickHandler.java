@@ -48,7 +48,7 @@ public final class MovingPlatformTickHandler {
     for(EntityMovingPlatform platform:platforms) {
       if(platform.isDead||!platform.isCollisionActive()||!bounds(platform).expand(.01,.01,.01).intersectsWith(query))continue;
       for(PlatformBlock b:platform.getOuterBlocks()) {
-        if(!(b.block instanceof ru.givler.mbo.block.BlockModels)&&!(b.block instanceof ru.givler.mbo.block.model.BlockModelCollision))continue;
+        if(!(b.block instanceof ru.givler.mbo.block.BlockDecorModel)&&!(b.block instanceof ru.givler.mbo.block.model.BlockModelCollision))continue;
         AxisAlignedBB box=blockBox(platform,b);
         if(box!=null&&box.intersectsWith(query))result.add(box);
       }

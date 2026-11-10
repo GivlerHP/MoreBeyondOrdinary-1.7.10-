@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 import ru.givler.mbo.item.ItemBlockLootContainer;
 import ru.givler.mbo.lootcontainer.LootContainerConfigValidator;
 import ru.givler.mbo.lootcontainer.LootContainerData;
-import ru.givler.mbo.registry.ModelRegistry;
+import ru.givler.mbo.registry.DecorBlockRegistry;
 import ru.givler.mbo.network.EditorPacketAccess;
 
 import java.util.List;
@@ -67,7 +67,7 @@ public class PacketLootContainerGiveItem implements IMessage {
                 return;
             }
 
-            ItemStack stack = new ItemStack(ModelRegistry.LootContainer, 1, 0);
+            ItemStack stack = new ItemStack(DecorBlockRegistry.LootContainer, 1, 0);
             ItemBlockLootContainer.writeData(stack, data);
             if (!player.inventory.addItemStackToInventory(stack)) {
                 player.dropPlayerItemWithRandomChoice(stack, false);

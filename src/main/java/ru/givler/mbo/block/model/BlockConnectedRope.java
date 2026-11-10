@@ -9,11 +9,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import ru.givler.mbo.block.BlockModels;
-import ru.givler.mbo.registry.ModelRegistry;
+import ru.givler.mbo.block.BlockDecorModel;
+import ru.givler.mbo.registry.DecorBlockRegistry;
 
 /** One placeable rope, with geometry derived from its six neighboring ropes. */
-public class BlockConnectedRope extends BlockModels {
+public class BlockConnectedRope extends BlockDecorModel {
     private static ru.givler.mbo.tileentity.ModelTileBase ropeTile(IBlockAccess world,int x,int y,int z) {
         net.minecraft.tileentity.TileEntity tile=world.getTileEntity(x,y,z);
         return tile instanceof ru.givler.mbo.tileentity.ModelTileBase ? (ru.givler.mbo.tileentity.ModelTileBase)tile : null;
@@ -41,7 +41,7 @@ public class BlockConnectedRope extends BlockModels {
             ? side>1 && ((BlockConnectedRope)source).isFloor(world,sx,sy,sz)
             : side==1 && player.isSneaking()
                 && world.isSideSolid(x,y-1,z,net.minecraftforge.common.util.ForgeDirection.UP);
-        tile.ropeAnchor=this==ModelRegistry.ModelTortureRope3
+        tile.ropeAnchor=this==DecorBlockRegistry.ModelTortureRope3
             || (tile.ropeFloor && !(source instanceof BlockConnectedRope));
         if(tile.ropeFloor && side<2) {
             int yaw=net.minecraft.util.MathHelper.floor_double(player.rotationYaw*4/360.0+0.5)&3;
@@ -103,12 +103,12 @@ public class BlockConnectedRope extends BlockModels {
                 ru.givler.mbo.tileentity.TileEntityModelCollision part=
                     (ru.givler.mbo.tileentity.TileEntityModelCollision)attachmentTile;
                 if(part.getOwnerX()==x && part.getOwnerY()==y-1 && part.getOwnerZ()==z
-                        && world.getBlock(x,y-1,z)==ModelRegistry.ModelTortureSuspendedCorpse) return true;
+                        && world.getBlock(x,y-1,z)==DecorBlockRegistry.ModelTortureSuspendedCorpse) return true;
             }
-            if(attachment!=null && (attachment==ModelRegistry.ModelTortureHook
-                    || attachment==ModelRegistry.ModelTortureHangedCorpse)) return true;
+            if(attachment!=null && (attachment==DecorBlockRegistry.ModelTortureHook
+                    || attachment==DecorBlockRegistry.ModelTortureHangedCorpse)) return true;
             // The corpse's own upper rope occupies the cell above its owner.
-            if(attachment!=null && world.getBlock(x,y-1,z)==ModelRegistry.ModelTortureHangedCorpse) {
+            if(attachment!=null && world.getBlock(x,y-1,z)==DecorBlockRegistry.ModelTortureHangedCorpse) {
                 if(attachment.isAir(world,x,y,z)) return true;
                 net.minecraft.tileentity.TileEntity oldTile=world.getTileEntity(x,y,z);
                 if(oldTile instanceof ru.givler.mbo.tileentity.TileEntityModelCollision) {
@@ -230,7 +230,7 @@ public class BlockConnectedRope extends BlockModels {
 
     @Override
     public Item getItemDropped(int metadata, java.util.Random random, int fortune) {
-        return Item.getItemFromBlock(ModelRegistry.ModelTortureRope);
+        return Item.getItemFromBlock(DecorBlockRegistry.ModelTortureRope);
     }
 
     @Override
@@ -241,7 +241,7 @@ public class BlockConnectedRope extends BlockModels {
     @Override public java.util.ArrayList<ItemStack> getDrops(World world,int x,int y,int z,int meta,int fortune) {
         java.util.ArrayList<ItemStack> drops=super.getDrops(world,x,y,z,meta,fortune);
         ru.givler.mbo.tileentity.ModelTileBase tile=ropeTile(world,x,y,z);
-        if(tile!=null && tile.ropeAnchorExtra) drops.add(new ItemStack(ModelRegistry.ModelTortureRope3));
+        if(tile!=null && tile.ropeAnchorExtra) drops.add(new ItemStack(DecorBlockRegistry.ModelTortureRope3));
         return drops;
     }
 
@@ -260,6 +260,6 @@ public class BlockConnectedRope extends BlockModels {
     @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z,
                                   EntityPlayer player) {
-        return new ItemStack(ModelRegistry.ModelTortureRope);
+        return new ItemStack(DecorBlockRegistry.ModelTortureRope);
     }
 }

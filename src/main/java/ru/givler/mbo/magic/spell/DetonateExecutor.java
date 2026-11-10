@@ -17,17 +17,10 @@ public final class DetonateExecutor implements SpellExecutor {
   public SpellResult cast(SpellContext context) {
     double range = 16.0D * context.range();
     Vec3 start =
-        Vec3.createVectorHelper(
-            context.caster().posX,
-            context.caster().posY + context.caster().getEyeHeight(),
-            context.caster().posZ);
+        SpellTargeting.eyePosition(context.caster());
     Vec3 look = context.caster().getLookVec();
     MovingObjectPosition hit =
-        context
-            .world()
-            .rayTraceBlocks(
-                start,
-                start.addVector(look.xCoord * range, look.yCoord * range, look.zCoord * range));
+        SpellTargeting.blockTrace(context.world(), start, look, range);
     if (hit == null || hit.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) {
       return SpellResult.PASS;
     }

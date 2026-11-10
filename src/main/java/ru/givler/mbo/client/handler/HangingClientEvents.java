@@ -35,7 +35,7 @@ public final class HangingClientEvents {
     public static boolean hideAttachment(net.minecraft.tileentity.TileEntity tile) {
         // The hook now passes through the chest, below the eye, so it stays visible.
         if (tile.getWorldObj() != null
-                && tile.getBlockType() == ru.givler.mbo.registry.ModelRegistry.ModelTortureHook) return false;
+                && tile.getBlockType() == ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureHook) return false;
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.gameSettings.thirdPersonView != 0 || mc.renderViewEntity == null
                 || !(mc.renderViewEntity.ridingEntity instanceof EntityHangingAnchor)) return false;
@@ -44,7 +44,7 @@ public final class HangingClientEvents {
                 .belongsTo(tile.xCoord, tile.yCoord, tile.zCoord)) return true;
         // The strand above a noose is a different tile, but can enclose the same camera.
         if (!(tile.getBlockType() instanceof ru.givler.mbo.block.model.BlockConnectedRope)
-                && tile.getBlockType() != ru.givler.mbo.registry.ModelRegistry.ModelTortureRopeAroundTheNeck)
+                && tile.getBlockType() != ru.givler.mbo.registry.DecorBlockRegistry.ModelTortureRopeAroundTheNeck)
             return false;
         net.minecraft.entity.Entity view = mc.renderViewEntity;
         double eyeY = view.posY - view.yOffset + 1.62;

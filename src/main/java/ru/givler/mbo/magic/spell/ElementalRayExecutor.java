@@ -101,14 +101,7 @@ public final class ElementalRayExecutor implements SpellExecutor {
     Vec3 start = eyes(context);
     Vec3 look = context.caster().getLookVec();
     MovingObjectPosition hit =
-        context
-            .world()
-            .rayTraceBlocks(
-                start,
-                start.addVector(
-                    look.xCoord * 10 * context.range(),
-                    look.yCoord * 10 * context.range(),
-                    look.zCoord * 10 * context.range()));
+        SpellTargeting.blockTrace(context.world(), start, look, 10 * context.range());
     if (hit == null || hit.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) return;
     ForgeDirection side = ForgeDirection.getOrientation(hit.sideHit);
     int x = hit.blockX + side.offsetX;
@@ -175,9 +168,6 @@ public final class ElementalRayExecutor implements SpellExecutor {
   }
 
   private static Vec3 eyes(SpellContext context) {
-    return Vec3.createVectorHelper(
-        context.caster().posX,
-        context.caster().posY + context.caster().getEyeHeight(),
-        context.caster().posZ);
+    return SpellTargeting.eyePosition(context.caster());
   }
 }

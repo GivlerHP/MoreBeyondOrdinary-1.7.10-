@@ -1,5 +1,6 @@
-package ru.givler.mbo.client.lighting;
+package ru.givler.mbo.integration.angelica.client;
 
+import ru.givler.mbo.client.lighting.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -30,7 +31,7 @@ public final class AngelicaDynamicLightBridge {
     catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
   }
   /** Use the backend's section queue so RGB and monochrome requests share its deduplication. */
-  static boolean schedule(int x,int y,int z) {
+  public static boolean schedule(int x,int y,int z) {
     if(!available())return false;
     try {
       Object renderer=access.renderer.get(null);

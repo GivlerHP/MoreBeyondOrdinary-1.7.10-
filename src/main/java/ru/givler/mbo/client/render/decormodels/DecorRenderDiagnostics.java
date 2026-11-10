@@ -106,8 +106,8 @@ public final class DecorRenderDiagnostics extends CommandBase {
             +"; hasTileEntity="+declared);
         reply("Block class: "+block.getClass().getName()+"; renderType="+block.getRenderType());
         if(tile!=null) reply("TileEntity: "+tile.getClass().getName()+"; canUpdate="+tile.canUpdate());
-        if(block instanceof ru.givler.mbo.block.BlockModels) {
-            reply(ChunkDecorRenderer.INSTANCE.inspect((ru.givler.mbo.block.BlockModels)block,x,y,z,meta));
+        if(block instanceof ru.givler.mbo.block.BlockDecorModel) {
+            reply(ChunkDecorRenderer.INSTANCE.inspect((ru.givler.mbo.block.BlockDecorModel)block,x,y,z,meta));
         } else if(id!=null && id.toString().startsWith("minefantasy2:")) {
             for(String line:mf2Diagnostics(new String[] {"inspect"})) reply(line);
         }
@@ -135,7 +135,7 @@ public final class DecorRenderDiagnostics extends CommandBase {
         double p95=ordered[(int)Math.ceil(ordered.length*.95)-1]/1e6;
         double modelTime=totalDecor/(double)frames.length/1e6;
         // Keep the existing CSV schema; record chunk mode in the label for comparable samples.
-        String row=String.format(Locale.ROOT,"%s,%s,%d,%.6f,%.6f,%.6f,%.3f,%.3f,%.3f%n",label+(ru.givler.mbo.block.BlockModels.decorInstancedRendering?"_gpu":ru.givler.mbo.block.BlockModels.decorChunkRendering?"_chunk":"_tesr"),
+        String row=String.format(Locale.ROOT,"%s,%s,%d,%.6f,%.6f,%.6f,%.3f,%.3f,%.3f%n",label+(ru.givler.mbo.block.BlockDecorModel.decorInstancedRendering?"_gpu":ru.givler.mbo.block.BlockDecorModel.decorChunkRendering?"_chunk":"_tesr"),
             StaticDecorRenderCache.INSTANCE.isEnabled(),frames.length,average,p95,modelTime,
             totalModels/(double)frames.length,totalCached/(double)frames.length,totalDynamic/(double)frames.length);
         File report=new File(Minecraft.getMinecraft().mcDataDir,"logs/mbo-decor-render.csv");
@@ -151,14 +151,14 @@ public final class DecorRenderDiagnostics extends CommandBase {
             try(FileWriter writer=new FileWriter(gpuReport,true)) {
                 if(gpuHeader)writer.write("label,gpu,frames,frame_ms,p95_frame_ms,gpu_cpu_ms,visible_per_frame,draws_per_frame\n");
                 writer.write(String.format(Locale.ROOT,"%s,%s,%d,%.6f,%.6f,%.6f,%.3f,%.3f%n",
-                    label,ru.givler.mbo.block.BlockModels.decorInstancedRendering,frames.length,average,p95,
+                    label,ru.givler.mbo.block.BlockDecorModel.decorInstancedRendering,frames.length,average,p95,
                     totalGpu/(double)frames.length/1e6,totalGpuVisible/(double)frames.length,totalGpuDraws/(double)frames.length));
             }
             reply(String.format(Locale.ROOT,"%s: frame %.3f ms (%.1f FPS), p95 %.3f ms; decor CPU %.3f ms, %.1f models/frame. CSV: logs/mbo-decor-render.csv",
                 label,average,1000/average,p95,modelTime,totalModels/(double)frames.length));
             reply(ru.givler.mbo.client.lighting.ColoredLightDiagnostics.finish(label,frames.length));
             reply(ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.finish(label,frames.length));
-            if(ru.givler.mbo.block.BlockModels.decorInstancedRendering)reply(String.format(Locale.ROOT,
+            if(ru.givler.mbo.block.BlockDecorModel.decorInstancedRendering)reply(String.format(Locale.ROOT,
                 "GPU instances: CPU %.3f ms, %.1f visible models/frame, %.1f draws/frame",
                 totalGpu/(double)frames.length/1e6,totalGpuVisible/(double)frames.length,totalGpuDraws/(double)frames.length));
         } catch(IOException error) { reply("Cannot write benchmark report: "+error.getMessage()); }

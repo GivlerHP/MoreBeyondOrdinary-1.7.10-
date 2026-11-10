@@ -4,10 +4,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.tileentity.ModelTileBase;
 
-public final class BlockDecorCage extends BlockModels {
+public final class BlockDecorCage extends BlockDecorModel {
  private static final java.util.Map<String,float[][]> CELLS=CollisionShapeParts.cells(closedShape());
  public BlockDecorCage() {
   super(Material.iron,"ModelTortureIronCage","instruments_of_torture/iron_cage","instruments_of_torture/iron_cage");

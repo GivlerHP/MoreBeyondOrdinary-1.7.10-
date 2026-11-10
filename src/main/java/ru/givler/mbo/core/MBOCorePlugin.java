@@ -5,12 +5,11 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.Name("MBOCore")
 @IFMLLoadingPlugin.MCVersion("1.7.10")
-@IFMLLoadingPlugin.TransformerExclusions({"ru.givler.mbo.core", "ru.givler.mbo.integration.thaumcraft.core", "ru.givler.mbo.integration.angelica.core"})
+@IFMLLoadingPlugin.TransformerExclusions({"ru.givler.mbo.core", "ru.givler.mbo.integration.thaumcraft.core", "ru.givler.mbo.integration.angelica.core", "ru.givler.mbo.integration.nei.core"})
 public class MBOCorePlugin implements IFMLLoadingPlugin {
   public String[] getASMTransformerClass() {
     return new String[] {
       "ru.givler.mbo.core.TextureInterpolationTransformer",
-      "ru.givler.mbo.integration.thaumcraft.core.ThaumcraftNodeLightTransformer",
       "ru.givler.mbo.core.TileRgbUpdateTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaPackSettingsTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaGuiScaleTransformer",
@@ -24,7 +23,6 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.integration.angelica.core.AngelicaWaterloggingTransformer",
       "ru.givler.mbo.core.NaturalTextureTransformer",
       "ru.givler.mbo.core.KeyBindingListTransformer",
-      "ru.givler.mbo.core.HandRenderTraceTransformer",
       "ru.givler.mbo.core.TickRateTransformer",
       "ru.givler.mbo.core.DecorSleepTransformer",
       "ru.givler.mbo.core.DecorSleepRenderTransformer",
@@ -48,15 +46,14 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.core.TessellatorEmptyBufferTransformer",
       "ru.givler.mbo.core.ColoredLightTransformer",
       "ru.givler.mbo.core.ColoredEntityLightTransformer",
-      "ru.givler.mbo.core.TileEntityTraceTransformer",
       "ru.givler.mbo.core.ColoredDynamicLightTransformer",
       "ru.givler.mbo.core.ColoredLightShaderTransformer",
-      "ru.givler.mbo.core.ThaumcraftFontTransformer",
+      "ru.givler.mbo.integration.thaumcraft.core.ThaumcraftFontTransformer",
       "ru.givler.mbo.integration.thaumcraft.core.ThaumometerLensTransformer",
       "ru.givler.mbo.core.TooltipFrameTransformer",
       "ru.givler.mbo.core.ItemTooltipContextTransformer",
-      "ru.givler.mbo.core.NeiTooltipFrameTransformer",
-      "ru.givler.mbo.core.NeiRecipeTextColorTransformer",
+      "ru.givler.mbo.integration.nei.core.NeiTooltipFrameTransformer",
+      "ru.givler.mbo.integration.nei.core.NeiRecipeTextColorTransformer",
       "ru.givler.mbo.core.PotionDurationFontTransformer",
       "ru.givler.mbo.core.PotionParticleTransformer",
       "ru.givler.mbo.core.AirRefillTransformer",

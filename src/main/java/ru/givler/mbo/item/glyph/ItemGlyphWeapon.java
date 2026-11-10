@@ -1,6 +1,5 @@
 package ru.givler.mbo.item.glyph;
 
-import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,7 +20,7 @@ public class ItemGlyphWeapon extends ItemGlyphBasic {
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(100);
         this.maxStackSize = maxStackSize;
-        GameRegistry.registerItem(this, name);
+
     }
 
     @Override

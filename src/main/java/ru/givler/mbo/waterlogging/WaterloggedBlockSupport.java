@@ -22,7 +22,7 @@ import net.minecraft.block.BlockPistonMoving;
 import net.minecraft.block.BlockEndPortalFrame;
 import net.minecraft.block.material.Material;
 import net.minecraft.world.World;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.block.DoorBase;
 import ru.givler.mbo.block.BlockCampfire;
 import ru.givler.mbo.block.model.BlockModelCollision;
@@ -73,7 +73,7 @@ public final class WaterloggedBlockSupport {
 
   /** Model collision envelopes are not sealed fluid volumes. */
   public static boolean isWaterPermeableModel(Block block) {
-    if(block instanceof BlockModels || block instanceof BlockModelCollision
+    if(block instanceof BlockDecorModel || block instanceof BlockModelCollision
         || block instanceof BlockCactus || block instanceof BlockAnvil
         || block instanceof BlockEndPortalFrame || isPartialTile(block)) return true;
     int type=optionalType(block);
@@ -119,7 +119,7 @@ public final class WaterloggedBlockSupport {
         || block instanceof BlockPistonMoving || block instanceof BlockEndPortalFrame) return true;
     int type=optionalType(block);
     if((type & (CARPENTER|NPC_DECOR|MODEL))!=0 || ((type & MF2)!=0 && isPartial(block))) return true;
-    return block instanceof BlockModels
+    return block instanceof BlockDecorModel
         || block instanceof BlockModelCollision
         || block instanceof BlockFence
         || block instanceof BlockWall

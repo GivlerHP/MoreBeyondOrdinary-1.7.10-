@@ -11,20 +11,10 @@ public final class DecayGroundExecutor implements SpellExecutor {
   @Override
   public SpellResult cast(SpellContext context) {
     Vec3 start =
-        Vec3.createVectorHelper(
-            context.caster().posX,
-            context.caster().posY + context.caster().getEyeHeight(),
-            context.caster().posZ);
+        SpellTargeting.eyePosition(context.caster());
     Vec3 look = context.caster().getLookVec();
     MovingObjectPosition hit =
-        context
-            .world()
-            .rayTraceBlocks(
-                start,
-                start.addVector(
-                    look.xCoord * 12 * context.range(),
-                    look.yCoord * 12 * context.range(),
-                    look.zCoord * 12 * context.range()));
+        SpellTargeting.blockTrace(context.world(), start, look, 12 * context.range());
     if (hit == null || hit.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) {
       return SpellResult.PASS;
     }

@@ -56,7 +56,7 @@ import ru.givler.mbo.magic.spell.PetrifyExecutor;
 import ru.givler.mbo.magic.spell.PhaseStepExecutor;
 import ru.givler.mbo.magic.spell.PocketFurnaceExecutor;
 import ru.givler.mbo.magic.spell.RayEffectExecutor;
-import ru.givler.mbo.magic.spell.RemainingSpellExecutors;
+import ru.givler.mbo.magic.spell.UtilitySpellExecutors;
 import ru.givler.mbo.magic.spell.ReplenishHungerExecutor;
 import ru.givler.mbo.magic.spell.RingOfFireExecutor;
 import ru.givler.mbo.magic.spell.SeekingLightningExecutor;
@@ -972,7 +972,7 @@ public final class MagicSpells {
             EnumAction.bow,
             20,
             100,
-            RemainingSpellExecutors.clairvoyance());
+            UtilitySpellExecutors.clairvoyance());
     CURSE_OF_SOULBINDING =
         register(
             "curse_of_soulbinding",
@@ -980,7 +980,7 @@ public final class MagicSpells {
             SpellTier.ADVANCED,
             35,
             100,
-            RemainingSpellExecutors.soulbinding());
+            UtilitySpellExecutors.soulbinding());
     DECOY =
         register(
             "decoy",
@@ -990,7 +990,7 @@ public final class MagicSpells {
             EnumAction.bow,
             40,
             200,
-            RemainingSpellExecutors.decoy());
+            UtilitySpellExecutors.decoy());
     EARTHQUAKE =
         register(
             "earthquake",
@@ -998,7 +998,7 @@ public final class MagicSpells {
             SpellTier.MASTER,
             75,
             250,
-            RemainingSpellExecutors.construct(EntityMagicConstruct.Kind.EARTHQUAKE));
+            UtilitySpellExecutors.construct(EntityMagicConstruct.Kind.EARTHQUAKE));
     FORESTS_CURSE =
         register(
             "forests_curse",
@@ -1008,7 +1008,7 @@ public final class MagicSpells {
             EnumAction.bow,
             75,
             200,
-            RemainingSpellExecutors.forestsCurse());
+            UtilitySpellExecutors.forestsCurse());
     LIGHTNING_HAMMER =
         register(
             "lightning_hammer",
@@ -1016,7 +1016,7 @@ public final class MagicSpells {
             SpellTier.MASTER,
             100,
             300,
-            RemainingSpellExecutors.construct(EntityMagicConstruct.Kind.HAMMER));
+            UtilitySpellExecutors.construct(EntityMagicConstruct.Kind.HAMMER));
     METAMORPHOSIS =
         register(
             "metamorphosis",
@@ -1024,7 +1024,7 @@ public final class MagicSpells {
             SpellTier.APPRENTICE,
             15,
             30,
-            RemainingSpellExecutors.metamorphosis());
+            UtilitySpellExecutors.metamorphosis());
     PLAGUE_OF_DARKNESS =
         register(
             "plague_of_darkness",
@@ -1034,7 +1034,7 @@ public final class MagicSpells {
             EnumAction.bow,
             75,
             200,
-            RemainingSpellExecutors.plague());
+            UtilitySpellExecutors.plague());
     SPECTRAL_PATHWAY =
         register(
             "spectral_pathway",
@@ -1044,7 +1044,7 @@ public final class MagicSpells {
             EnumAction.bow,
             40,
             300,
-            RemainingSpellExecutors.spectralPathway());
+            UtilitySpellExecutors.spectralPathway());
     TELEKINESIS =
         register(
             "telekinesis",
@@ -1052,7 +1052,7 @@ public final class MagicSpells {
             SpellTier.BASIC,
             5,
             10,
-            RemainingSpellExecutors.telekinesis());
+            UtilitySpellExecutors.telekinesis());
     TORNADO =
         register(
             "tornado",
@@ -1060,7 +1060,7 @@ public final class MagicSpells {
             SpellTier.ADVANCED,
             35,
             80,
-            RemainingSpellExecutors.construct(EntityMagicConstruct.Kind.TORNADO));
+            UtilitySpellExecutors.construct(EntityMagicConstruct.Kind.TORNADO));
     SUMMON_SPIRIT_HORSE =
         register(
             "summon_spirit_horse",

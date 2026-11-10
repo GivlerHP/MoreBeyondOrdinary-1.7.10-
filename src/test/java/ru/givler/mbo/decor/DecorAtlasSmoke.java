@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.*;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.client.render.decormodels.DecorAtlasSprite;
 import sun.misc.Unsafe;
 
@@ -36,7 +36,7 @@ public final class DecorAtlasSmoke {
     String name=folder.equals("textures/models/decor")?assets.resolve(folder).relativize(path).toString()
       :"instruments_of_torture/"+assets.resolve(folder).relativize(path);
     name=name.replace('\\','/').replace(".png","");
-    BlockModels block=(BlockModels)unsafe.allocateInstance(BlockModels.class);ChunkDecorSmoke.set(block,"particleTextureName",name);
+    BlockDecorModel block=(BlockDecorModel)unsafe.allocateInstance(BlockDecorModel.class);ChunkDecorSmoke.set(block,"particleTextureName",name);
     block.registerBlockIcons(atlas);
     DecorAtlasSprite particle=(DecorAtlasSprite)block.getIcon(2,0);
     if(!particle.source.equals(source)||particle==icon)throw new AssertionError("Particle texture must be separate from model geometry: "+name);

@@ -1,4 +1,5 @@
 package ru.givler.mbo.client.lighting;
+import ru.givler.mbo.integration.angelica.client.AngelicaDynamicLightBridge;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -262,7 +263,7 @@ public final class ColoredLightClient {
     probe.x = x >> 4; probe.y = y >> 4; probe.z = z >> 4;
     if (!dirty.contains(probe)) dirty.add(new Section(probe.x, probe.y, probe.z));
   }
-  void flushDynamicRebuilds(Minecraft mc) {
+  public void flushDynamicRebuilds(Minecraft mc) {
     if(AngelicaDynamicLightBridge.available()) {
       java.util.Iterator<Section> sections=dirty.iterator();
       while(sections.hasNext()) {

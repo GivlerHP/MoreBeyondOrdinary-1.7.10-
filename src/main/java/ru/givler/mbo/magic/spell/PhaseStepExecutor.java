@@ -12,16 +12,10 @@ public final class PhaseStepExecutor implements SpellExecutor {
   @Override
   public SpellResult cast(SpellContext context) {
     Vec3 start =
-        Vec3.createVectorHelper(
-            context.caster().posX,
-            context.caster().posY + context.caster().getEyeHeight(),
-            context.caster().posZ);
+        SpellTargeting.eyePosition(context.caster());
     Vec3 look = context.caster().getLookVec();
     MovingObjectPosition hit =
-        context
-            .world()
-            .rayTraceBlocks(
-                start, start.addVector(look.xCoord * 5, look.yCoord * 5, look.zCoord * 5));
+        SpellTargeting.blockTrace(context.world(), start, look, 5);
     if (hit == null
         || hit.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK
         || hit.sideHit < 2) return SpellResult.PASS;

@@ -25,7 +25,7 @@ public final class PlatformBlock {
   }
 
   public void captureCollision(World world, int worldX, int worldY, int worldZ) {
-    net.minecraft.tileentity.TileEntity tile=block instanceof ru.givler.mbo.block.BlockModels
+    net.minecraft.tileentity.TileEntity tile=block instanceof ru.givler.mbo.block.BlockDecorModel
         ||block instanceof ru.givler.mbo.block.model.BlockModelCollision?world.getTileEntity(worldX,worldY,worldZ):null;
     if(tile instanceof ru.givler.mbo.tileentity.ModelTileBase||tile instanceof ru.givler.mbo.tileentity.TileEntityModelCollision) {
       tileData=new NBTTagCompound();tile.writeToNBT(tileData);

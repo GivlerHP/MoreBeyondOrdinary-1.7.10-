@@ -7,7 +7,6 @@ import ru.givler.mbo.integration.angelica.client.render.AngelicaTileEntityHooks;
 public final class AngelicaClientRegistration {
   private static java.lang.reflect.Method shaderPackInUse;
   private static Object irisApi;
-  private static boolean handStateLogged;
   private final ru.givler.mbo.client.render.ShaderPipelineChanges pipelineChanges=
       new ru.givler.mbo.client.render.ShaderPipelineChanges();
   private AngelicaClientRegistration() {}
@@ -15,7 +14,7 @@ public final class AngelicaClientRegistration {
     if(!cpw.mods.fml.common.Loader.isModLoaded("angelica"))return;
     try {
       Class<?> config=Class.forName("com.gtnewhorizons.angelica.config.AngelicaConfig");
-      ru.givler.mbo.client.lighting.AngelicaDynamicLightBridge.available();
+      ru.givler.mbo.integration.angelica.client.AngelicaDynamicLightBridge.available();
       final Field natural=config.getField("enableNaturalTextures");
       final Field packFeatures=config.getField("enableMCPatcherForgeFeatures");
       final Field paneCtm=Class.forName("jss.notfine.config.MCPatcherForgeConfig$ConnectedTextures").getField("glassPane");
@@ -47,12 +46,6 @@ public final class AngelicaClientRegistration {
       cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(events);
       ru.givler.mbo.client.render.WaterloggedBlockRenderer.enableAngelicaChunkWater();
       net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new AngelicaTextureReport());
-      net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.diagnostics.ChunkRenderCostProbe());
-      net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.diagnostics.BlockColorProbe());
-      net.minecraftforge.client.ClientCommandHandler.instance.registerCommand(new ru.givler.mbo.client.diagnostics.TileEntityTraceCommand());
-      cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(ru.givler.mbo.client.diagnostics.TileEntityRenderTrace.INSTANCE);
-      HandRenderTrace.enabled=true;
-      net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new HandRenderTrace());
       System.out.println("[MBO] Angelica compatibility: preserve MBO vertex lighting and immediate entity/TESR rendering");
     } catch(ReflectiveOperationException error) {
       throw new IllegalStateException("MBO cannot configure the installed Angelica rendering API",error);
@@ -75,17 +68,9 @@ public final class AngelicaClientRegistration {
   /** Establish the vanilla foreground state before other mods can own RenderHandEvent. */
   @cpw.mods.fml.common.eventhandler.SubscribeEvent(priority=cpw.mods.fml.common.eventhandler.EventPriority.HIGHEST)
   public void beforeHand(net.minecraftforge.client.event.RenderHandEvent event) {
-    HandRenderTrace.beginEvent();
     try {
       if(Boolean.TRUE.equals(shaderPackInUse.invoke(irisApi)))return;
     } catch(ReflectiveOperationException error) { throw new IllegalStateException(error); }
-    if(!handStateLogged) {
-      handStateLogged=true;
-      System.out.println("[MBO] Angelica hand boundary: depthWrite="+org.lwjgl.opengl.GL11.glGetBoolean(org.lwjgl.opengl.GL11.GL_DEPTH_WRITEMASK)
-          +", depthFunc="+org.lwjgl.opengl.GL11.glGetInteger(org.lwjgl.opengl.GL11.GL_DEPTH_FUNC)
-          +", stencil="+org.lwjgl.opengl.GL11.glIsEnabled(org.lwjgl.opengl.GL11.GL_STENCIL_TEST)
-          +", scissor="+org.lwjgl.opengl.GL11.glIsEnabled(org.lwjgl.opengl.GL11.GL_SCISSOR_TEST));
-    }
     // Forge fires this before vanilla clears depth. A stale write mask also masks that clear.
     org.lwjgl.opengl.GL11.glDepthMask(true);
     org.lwjgl.opengl.GL11.glDepthFunc(org.lwjgl.opengl.GL11.GL_LEQUAL);

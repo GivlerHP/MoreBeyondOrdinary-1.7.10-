@@ -240,8 +240,18 @@ public class ItemStaffBasic extends ItemWandCasting {
 
     @Override
     public ItemStack onItemRightClick(ItemStack itemstack, World world, EntityPlayer player) {
-        MovingObjectPosition mop = this.getMovingObjectPositionFromPlayer(world, player, true);
+        ItemStack result = interactWithWandable(itemstack, world, player);
+        return result == null ? itemstack : result;
+    }
 
+    /** Null means neither block nor tile consumed this interaction. */
+    protected ItemStack interactWithWandable(ItemStack itemstack, World world, EntityPlayer player) {
+        return interactWithWandable(itemstack, world, player,
+                this.getMovingObjectPositionFromPlayer(world, player, true));
+    }
+
+    protected ItemStack interactWithWandable(ItemStack itemstack, World world, EntityPlayer player,
+                                            MovingObjectPosition mop) {
         if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK) {
             int i = mop.blockX;
             int j = mop.blockY;
@@ -263,6 +273,6 @@ public class ItemStaffBasic extends ItemWandCasting {
                 }
             }
         }
-        return itemstack;
+        return null;
     }
 }

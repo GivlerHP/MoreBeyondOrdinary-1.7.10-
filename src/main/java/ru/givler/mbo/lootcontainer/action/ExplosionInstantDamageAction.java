@@ -2,13 +2,10 @@ package ru.givler.mbo.lootcontainer.action;
 
 import com.google.gson.JsonObject;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
 
-import java.util.List;
 
 public class ExplosionInstantDamageAction extends LootContainerAction {
     public float damage = 4.0F;
@@ -31,41 +28,8 @@ public class ExplosionInstantDamageAction extends LootContainerAction {
         float normalizedRadius = Math.max(0.1F, radius);
         if (normalizedDamage <= 0.0F) return;
 
-        int radiusCeil = (int) Math.ceil(normalizedRadius);
-        AxisAlignedBB area = AxisAlignedBB.getBoundingBox(
-                tile.xCoord - radiusCeil, tile.yCoord - radiusCeil, tile.zCoord - radiusCeil,
-                tile.xCoord + radiusCeil + 1, tile.yCoord + radiusCeil + 1, tile.zCoord + radiusCeil + 1
-        );
-        List list = world.getEntitiesWithinAABB(EntityLivingBase.class, area);
-        for (Object obj : list) {
-            if (!(obj instanceof EntityLivingBase)) continue;
-            EntityLivingBase living = (EntityLivingBase) obj;
-            if (living.isDead) continue;
-            double dx = living.posX - (tile.xCoord + 0.5D);
-            double dy = living.posY - (tile.yCoord + 0.5D);
-            double dz = living.posZ - (tile.zCoord + 0.5D);
-            double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-            if (distance > normalizedRadius) continue;
-            living.attackEntityFrom(DamageSource.magic, normalizedDamage);
-        }
-        if (particles) {
-            LootContainerActionRuntime.playExplosionFeedback(
-                    world,
-                    tile.xCoord + 0.5D,
-                    tile.yCoord + 1.0D,
-                    tile.zCoord + 0.5D,
-                    normalizedRadius
-            );
-        }
-        if (knockback) {
-            LootContainerActionRuntime.applyExplosionKnockback(
-                    world,
-                    tile.xCoord + 0.5D,
-                    tile.yCoord + 1.0D,
-                    tile.zCoord + 0.5D,
-                    normalizedRadius
-            );
-        }
+        LootContainerActionRuntime.forEachLivingTarget(tile, normalizedRadius, living -> living.attackEntityFrom(DamageSource.magic, normalizedDamage));
+        LootContainerActionRuntime.explosionEffects(tile, normalizedRadius, particles, knockback);
     }
 
     @Override

@@ -1,4 +1,5 @@
 package ru.givler.mbo.client.lighting;
+import ru.givler.mbo.integration.angelica.client.AngelicaDynamicLightBridge;
 
 import java.util.*;
 import net.minecraft.client.Minecraft;
@@ -19,7 +20,7 @@ public final class ColoredDynamicLights {
     Source(Entity entity, int packed) {
       this(entity, packed, entity.posX, entity.posY + (entity instanceof EntityItem ? 0.2 : entity.getEyeHeight()), entity.posZ);
     }
-    Source(Entity entity, int packed, double x, double y, double z) {
+    public Source(Entity entity, int packed, double x, double y, double z) {
       this.entity = entity; this.packed = packed;
       this.x = x; this.y = y; this.z = z;
       radius = 7.5; // OptiFine E7 range; intensity is supplied separately by the source level.
@@ -90,13 +91,13 @@ public final class ColoredDynamicLights {
     }
     publish(mc, next, .25);
   }
-  static int emission(Entity entity) {
+  public static int emission(Entity entity) {
     int packed = ColoredLightApi.entityEmission(entity);
     if (entity instanceof EntityItem) packed = ColoredLightAuto.merge(packed, ColoredLightApi.itemEmission(((EntityItem) entity).getEntityItem(), entity));
     if (entity instanceof EntityLivingBase) packed = ColoredLightAuto.merge(packed, ColoredLightAuto.heldEmission((EntityLivingBase) entity));
     return packed;
   }
-  void fromBackend(Minecraft mc, List<Source> next) {
+  public void fromBackend(Minecraft mc, List<Source> next) {
     if (world != mc.theWorld) { clear(mc); world = mc.theWorld; }
     if (!ColoredLightConfig.enabled || !ColoredLightConfig.dynamicLights) next = new ArrayList<>();
     next.sort(Comparator.comparingDouble(s -> s.entity.getDistanceSqToEntity(mc.renderViewEntity)));

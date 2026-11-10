@@ -16,7 +16,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.tileentity.ModelTileBase;
 
 /** Opt-in GL 3.3 compatibility renderer: one VBO per mesh, one draw per visible mesh group. */
@@ -60,20 +60,20 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
             if(GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM)!=0)return "GPU instances unavailable while another shader program is active.";
             try { initialize();failure=""; } catch(RuntimeException error) { clear();failure=error.toString();return "GPU initialization failed: "+failure; }
         }
-        BlockModels.decorInstancedRendering=enabled;
+        BlockDecorModel.decorInstancedRendering=enabled;
         if(!enabled)clear();
         Minecraft mc=Minecraft.getMinecraft();if(mc.renderGlobal!=null)mc.renderGlobal.loadRenderers();
         return statistics();
     }
     public boolean renders(ModelTileBase tile) {
-        if(!BlockModels.decorInstancedRendering || program==0 || tile.getClass()!=ModelTileBase.class
-                || tile.getWorldObj()==null || !(tile.getBlockType() instanceof BlockModels) || tile.usesDynamicRender())return false;
-        BlockModels block=(BlockModels)tile.getBlockType();
+        if(!BlockDecorModel.decorInstancedRendering || program==0 || tile.getClass()!=ModelTileBase.class
+                || tile.getWorldObj()==null || !(tile.getBlockType() instanceof BlockDecorModel) || tile.usesDynamicRender())return false;
+        BlockDecorModel block=(BlockDecorModel)tile.getBlockType();
         return block.isDecorChunkReady() && ChunkDecorRenderer.INSTANCE.selected(block,tile.getWorldObj(),
             tile.xCoord,tile.yCoord,tile.zCoord,tile.getBlockMetadata())!=null;
     }
     public String statistics() {
-        return "GPU instances="+(BlockModels.decorInstancedRendering?"on":"off")+", meshes="+meshes.size()
+        return "GPU instances="+(BlockDecorModel.decorInstancedRendering?"on":"off")+", meshes="+meshes.size()
             +", geometry="+meshBytes+" bytes, submitted="+submitted+", visible="+visible+", draws="+draws
             +(failure.isEmpty()?"":", error="+failure);
     }
@@ -106,7 +106,7 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
     }
 
     @SubscribeEvent public void renderWorld(RenderWorldLastEvent event) {
-        if(!BlockModels.decorInstancedRendering || program==0)return;
+        if(!BlockDecorModel.decorInstancedRendering || program==0)return;
         Minecraft mc=Minecraft.getMinecraft();
         if(mc.theWorld==null || mc.renderViewEntity==null)return;
         if(GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM)!=0) {
@@ -133,7 +133,7 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
                 if(!(object instanceof ModelTileBase))continue;
                 ModelTileBase tile=(ModelTileBase)object;if(!renders(tile))continue;
                 submitted++;
-                BlockModels block=(BlockModels)tile.getBlockType();
+                BlockDecorModel block=(BlockDecorModel)tile.getBlockType();
                 ChunkDecorRenderer.Mesh mesh=ChunkDecorRenderer.INSTANCE.selected(block,mc.theWorld,tile.xCoord,tile.yCoord,tile.zCoord,tile.getBlockMetadata());
                 int facing=ChunkDecorRenderer.renderFacing(block,mc.theWorld,tile.xCoord,tile.yCoord,tile.zCoord,tile.getBlockMetadata());
                 double[] b=mesh.bounds[facing];
@@ -154,7 +154,7 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
                 int count=gpu.instances.size();if(count==0)continue;
                 gpu.ensureCapacity(count);gpu.data.clear();
                 for(ModelTileBase tile:gpu.instances) {
-                    BlockModels block=(BlockModels)tile.getBlockType();
+                    BlockDecorModel block=(BlockDecorModel)tile.getBlockType();
                     int facing=ChunkDecorRenderer.renderFacing(block,mc.theWorld,tile.xCoord,tile.yCoord,tile.zCoord,tile.getBlockMetadata());
                     int light=mc.theWorld.getLightBrightnessForSkyBlocks(tile.xCoord,tile.yCoord,tile.zCoord,0);
                     int rgb=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.surfaceRGB(tile.xCoord+.5,tile.yCoord+.5,tile.zCoord+.5);
@@ -169,7 +169,7 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
             }
         } catch(RuntimeException error) {
             failure="GPU render failed: "+error;
-            BlockModels.decorInstancedRendering=false;
+            BlockDecorModel.decorInstancedRendering=false;
             System.err.println("[MBO decor] "+failure);
             if(mc.renderGlobal!=null)mc.renderGlobal.loadRenderers();
         } finally {
@@ -217,7 +217,7 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
     private static final class GpuMesh {
         final int vbo,vertices;final long bytes;final ResourceLocation texture;
         final ArrayList<ModelTileBase> instances=new ArrayList<>();FloatBuffer data=BufferUtils.createFloatBuffer(9*16);
-        GpuMesh(ChunkDecorRenderer.Mesh mesh,BlockModels block) {
+        GpuMesh(ChunkDecorRenderer.Mesh mesh,BlockDecorModel block) {
             int[] raw=mesh.raw;vertices=raw.length/8;bytes=vertices*32L;
             FloatBuffer buffer=BufferUtils.createFloatBuffer(vertices*8);
             boolean hourglass=block.getModelName().endsWith("/hourglass");
@@ -246,8 +246,8 @@ public final class InstancedDecorRenderer implements IResourceManagerReloadListe
     }
     @Override public void onResourceManagerReload(IResourceManager resources) {
         clear();
-        if(BlockModels.decorInstancedRendering) {
-            try {initialize();}catch(RuntimeException error){failure=error.toString();BlockModels.decorInstancedRendering=false;}
+        if(BlockDecorModel.decorInstancedRendering) {
+            try {initialize();}catch(RuntimeException error){failure=error.toString();BlockDecorModel.decorInstancedRendering=false;}
         }
     }
 }

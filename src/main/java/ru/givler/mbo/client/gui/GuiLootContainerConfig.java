@@ -19,7 +19,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.input.Keyboard;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.client.gui.lootcontainer.ActionEditorHost;
 import ru.givler.mbo.client.gui.lootcontainer.LootContainerSoundList;
 import ru.givler.mbo.item.ItemBlockLootContainer;
@@ -1121,9 +1121,9 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
                 variation.destroyedModel = destroyedField.getText();
                 normalDropScroll = 0;
                 destroyedDropScroll = 0;
-                BlockModels normalBlock = ClientProxy.MODEL_REGISTRY.get(variation.normalModel);
+                BlockDecorModel normalBlock = ClientProxy.MODEL_REGISTRY.get(variation.normalModel);
                 variation.normalTexture = normalBlock == null ? "" : normalBlock.getTextureName();
-                BlockModels destroyedBlock = ClientProxy.MODEL_REGISTRY.get(variation.destroyedModel);
+                BlockDecorModel destroyedBlock = ClientProxy.MODEL_REGISTRY.get(variation.destroyedModel);
                 variation.destroyedTexture = destroyedBlock == null ? "" : destroyedBlock.getTextureName();
             }
             return changed;
@@ -1186,7 +1186,7 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
 
         private void drawModelPreview(String modelName, int x, int y, int mouseX, int mouseY) {
             drawStoneBackground(x, y);
-            BlockModels model = ClientProxy.MODEL_REGISTRY.get(modelName);
+            BlockDecorModel model = ClientProxy.MODEL_REGISTRY.get(modelName);
             if (model == null) return;
             Item item = Item.getItemFromBlock(model);
             if (item == null) return;
@@ -1272,14 +1272,14 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
                     field.setText(value);
                     if (normal) {
                         variation.normalModel = value;
-                        BlockModels block = ClientProxy.MODEL_REGISTRY.get(value);
+                        BlockDecorModel block = ClientProxy.MODEL_REGISTRY.get(value);
                         variation.normalTexture = block == null ? "" : block.getTextureName();
                         normalSearchByInput = false;
                         normalFocusDropdownOpen = false;
                         normalDropdownPinned = false;
                     } else {
                         variation.destroyedModel = value;
-                        BlockModels block = ClientProxy.MODEL_REGISTRY.get(value);
+                        BlockDecorModel block = ClientProxy.MODEL_REGISTRY.get(value);
                         variation.destroyedTexture = block == null ? "" : block.getTextureName();
                         destroyedSearchByInput = false;
                         destroyedFocusDropdownOpen = false;
@@ -1336,9 +1336,9 @@ public class GuiLootContainerConfig extends GuiScreen implements ActionEditorHos
         LootContainerData.ModelVariation toData() {
             variation.normalModel = normalField.getText();
             variation.destroyedModel = destroyedField.getText();
-            BlockModels normalBlock = ClientProxy.MODEL_REGISTRY.get(variation.normalModel);
+            BlockDecorModel normalBlock = ClientProxy.MODEL_REGISTRY.get(variation.normalModel);
             variation.normalTexture = normalBlock == null ? "" : normalBlock.getTextureName();
-            BlockModels destroyedBlock = ClientProxy.MODEL_REGISTRY.get(variation.destroyedModel);
+            BlockDecorModel destroyedBlock = ClientProxy.MODEL_REGISTRY.get(variation.destroyedModel);
             variation.destroyedTexture = destroyedBlock == null ? "" : destroyedBlock.getTextureName();
             return variation;
         }

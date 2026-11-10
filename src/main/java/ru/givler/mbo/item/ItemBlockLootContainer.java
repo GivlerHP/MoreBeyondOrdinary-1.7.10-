@@ -90,7 +90,7 @@ public class ItemBlockLootContainer extends ItemBlock {
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
         super.addInformation(stack, player, list, advanced);
-        ItemBlockModels.addModelDescription(field_150939_a, list);
+        ItemBlockDecorModel.addModelDescription(field_150939_a, list);
         LootContainerData data = LootContainerData.fromItemStackNbt(stack == null ? null : stack.getTagCompound());
         list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("mbo.loot.tooltip.autoRotate")
                 + ": " + StatCollector.translateToLocal(data.autoRotate ? "options.on" : "options.off"));

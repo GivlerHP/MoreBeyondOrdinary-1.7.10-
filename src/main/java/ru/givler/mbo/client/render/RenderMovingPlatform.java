@@ -89,7 +89,7 @@ public class RenderMovingPlatform extends Render {
       GL11.glPolygonOffset(1F, 1F);
     }
     boolean normalBlocks=false;
-    for(PlatformBlock b:p.getBlocks())if(!(b.block instanceof ru.givler.mbo.block.BlockModels)&&b.block.getRenderType()>=0){normalBlocks=true;break;}
+    for(PlatformBlock b:p.getBlocks())if(!(b.block instanceof ru.givler.mbo.block.BlockDecorModel)&&b.block.getRenderType()>=0){normalBlocks=true;break;}
     if(normalBlocks)GL11.glCallList(getCache(p, worldX, worldY, worldZ).list);
     renderDecor(p,partial);
     } finally {
@@ -99,7 +99,7 @@ public class RenderMovingPlatform extends Render {
   }
 
   private void renderDecor(EntityMovingPlatform platform,float partial) {
-    boolean hasModels=false;for(PlatformBlock b:platform.getBlocks())if(b.block instanceof ru.givler.mbo.block.BlockModels){hasModels=true;break;}
+    boolean hasModels=false;for(PlatformBlock b:platform.getBlocks())if(b.block instanceof ru.givler.mbo.block.BlockDecorModel){hasModels=true;break;}
     if(!hasModels)return;
     double wx=platform.lastTickPosX+(platform.posX-platform.lastTickPosX)*partial;
     double wy=platform.lastTickPosY+(platform.posY-platform.lastTickPosY)*partial;
@@ -113,7 +113,7 @@ public class RenderMovingPlatform extends Render {
     net.minecraft.client.renderer.RenderHelper.enableStandardItemLighting();
     try {
     for(PlatformBlock b:platform.getBlocks()) {
-      if(!(b.block instanceof ru.givler.mbo.block.BlockModels)||b.tileData==null||!platform.shouldRenderPlatformBlock(b))continue;
+      if(!(b.block instanceof ru.givler.mbo.block.BlockDecorModel)||b.tileData==null||!platform.shouldRenderPlatformBlock(b))continue;
       ru.givler.mbo.tileentity.ModelTileBase tile=decorTiles.get(b);
       if(tile==null) {
         tile=new ru.givler.mbo.tileentity.ModelTileBase();tile.readFromNBT(b.tileData);
@@ -152,7 +152,7 @@ public class RenderMovingPlatform extends Render {
     try {
     tessellator.startDrawingQuads();
     for (PlatformBlock block : platform.getBlocks())
-      if (platform.shouldRenderPlatformBlock(block)&&!(block.block instanceof ru.givler.mbo.block.BlockModels))
+      if (platform.shouldRenderPlatformBlock(block)&&!(block.block instanceof ru.givler.mbo.block.BlockDecorModel))
         renderLitBlock(renderer, block.block, block.x, block.y, block.z);
     PlatformVertexLighting.apply(tessellator,worldX,worldY,worldZ);
     tessellator.draw();
@@ -206,7 +206,7 @@ public class RenderMovingPlatform extends Render {
     try {
     tessellator.startDrawingQuads();
     for (PlatformBlock b : platform.getBlocks()) {
-      if(b.block instanceof ru.givler.mbo.block.BlockModels)continue;
+      if(b.block instanceof ru.givler.mbo.block.BlockDecorModel)continue;
       // Cull interior faces only for vanilla-style full cubes; custom models
       // retain their original rendering behaviour.
       renderer.renderAllFaces=platform.isClipAboveSelection()

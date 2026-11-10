@@ -5,7 +5,7 @@ import net.minecraft.client.particle.EntityDiggingFX;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.tileentity.TileEntityModelCollision;
 
 /** Vanilla landing dust and sprint particles carry a helper ID, without its owner. */
@@ -23,7 +23,7 @@ public final class DecorParticleHooks {
    TileEntity raw=world.getTileEntity(bx,by,bz);
    if(!(raw instanceof TileEntityModelCollision))continue;
    TileEntityModelCollision part=(TileEntityModelCollision)raw;
-   BlockModels owner=part.getOwnerBlock();
+   BlockDecorModel owner=part.getOwnerBlock();
    if(owner!=null) {
     particle.setParticleIcon(owner.getIcon(0,world.getBlockMetadata(part.getOwnerX(),part.getOwnerY(),part.getOwnerZ())));
     break;

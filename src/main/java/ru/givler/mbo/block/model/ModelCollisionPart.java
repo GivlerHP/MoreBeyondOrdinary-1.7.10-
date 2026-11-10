@@ -2,7 +2,7 @@ package ru.givler.mbo.block.model;
 
 /** One extra collision block expressed in the model's local coordinates. */
 public final class ModelCollisionPart {
-    /** Partitions an intentional envelope; the owner cell is handled by BlockModels. */
+    /** Partitions an intentional envelope; the owner cell is handled by BlockDecorModel. */
     public static java.util.List<ModelCollisionPart> partition(float[] b) {
         java.util.List<ModelCollisionPart> parts = new java.util.ArrayList<ModelCollisionPart>();
         for (int x = (int) Math.floor(b[0]); x < Math.ceil(b[3]); x++)

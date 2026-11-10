@@ -31,30 +31,30 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     public int frameSpeed = 100;
     private AnimationFactory factory;
 
-    private ru.givler.mbo.block.BlockModels registeredModel() {
+    private ru.givler.mbo.block.BlockDecorModel registeredModel() {
         if(getClass()!=ModelTileBase.class || (worldObj==null && blockType==null)) return null;
         net.minecraft.block.Block block=getBlockType();
-        return block instanceof ru.givler.mbo.block.BlockModels ? (ru.givler.mbo.block.BlockModels)block : null;
+        return block instanceof ru.givler.mbo.block.BlockDecorModel ? (ru.givler.mbo.block.BlockDecorModel)block : null;
     }
 
     @Override public boolean canUpdate() {
         if(getClass()!=ModelTileBase.class) return true;
-        ru.givler.mbo.block.BlockModels block=registeredModel();
+        ru.givler.mbo.block.BlockDecorModel block=registeredModel();
         return block!=null ? block.needsModelLogicTicks() : eatTimer>0;
     }
 
     public boolean usesDynamicRender() {
         if(getClass()!=ModelTileBase.class) return true;
-        ru.givler.mbo.block.BlockModels block=registeredModel();
+        ru.givler.mbo.block.BlockDecorModel block=registeredModel();
         return block!=null ? block.usesDynamicModelRender() : isAnimated() || getFrameCount()>1;
     }
 
     public int getFrameCount() {
-        ru.givler.mbo.block.BlockModels block=registeredModel();
+        ru.givler.mbo.block.BlockDecorModel block=registeredModel();
         return block==null ? frameCount : block.getModelFrameCount();
     }
     public int getFrameSpeed() {
-        ru.givler.mbo.block.BlockModels block=registeredModel();
+        ru.givler.mbo.block.BlockDecorModel block=registeredModel();
         return block==null ? frameSpeed : block.getModelFrameSpeed();
     }
     private int eatSoundInterval = 0; // через сколько тиков повторять звук
@@ -136,18 +136,18 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
     }
 
     public String getModelName() {
-        ru.givler.mbo.block.BlockModels block=registeredModel();
+        ru.givler.mbo.block.BlockDecorModel block=registeredModel();
         return block==null ? modelName : block.getModelName();
     }
 
     public String getTextureName() {
-        ru.givler.mbo.block.BlockModels block=registeredModel();
+        ru.givler.mbo.block.BlockDecorModel block=registeredModel();
         return block==null ? textureName : block.getTextureName();
     }
 
     public String getAnimationName() {
         if((worldObj!=null||blockType!=null)&&getBlockType() instanceof ru.givler.mbo.block.model.BlockDecorCage) return "animation.iron_cage.closed";
-        ru.givler.mbo.block.BlockModels block=registeredModel();
+        ru.givler.mbo.block.BlockDecorModel block=registeredModel();
         return block==null ? animationName : block.getModelAnimationName();
     }
 
@@ -171,7 +171,7 @@ public class ModelTileBase extends TileEntity implements IAnimatable {
             event.getController().setAnimation(new AnimationBuilder().playAndHold(cageAnimation));
             return PlayState.CONTINUE;
         }
-        ru.givler.mbo.block.BlockModels block=registeredModel();
+        ru.givler.mbo.block.BlockDecorModel block=registeredModel();
         boolean loop=block==null ? loopAnimation : block.isModelAnimationLooped();
         AnimationBuilder builder = loop
             ? new AnimationBuilder().loop(getAnimationName())

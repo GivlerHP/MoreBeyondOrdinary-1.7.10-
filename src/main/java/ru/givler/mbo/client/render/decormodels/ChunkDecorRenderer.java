@@ -21,7 +21,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.block.model.BlockConnectedRope;
 import ru.givler.mbo.block.model.RopeConnections;
 import ru.givler.mbo.client.model.decormodels.DecorResources;
@@ -47,7 +47,7 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
         for(int vertex=0;vertex<count;vertex++)System.arraycopy(raw,vertex*stride,result,vertex*8,8);
         return result;
     }
-    private final Map<BlockModels, Mesh> meshes = new IdentityHashMap<>();
+    private final Map<BlockDecorModel, Mesh> meshes = new IdentityHashMap<>();
     private final Map<String,Mesh> ropeMeshes=new LinkedHashMap<>();
     private int ropeBlocks;
     private final Map<String,String> decisions = new LinkedHashMap<>();
@@ -58,7 +58,7 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
         if (event.map.getTextureType() != 0) return;
         meshes.clear(); ropeMeshes.clear(); decisions.clear(); rejected = 0;ropeBlocks=0;
         TemplateModelRenderer renderer = new TemplateModelRenderer();
-        for (BlockModels block : BlockModels.getAllModels()) {
+        for (BlockDecorModel block : BlockDecorModel.getAllModels()) {
             block.setDecorChunkReady(false);
             // Unknown subclasses can change their model or use a custom TESR.
             String name = block.getModelName();
@@ -73,7 +73,7 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
                 } catch(Exception error) {reject(block,"connected rope bake error: "+error);}
                 continue;
             }
-            if (block.getClass() != BlockModels.class
+            if (block.getClass() != BlockDecorModel.class
                     && block.getClass() != ru.givler.mbo.block.model.BlockModelFood.class) {
                 reject(block,"custom block class: "+block.getClass().getSimpleName()); continue;
             }
@@ -108,7 +108,7 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
         writeReport();
     }
 
-    private void bakeRopes(TextureStitchEvent.Pre event,TemplateModelRenderer renderer,BlockModels block)throws Exception {
+    private void bakeRopes(TextureStitchEvent.Pre event,TemplateModelRenderer renderer,BlockDecorModel block)throws Exception {
         ResourceLocation texture=DecorResources.texture("instruments_of_torture/rope_6","");
         BufferedImage image;
         try(InputStream stream=Minecraft.getMinecraft().getResourceManager().getResource(texture).getInputStream()) {image=ImageIO.read(stream);}
@@ -137,7 +137,7 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
             for(GeoBone bone:model.topLevelBones)renderer.renderRecursively(recorder,tile,bone,1,1,1,1);
             return recorder.finish();
     }
-    Mesh selected(BlockModels block,IBlockAccess world,int x,int y,int z,int meta) {
+    Mesh selected(BlockDecorModel block,IBlockAccess world,int x,int y,int z,int meta) {
         if(!(block instanceof BlockConnectedRope))return meshes.get(block);
         if(RopeConnections.decoration(meta)!=RopeConnections.NONE || cameraAttachmentNearby(world,x,y,z))return null;
         net.minecraft.tileentity.TileEntity tile=world.getTileEntity(x,y,z);
@@ -157,21 +157,21 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
             Block other=world.getBlock(x+dx,y+dy,z+dz);
             if(other instanceof BlockConnectedRope) {
                 if(RopeConnections.decoration(world.getBlockMetadata(x+dx,y+dy,z+dz))==RopeConnections.NOOSE)return true;
-            } else if(other instanceof BlockModels) {
-                String name=((BlockModels)other).getModelName();
+            } else if(other instanceof BlockDecorModel) {
+                String name=((BlockDecorModel)other).getModelName();
                 if(name!=null && (name.endsWith("/hook") || name.endsWith("/rope_around_the_neck")
                     || name.endsWith("/hanged_corpse") || name.endsWith("/suspended_corpse")))return true;
             }
         }
         return false;
     }
-    static int renderFacing(BlockModels block,IBlockAccess world,int x,int y,int z,int meta) {
+    static int renderFacing(BlockDecorModel block,IBlockAccess world,int x,int y,int z,int meta) {
         if(!(block instanceof BlockConnectedRope))return meta&3;
         int turn=RopeConnections.rotationQuarterTurns(((BlockConnectedRope)block).getConnectionMask(world,x,y,z));
         return new int[]{2,1,0,3}[turn];
     }
 
-    private void reject(BlockModels block,String reason) {
+    private void reject(BlockDecorModel block,String reason) {
         rejected++;decisions.put(block.getModelName(),"TESR; "+reason);
     }
     public String writeReport() {
@@ -192,10 +192,10 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
         return true;
     }
 
-    static boolean supported(int[] raw, BlockModels block) {
+    static boolean supported(int[] raw, BlockDecorModel block) {
         return geometryProblem(raw,block)==null;
     }
-    static String geometryProblem(int[] raw, BlockModels block) {
+    static String geometryProblem(int[] raw, BlockDecorModel block) {
         if (raw.length == 0 || raw.length % 32 != 0) return "empty or malformed geometry";
         for (int i=0; i<raw.length; i+=8) {
             double[] p = position(raw, i, block, 0);
@@ -207,7 +207,7 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
         return null;
     }
 
-    static double[] position(int[] raw, int i, BlockModels block, int meta) {
+    static double[] position(int[] raw, int i, BlockDecorModel block, int meta) {
         double x=Float.intBitsToFloat(raw[i]), y=Float.intBitsToFloat(raw[i+1]), z=Float.intBitsToFloat(raw[i+2]);
         if (block.getModelName().endsWith("/hourglass")) { x-=1; z-=1; }
         double rx=x, rz=z;
@@ -221,15 +221,15 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
     }
 
     public static boolean renders(ModelTileBase tile) {
-        return tile.getClass()==ModelTileBase.class && tile.getBlockType() instanceof BlockModels
-            && ((BlockModels)tile.getBlockType()).usesDecorChunkRendering() && !tile.usesDynamicRender()
-            && INSTANCE.fits((BlockModels)tile.getBlockType(),tile.getWorldObj(),tile.xCoord,tile.yCoord,tile.zCoord,tile.getBlockMetadata());
+        return tile.getClass()==ModelTileBase.class && tile.getBlockType() instanceof BlockDecorModel
+            && ((BlockDecorModel)tile.getBlockType()).usesDecorChunkRendering() && !tile.usesDynamicRender()
+            && INSTANCE.fits((BlockDecorModel)tile.getBlockType(),tile.getWorldObj(),tile.xCoord,tile.yCoord,tile.zCoord,tile.getBlockMetadata());
     }
-    private boolean fits(BlockModels block,IBlockAccess world,int x,int y,int z,int meta) {
+    private boolean fits(BlockDecorModel block,IBlockAccess world,int x,int y,int z,int meta) {
         Mesh mesh=selected(block,world,x,y,z,meta);
         return mesh!=null && fitsBounds(mesh.bounds[renderFacing(block,world,x,y,z,meta)],x,y,z);
     }
-    public boolean fits(BlockModels block,int x,int y,int z,int meta) {
+    public boolean fits(BlockDecorModel block,int x,int y,int z,int meta) {
         Mesh mesh=meshes.get(block);return mesh!=null && fitsBounds(mesh.bounds[meta&3],x,y,z);
     }
     static boolean fitsBounds(double[] bounds,int x,int y,int z) {
@@ -244,33 +244,33 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
         return true;
     }
     public String statistics() {
-        return "chunk experiment="+(BlockModels.decorChunkRendering?"on":"off")
+        return "chunk experiment="+(BlockDecorModel.decorChunkRendering?"on":"off")
             +", eligible="+(meshes.size()+ropeBlocks)+", rope variants="+ropeMeshes.size()+", TESR fallback="+rejected;
     }
-    public String inspect(BlockModels block,int x,int y,int z,int meta) {
+    public String inspect(BlockDecorModel block,int x,int y,int z,int meta) {
         String reason=decisions.get(block.getModelName());
-        if(BlockModels.decorInstancedRendering && block.isDecorChunkReady())return block.getModelName()+": "
+        if(BlockDecorModel.decorInstancedRendering && block.isDecorChunkReady())return block.getModelName()+": "
             +(selected(block,Minecraft.getMinecraft().theWorld,x,y,z,meta)!=null?"GPU instances":"TESR (decoration/camera attachment)");
-        if(!BlockModels.decorChunkRendering)return block.getModelName()+": TESR (chunk mode off); "+reason;
+        if(!BlockDecorModel.decorChunkRendering)return block.getModelName()+": TESR (chunk mode off); "+reason;
         if(!block.usesDecorChunkRendering())return block.getModelName()+": "+reason;
         return block.getModelName()+": "+(fits(block,Minecraft.getMinecraft().theWorld,x,y,z,meta)?"CHUNK"
             :"TESR (boundary, decoration or camera attachment)");
     }
     public void setEnabled(boolean value) {
-        BlockModels.decorChunkRendering=value;
+        BlockDecorModel.decorChunkRendering=value;
         if (Minecraft.getMinecraft().renderGlobal != null) Minecraft.getMinecraft().renderGlobal.loadRenderers();
     }
 
     @Override public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int id, RenderBlocks renderer) {
-        if (!(block instanceof BlockModels) || !((BlockModels)block).usesDecorChunkRendering()) return false;
+        if (!(block instanceof BlockDecorModel) || !((BlockDecorModel)block).usesDecorChunkRendering()) return false;
         int meta=world.getBlockMetadata(x,y,z);
-        Mesh mesh=selected((BlockModels)block,world,x,y,z,meta);
+        Mesh mesh=selected((BlockDecorModel)block,world,x,y,z,meta);
         if (mesh==null) return false;
         Tessellator builder=Tessellator.instance;
         builder.setBrightness(world.getLightBrightnessForSkyBlocks(x,y,z,0));
         builder.setColorOpaque_F(1,1,1);
         if (!block.hasTileEntity(meta)) return false;
-        meta=renderFacing((BlockModels)block,world,x,y,z,meta);
+        meta=renderFacing((BlockDecorModel)block,world,x,y,z,meta);
         if (!fitsBounds(mesh.bounds[meta&3],x,y,z)) return false;
         // TESR disables face culling. Emit both windings without touching GL chunk state.
         long rgbScope=ru.givler.mbo.client.lighting.ColoredLightRenderHooks.begin(renderer,x,y,z,8);
@@ -282,7 +282,7 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
             try {
             for (int winding=0; winding<2; winding++)for(int vertex=0;vertex<4;vertex++) {
                 int i=quad+(winding==0?vertex:3-vertex)*8;
-                double[] p=position(mesh.raw,i,(BlockModels)block,meta);
+                double[] p=position(mesh.raw,i,(BlockDecorModel)block,meta);
                 int shade=mesh.shading[meta&3][i/8];
                 builder.setColorOpaque_I(shade | shade<<8 | shade<<16);
                 builder.addVertexWithUV(x+p[0],y+p[1],z+p[2],
@@ -296,12 +296,12 @@ public final class ChunkDecorRenderer implements ISimpleBlockRenderingHandler {
     }
     @Override public void renderInventoryBlock(Block block,int meta,int id,RenderBlocks renderer) {}
     @Override public boolean shouldRender3DInInventory(int id) { return false; }
-    @Override public int getRenderId() { return BlockModels.decorChunkRenderId; }
+    @Override public int getRenderId() { return BlockDecorModel.decorChunkRenderId; }
     static final class Mesh {
         final int[] raw; final IIcon icon;
         final double[][] bounds=new double[4][6];
         final int[][] shading=new int[4][];
-        Mesh(int[] raw,IIcon icon,BlockModels block) {
+        Mesh(int[] raw,IIcon icon,BlockDecorModel block) {
             this.raw=raw; this.icon=icon;
             for(int meta=0;meta<4;meta++) {
                 shading[meta]=new int[raw.length/8];

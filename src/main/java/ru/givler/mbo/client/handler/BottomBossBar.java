@@ -7,15 +7,14 @@ import net.minecraft.entity.boss.BossStatus;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import org.lwjgl.opengl.GL11;
-import ru.givler.mbo.config.TooltipFrameConfig;
 
 /** Draw after HUD layout so the boss bar clears health, armour and air rows. */
 public final class BottomBossBar extends Gui {
   @SubscribeEvent public void pre(RenderGameOverlayEvent.Pre e) {
-    if(TooltipFrameConfig.bossBarAtBottom && e.type==RenderGameOverlayEvent.ElementType.BOSSHEALTH)e.setCanceled(true);
+    if(ru.givler.mbo.config.HudConfig.bossBarAtBottom && e.type==RenderGameOverlayEvent.ElementType.BOSSHEALTH)e.setCanceled(true);
   }
   @SubscribeEvent public void post(RenderGameOverlayEvent.Post e) {
-    if(!TooltipFrameConfig.bossBarAtBottom || e.type!=RenderGameOverlayEvent.ElementType.ALL
+    if(!ru.givler.mbo.config.HudConfig.bossBarAtBottom || e.type!=RenderGameOverlayEvent.ElementType.ALL
         || BossStatus.bossName==null || BossStatus.statusBarTime<=0)return;
     Minecraft mc=Minecraft.getMinecraft();
     if(mc.gameSettings.hideGUI)return;

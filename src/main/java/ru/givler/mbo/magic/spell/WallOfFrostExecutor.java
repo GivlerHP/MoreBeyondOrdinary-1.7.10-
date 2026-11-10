@@ -15,10 +15,7 @@ public final class WallOfFrostExecutor implements SpellExecutor {
   @Override
   public SpellResult cast(SpellContext context) {
     Vec3 start =
-        Vec3.createVectorHelper(
-            context.caster().posX,
-            context.caster().posY + context.caster().getEyeHeight(),
-            context.caster().posZ);
+        SpellTargeting.eyePosition(context.caster());
     Vec3 look = context.caster().getLookVec();
     Vec3 end =
         start.addVector(

@@ -10,6 +10,15 @@ import net.minecraft.util.Vec3;
 final class SpellTargeting {
   private SpellTargeting() {}
 
+  static Vec3 eyePosition(EntityLivingBase caster) {
+    return Vec3.createVectorHelper(caster.posX, caster.posY + caster.getEyeHeight(), caster.posZ);
+  }
+
+  static MovingObjectPosition blockTrace(net.minecraft.world.World world, Vec3 start, Vec3 look, double distance) {
+    return world.rayTraceBlocks(start, start.addVector(
+        look.xCoord * distance, look.yCoord * distance, look.zCoord * distance));
+  }
+
   @SuppressWarnings("unchecked")
   static EntityLivingBase livingInSight(EntityLivingBase caster, double range) {
     return livingInSight(caster, range, 0.0D);

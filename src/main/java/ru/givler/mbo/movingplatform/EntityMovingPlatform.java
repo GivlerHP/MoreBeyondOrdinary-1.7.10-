@@ -154,8 +154,8 @@ public class EntityMovingPlatform extends Entity implements IEntityAdditionalSpa
       for(PlatformBlock owner:found)if(owner.x==saved.ownerX&&owner.y==saved.ownerY&&owner.z==saved.ownerZ)ownerIncluded=true;
       if(!ownerIncluded) {if(feedback!=null)feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.incompleteModel"));return false;}
     }
-    for(PlatformBlock saved:found)if(saved.block instanceof ru.givler.mbo.block.BlockModels)
-      for(int[] part:((ru.givler.mbo.block.BlockModels)saved.block).getCollisionPartPositions(saved.x,saved.y,saved.z,saved.meta&3)) {
+    for(PlatformBlock saved:found)if(saved.block instanceof ru.givler.mbo.block.BlockDecorModel)
+      for(int[] part:((ru.givler.mbo.block.BlockDecorModel)saved.block).getCollisionPartPositions(saved.x,saved.y,saved.z,saved.meta&3)) {
         boolean included=false;
         for(PlatformBlock helper:found)if(helper.x==part[0]&&helper.y==part[1]&&helper.z==part[2])included=true;
         if(!included) {if(feedback!=null)feedback.addChatMessage(new ChatComponentTranslation("mbo.platform.error.incompleteModel"));return false;}

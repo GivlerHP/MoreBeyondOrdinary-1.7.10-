@@ -54,7 +54,7 @@ public final class PlatformDecorPixelsSmoke {
      ResourceLocation clips=new ResourceLocation("mbo","animations/instruments_of_torture/iron_cage.animation.json");
      GeckoLibCache.getInstance().getAnimations().put(clips,AnimationFileLoader.getInstance().loadAllAnimations(software.bernie.geckolib3.molang.MolangRegistrar.getParser(),clips,Minecraft.getMinecraft().getResourceManager()));
     }
-    PlatformBlock b=new PlatformBlock(0,0,0,name.equals("iron_cage")?cage:new ru.givler.mbo.block.BlockModels(net.minecraft.block.material.Material.wood,"platform_test_bench","instruments_of_torture/bench","instruments_of_torture/bench"),0);
+    PlatformBlock b=new PlatformBlock(0,0,0,name.equals("iron_cage")?cage:new ru.givler.mbo.block.BlockDecorModel(net.minecraft.block.material.Material.wood,"platform_test_bench","instruments_of_torture/bench","instruments_of_torture/bench"),0);
     b.tileData=new NBTTagCompound();b.tileData.setString("model","instruments_of_torture/"+name);b.tileData.setString("texture","instruments_of_torture/"+name);b.tileData.setInteger("frameCount",1);
     platform.getBlocks().clear();platform.getBlocks().add(b);
     for(int facing=0;facing<4;facing++) {

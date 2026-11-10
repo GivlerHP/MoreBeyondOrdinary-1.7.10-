@@ -11,16 +11,10 @@ public final class LightningBoltExecutor implements SpellExecutor {
   @Override
   public SpellResult cast(SpellContext context) {
     Vec3 start =
-        Vec3.createVectorHelper(
-            context.caster().posX,
-            context.caster().posY + context.caster().getEyeHeight(),
-            context.caster().posZ);
+        SpellTargeting.eyePosition(context.caster());
     Vec3 look = context.caster().getLookVec();
     MovingObjectPosition hit =
-        context
-            .world()
-            .rayTraceBlocks(
-                start, start.addVector(look.xCoord * 200, look.yCoord * 200, look.zCoord * 200));
+        SpellTargeting.blockTrace(context.world(), start, look, 200);
     if (hit == null
         || hit.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK
         || !context.world().canBlockSeeTheSky(hit.blockX, hit.blockY + 1, hit.blockZ)) {

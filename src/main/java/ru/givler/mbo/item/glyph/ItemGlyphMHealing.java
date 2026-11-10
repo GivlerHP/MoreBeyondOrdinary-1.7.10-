@@ -1,7 +1,6 @@
 package ru.givler.mbo.item.glyph;
 
 import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -24,7 +23,7 @@ public class ItemGlyphMHealing extends ItemGlyphBasic {
         this.setCreativeTab(CreativeTabRegistry.tabMBOitems);
         this.setMaxDamage(240);
         this.maxStackSize = maxStackSize;
-        GameRegistry.registerItem(this, name);
+
     }
 
     @Override

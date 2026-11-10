@@ -3,7 +3,7 @@ package ru.givler.mbo.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 
 /** A transient seat on static decor. Vanilla sneaking dismounts normally. */
 public final class EntityDecorSeat extends Entity {
@@ -18,7 +18,7 @@ public final class EntityDecorSeat extends Entity {
  public void onUpdate() {
   if(!worldObj.isRemote) {
    net.minecraft.block.Block block=worldObj.getBlock(dataWatcher.getWatchableObjectInt(17),dataWatcher.getWatchableObjectInt(18),dataWatcher.getWatchableObjectInt(19));
-   if(!(block instanceof BlockModels)||((BlockModels)block).getSeatingPositions()==null
+   if(!(block instanceof BlockDecorModel)||((BlockDecorModel)block).getSeatingPositions()==null
       ||(riddenByEntity==null&&++emptyTicks>5)){if(riddenByEntity!=null)riddenByEntity.mountEntity(null);setDead();return;}
   }
   motionX=motionY=motionZ=0;updateRiderPosition();

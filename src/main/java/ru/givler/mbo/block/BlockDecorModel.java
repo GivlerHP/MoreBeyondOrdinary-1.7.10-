@@ -30,14 +30,14 @@ import net.minecraftforge.common.util.ForgeDirection;
 import ru.givler.mbo.MoreBeyondOrdinary;
 import ru.givler.mbo.block.model.ModelCollisionPart;
 import ru.givler.mbo.block.model.ModelCollisionPart.Axis;
-import ru.givler.mbo.item.ItemBlockModels;
+import ru.givler.mbo.item.ItemBlockDecorModel;
 import ru.givler.mbo.registry.BlockRegistry;
 import ru.givler.mbo.registry.CreativeTabRegistry;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.tileentity.TileEntityModelCollision;
 
-public class BlockModels extends BlockDirectional implements ITileEntityProvider {
-  private static final List<BlockModels> ALL_MODELS = new ArrayList<BlockModels>();
+public class BlockDecorModel extends BlockDirectional implements ITileEntityProvider {
+  private static final List<BlockDecorModel> ALL_MODELS = new ArrayList<BlockDecorModel>();
 
   private String name;
   private String textureName;
@@ -45,16 +45,16 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   private int sleepingDirectionOffset;
   private float[] sleepingHeadPosition;
   private float[][] seatingPositions;
-  public BlockModels withSleepingNoRespawn(float height,int directionOffset) {
+  public BlockDecorModel withSleepingNoRespawn(float height,int directionOffset) {
     sleepingHeight=height;sleepingDirectionOffset=directionOffset;return this;
   }
   public boolean isTemporaryBed(){return sleepingHeight>=0;}
-  public BlockModels withSleepingNoRespawn(float height,int directionOffset,float headX,float headZ) {
+  public BlockDecorModel withSleepingNoRespawn(float height,int directionOffset,float headX,float headZ) {
     withSleepingNoRespawn(height,directionOffset);sleepingHeadPosition=new float[]{headX,headZ};return this;
   }
   public float[] getSleepingHeadPosition(){return sleepingHeadPosition;}
   public float getSleepingHeight(){return sleepingHeight;}
-  public BlockModels withSeats(float[]... positions) {
+  public BlockDecorModel withSeats(float[]... positions) {
     for(float[] p:positions)if(p.length!=3)throw new IllegalArgumentException("seat needs x,y,z");
     seatingPositions=positions;return this;
   }
@@ -68,7 +68,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   private float modelOffsetY;
 
   /** Vertical render offset from the placement block's lower face. */
-  public BlockModels withModelOffsetY(float offset) {
+  public BlockDecorModel withModelOffsetY(float offset) {
     this.modelOffsetY = offset;
     return this;
   }
@@ -116,8 +116,8 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   }
 
   /** Optional capability for future renderers that change geometry continuously. */
-  public BlockModels withDynamicModelRender() { dynamicModelRender = true; return this; }
-  public BlockModels withModelLogicTicks() { modelLogicTicks = true; return this; }
+  public BlockDecorModel withDynamicModelRender() { dynamicModelRender = true; return this; }
+  public BlockDecorModel withModelLogicTicks() { modelLogicTicks = true; return this; }
   public String getModelAnimationName() { return animationName; }
   public boolean isModelAnimationLooped() { return loopAnimation; }
   public int getModelFrameCount() { return textureFrameCount; }
@@ -148,7 +148,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     return result == null ? new float[0][] : result;
   }
 
-  public BlockModels withMultipartCollisionBoxes(float[][] boxes) {
+  public BlockDecorModel withMultipartCollisionBoxes(float[][] boxes) {
     java.util.Map<String,float[][]> cells = ru.givler.mbo.block.model.CollisionShapeParts.cells(boxes);
     collisionBoxes = cells.remove("0,0,0");
     if (collisionBoxes == null) throw new IllegalArgumentException("shape misses placement cell: " + modelName);
@@ -193,7 +193,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
 
   private static final int TOP_META_OFFSET = 4;
 
-  public BlockModels(Material material, String name, String texture, String model) {
+  public BlockDecorModel(Material material, String name, String texture, String model) {
     super(material);
     ALL_MODELS.add(this);
     setBlockName(name);
@@ -208,7 +208,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     this.name = name;
   }
 
-  public static List<BlockModels> getAllModels() {
+  public static List<BlockDecorModel> getAllModels() {
     return Collections.unmodifiableList(ALL_MODELS);
   }
 
@@ -254,17 +254,17 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     }
   }
 
-  public BlockModels setModelHeight(int height) {
+  public BlockDecorModel setModelHeight(int height) {
     this.blockHeight = height;
     return this;
   }
 
-  public BlockModels setCollisionEnabled(boolean enabled) {
+  public BlockDecorModel setCollisionEnabled(boolean enabled) {
     this.disableCollision = !enabled;
     return this;
   }
 
-  public BlockModels setRotationBounds(float[][] bounds) {
+  public BlockDecorModel setRotationBounds(float[][] bounds) {
     if (bounds == null || bounds.length < 4)
       throw new IllegalArgumentException("Need bounds for all 4 directions");
     this.simpleBounds = null;
@@ -276,7 +276,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
    * Sets one bounding box in the model's local NORTH-facing coordinates. The other three horizontal
    * orientations are calculated automatically.
    */
-  public BlockModels withRotatingBounds(
+  public BlockDecorModel withRotatingBounds(
       float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
     this.simpleBounds = new float[] {minX, minY, minZ, maxX, maxY, maxZ};
     this.rotationBounds = null;
@@ -309,7 +309,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   }
 
   /** Divides a manually chosen model envelope into actual occupied blocks. */
-  public BlockModels withMultipartBounds(
+  public BlockDecorModel withMultipartBounds(
       float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
     if (!collisionParts.isEmpty() || blockHeight != 1)
       throw new IllegalStateException("multipart bounds require an unconfigured structure");
@@ -323,16 +323,16 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     return this;
   }
 
-  public BlockModels addVerticalCollision(int offset) {
+  public BlockDecorModel addVerticalCollision(int offset) {
     return addVerticalCollision(offset, 0, 0, 0, 1, 1, 1);
   }
 
-  public BlockModels addVerticalCollision(
+  public BlockDecorModel addVerticalCollision(
       int offset, float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
     return addCollisionPart(Axis.VERTICAL, offset, minX, minY, minZ, maxX, maxY, maxZ);
   }
 
-  public BlockModels addVerticalCollisionUsingBaseBounds(int offset) {
+  public BlockDecorModel addVerticalCollisionUsingBaseBounds(int offset) {
     if (simpleBounds == null) {
       throw new IllegalStateException("base bounds must be set before reusing them");
     }
@@ -346,25 +346,25 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
         simpleBounds[5]);
   }
 
-  public BlockModels addSideCollision(int offset) {
+  public BlockDecorModel addSideCollision(int offset) {
     return addSideCollision(offset, 0, 0, 0, 1, 1, 1);
   }
 
-  public BlockModels addSideCollision(
+  public BlockDecorModel addSideCollision(
       int offset, float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
     return addCollisionPart(Axis.SIDE, offset, minX, minY, minZ, maxX, maxY, maxZ);
   }
 
-  public BlockModels addForwardCollision(int offset) {
+  public BlockDecorModel addForwardCollision(int offset) {
     return addForwardCollision(offset, 0, 0, 0, 1, 1, 1);
   }
 
-  public BlockModels addForwardCollision(
+  public BlockDecorModel addForwardCollision(
       int offset, float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
     return addCollisionPart(Axis.FORWARD, offset, minX, minY, minZ, maxX, maxY, maxZ);
   }
 
-  private BlockModels addCollisionPart(
+  private BlockDecorModel addCollisionPart(
       Axis axis,
       int offset,
       float minX,
@@ -397,31 +397,31 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     return this;
   }
 
-  public BlockModels withDrop(Item item) {
+  public BlockDecorModel withDrop(Item item) {
     return withDrop(item, 0);
   }
 
-  public BlockModels withDrop(Item item, int meta) {
+  public BlockDecorModel withDrop(Item item, int meta) {
     this.dropItem = item;
     this.dropMeta = meta;
     return this;
   }
 
-  public BlockModels withPickup(Item item) {
+  public BlockDecorModel withPickup(Item item) {
     return withPickup(item, 0);
   }
 
-  public BlockModels withPickup(Item item, int meta) {
+  public BlockDecorModel withPickup(Item item, int meta) {
     this.pickupItem = item;
     this.pickupMeta = meta;
     return this;
   }
 
-  public BlockModels withParticle(Block block) {
+  public BlockDecorModel withParticle(Block block) {
     return withParticle(block, 0);
   }
 
-  public BlockModels withParticle(Block block, int meta) {
+  public BlockDecorModel withParticle(Block block, int meta) {
     this.particleBlock = block;
     this.particleMeta = meta;
     this.customParticleBlock = true;
@@ -429,7 +429,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   }
 
   /** Uses another model texture as the source for vanilla breaking particles. */
-  public BlockModels withParticleTexture(String texture) {
+  public BlockDecorModel withParticleTexture(String texture) {
     if (texture == null || texture.isEmpty())
       throw new IllegalArgumentException("texture must not be empty");
     this.particleTextureName = texture;
@@ -437,18 +437,18 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     return this;
   }
 
-  public BlockModels withRequiredSupport() {
+  public BlockDecorModel withRequiredSupport() {
     this.requiresSupport = true;
     return this;
   }
 
-  public BlockModels withRequiredSupport(Item collapseDrop) {
+  public BlockDecorModel withRequiredSupport(Item collapseDrop) {
     this.requiresSupport = true;
     this.unsupportedDropItem = collapseDrop;
     return this;
   }
 
-  public BlockModels withAnimation(String animation, boolean loop) {
+  public BlockDecorModel withAnimation(String animation, boolean loop) {
     this.animationName = animation;
     this.loopAnimation = loop;
     if(animation!=null && !animation.isEmpty()) dynamicModelRender=true;
@@ -460,7 +460,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
    * .mcmeta animation to model textures, so frames are loaded from texture_0.png, texture_1.png,
    * ... texture_N.png.
    */
-  public BlockModels withAnimatedTexture(int frameCount, int frameSpeedMs) {
+  public BlockDecorModel withAnimatedTexture(int frameCount, int frameSpeedMs) {
     if (frameCount < 1) throw new IllegalArgumentException("frameCount must be >= 1");
     if (frameSpeedMs < 1) throw new IllegalArgumentException("frameSpeedMs must be >= 1");
     this.textureFrameCount = frameCount;
@@ -469,7 +469,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
     return this;
   }
 
-  public BlockModels withBounds(
+  public BlockDecorModel withBounds(
       float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
     return withRotatingBounds(minX, minY, minZ, maxX, maxY, maxZ);
   }
@@ -854,7 +854,7 @@ public class BlockModels extends BlockDirectional implements ITileEntityProvider
   }
 
   public void register() {
-    GameRegistry.registerBlock(this, ItemBlockModels.class, name);
+    GameRegistry.registerBlock(this, ItemBlockDecorModel.class, name);
   }
 
   private boolean isTopPart(int meta) {

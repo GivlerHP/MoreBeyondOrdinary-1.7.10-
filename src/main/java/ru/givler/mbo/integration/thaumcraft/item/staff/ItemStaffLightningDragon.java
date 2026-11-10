@@ -4,13 +4,11 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ru.givler.mbo.entity.magic.EntityThunderbolt;
 import java.util.List;
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
@@ -19,7 +17,6 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
-import thaumcraft.api.wands.IWandable;
 import thaumcraft.common.Thaumcraft;
 
 public class ItemStaffLightningDragon extends ItemStaffBasic {
@@ -133,29 +130,8 @@ public class ItemStaffLightningDragon extends ItemStaffBasic {
 
     @Override
     public ItemStack onItemRightClick(ItemStack itemstack, World world, EntityPlayer player) {
-        MovingObjectPosition mop = this.getMovingObjectPositionFromPlayer(world, player, true);
-
-        if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-            int i = mop.blockX;
-            int j = mop.blockY;
-            int k = mop.blockZ;
-            Block bi = world.getBlock(i, j, k);
-
-            if (bi instanceof IWandable) {
-                ItemStack is = ((IWandable) bi).onWandRightClick(world, itemstack, player);
-                if (is != null) {
-                    return is;
-                }
-            }
-
-            TileEntity tile = world.getTileEntity(i, j, k);
-            if (tile != null && tile instanceof IWandable) {
-                ItemStack is = ((IWandable) tile).onWandRightClick(world, itemstack, player);
-                if (is != null) {
-                    return is;
-                }
-            }
-        }
+        ItemStack handled = interactWithWandable(itemstack, world, player);
+        if (handled != null) return handled;
 
         Vec3 aim = this.getAimedPoint(world, player, CAST_RANGE);
 

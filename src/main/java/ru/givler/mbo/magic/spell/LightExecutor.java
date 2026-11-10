@@ -13,16 +13,10 @@ public final class LightExecutor implements SpellExecutor {
   @Override
   public SpellResult cast(SpellContext context) {
     Vec3 start =
-        Vec3.createVectorHelper(
-            context.caster().posX,
-            context.caster().posY + context.caster().getEyeHeight(),
-            context.caster().posZ);
+        SpellTargeting.eyePosition(context.caster());
     Vec3 look = context.caster().getLookVec();
     MovingObjectPosition hit =
-        context
-            .world()
-            .rayTraceBlocks(
-                start, start.addVector(look.xCoord * 4, look.yCoord * 4, look.zCoord * 4));
+        SpellTargeting.blockTrace(context.world(), start, look, 4);
     int x, y, z;
     if (hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
       x = hit.blockX + Facing.offsetsXForSide[hit.sideHit];

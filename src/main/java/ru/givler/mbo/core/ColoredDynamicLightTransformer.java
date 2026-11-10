@@ -35,7 +35,7 @@ public final class ColoredDynamicLightTransformer implements IClassTransformer, 
     int count=0;
     for(MethodNode m:node.methods)if(m.name.equals("updateAll") && m.desc.equals("(Lcom/gtnewhorizons/angelica/dynamiclights/IDynamicLightWorldRenderer;)V")) {
       for(AbstractInsnNode i:m.instructions.toArray())if(i.getOpcode()==RETURN){
-        m.instructions.insertBefore(i,new MethodInsnNode(INVOKESTATIC,"ru/givler/mbo/client/lighting/AngelicaDynamicLightBridge","sync","()V",false));count++;
+        m.instructions.insertBefore(i,new MethodInsnNode(INVOKESTATIC,"ru/givler/mbo/integration/angelica/client/AngelicaDynamicLightBridge","sync","()V",false));count++;
       }
     }
     if(count==0)throw new IllegalStateException("Angelica dynamic-light updateAll anchor missing");

@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.util.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.client.render.decormodels.*;
 import software.bernie.geckolib3.file.GeoModelLoader;
 import software.bernie.geckolib3.geo.render.built.*;
@@ -21,7 +21,7 @@ public class InstancedDecorPixelsSmoke {
  static final InstancedDecorRenderer GPU=InstancedDecorRenderer.INSTANCE;
  static final int SIZE=64;
  static class TestWorld extends net.minecraft.client.multiplayer.WorldClient {
-  BlockModels block;
+  BlockDecorModel block;
   TestWorld(){super(null,null,0,net.minecraft.world.EnumDifficulty.NORMAL,null);}
   public net.minecraft.block.Block getBlock(int x,int y,int z){return block;}
   public int getBlockMetadata(int x,int y,int z){return 2;}
@@ -36,7 +36,7 @@ public class InstancedDecorPixelsSmoke {
   TestTextures(){super(null);}
   public void bindTexture(ResourceLocation location){GL11.glBindTexture(GL11.GL_TEXTURE_2D,texture);}
  }
- static void lifecycle(Object mesh,BlockModels block,Unsafe unsafe)throws Exception {
+ static void lifecycle(Object mesh,BlockDecorModel block,Unsafe unsafe)throws Exception {
   Field prepared=ChunkDecorRenderer.class.getDeclaredField("meshes");prepared.setAccessible(true);
   Map map=(Map)prepared.get(ChunkDecorRenderer.INSTANCE);map.put(block,mesh);block.setDecorChunkReady(true);
   TestWorld world=(TestWorld)unsafe.allocateInstance(TestWorld.class);world.block=block;
@@ -114,12 +114,12 @@ public class InstancedDecorPixelsSmoke {
   StaticDecorPixelsSmoke.fakeMinecraft();OpenGlHelper.defaultTexUnit=GL13.GL_TEXTURE0;OpenGlHelper.lightmapTexUnit=GL13.GL_TEXTURE1;
   System.out.println(GL11.glGetString(GL11.GL_RENDERER)+" / "+GL11.glGetString(GL11.GL_VERSION));
   System.out.println(GPU.setEnabled(true));
-  if(!BlockModels.decorInstancedRendering)throw new AssertionError("GPU initialization failed");
+  if(!BlockDecorModel.decorInstancedRendering)throw new AssertionError("GPU initialization failed");
   texture();
   Class<?> meshClass=Class.forName("ru.givler.mbo.client.render.decormodels.ChunkDecorRenderer$Mesh");
   Class<?> gpuClass=Class.forName("ru.givler.mbo.client.render.decormodels.InstancedDecorRenderer$GpuMesh");
-  meshConstructor=meshClass.getDeclaredConstructor(int[].class,IIcon.class,BlockModels.class);meshConstructor.setAccessible(true);
-  gpuConstructor=gpuClass.getDeclaredConstructor(meshClass,BlockModels.class);gpuConstructor.setAccessible(true);
+  meshConstructor=meshClass.getDeclaredConstructor(int[].class,IIcon.class,BlockDecorModel.class);meshConstructor.setAccessible(true);
+  gpuConstructor=gpuClass.getDeclaredConstructor(meshClass,BlockDecorModel.class);gpuConstructor.setAccessible(true);
   useProgram=GPU.getClass().getDeclaredMethod("useProgram");useProgram.setAccessible(true);
   draw=GPU.getClass().getDeclaredMethod("draw",gpuClass,FloatBuffer.class,int.class);draw.setAccessible(true);
   Field raw=Tessellator.class.getDeclaredField("rawBuffer");raw.setAccessible(true);
@@ -128,14 +128,14 @@ public class InstancedDecorPixelsSmoke {
   IIcon icon=(IIcon)Proxy.newProxyInstance(IIcon.class.getClassLoader(),new Class[]{IIcon.class},(p,m,a)->"mbo:models/decor/test");
   int pictures=0,max=0;long channels=0,error=0,largeDifferences=0;
   Object benchmark=null;
-  Object lifecycleMesh=null;BlockModels lifecycleBlock=null;
+  Object lifecycleMesh=null;BlockDecorModel lifecycleBlock=null;
   for(String name:new String[]{"rope","prison_wagon","torture_table","witch_s_chair","tools_for_oversupply"}) {
    ResourceLocation location=new ResourceLocation("mbo","geo/"+name+".geo.json");
    GeoModel model=GeoModelLoader.getInstance().loadModel(Minecraft.getMinecraft().getResourceManager(),location);
    Tessellator t=new Tessellator();t.startDrawingQuads();
    for(GeoBone bone:model.topLevelBones)StaticDecorPixelsSmoke.RENDERER.renderRecursively(t,StaticDecorPixelsSmoke.TILE,bone,1,1,1,1);
    int[] data=Arrays.copyOf((int[])raw.get(t),index.getInt(t));
-   BlockModels block=(BlockModels)unsafe.allocateInstance(BlockModels.class);ChunkDecorSmoke.set(block,"modelName",name);
+   BlockDecorModel block=(BlockDecorModel)unsafe.allocateInstance(BlockDecorModel.class);ChunkDecorSmoke.set(block,"modelName",name);
    Object mesh=meshConstructor.newInstance(data,icon,block);Object gpu=gpuConstructor.newInstance(mesh,block);
    if(name.equals("prison_wagon")){lifecycleMesh=mesh;lifecycleBlock=block;}
    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER,0);
@@ -164,5 +164,5 @@ public class InstancedDecorPixelsSmoke {
   GPU.setEnabled(false);checkOff();context.destroy();
   System.out.println("PASS instanced shader, fixed TESR lighting/lightmap, fog, rotations, single-draw batching and disable cleanup");
  }
- static void checkOff(){if(BlockModels.decorInstancedRendering)throw new AssertionError("GPU mode didn't turn off");}
+ static void checkOff(){if(BlockDecorModel.decorInstancedRendering)throw new AssertionError("GPU mode didn't turn off");}
 }

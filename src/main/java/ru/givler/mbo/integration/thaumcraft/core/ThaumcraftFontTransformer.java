@@ -1,4 +1,5 @@
-package ru.givler.mbo.core;
+package ru.givler.mbo.integration.thaumcraft.core;
+import ru.givler.mbo.core.SafeClassWriter;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
@@ -13,7 +14,7 @@ import org.objectweb.asm.tree.*;
  */
 public final class ThaumcraftFontTransformer implements IClassTransformer, Opcodes {
     private static final String TARGET = "thaumcraft.client.lib.TCFontRenderer";
-    private static final String HOOK = "ru/givler/mbo/core/ThaumcraftFontHooks";
+    private static final String HOOK = "ru/givler/mbo/integration/thaumcraft/client/ThaumcraftFontHooks";
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {

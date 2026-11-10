@@ -31,7 +31,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.input.Keyboard;
-import ru.givler.mbo.block.BlockModels;
+import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.block.fauna.BlockTurtleEgg;
 import ru.givler.mbo.block.special.BlockDestructibleLootContainer;
 import ru.givler.mbo.client.font.ModernFontSupport;
@@ -203,7 +203,7 @@ public class ClientProxy extends CommonProxy {
   public static KeyBinding activateAmuletKey;
   public static KeyBinding activateBeltKey;
 
-  public static final Map<String, BlockModels> MODEL_REGISTRY = new HashMap<>();
+  public static final Map<String, BlockDecorModel> MODEL_REGISTRY = new HashMap<>();
 
   @Override
   public World getClientWorld() {
@@ -387,7 +387,7 @@ public class ClientProxy extends CommonProxy {
     FMLCommonHandler.instance().bus().register(smoothOpeningRenderer);
     MinecraftForge.EVENT_BUS.register(smoothOpeningRenderer);
     MinecraftForge.EVENT_BUS.register(OpeningJsonRenderer.INSTANCE);
-    BlockModels.decorChunkRenderId = RenderingRegistry.getNextAvailableRenderId();
+    BlockDecorModel.decorChunkRenderId = RenderingRegistry.getNextAvailableRenderId();
     RenderingRegistry.registerBlockHandler(ru.givler.mbo.client.render.decormodels.ChunkDecorRenderer.INSTANCE);
     MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.render.decormodels.ChunkDecorRenderer.INSTANCE);
     MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.render.decormodels.InstancedDecorRenderer.INSTANCE);
@@ -398,7 +398,7 @@ public class ClientProxy extends CommonProxy {
     if (Loader.isModLoaded("NotEnoughItems")) {
       invokeOptional("ru.givler.mbo.integration.nei.ArcanumNEIConfig", "registerHandlers");
     }
-    for (BlockModels model : BlockModels.getAllModels()) {
+    for (BlockDecorModel model : BlockDecorModel.getAllModels()) {
       if (model instanceof BlockDestructibleLootContainer) {
         bindLootContainerRender(model);
       } else {
@@ -457,7 +457,7 @@ public class ClientProxy extends CommonProxy {
     RenderingRegistry.registerBlockHandler(new RenderBarrier(renderId));
   }
 
-  public static void bindDefaultRender(BlockModels block) {
+  public static void bindDefaultRender(BlockDecorModel block) {
     TileEntity tile = block.createNewTileEntity(null, 0);
     ClientRegistry.bindTileEntitySpecialRenderer(tile.getClass(), new TemplateModelRenderer());
     Item blockItem = ItemBlock.getItemFromBlock(block);
@@ -467,14 +467,14 @@ public class ClientProxy extends CommonProxy {
   }
 
   public static void bindRender(
-      BlockModels block, TileEntity tile, TileEntitySpecialRenderer tesr) {
+      BlockDecorModel block, TileEntity tile, TileEntitySpecialRenderer tesr) {
     ClientRegistry.bindTileEntitySpecialRenderer(tile.getClass(), tesr);
     Item blockItem = ItemBlock.getItemFromBlock(block);
     MinecraftForgeClient.registerItemRenderer(blockItem, new RenderBlockItem(tesr, tile));
     MODEL_REGISTRY.put(block.getModelName(), block);
   }
 
-  public static void bindLootContainerRender(BlockModels block) {
+  public static void bindLootContainerRender(BlockDecorModel block) {
     RenderLootContainerTile tesr = new RenderLootContainerTile();
     TileEntityLootContainer tile = new TileEntityLootContainer();
     ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLootContainer.class, tesr);
