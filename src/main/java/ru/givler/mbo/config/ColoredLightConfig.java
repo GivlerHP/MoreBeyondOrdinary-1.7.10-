@@ -69,7 +69,7 @@ public final class ColoredLightConfig {
           String id=entry.getKey();
           String registryId=ru.givler.mbo.lighting.ColoredLightRule.parse(id,entry.getValue(),name.equals("blocks")).name;
           boolean present=name.equals("blocks")?net.minecraft.block.Block.blockRegistry.containsKey(registryId):net.minecraft.item.Item.itemRegistry.containsKey(registryId);
-          if(present && !category.has(id))category.add(id,entry.getValue());
+          if(present && !category.has(id) && !category.has(registryId))category.add(id,entry.getValue());
         }
         if(category.entrySet().size()>0)root.add(name,category);
       }
@@ -148,9 +148,109 @@ public final class ColoredLightConfig {
   }
   private static void both(JsonObject blocks,JsonObject items,String id,String color) { add(blocks,id,color); add(items,id,color); }
   private static void extraSources(JsonObject blocks,JsonObject items) {
+    registeredBoth(blocks,items,"minecraft:fire","#FFD6A0");
+    registeredBoth(blocks,items,"minecraft:portal","#B06AFF");
+    registeredBoth(blocks,items,"minecraft:end_portal","#75D8C8");
+    registeredBoth(blocks,items,"minecraft:end_portal_frame","#75D8C8");
+    registeredBoth(blocks,items,"minecraft:brewing_stand","#FFD38A");
+    registeredBoth(blocks,items,"minecraft:brown_mushroom","#B99C78");
+    registeredBoth(blocks,items,"minecraft:dragon_egg","#B685E5");
+    registeredBoth(blocks,items,"minecraft:powered_repeater","#FF3030");
+    registeredBoth(blocks,items,"minecraft:powered_comparator","#FF3030");
+    registeredBoth(blocks,items,"BiomesOPlenty:coral1:15","#C39CFF");
+    registeredBoth(blocks,items,"BiomesOPlenty:crystal","#9AEFFF");
+    registeredBoth(blocks,items,"BiomesOPlenty:flowers:3","#FFF0A0");
+    registeredBoth(blocks,items,"BiomesOPlenty:flowers:11","#A3DFFF");
+    registeredBoth(blocks,items,"BiomesOPlenty:flowers2:2","#B2FFD0");
+    registeredBoth(blocks,items,"BiomesOPlenty:mushrooms:3","#B6F0FF");
+    registeredBoth(blocks,items,"GardenCore:small_fire","#FFD6A0");
+    registeredBoth(blocks,items,"GardenStuff:bloomery_furnace","#FFAA62");
+    registeredBoth(blocks,items,"GardenStuff:candelabra","#FFD6A0");
+    registeredBoth(blocks,items,"mbo:BlockFogWhite","#DFECFF");
+    registeredBoth(blocks,items,"mbo:BlockFogGrey","#A8BBCE");
+    registeredBoth(blocks,items,"mbo:BooksheelCandle","#FFD6A0");
+    registeredBoth(blocks,items,"mbo:BooksheelSkullCandle","#FFD6A0");
+    registeredBoth(blocks,items,"mbo:meteor_block","#FF9B45");
+    registeredBoth(blocks,items,"mbo:temporary_light","#FFF0CF");
+    registeredBoth(blocks,items,"mbo:temporary_spectral","#93E7FF");
+    registeredBoth(blocks,items,"mbo:MagicFurnace","#A0D5FF");
+    registeredBoth(blocks,items,"darkrootgarden:goblin_light","#A8FF84");
+    registeredBoth(blocks,items,"darkrootgarden:arcana_workbench","#A8CAFF");
+    registeredBoth(blocks,items,"customnpcs:npcBloodBlock","#C92F3B");
+    registeredBoth(blocks,items,"customnpcs:npcCarpentyBench","#FFD6A0");
+    registeredBoth(blocks,items,"customnpcs:npcScripted","#FFFFFF");
+    registeredBoth(blocks,items,"minefantasy2:oreInferno","#FF9B45");
+    registeredBoth(blocks,items,"minefantasy2:oreTear","#B9DFFF");
+    registeredBoth(blocks,items,"minefantasy2:firepit","#FFD6A0");
+    registeredBoth(blocks,items,"minefantasy2:furnace_heater","#FFAA62");
+    registeredBoth(blocks,items,"minefantasy2:furnace_stone","#FFAA62");
+    registeredBoth(blocks,items,"minefantasy2:MF_BlastHeaterActive","#FFAA62");
+    registeredBoth(blocks,items,"Thaumcraft:blockArcaneFurnace","#FFBA75");
+    registeredBoth(blocks,items,"Thaumcraft:blockAlchemyFurnace","#FFBA75");
+    registeredBoth(blocks,items,"Thaumcraft:blockCosmeticSolid:2","#B996E5");
+    registeredBoth(blocks,items,"Thaumcraft:blockCosmeticSolid:14","#B996E5");
+    registeredBoth(blocks,items,"Thaumcraft:blockCrystal","#E5D7FF");
+    registeredBoth(blocks,items,"Thaumcraft:blockCustomPlant:1","#D9C8FF");
+    registeredBoth(blocks,items,"Thaumcraft:blockEldritch","#A591D2");
+    registeredBoth(blocks,items,"Thaumcraft:blockEldritchNothing","#9483B7");
+    registeredBoth(blocks,items,"Thaumcraft:blockFluidDeath","#6A4A9C");
+    registeredBoth(blocks,items,"Thaumcraft:blockFluidPure","#A4E5FF");
+    registeredBoth(blocks,items,"Thaumcraft:blockFluxGas","#AE67B8");
+    registeredBoth(blocks,items,"Thaumcraft:blockFluxGoo","#AE67B8");
+    registeredBoth(blocks,items,"Thaumcraft:blockHole","#B3A0F0");
+    registeredBoth(blocks,items,"Thaumcraft:blockMagicalLeaves","#BEEAFF");
+    registeredBoth(blocks,items,"Thaumcraft:blockMagicalLog","#BEEAFF");
+    registeredBoth(blocks,items,"Thaumcraft:blockMetalDevice:3","#FFCE8A");
+    registeredBoth(blocks,items,"Thaumcraft:blockMetalDevice:14","#A0DBFF");
+    registeredBoth(blocks,items,"Thaumcraft:blockPortalEldritch","#B99CFF");
+    registeredBoth(blocks,items,"Thaumcraft:blockStoneDevice","#FFC581");
+    registeredBoth(blocks,items,"Thaumcraft:blockTaintFibres:2","#C084D8");
+    registeredBoth(blocks,items,"Thaumcraft:blockTaintFibres:4","#C084D8");
+    registeredBoth(blocks,items,"caveabyss:magma","#FF9B45");
+    registeredBoth(blocks,items,"caveabyss:small_amethyst_bud","#C89AFF");
+    registeredBoth(blocks,items,"caveabyss:medium_amethyst_bud","#C89AFF");
+    registeredBoth(blocks,items,"caveabyss:large_amethyst_bud","#C89AFF");
+    registeredBoth(blocks,items,"caveabyss:amethyst_cluster","#C89AFF");
+    registeredBoth(blocks,items,"caveabyss:small_aquamarine_bud","#82E0E6");
+    registeredBoth(blocks,items,"caveabyss:medium_aquamarine_bud","#82E0E6");
+    registeredBoth(blocks,items,"caveabyss:large_aquamarine_bud","#82E0E6");
+    registeredBoth(blocks,items,"caveabyss:aquamarine_cluster","#82E0E6");
+    registeredBoth(blocks,items,"minefantasy2:MF_CrucibleautoActive","#FFAA62");
+    registeredBoth(blocks,items,"minefantasy2:MF_CruciblefireclayActive","#FFAA62");
+    registeredBoth(blocks,items,"minefantasy2:MF_CruciblemasterActive","#FFAA62");
+    registeredBoth(blocks,items,"minefantasy2:MF_CruciblemythicActive","#FFAA62");
+    registeredBoth(blocks,items,"minefantasy2:MF_CruciblestoneActive","#FFAA62");
+    registeredBoth(blocks,items,"mbo:froglight:0","#FFE49C");
+    registeredBoth(blocks,items,"mbo:froglight:1","#FFBFF4");
+    registeredBoth(blocks,items,"mbo:froglight:2","#B6FFB0");
+    registeredBoth(blocks,items,"mbo:froglight:3","#FFE49C");
+    registeredBoth(blocks,items,"mbo:froglight:4","#FFE49C");
+    registeredBoth(blocks,items,"mbo:froglight:5","#FFBFF4");
+    registeredBoth(blocks,items,"mbo:froglight:6","#B6FFB0");
+    registeredBoth(blocks,items,"mbo:froglight:7","#FFE49C");
+    registeredBoth(blocks,items,"mbo:froglight:8","#FFE49C");
+    registeredBoth(blocks,items,"mbo:froglight:9","#FFBFF4");
+    registeredBoth(blocks,items,"mbo:froglight:10","#B6FFB0");
+    registeredBoth(blocks,items,"mbo:froglight:11","#FFE49C");
+    registeredBoth(blocks,items,"mbo:froglight:12","#FFE49C");
+    registeredBoth(blocks,items,"mbo:froglight:13","#FFBFF4");
+    registeredBoth(blocks,items,"mbo:froglight:14","#B6FFB0");
+    registeredBoth(blocks,items,"mbo:froglight:15","#FFE49C");
+    registeredBoth(blocks,items,"mbo:Glowshroom:0","#9EFFAF");
+    registeredBoth(blocks,items,"mbo:Glowshroom:1","#8EDCFF");
+    registeredBoth(blocks,items,"mbo:Glowshroom:2","#D1A0FF");
     // Only metadata 1 is nitor; the same block also contains aura nodes and other effects.
     add(blocks,"Thaumcraft:blockAiry:1","#FFD6A0");
     add(items,"Thaumcraft:blockAiry:1","#FFD6A0",15);
+    // Metadata 3 is the invisible light created by the arcane lamp, not nitor/node.
+    add(blocks,"Thaumcraft:blockAiry:3","#FFD6A0");
+    both(blocks,items,"Thaumcraft:blockMetalDevice:1","#FFD6A0");
+    // CustomNPC+ BlockCrystal uses the vanilla metadata MapColor palette.
+    for(int meta=0;meta<16;meta++) {
+      String color=String.format(java.util.Locale.ROOT,"#%06X",net.minecraft.block.material.MapColor.getMapColorForBlockColored(meta).colorValue);
+      String id="customnpcs:npcCrystalBlock:"+meta;
+      add(blocks,id,color);add(items,id,color,12);
+    }
     for(String id:new String[]{"customnpcs:npcCandle","customnpcs:npcCampfire","customnpcs:npcLamp","GardenStuff:candle","customnpcs:npcShortLamp","customnpcs:npcTallLamp"})both(blocks,items,id,"#FFD6A0");
     both(blocks,items,"minecraft:ender_chest","#80FFD0");
     // Cold forge items remain dark; only the active world blocks emit light.
@@ -158,4 +258,13 @@ public final class ColoredLightConfig {
   }
   private static void add(JsonObject category,String id,String color) { JsonObject rule = new JsonObject(); rule.addProperty("color",color); category.add(id,rule); }
   private static void add(JsonObject category,String id,String color,int brightness) { add(category,id,color); category.getAsJsonObject(id).addProperty("brightness",brightness); }
+  // Optional palette entries only apply to registered blocks and their actual items.
+  private static void registeredBoth(JsonObject blocks,JsonObject items,String id,String color) {
+    String[] parts=id.split(":");String registryId=parts[0]+":"+parts[1];
+    if(!net.minecraft.block.Block.blockRegistry.containsKey(registryId))return;
+    JsonObject b=new JsonObject();b.addProperty("color",color);blocks.add(id,b);
+    if(net.minecraft.item.Item.itemRegistry.containsKey(registryId)) {
+      JsonObject i=new JsonObject();i.addProperty("color",color);items.add(id,i);
+    }
+  }
 }

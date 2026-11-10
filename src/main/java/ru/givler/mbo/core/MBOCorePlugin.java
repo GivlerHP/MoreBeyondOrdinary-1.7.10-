@@ -10,6 +10,8 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
   public String[] getASMTransformerClass() {
     return new String[] {
       "ru.givler.mbo.core.TextureInterpolationTransformer",
+      "ru.givler.mbo.integration.thaumcraft.core.ThaumcraftNodeLightTransformer",
+      "ru.givler.mbo.core.TileRgbUpdateTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaPackSettingsTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaGuiScaleTransformer",
       "ru.givler.mbo.integration.angelica.core.AngelicaSkyTransformer",

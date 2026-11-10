@@ -255,3 +255,13 @@ task verifyGuiScaleClipping(type: JavaExec, dependsOn: testClasses) {
     if (project.hasProperty('guiScaleAuditJar')) classpath += files(project.property('guiScaleAuditJar'))
     main = 'ru.givler.mbo.lighting.GuiScaleClippingSmoke'
 }
+
+task verifyModRgbSources(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.ModRgbSourcesSmoke'
+}
+
+task verifyCompleteRgbCoverage(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.CompleteRgbCoverageSmoke'
+}

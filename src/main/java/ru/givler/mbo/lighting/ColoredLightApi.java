@@ -51,6 +51,12 @@ public final class ColoredLightApi {
     Map<Block, Provider> next = new IdentityHashMap<>(PROVIDERS); next.put(block, provider); PROVIDERS = next;
   }
 
+  public static synchronized void registerDefault(Block block, Provider provider) {
+    if (!PROVIDERS.containsKey(block)) register(block,provider);
+  }
+  public static synchronized void registerDefaultItem(Item item, ItemProvider provider) {
+    if (!ITEMS.containsKey(item)) registerItem(item,provider);
+  }
   public static int emission(int rgb, int level) {
     if (level <= 0 || (rgb & 0xFFFFFF) == 0) return 0;
     return Math.min(15, level) << 24 | rgb & 0xFFFFFF;
