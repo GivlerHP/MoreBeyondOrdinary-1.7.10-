@@ -18,7 +18,7 @@ public final class AngelicaSkyHooks {
   private static Method values,errorMethod;
   private static Field skyboxEnabled,skyEnabled,packEnabled;
   public static boolean enabled() {
-    if(ru.givler.mbo.client.render.ShaderPackState.isActive())return false;
+    if(shadersActive())return false;
     try {
       if(skyboxEnabled==null) {
         Class<?> type=Class.forName("jss.notfine.config.MCPatcherForgeConfig$BetterSkies");
@@ -27,6 +27,24 @@ public final class AngelicaSkyHooks {
       }
       return skyboxEnabled.getBoolean(null)&&skyEnabled.getBoolean(null)&&packEnabled.getBoolean(null);
     }catch(ReflectiveOperationException error){throw new IllegalStateException("Cannot read sky settings",error);}
+  }
+  private static Object shaderConfig;
+  private static Method shadersEnabled;
+  private static boolean shaderConfigChecked;
+  private static boolean shadersActive() {
+    if(!ru.givler.mbo.client.render.ShaderPackState.isActive())return false;
+    try {
+      if(!shaderConfigChecked) {
+        shaderConfigChecked=true;
+        Class<?> api=Class.forName("net.irisshaders.iris.api.v0.IrisApi");
+        Object instance=api.getMethod("getInstance").invoke(null);
+        shaderConfig=api.getMethod("getConfig").invoke(instance);
+        shadersEnabled=Class.forName("net.irisshaders.iris.api.v0.IrisApiConfig").getMethod("areShadersEnabled");
+      }
+      return shadersEnabled==null || Boolean.TRUE.equals(shadersEnabled.invoke(shaderConfig));
+    } catch(ReflectiveOperationException | LinkageError unavailable) {
+      return true; // Older shader APIs retain the established active-pipeline check.
+    }
   }
   private static final class State {
     CustomSkyRule rule;World lastWorld;float position=Float.NaN;long time;

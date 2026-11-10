@@ -12,7 +12,12 @@ public final class AngelicaSkyTransformer implements IClassTransformer,Opcodes {
     if(bytes==null||!(layer||sky))return bytes;
     ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);int count=0;
     for(MethodNode method:node.methods)for(AbstractInsnNode i:method.instructions.toArray())
-      if(i instanceof MethodInsnNode&&((MethodInsnNode)i).owner.equals(HOOK))return bytes;
+      if(i instanceof MethodInsnNode) {
+        MethodInsnNode call=(MethodInsnNode)i;
+        // PackSettingsTransformer also calls this hook owner (enabled), but
+        // that does not install our per-frame world setup or layer semantics.
+        if(call.owner.equals(HOOK)&&call.name.equals(sky?"setup":"validate"))return bytes;
+      }
     for(MethodNode m:node.methods) {
       if(sky&&m.name.equals("setup")&&FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(m.desc).equals("(Lnet/minecraft/world/World;FF)V")) {
         InsnList c=new InsnList();c.add(new VarInsnNode(ALOAD,0));c.add(new VarInsnNode(FLOAD,1));c.add(new VarInsnNode(FLOAD,2));
