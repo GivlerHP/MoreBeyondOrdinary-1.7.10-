@@ -39,6 +39,22 @@ public final class ColoredDynamicLightTransformer implements IClassTransformer, 
       }
     }
     if(count==0)throw new IllegalStateException("Angelica dynamic-light updateAll anchor missing");
+    int entityHooks=0;
+    for(MethodNode m:node.methods)if(m.name.equals("getLuminanceFromEntity")
+        && FMLDeobfuscatingRemapper.INSTANCE.mapMethodDesc(m.desc).equals("(Lnet/minecraft/entity/Entity;)I")) {
+      for(AbstractInsnNode i:m.instructions.toArray())if(i.getOpcode()==IRETURN) {
+        AbstractInsnNode previous=i.getPrevious();
+        while(previous!=null && previous.getOpcode()<0)previous=previous.getPrevious();
+        // Preserve Angelica's explicit suppression under water. Ordinary living entities
+        // return a computed local (even at zero), which is where new sources participate.
+        if(previous!=null && previous.getOpcode()==ICONST_0)continue;
+        InsnList code=new InsnList();code.add(new VarInsnNode(ALOAD,0));
+        code.add(new MethodInsnNode(INVOKESTATIC,"ru/givler/mbo/client/lighting/ColoredLightAuto",
+            "entityLevel","(ILnet/minecraft/entity/Entity;)I",false));
+        m.instructions.insertBefore(i,code);entityHooks++;
+      }
+    }
+    if(entityHooks==0)throw new IllegalStateException("Angelica entity luminance anchor missing");
     MethodNode marker=new MethodNode(ACC_PUBLIC|ACC_STATIC|ACC_SYNTHETIC,"mbo$unifiedDynamicLights","()V",null,null);
     marker.instructions.add(new InsnNode(RETURN));node.methods.add(marker);
     ClassWriter writer=new ClassWriter(ClassWriter.COMPUTE_MAXS);node.accept(writer);return writer.toByteArray();

@@ -201,11 +201,15 @@ public final class PortableLightSmoke {
     };
     Method render=loader.loadClass("ru.givler.mbo.client.render.light.CustomNpcLanternVisual").getDeclaredMethod("render",boolean.class);render.setAccessible(true);
     BufferedImage sheet=new BufferedImage(512,256,BufferedImage.TYPE_INT_RGB);
+    byte[] unlitPixels=null;
     for(int state=0;state<2;state++) {
       GL11.glViewport(0,0,256,256);GL11.glClearColor(.1F,.13F,.16F,1);GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
       GL11.glMatrixMode(GL11.GL_PROJECTION);GL11.glLoadIdentity();GL11.glOrtho(-.6,.6,-.1,1.1,-10,10);
       GL11.glMatrixMode(GL11.GL_MODELVIEW);GL11.glLoadIdentity();GL11.glRotatef(25,0,1,0);
       GL11.glEnable(GL11.GL_DEPTH_TEST);GL11.glDisable(GL11.GL_CULL_FACE);GL11.glDisable(GL11.GL_LIGHTING);
+      // With environmental light held constant, switching off must not tint the texture grey.
+      GL13.glActiveTexture(GL13.GL_TEXTURE1);GL11.glDisable(GL11.GL_TEXTURE_2D);GL13.glActiveTexture(GL13.GL_TEXTURE0);
+      GL11.glColor4f(1,1,1,1);
       render.invoke(null,state==1);
       Method grip=render.getDeclaringClass().getDeclaredMethod("gripHeight");grip.setAccessible(true);
       float height=((Number)grip.invoke(null)).floatValue();check(height>.6F && height<1.2F,"Lantern handle height");
@@ -218,6 +222,9 @@ public final class PortableLightSmoke {
       check(Math.abs(attachment.get(2)*hookX+attachment.get(6)*height+attachment.get(14)-.16F)<.0001,"Belt hook Z");GL11.glPopMatrix();
       check(GL11.glGetError()==GL11.GL_NO_ERROR,"CustomNPC model GL error");
       ByteBuffer out=BufferUtils.createByteBuffer(256*256*4);GL11.glReadPixels(0,0,256,256,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,out);
+      byte[] pixels=new byte[out.capacity()];out.get(pixels);
+      if(state==0)unlitPixels=pixels;
+      else check(java.util.Arrays.equals(unlitPixels,pixels),"Unlit lantern must retain texture colors without an artificial dark tint");
       for(int y=0;y<256;y++)for(int x=0;x<256;x++){int at=(y*256+x)*4;sheet.setRGB(state*256+x,255-y,(out.get(at)&255)<<16|(out.get(at+1)&255)<<8|out.get(at+2)&255);}
     }
     ImageIO.write(sheet,"png",Paths.get("build/portable-lights/lantern-states.png").toFile());

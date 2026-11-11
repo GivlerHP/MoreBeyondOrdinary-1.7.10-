@@ -88,7 +88,7 @@ public final class ColoredLightApi {
   }
   public static int entityEmission(Entity entity) {
     if (entity == null) return 0;
-    String name = entityId(entity);
+    String name = ColoredLightSources.hasEntityRules()?entityId(entity):null;
     if (name != null) {
       ColoredLightRule rule = ColoredLightSources.entity(name);
       if (rule != null) return rule.emission(15);

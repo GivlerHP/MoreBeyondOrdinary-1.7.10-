@@ -277,3 +277,15 @@ task verifyOpeningLayer(type: JavaExec, dependsOn: testClasses) {
     if (project.hasProperty('angelicaJar')) args project.property('angelicaJar')
     else onlyIf { false }
 }
+
+task verifyInstalledMboAbi(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.InstalledMboAbiSmoke'
+    if (project.hasProperty('seasonalExpansionJar')) args project.property('seasonalExpansionJar')
+    else onlyIf { false }
+}
+
+task verifyCreatureRgb(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.lighting.CreatureRgbSmoke'
+}

@@ -86,5 +86,6 @@ public final class ColoredLightSources {
   public static ColoredLightRule block(Block block, int meta) { Rules rules = blocks.get(block); return rules == null ? null : rules.get(meta); }
   public static ColoredLightRule item(ItemStack stack) { if (stack == null) return null; Rules rules = items.get(stack.getItem()); return rules == null ? null : rules.get(stack.getItemDamage()); }
   public static ColoredLightRule entity(String id) { return entities.get(id); }
+  public static boolean hasEntityRules() { return !entities.isEmpty(); }
   public static File file() { return file; }
 }

@@ -12,6 +12,11 @@ import ru.givler.mbo.lighting.ColoredLightApi;
 public final class ThaumcraftRgbSources {
   private ThaumcraftRgbSources() {}
   public static void register() {
+    ColoredLightApi.registerEntity(thaumcraft.common.entities.monster.EntityWisp.class,entity->{
+      Aspect aspect=Aspect.getAspect(((thaumcraft.common.entities.monster.EntityWisp)entity).getType());
+      return ru.givler.mbo.client.lighting.NativeRgbSources.creatureEmission(entity,
+          aspect==null?0xFFFFFF:aspect.getColor(),10);
+    });
     if(!Block.blockRegistry.containsKey("Thaumcraft:blockAiry"))return;
     final Block airy=(Block)Block.blockRegistry.getObject("Thaumcraft:blockAiry");
     ColoredLightApi.register(airy,(world,x,y,z)->emission(airy,world,x,y,z));

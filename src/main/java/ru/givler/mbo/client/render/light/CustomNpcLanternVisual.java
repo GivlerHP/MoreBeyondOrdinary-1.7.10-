@@ -35,7 +35,6 @@ final class CustomNpcLanternVisual {
       float x=OpenGlHelper.lastBrightnessX,y=OpenGlHelper.lastBrightnessY;
       try {
         if(lit)OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit,240,240);
-        else GL11.glColor4f(.3F,.3F,.3F,1);
         lantern.Light.render(.0625F);
       } finally { GL11.glColor4f(1,1,1,1);OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit,x,y); }
     } finally { GL11.glPopMatrix(); }

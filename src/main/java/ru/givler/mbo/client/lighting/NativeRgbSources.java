@@ -10,6 +10,10 @@ import ru.givler.mbo.config.ColoredLightSources;
 public final class NativeRgbSources {
   private NativeRgbSources() {}
   public static void register() {
+    ColoredLightApi.registerEntity(net.minecraft.entity.monster.EntityBlaze.class,
+        entity->creatureEmission(entity,0xFFD080,entity.isBurning()?15:10));
+    ColoredLightApi.registerEntity(net.minecraft.entity.monster.EntityMagmaCube.class,
+        entity->creatureEmission(entity,0xFF6828,13));
     for(Object object:Block.blockRegistry) {
       if(!(object instanceof Block))continue;final Block block=(Block)object;
       if(block==ru.givler.mbo.registry.BlockRegistry.ColourFire)continue;
@@ -22,6 +26,16 @@ public final class NativeRgbSources {
       if(item!=null)ColoredLightApi.registerDefaultItem(item,(stack,holder)->ColoredLightApi.emission(nativeColor(block,stack.getItemDamage()&15),ColoredLightAuto.itemLevel(stack,holder)));
     }
     MaterialRgbSources.register();
+  }
+  /** Keep MBO's colored fire authoritative over a creature's ordinary glow. */
+  public static int creatureEmission(Entity entity,int color,int level) {
+    if(entity.isDead)return 0;
+    if(ColoredLightSources.coloredBurning && entity.worldObj!=null && entity.worldObj.isRemote) {
+      int fire=ru.givler.mbo.client.render.ColoredBurningRenderHooks.color(entity);
+      if(fire>=0)return ColoredLightApi.emission(ru.givler.mbo.block.BlockColourFire.COLORS[fire],
+          ColoredLightSources.burningBrightness);
+    }
+    return ColoredLightApi.emission(color,level);
   }
   public static int nativeColor(Block block,int meta) {
     int color=block.getRenderColor(meta)&0xFFFFFF;

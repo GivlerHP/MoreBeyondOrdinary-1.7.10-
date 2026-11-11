@@ -36,6 +36,7 @@ import ru.givler.mbo.registry.CreativeTabRegistry;
 import ru.givler.mbo.tileentity.ModelTileBase;
 import ru.givler.mbo.tileentity.TileEntityModelCollision;
 
+/** Base for decorative model blocks, also extended by Seasonal Expansion. */
 public class BlockDecorModel extends BlockDirectional implements ITileEntityProvider {
   private static final List<BlockDecorModel> ALL_MODELS = new ArrayList<BlockDecorModel>();
 

@@ -36,7 +36,7 @@ public final class ColoredDynamicLightBridge {
     catch (ReflectiveOperationException error) { throw new IllegalStateException("FalseTweaks dynamic-light settings", error); }
   }
   public static int level(int original, Entity entity) {
-    if (!available() || !ColoredLightConfig.enabled || !ColoredLightConfig.dynamicLights) return original;
+    if (!available()) return original;
     boolean hand = entity == Minecraft.getMinecraft().renderViewEntity;
     if (!flag(hand ? access.hand : access.entities)) return original;
     return ColoredLightAuto.optifineLevel(original, entity);

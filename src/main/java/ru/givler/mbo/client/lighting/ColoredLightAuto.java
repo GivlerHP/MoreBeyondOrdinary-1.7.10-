@@ -90,10 +90,15 @@ public final class ColoredLightAuto {
   }
   /** OptiFine remains responsible for the white dynamic level; preserve stronger existing light. */
   public static int optifineLevel(int original, Entity entity) {
-    if (!ru.givler.mbo.config.ColoredLightConfig.enabled || !ru.givler.mbo.config.ColoredLightConfig.dynamicLights) return original;
     int packed = ColoredLightApi.entityEmission(entity);
+    original=Math.max(original,packed>>>24);
+    if (!ru.givler.mbo.config.ColoredLightConfig.enabled || !ru.givler.mbo.config.ColoredLightConfig.dynamicLights) return original;
     if (entity instanceof EntityLivingBase) packed = merge(packed, heldEmission((EntityLivingBase) entity));
     if (entity instanceof net.minecraft.entity.item.EntityItem) packed = merge(packed, ColoredLightApi.itemEmission(((net.minecraft.entity.item.EntityItem) entity).getEntityItem(), entity));
     return Math.max(original, packed >>> 24);
+  }
+  /** Native backends still provide ordinary white light when RGB is switched off. */
+  public static int entityLevel(int original,Entity entity) {
+    return Math.max(original,ColoredLightApi.entityEmission(entity)>>>24);
   }
 }

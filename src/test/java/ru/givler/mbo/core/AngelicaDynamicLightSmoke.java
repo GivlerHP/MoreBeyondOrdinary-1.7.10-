@@ -24,6 +24,18 @@ public final class AngelicaDynamicLightSmoke {
       }
     }
     if(hooks==0||hooks!=returns)throw new AssertionError("Lifecycle hooks missing");
+    int entityHooks=0,suppressed=0;
+    for(MethodNode m:node.methods)if(m.name.equals("getLuminanceFromEntity")) {
+      new Analyzer<BasicValue>(new BasicVerifier()).analyze(node.name,m);
+      for(AbstractInsnNode i:m.instructions.toArray())if(i.getOpcode()==Opcodes.IRETURN) {
+        AbstractInsnNode p=i.getPrevious();while(p!=null&&p.getOpcode()<0)p=p.getPrevious();
+        if(p!=null&&p.getOpcode()==Opcodes.ICONST_0){suppressed++;continue;}
+        if(!(p instanceof MethodInsnNode)||!((MethodInsnNode)p).name.equals("entityLevel"))
+          throw new AssertionError("Computed entity light is not extended");
+        entityHooks++;
+      }
+    }
+    if(entityHooks==0||suppressed!=1)throw new AssertionError("Missing source hook or changed underwater suppression");
     System.out.println("ANGELICA_DYNAMIC_LIGHT_OK hooks="+hooks);
   }
 }
