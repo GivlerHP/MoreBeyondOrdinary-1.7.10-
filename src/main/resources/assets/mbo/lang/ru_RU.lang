@@ -2140,3 +2140,9 @@ tile.acacia_shelf.name=Акациевая полка
 tile.dark_oak_shelf.name=Тёмно-дубовая полка
 
 key.mbo.belt.desc=Активировать пояс
+
+mbo.research_scroll.unknown=Неизвестные исследовательские записи
+mbo.research_scroll.missing=Неизвестное исследование
+mbo.research_scroll.unavailable=Описание этого исследования недоступно.
+mbo.research_scroll.complete=Завершено — изучить ПКМ
+mbo.research_scroll.incomplete=Незавершённые записи

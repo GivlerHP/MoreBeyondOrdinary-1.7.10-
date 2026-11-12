@@ -289,3 +289,11 @@ task verifyCreatureRgb(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.lighting.CreatureRgbSmoke'
 }
+
+task verifyResearchScroll(type: JavaExec, dependsOn: [testClasses, extractNativeResourceTestLibraries]) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.integration.thaumcraft.client.render.ResearchScrollSmoke'
+    args new File(gradle.gradleUserHomeDir, 'caches/minecraft/net/minecraft/minecraft/1.7.10/minecraft-1.7.10.jar').absolutePath
+    args file('../Thaumcraft-4-Ariamis/src/main/resources').absolutePath
+    systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
+}

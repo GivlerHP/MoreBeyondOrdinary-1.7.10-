@@ -1850,3 +1850,9 @@ tile.acacia_shelf.name=Acacia Shelf
 tile.dark_oak_shelf.name=Dark Oak Shelf
 
 key.mbo.belt.desc=Activate belt
+
+mbo.research_scroll.unknown=Unknown research notes
+mbo.research_scroll.missing=Unrecognized research
+mbo.research_scroll.unavailable=The description of this research is unavailable.
+mbo.research_scroll.complete=Complete - right-click to learn
+mbo.research_scroll.incomplete=Unfinished research notes

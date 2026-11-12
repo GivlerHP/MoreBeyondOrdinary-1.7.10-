@@ -23,6 +23,14 @@ public final class ThaumcraftClientRegistration {
     private ThaumcraftClientRegistration() {}
 
     public static void register() {
+        ru.givler.mbo.integration.thaumcraft.client.render.ResearchScrollRenderer scroll =
+                new ru.givler.mbo.integration.thaumcraft.client.render.ResearchScrollRenderer();
+        MinecraftForgeClient.registerItemRenderer(thaumcraft.common.config.ConfigItems.itemResearchNotes, scroll);
+        ru.givler.mbo.integration.thaumcraft.core.ResearchScrollTransformer.bind(
+                thaumcraft.common.config.ConfigItems.itemResearchNotes, scroll);
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(scroll);
+        ((net.minecraft.client.resources.IReloadableResourceManager)net.minecraft.client.Minecraft.getMinecraft()
+                .getResourceManager()).registerReloadListener(scroll);
         RenderingRegistry.registerEntityRenderingHandler(EntityDarkMatter.class, new RenderEldritchOrb());
         RenderingRegistry.registerEntityRenderingHandler(EntityHomingShard.class, new RenderEntityHomingShard());
         RenderingRegistry.registerEntityRenderingHandler(EntityDiffusion.class, new RenderEntityDiffusion());

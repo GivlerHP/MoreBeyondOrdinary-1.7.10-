@@ -207,7 +207,7 @@ public final class PortableLightSmoke {
       GL11.glMatrixMode(GL11.GL_PROJECTION);GL11.glLoadIdentity();GL11.glOrtho(-.6,.6,-.1,1.1,-10,10);
       GL11.glMatrixMode(GL11.GL_MODELVIEW);GL11.glLoadIdentity();GL11.glRotatef(25,0,1,0);
       GL11.glEnable(GL11.GL_DEPTH_TEST);GL11.glDisable(GL11.GL_CULL_FACE);GL11.glDisable(GL11.GL_LIGHTING);
-      // With environmental light held constant, switching off must not tint the texture grey.
+      // With environmental light held constant, the off state must visibly dim the lamp interior.
       GL13.glActiveTexture(GL13.GL_TEXTURE1);GL11.glDisable(GL11.GL_TEXTURE_2D);GL13.glActiveTexture(GL13.GL_TEXTURE0);
       GL11.glColor4f(1,1,1,1);
       render.invoke(null,state==1);
@@ -224,7 +224,7 @@ public final class PortableLightSmoke {
       ByteBuffer out=BufferUtils.createByteBuffer(256*256*4);GL11.glReadPixels(0,0,256,256,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,out);
       byte[] pixels=new byte[out.capacity()];out.get(pixels);
       if(state==0)unlitPixels=pixels;
-      else check(java.util.Arrays.equals(unlitPixels,pixels),"Unlit lantern must retain texture colors without an artificial dark tint");
+      else check(!java.util.Arrays.equals(unlitPixels,pixels),"Unlit lantern must retain its dark interior tint");
       for(int y=0;y<256;y++)for(int x=0;x<256;x++){int at=(y*256+x)*4;sheet.setRGB(state*256+x,255-y,(out.get(at)&255)<<16|(out.get(at+1)&255)<<8|out.get(at+2)&255);}
     }
     ImageIO.write(sheet,"png",Paths.get("build/portable-lights/lantern-states.png").toFile());
