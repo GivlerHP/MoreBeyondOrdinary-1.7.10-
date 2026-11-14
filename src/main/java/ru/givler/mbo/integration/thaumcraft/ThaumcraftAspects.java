@@ -12,7 +12,9 @@ import thaumcraft.api.aspects.AspectList;
 /** Explicit aspect assignments; loaded only when Thaumcraft is present. */
 public final class ThaumcraftAspects {
     private ThaumcraftAspects() {}
+    private static boolean entityAspectsRegistered;
     public static void register() {
+        registerEntityAspects();
         // 8Aspects.zs: original values; corpus/herba and ThornsAmulet spelling corrected.
         tagMeta(ItemRegistry.Crystall, 0, a(Aspect.CRYSTAL, 3, Aspect.LIFE, 4, Aspect.MAGIC, 1));
         tagMeta(ItemRegistry.Crystall, 1, a(Aspect.CRYSTAL, 3, Aspect.PLANT, 4, Aspect.MAGIC, 1));
@@ -555,6 +557,43 @@ public final class ThaumcraftAspects {
         tag(ThaumcraftRegistry.StaffDarkMoon, a(Aspect.TREE, 3, Aspect.MAGIC, 4, Aspect.DARKNESS, 3));
         tag(ThaumcraftRegistry.StaffDemonic, a(Aspect.TREE, 3, Aspect.MAGIC, 4, Aspect.FIRE, 3, Aspect.DARKNESS, 2));
     }
+    /** Normal creatures only: no NPCs, seats, projectiles, vehicles or temporary effects. */
+    private static void registerEntityAspects() {
+        if (entityAspectsRegistered) return;
+        mob(ru.givler.mbo.entity.monster.EntityStoneGolem.class, a(Aspect.EARTH, 4, Aspect.MAGIC, 1, Aspect.MOTION, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityRabbit.class, a(Aspect.BEAST, 1, Aspect.EARTH, 1, Aspect.MOTION, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOCod.class, a(Aspect.BEAST, 1, Aspect.WATER, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOSalmon.class, a(Aspect.BEAST, 1, Aspect.WATER, 2));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOTropicalFish.class, a(Aspect.BEAST, 1, Aspect.WATER, 1, Aspect.SENSES, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOPufferfish.class, a(Aspect.BEAST, 1, Aspect.WATER, 1, Aspect.POISON, 2));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOPolarBear.class, a(Aspect.BEAST, 4, Aspect.COLD, 2, Aspect.EARTH, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOTurtle.class, a(Aspect.BEAST, 2, Aspect.WATER, 2, Aspect.ARMOR, 2));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOFrog.class, a(Aspect.BEAST, 1, Aspect.WATER, 1, Aspect.MOTION, 1, Aspect.SLIME, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOTadpole.class, a(Aspect.BEAST, 1, Aspect.WATER, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOGoat.class, a(Aspect.BEAST, 2, Aspect.EARTH, 1, Aspect.MOTION, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOPanda.class, a(Aspect.BEAST, 3, Aspect.PLANT, 2, Aspect.EARTH, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOFox.class, a(Aspect.BEAST, 2, Aspect.SENSES, 1, Aspect.ENTROPY, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOAxolotl.class, a(Aspect.BEAST, 1, Aspect.WATER, 2, Aspect.HEAL, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOGlowSquid.class, a(Aspect.BEAST, 2, Aspect.WATER, 2, Aspect.LIGHT, 2));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOGuardian.class, a(Aspect.BEAST, 2, Aspect.WATER, 2, Aspect.ARMOR, 1, Aspect.SENSES, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOElderGuardian.class, a(Aspect.BEAST, 4, Aspect.WATER, 4, Aspect.ARMOR, 2, Aspect.MAGIC, 2));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOCamel.class, a(Aspect.BEAST, 4, Aspect.EARTH, 2, Aspect.TRAVEL, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOCamelHusk.class, a(Aspect.UNDEAD, 3, Aspect.EARTH, 2, Aspect.BEAST, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOZombieHorse.class, a(Aspect.UNDEAD, 3, Aspect.BEAST, 2, Aspect.EARTH, 1));
+        mob(ru.givler.mbo.entity.fauna.EntityMBOSkeletonHorse.class, a(Aspect.UNDEAD, 3, Aspect.BEAST, 2, Aspect.EARTH, 1));
+        mob(ru.givler.mbo.entity.monster.EntityMBOHusk.class, a(Aspect.UNDEAD, 2, Aspect.MAN, 1, Aspect.EARTH, 2));
+        mob(ru.givler.mbo.entity.monster.EntityMBOParched.class, a(Aspect.UNDEAD, 3, Aspect.MAN, 1, Aspect.EARTH, 2));
+        mob(ru.givler.mbo.entity.monster.EntityMBOStray.class, a(Aspect.UNDEAD, 3, Aspect.MAN, 1, Aspect.COLD, 2));
+        mob(ru.givler.mbo.entity.monster.EntityMBOBogged.class, a(Aspect.UNDEAD, 3, Aspect.MAN, 1, Aspect.POISON, 2, Aspect.PLANT, 1));
+        entityAspectsRegistered = true;
+    }
+
+    private static void mob(Class<? extends net.minecraft.entity.EntityLivingBase> type, AspectList aspects) {
+        // Resolve the real EntityList key, including any Forge namespace prefix.
+        String name = (String) net.minecraft.entity.EntityList.classToStringMapping.get(type);
+        if (name != null) ThaumcraftApi.registerEntityTag(name, aspects);
+    }
+
     private static void named(String name, AspectList aspects) { tag(GameRegistry.findItem("mbo", name), aspects); }
     private static void tag(Object value, AspectList aspects) {
         if (value instanceof Object[]) {
