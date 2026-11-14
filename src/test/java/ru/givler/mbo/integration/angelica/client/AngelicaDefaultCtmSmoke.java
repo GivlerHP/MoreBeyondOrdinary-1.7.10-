@@ -28,7 +28,7 @@ public final class AngelicaDefaultCtmSmoke {
     });
   }
   public static void main(String[] args)throws Exception {
-    IResourcePack bundled=pack("FMLFileResourcePack:NotFine"),user=pack("Cinnersis_v1.7.10.zip","textures/blocks/glass.png","textures/blocks/glass_blue.png");
+    IResourcePack bundled=pack("FMLFileResourcePack:NotFine"),user=pack("Cinnersis_v1.7.10.zip","textures/blocks/glass.png","textures/blocks/glass_blue.png","textures/blocks/sandstone_normal.png");
     Field field=AngelicaDefaultCtmRules.class.getDeclaredField("packs");field.setAccessible(true);Object previous=field.get(null);
     field.set(null,Packs.class.getMethod("getResourcePacks",String.class));
     try {
@@ -41,9 +41,12 @@ public final class AngelicaDefaultCtmSmoke {
       check(AngelicaDefaultCtmRules.skip(new Properties(new Source("mcpatcher/ctm/stained_glass/glass_blue/blue_stained_glass.properties",bundled))),"Blue fallback");
       check(!AngelicaDefaultCtmRules.skip(new Properties(new Source("mcpatcher/ctm/stained_glass/glass_red/red_stained_glass.properties",bundled))),"Red base not replaced");
       check(!AngelicaDefaultCtmRules.skip(new Properties(new Source("mcpatcher/ctm/glass/glass.properties",user))),"User rule at identical path must survive");
+      check(AngelicaDefaultCtmRules.skip(new Properties(new Source("mcpatcher/ctm/sandstone/sandstone_normal.properties",bundled))),"Bundled sandstone must not replace resource-pack artwork");
+      check(!AngelicaDefaultCtmRules.skip(new Properties(new Source("mcpatcher/ctm/sandstone/sandstone_normal.properties",user))),"User sandstone connection rule must survive");
       check(!AngelicaDefaultCtmRules.skip(new Properties(new Source("mcpatcher/ctm/custom/block20.properties",bundled))),"Other paths must survive");
       check(!AngelicaDefaultCtmRules.skip(new Properties(new ResourceLocation("mcpatcher/ctm/glass/glass.properties"))),"Unknown source must survive");
       loaded=Collections.singletonList(bundled);check(!AngelicaDefaultCtmRules.skip(rule),"Vanilla defaults must return after resource reload");
+      check(!AngelicaDefaultCtmRules.skip(new Properties(new Source("mcpatcher/ctm/sandstone/sandstone_normal.properties",bundled))),"Vanilla sandstone fallback remains without replacement textures");
       check(AngelicaDefaultCtmRules.baseTexture("some_mod","mcpatcher/ctm/glass/glass.properties")==null,"Other namespaces must survive");
       check("textures/blocks/glass_silver.png".equals(AngelicaDefaultCtmRules.baseTexture("minecraft","mcpatcher/ctm/stained_glass/glass_light_gray/light_gray_stained_glass.properties")),"Light gray texture name");
     }finally {field.set(null,previous);}

@@ -37,6 +37,7 @@ public final class AngelicaDefaultCtmRules {
   }
   static String baseTexture(String domain,String path) {
     if(!"minecraft".equals(domain))return null;
+    if(path.equals("mcpatcher/ctm/sandstone/sandstone_normal.properties"))return "textures/blocks/sandstone_normal.png";
     if(path.equals("mcpatcher/ctm/glass/glass.properties") || path.equals("mcpatcher/ctm/glass/glasspane.properties"))return "textures/blocks/glass.png";
     for(String color:new String[]{"white","orange","magenta","light_blue","yellow","lime","pink","gray","light_gray","silver","cyan","purple","blue","brown","green","red","black"}) {
       String prefix="mcpatcher/ctm/stained_glass/glass_"+color+"/"+color+"_stained_glass";
