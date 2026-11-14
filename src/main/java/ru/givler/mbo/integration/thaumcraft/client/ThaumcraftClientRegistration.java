@@ -26,7 +26,7 @@ public final class ThaumcraftClientRegistration {
         ru.givler.mbo.integration.thaumcraft.client.render.ResearchScrollRenderer scroll =
                 new ru.givler.mbo.integration.thaumcraft.client.render.ResearchScrollRenderer();
         MinecraftForgeClient.registerItemRenderer(thaumcraft.common.config.ConfigItems.itemResearchNotes, scroll);
-        ru.givler.mbo.integration.thaumcraft.core.ResearchScrollTransformer.bind(
+        ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.bind(
                 thaumcraft.common.config.ConfigItems.itemResearchNotes, scroll);
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(scroll);
         ((net.minecraft.client.resources.IReloadableResourceManager)net.minecraft.client.Minecraft.getMinecraft()

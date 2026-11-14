@@ -41,6 +41,25 @@ public final class ResearchScrollSmoke {
     }
     static void translations(String text)throws Exception {StringTranslate.inject(new ByteArrayInputStream(text.getBytes("UTF-8")));}
     public static void main(String[] args)throws Exception {
+        final String transformer="ru.givler.mbo.integration.thaumcraft.core.ResearchScrollTransformer";
+        ClassLoader early=new ClassLoader(ResearchScrollSmoke.class.getClassLoader()) {
+            @Override protected Class<?> loadClass(String name,boolean resolve)throws ClassNotFoundException {
+                if(name.startsWith("net.minecraft.") && !name.startsWith("net.minecraft.launchwrapper."))throw new ClassNotFoundException("Minecraft is not available during transformer registration: "+name);
+                if(name.equals(transformer)) {
+                    Class<?> loaded=findLoadedClass(name);
+                    if(loaded==null)try(java.io.InputStream in=getParent().getResourceAsStream(name.replace('.','/')+".class")) {
+                        java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;
+                        while((n=in.read(buffer))>=0)out.write(buffer,0,n);
+                        byte[] bytes=out.toByteArray();loaded=defineClass(name,bytes,0,bytes.length);
+                    } catch(java.io.IOException e){throw new ClassNotFoundException(name,e);}
+                    if(resolve)resolveClass(loaded);return loaded;
+                }
+                return super.loadClass(name,resolve);
+            }
+        };
+        Class.forName(transformer,true,early).getDeclaredConstructor().newInstance();
+        System.out.println("PASS early transformer registration with Minecraft classes unavailable");
+
         Field uf=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);sun.misc.Unsafe unsafe=(sun.misc.Unsafe)uf.get(null);
         Field loader=cpw.mods.fml.common.Loader.class.getDeclaredField("instance");loader.setAccessible(true);loader.set(null,unsafe.allocateInstance(cpw.mods.fml.common.Loader.class));
         Field mods=cpw.mods.fml.common.Loader.class.getDeclaredField("namedMods");mods.setAccessible(true);mods.set(loader.get(null),new HashMap<>());
@@ -101,12 +120,26 @@ public final class ResearchScrollSmoke {
             check(mc.fontRenderer.getStringWidth("Research")>20,"Real font metrics must be loaded");
             ResearchScrollRenderer renderer=new ResearchScrollRenderer();
             net.minecraftforge.client.MinecraftForgeClient.registerItemRenderer(Items.paper,renderer);
-            ru.givler.mbo.integration.thaumcraft.core.ResearchScrollTransformer.bind(Items.paper,renderer);
-            check(!ru.givler.mbo.integration.thaumcraft.core.ResearchScrollTransformer.skipOverlay(stack,0,ItemRenderType.EQUIPPED_FIRST_PERSON),"Base parchment pass must remain");
-            check(ru.givler.mbo.integration.thaumcraft.core.ResearchScrollTransformer.skipOverlay(stack,1,ItemRenderType.EQUIPPED_FIRST_PERSON),"Do not draw parchment twice in the main hand");
-            check(ru.givler.mbo.integration.thaumcraft.core.ResearchScrollTransformer.skipOverlay(stack,1,ItemRenderType.EQUIPPED),"MF2 and third-person overlay suppression");
-            check(!ru.givler.mbo.integration.thaumcraft.core.ResearchScrollTransformer.skipOverlay(stack,1,ItemRenderType.INVENTORY),"Inventory overlays remain native");
-            check(!ru.givler.mbo.integration.thaumcraft.core.ResearchScrollTransformer.skipOverlay(new ItemStack(Items.stick),1,ItemRenderType.EQUIPPED),"Other items remain untouched");
+            ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.bind(Items.paper,renderer);
+            check(renderer.handleRenderType(stack,ItemRenderType.FIRST_PERSON_MAP),"Use vanilla two-arm map dispatch");
+            check(ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.mapItem(Items.paper)
+                    && ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.mapItem(Items.filled_map)
+                    && !ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.mapItem(Items.stick),"Only notes and native maps enter the map pose");
+            check(ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.mapData(Items.paper,stack,null)==null,"Notes must never be cast to ItemMap");
+            net.minecraft.entity.player.EntityPlayerMP player=(net.minecraft.entity.player.EntityPlayerMP)unsafe.allocateInstance(net.minecraft.entity.player.EntityPlayerMP.class);
+            player.inventory=new net.minecraft.entity.player.InventoryPlayer(player);player.inventory.mainInventory[0]=stack;
+            net.minecraft.client.model.ModelBiped model=new net.minecraft.client.model.ModelBiped();
+            ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.pose(model,player);
+            check(model.bipedRightArm.rotateAngleX==0,"Do not change vanilla first-person arms");
+            ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.beginPose(player);
+            ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.pose(model,player);
+            check(model.bipedRightArm.rotateAngleX< -1 && model.bipedLeftArm.rotateAngleX==model.bipedRightArm.rotateAngleX,"Both third-person arms hold the sheet");
+            ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.endPose();
+            check(!ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.skipOverlay(stack,0,ItemRenderType.EQUIPPED_FIRST_PERSON),"Base parchment pass must remain");
+            check(ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.skipOverlay(stack,1,ItemRenderType.EQUIPPED_FIRST_PERSON),"Do not draw parchment twice in the main hand");
+            check(ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.skipOverlay(stack,1,ItemRenderType.EQUIPPED),"MF2 and third-person overlay suppression");
+            check(!ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.skipOverlay(stack,1,ItemRenderType.INVENTORY),"Inventory overlays remain native");
+            check(!ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.skipOverlay(new ItemStack(Items.stick),1,ItemRenderType.EQUIPPED),"Other items remain untouched");
             check(!renderer.handleRenderType(stack,ItemRenderType.INVENTORY)&&!renderer.handleRenderType(stack,ItemRenderType.ENTITY),"Keep inventory and dropped-item rendering native");
             check(renderer.handleRenderType(stack,ItemRenderType.EQUIPPED)&&renderer.handleRenderType(stack,ItemRenderType.EQUIPPED_FIRST_PERSON),"Both equipped render paths");
             List<String> fitted=ResearchScrollRenderer.fit(mc.fontRenderer,"A very long introduction with repeated words and more sentences. A second sentence is too large for the available space.",90,2);
@@ -115,10 +148,16 @@ public final class ResearchScrollSmoke {
             for(int state=0;state<2;state++) {
                 stack.getTagCompound().setBoolean("complete",state==1);
                 GL11.glViewport(0,0,512,512);GL11.glClearColor(.12F,.15F,.18F,1);GL11.glClear(GL11.GL_COLOR_BUFFER_BIT|GL11.GL_DEPTH_BUFFER_BIT);
-                GL11.glMatrixMode(GL11.GL_PROJECTION);GL11.glLoadIdentity();GL11.glOrtho(-.8,1.3,-.8,1.5,-10,10);
+                GL11.glMatrixMode(GL11.GL_PROJECTION);GL11.glLoadIdentity();GL11.glOrtho(-15,143,143,-15,10,-10);
                 GL11.glMatrixMode(GL11.GL_MODELVIEW);GL11.glLoadIdentity();GL11.glEnable(GL11.GL_DEPTH_TEST);GL11.glColor4f(.6F,.7F,.8F,1);
                 int matrices=GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH),attributes=GL11.glGetInteger(GL11.GL_ATTRIB_STACK_DEPTH);
-                renderer.renderItem(ItemRenderType.EQUIPPED_FIRST_PERSON,stack);
+                // Vanilla map branch draws the selected background before dispatching FIRST_PERSON_MAP.
+                mc.getTextureManager().bindTexture(ru.givler.mbo.integration.thaumcraft.core.ResearchScrollHooks.mapPaper(new ResourceLocation("textures/map/map_background.png"),stack));
+                GL11.glEnable(GL11.GL_TEXTURE_2D);GL11.glColor4f(1,1,1,1);
+                net.minecraft.client.renderer.Tessellator t=net.minecraft.client.renderer.Tessellator.instance;t.startDrawingQuads();
+                t.addVertexWithUV(-7,135,0,0,1);t.addVertexWithUV(135,135,0,1,1);t.addVertexWithUV(135,-7,0,1,0);t.addVertexWithUV(-7,-7,0,0,0);t.draw();
+                GL11.glColor4f(.6F,.7F,.8F,1);
+                renderer.renderItem(ItemRenderType.FIRST_PERSON_MAP,stack);
                 check(GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH)==matrices&&GL11.glGetInteger(GL11.GL_ATTRIB_STACK_DEPTH)==attributes,"Balanced GL stacks");
                 FloatBuffer color=BufferUtils.createFloatBuffer(16);GL11.glGetFloat(GL11.GL_CURRENT_COLOR,color);check(Math.abs(color.get(0)-.6F)<.001F,"Caller color restored");
                 check(GL11.glGetError()==GL11.GL_NO_ERROR,"Scroll GL error");
@@ -133,7 +172,12 @@ public final class ResearchScrollSmoke {
                 check(paper>10000,"Parchment must be visibly drawn");
                 check(textureColors.size()>256,"Parchment texture must be sampled, not an untextured white quad");
             }
+            ByteBuffer before=BufferUtils.createByteBuffer(512*512*4),after=BufferUtils.createByteBuffer(512*512*4);
+            GL11.glReadPixels(0,0,512,512,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,before);
             renderer.renderItem(ItemRenderType.EQUIPPED,stack);
+            GL11.glReadPixels(0,0,512,512,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,after);
+            check(before.equals(after),"Ordinary equipped pass must not duplicate the torso sheet");
+            renderer.renderItem(ItemRenderType.EQUIPPED,stack,Boolean.TRUE);
             check(GL11.glGetError()==GL11.GL_NO_ERROR,"Third-person/MF2 equipped path");
             Files.createDirectories(Paths.get("build/research-scroll"));ImageIO.write(sheet,"png",new File("build/research-scroll/states.png"));
             System.out.println("PASS real parchment/font draws, both equipped paths, state changes, bounded layout, inventory fallback and GL restoration");

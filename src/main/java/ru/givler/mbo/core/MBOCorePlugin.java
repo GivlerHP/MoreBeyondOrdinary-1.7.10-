@@ -51,6 +51,7 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.integration.thaumcraft.core.ThaumcraftFontTransformer",
       "ru.givler.mbo.integration.thaumcraft.core.ThaumometerLensTransformer",
       "ru.givler.mbo.integration.thaumcraft.core.ResearchScrollTransformer",
+      "ru.givler.mbo.core.MineTweakerScriptTransformer",
       "ru.givler.mbo.core.TooltipFrameTransformer",
       "ru.givler.mbo.core.ItemTooltipContextTransformer",
       "ru.givler.mbo.integration.nei.core.NeiTooltipFrameTransformer",

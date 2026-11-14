@@ -297,3 +297,9 @@ task verifyResearchScroll(type: JavaExec, dependsOn: [testClasses, extractNative
     args file('../Thaumcraft-4-Ariamis/src/main/resources').absolutePath
     systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
 }
+
+task verifyMineTweakerScripts(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath + files('build/crafttweaker-update/CraftTweaker-3.5.0.jar')
+    main = 'ru.givler.mbo.core.MineTweakerScriptSmoke'
+    args file('build/crafttweaker-update/CraftTweaker-3.5.0.jar').absolutePath
+}
