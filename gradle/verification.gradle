@@ -303,3 +303,8 @@ task verifyMineTweakerScripts(type: JavaExec, dependsOn: testClasses) {
     main = 'ru.givler.mbo.core.MineTweakerScriptSmoke'
     args file('build/crafttweaker-update/CraftTweaker-3.5.0.jar').absolutePath
 }
+
+task verifyCommandCompletion(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.command.CommandCompletionSmoke'
+}

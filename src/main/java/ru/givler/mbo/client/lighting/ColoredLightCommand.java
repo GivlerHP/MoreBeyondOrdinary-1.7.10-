@@ -9,6 +9,9 @@ public final class ColoredLightCommand extends CommandBase {
   @Override public String getCommandName() { return "mbolight"; }
   @Override public String getCommandUsage(ICommandSender sender) { return "/mbolight reload | stats | inspect"; }
   @Override public int getRequiredPermissionLevel() { return 0; }
+  @Override public java.util.List addTabCompletionOptions(ICommandSender sender,String[] args) {
+    return args.length==1?getListOfStringsMatchingLastWord(args,"reload","stats","inspect"):null;
+  }
   @Override public void processCommand(ICommandSender sender, String[] args) {
     if (args.length == 1 && args[0].equals("inspect")) {
       net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();

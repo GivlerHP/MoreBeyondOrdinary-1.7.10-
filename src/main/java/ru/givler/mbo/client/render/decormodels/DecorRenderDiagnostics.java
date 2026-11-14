@@ -45,6 +45,12 @@ public final class DecorRenderDiagnostics extends CommandBase {
         catch(ReflectiveOperationException error){return new String[]{"MF2 diagnostics failed: "+error.getCause()};}
     }
     @Override public String getCommandName() { return "mbodecor"; }
+    @Override public java.util.List addTabCompletionOptions(ICommandSender sender,String[] args) {
+        if(args.length==1)return getListOfStringsMatchingLastWord(args,"stats","inspect","report","cache","chunk","gpu","sample");
+        if(args.length==2 && ("cache".equals(args[0])||"chunk".equals(args[0])||"gpu".equals(args[0])))return getListOfStringsMatchingLastWord(args,"on","off");
+        if(args.length==3 && "sample".equals(args[0]))return getListOfStringsMatchingLastWord(args,"60","300","600","1200");
+        return null;
+    }
     @Override public String getCommandUsage(ICommandSender sender) {
         return "/mbodecor stats | report | inspect | gpu on/off | cache on/off | chunk on/off | sample <label> [frames]";
     }

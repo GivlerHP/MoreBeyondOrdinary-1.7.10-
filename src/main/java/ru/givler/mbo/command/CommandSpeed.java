@@ -47,6 +47,11 @@ public final class CommandSpeed extends CommandBase {
         func_152373_a(sender, this, "commands.mbo.speed.set", speed, player.onGround ? "walk" : "fly");
     }
 
+    @Override
+    public java.util.List addTabCompletionOptions(ICommandSender sender, String[] args) {
+        return args.length==1?getListOfStringsMatchingLastWord(args,"reset","0","1","2","3","4","5","6","7","8","9","10"):null;
+    }
+
     private static boolean isReset(String argument) {
         return "reset".equalsIgnoreCase(argument);
     }
