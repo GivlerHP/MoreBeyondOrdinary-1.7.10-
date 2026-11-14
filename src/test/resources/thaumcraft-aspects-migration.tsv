@@ -1,0 +1,78 @@
+ItemRegistry.Crystall	0	vitreus 3, victus 4, praecantatio 1
+ItemRegistry.Crystall	1	vitreus 3, herba 4, praecantatio 1
+ItemRegistry.Crystall	2	vitreus 3, potentia 4, praecantatio 1
+ItemRegistry.Crystall	3	vitreus 3, motus 4, praecantatio 1
+ItemRegistry.Crystall	4	vitreus 4, victus 5, praecantatio 2
+ItemRegistry.Crystall	5	vitreus 4, herba 5, praecantatio 2
+ItemRegistry.Crystall	6	vitreus 4, potentia 5, praecantatio 2
+ItemRegistry.Crystall	7	vitreus 4, motus 5, praecantatio 2
+ItemRegistry.Crystall	8	vitreus 4, permutatio 3, ignis 3, praecantatio 2
+ItemRegistry.Crystall	9	vitreus 4, vacuos 5, praecantatio 2
+ItemRegistry.Crystall	10	vitreus 4, fames 5, praecantatio 2
+ItemRegistry.Crystall	11	vitreus 4, spiritus 5, praecantatio 2
+ItemRegistry.Crystall	12	vitreus 4, bestia 3, ignis 3, praecantatio 2
+ItemRegistry.Crystall	13	vitreus 4, tutamen 5, praecantatio 2
+ItemRegistry.Crystall	14	vitreus 4, sano 5, praecantatio 2
+ItemRegistry.LifeSmallRing	32767	instrumentum 7, victus 12, praecantatio 14, metallum 3
+ItemRegistry.StaminaSmallRing	32767	instrumentum 7, herba 12, praecantatio 14, metallum 3
+ItemRegistry.DamageSmallRing	32767	instrumentum 7, potentia 12, praecantatio 14, metallum 3
+ItemRegistry.SpeedSmallRing	32767	instrumentum 7, motus 12, praecantatio 14, metallum 3
+ItemRegistry.LifeRing	32767	instrumentum 9, victus 16, praecantatio 16, metallum 3
+ItemRegistry.StaminaRing	32767	instrumentum 9, herba 16, praecantatio 16, metallum 3
+ItemRegistry.DamageRing	32767	instrumentum 9, potentia 16, praecantatio 16, metallum 3
+ItemRegistry.SpeedRing	32767	instrumentum 9, motus 16, praecantatio 16, metallum 3
+ItemRegistry.SmallBasicRing	32767	instrumentum 4, metallum 3
+ItemRegistry.BasicRing	32767	instrumentum 4, metallum 3
+ItemRegistry.GoldBasicAmulet	32767	instrumentum 4, metallum 4
+ItemRegistry.SilverBasicAmulet	32767	instrumentum 4, metallum 4
+ItemRegistry.HealingAmulet	32767	instrumentum 9, victus 16, praecantatio 20, metallum 4
+ItemRegistry.StaminaAmulet	32767	instrumentum 9, herba 16, praecantatio 20, metallum 4
+ItemRegistry.StrengthAmulet	32767	instrumentum 9, potentia 16, praecantatio 20, metallum 4
+ItemRegistry.PhoenixAmulet	32767	instrumentum 9, permutatio 10, ignis 16, praecantatio 22, metallum 4
+ItemRegistry.VeilAmulet	32767	instrumentum 9, vacuos 17, praecantatio 22, metallum 4
+ItemRegistry.VampirismAmulet	32767	instrumentum 9, fames 17, praecantatio 22, metallum 4
+ItemRegistry.CowardAmulet	32767	instrumentum 9, spiritus 17, praecantatio 22, metallum 4
+ItemRegistry.DragonAmulet	32767	instrumentum 9, bestia 10, ignis 16, praecantatio 22, metallum 4
+ItemRegistry.ThornsAmulet	32767	instrumentum 9, tutamen 17, praecantatio 22, metallum 4
+ItemRegistry.CleansingAmulet	32767	instrumentum 9, sano 17, praecantatio 22, metallum 4
+ItemRegistry.MercenaryAmulet	32767	instrumentum 6, potentia 10, praecantatio 9
+ItemRegistry.FertilityBelt	32767	pannus 6, praecantatio 14, meto 11, messis 11, metallum 2
+ItemRegistry.MinerBelt	32767	pannus 6, praecantatio 14, perfodio 11, terra 11, metallum 2
+ItemRegistry.WaterminerBelt	32767	pannus 6, praecantatio 14, perfodio 11, aqua 11, metallum 2
+ItemRegistry.FallBelt	32767	pannus 6, praecantatio 14, aer 11, motus 11, metallum 2
+ItemRegistry.KnightBelt	32767	tutamen 4, praecantatio 8, victus 8, metallum 8
+ItemRegistry.BrokenStaffHealing	32767	instrumentum 4, praecantatio 6, sano 8
+ItemRegistry.SapphireEye	32767	vitreus 5, lucrum 5
+ItemRegistry.SapphireHeart	32767	vitreus 7, lucrum 7
+ItemRegistry.Metal	32767	metallum 5
+ItemRegistry.GlyphVoid	32767	praecantatio 6, terra 8
+ItemRegistry.GlyphAmphibian	32767	praecantatio 6, terra 8, aqua 6, aer 5
+ItemRegistry.GlyphDragon	32767	praecantatio 6, terra 8, bestia 6, ignis 5
+ItemRegistry.GlyphHawk	32767	praecantatio 6, terra 8, bestia 6, motus 5
+ItemRegistry.GlyphMiner	32767	praecantatio 6, terra 8, perfodio 6, instrumentum 5
+ItemRegistry.GlyphOwl	32767	praecantatio 6, terra 8, sensus 6, tenebrae 5
+ItemRegistry.GlyphWeapon	32767	praecantatio 6, terra 8, telum 6, spiritus 5
+ItemRegistry.GlyphCleansing	32767	praecantatio 6, terra 8, sano 6, ordo 5
+ItemRegistry.GlyphHealing	32767	praecantatio 6, terra 8, sano 6, victus 5
+FoodRegistry.FoodBacon	32767	corpus 4, fames 3, fabrico 1
+FoodRegistry.FoodDeliciousChicken	32767	corpus 4, fames 3, fabrico 1
+FoodRegistry.FoodDivineSteak	32767	corpus 4, fames 3, fabrico 1
+FoodRegistry.FoodFriedSausage	32767	corpus 4, fames 3, fabrico 1
+FoodRegistry.FoodMeatPie	32767	corpus 4, fames 3, fabrico 2
+FoodRegistry.FoodStrangeFish	32767	corpus 3, fames 2, praecantatio 2
+FoodRegistry.FoodChowder	32767	fames 3, fabrico 2
+FoodRegistry.FoodDeliciousSalad	32767	fames 3, fabrico 2, aqua 1
+FoodRegistry.FoodSoup	32767	fames 3, fabrico 2, aqua 1
+FoodRegistry.FoodBlackBread	32767	fames 3
+FoodRegistry.FoodFreshBread	32767	fames 3
+FoodRegistry.FoodBurger	32767	fames 3
+DrinkRegistry.DrinkWine	32767	aqua 2, venenum 1, herba 1
+DrinkRegistry.DrinkCider	32767	aqua 2, venenum 1, herba 1
+DrinkRegistry.DrinkBrandy	32767	aqua 2, venenum 1, herba 1
+DrinkRegistry.DrinkMulledWine	32767	aqua 2, venenum 1, herba 1
+DrinkRegistry.DrinkTincure	32767	aqua 2, venenum 1, herba 1
+DrinkRegistry.DrinkBreathWyvern	32767	aqua 2, venenum 1, herba 1
+DrinkRegistry.DrinkAle	32767	aqua 2, venenum 1, messis 1
+DrinkRegistry.DrinkBeer	32767	aqua 2, venenum 1, messis 1
+DrinkRegistry.DrinkBarrelBeer	32767	aqua 2, venenum 1, messis 1
+DrinkRegistry.DrinkMead	32767	aqua 2, venenum 1, bestia 1

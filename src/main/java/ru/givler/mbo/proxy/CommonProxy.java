@@ -199,6 +199,8 @@ public class CommonProxy {
   }
 
   public void postInit(FMLPostInitializationEvent event) {
+    if (Loader.isModLoaded("Thaumcraft")) invokeOptional(
+        "ru.givler.mbo.integration.thaumcraft.ThaumcraftAspects", "register");
   }
 
   private static void invokeOptional(String className, String method) {

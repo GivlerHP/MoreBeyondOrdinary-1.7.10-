@@ -313,3 +313,8 @@ task verifyCreativeWoodOrder(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.integration.wood.CreativeWoodOrderSmoke'
 }
+
+task verifyThaumcraftAspects(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.integration.thaumcraft.ThaumcraftAspectsSmoke'
+}
