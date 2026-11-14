@@ -53,7 +53,7 @@ public class CreativeTabRegistry {
           list.add(new ItemStack(SlabCobblestone));
 
           for (int i = 0; i <= 3; i++) {
-            list.add(new ItemStack(BlockStonebrick, 0, i));
+            list.add(new ItemStack(BlockStonebrick, 1, i));
           }
           list.add(new ItemStack(StairsStonebrick));
           list.add(new ItemStack(SlabStonebrick));
@@ -69,7 +69,7 @@ public class CreativeTabRegistry {
           list.add(new ItemStack(TotemStone));
 
           for (int i = 0; i <= 2; i++) {
-            list.add(new ItemStack(BlockSandstone, 0, i));
+            list.add(new ItemStack(BlockSandstone, 1, i));
           }
           list.add(new ItemStack(StairsSandstone));
           list.add(new ItemStack(SlabSandstone));
@@ -118,6 +118,9 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(WallPrismarine[meta]));
           }
           list.add(new ItemStack(BlockSeaLantern));
+          addVariants(list, CoralBlock, tabMBOblocks);
+          addVariants(list, DeadCoralBlock, tabMBOblocks);
+          addVariants(list, froglight, tabMBOblocks);
 
           list.add(new ItemStack(BlockClayWall));
           list.add(new ItemStack(BlockFogWhite));
@@ -129,6 +132,12 @@ public class CreativeTabRegistry {
 
           list.add(new ItemStack(BlockWoodenBox));
           list.add(new ItemStack(Barrel));
+          for (net.minecraft.block.Block shelf : Shelves) addIfPresent(list, shelf);
+          addIfPresent(list, Observer);
+          addIfPresent(list, LeafLitter);
+          addIfPresent(list, turtleEgg);
+          addIfPresent(list, frogspawn);
+          addIfPresent(list, seagrassBlock);
           list.add(new ItemStack(Barrier));
           addIfPresent(list, BlockRegistry.LockableChest);
           addIfPresent(list, ItemRegistry.LockableDoorItem);
@@ -272,6 +281,32 @@ public class CreativeTabRegistry {
     }
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SideOnly(Side.CLIENT)
+  private static void addVariants(List list, Object itemOrBlock, CreativeTabs tab) {
+    if (itemOrBlock instanceof net.minecraft.block.Block) {
+      net.minecraft.block.Block block = (net.minecraft.block.Block) itemOrBlock;
+      Item item = Item.getItemFromBlock(block);
+      if (item != null) block.getSubBlocks(item, tab, list);
+    } else if (itemOrBlock instanceof Item) {
+      Item item = (Item) itemOrBlock;
+      item.getSubItems(item, tab, list);
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static void addOptionalThaumcraftFocusItems(List list) {
+    if (!cpw.mods.fml.common.Loader.isModLoaded("Thaumcraft")) return;
+    try {
+      Class<?> registry = Class.forName("ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry");
+      for (String name : new String[] {"FocusDarkLightning", "FocusVisShard", "FocusDarkMatter"}) {
+        addIfPresent(list, registry.getField(name).get(null));
+      }
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException("Failed to populate optional Thaumcraft focuses", e);
+    }
+  }
+
   public static final CreativeTabs tabMBOitems =
       new CreativeTabs("MBOitems") {
         @Override
@@ -288,6 +323,9 @@ public class CreativeTabRegistry {
           list.add(new ItemStack(ItemRegistry.Honeycomb));
           list.add(new ItemStack(ItemRegistry.RabbitHide));
           list.add(new ItemStack(ItemRegistry.RabbitFoot));
+          addIfPresent(list, prismarineShard);
+          addIfPresent(list, prismarineCrystal);
+          addIfPresent(list, turtleScute);
           list.add(new ItemStack(GlyphAmphibian));
           list.add(new ItemStack(GlyphDragon));
           list.add(new ItemStack(GlyphHawk));
@@ -298,23 +336,22 @@ public class CreativeTabRegistry {
           list.add(new ItemStack(GlyphHealing));
           list.add(new ItemStack(GlyphVoid));
           addIfPresent(list, ItemRegistry.Lockpick);
-          addIfPresent(list, ItemRegistry.AdminKey);
-          addIfPresent(list, ItemRegistry.PlatformEditor);
 
           for (int i = 0; i <= 0; i++) {
-            list.add(new ItemStack(Metal, 0, i));
+            list.add(new ItemStack(Metal, 1, i));
           }
           list.add(new ItemStack(SapphireEye));
           list.add(new ItemStack(SapphireHeart));
-          for (int i = 0; i <= 3; i++) {
-            list.add(new ItemStack(Drop, 0, i));
+          for (int i = 0; i < 3; i++) {
+            list.add(new ItemStack(Drop, 1, i));
           }
-          for (int i = 0; i <= 14; i++) {
-            list.add(new ItemStack(Crystall, 0, i));
+          for (int i = 0; i < 16; i++) {
+            list.add(new ItemStack(Crystall, 1, i));
           }
 
           list.add(new ItemStack(SmallBasicRing));
           list.add(new ItemStack(BasicRing));
+          addIfPresent(list, MushroomRing);
 
           list.add(new ItemStack(LifeSmallRing));
           list.add(new ItemStack(StaminaSmallRing));
@@ -367,6 +404,11 @@ public class CreativeTabRegistry {
           addIfPresent(list, BrokenWandPyromancer);
 
           list.add(new ItemStack(WeaponRapier));
+          addIfPresent(list, TorchWeapon);
+          list.add(new ItemStack(Uchigatana));
+          list.add(new ItemStack(DragonSlayer));
+          addVariants(list, effectArrow, tabMBOitems);
+          addOptionalThaumcraftFocusItems(list);
 
           list.add(new ItemStack(KnightHelmet));
           list.add(new ItemStack(KnightChest));
@@ -397,6 +439,7 @@ public class CreativeTabRegistry {
           list.add(new ItemStack(WizardChest));
           list.add(new ItemStack(WizardLegs));
           list.add(new ItemStack(WizardBoots));
+          addIfPresent(list, turtleHelmet);
 
           for (int i = 0; i <= 5; i++) {
             list.add(new ItemStack(vanillaBoats, 1, i));
@@ -405,8 +448,15 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(vanillaChestBoats, 1, i));
           }
 
-          list.add(new ItemStack(Uchigatana));
-          list.add(new ItemStack(DragonSlayer));
+          addIfPresent(list, axolotlBucket);
+          for (Item bucket : fishBuckets) addIfPresent(list, bucket);
+          addIfPresent(list, powderSnowBucket);
+          addVariants(list, goatHorn, tabMBOitems);
+
+          addIfPresent(list, AdminKey);
+          addIfPresent(list, AdminLighter);
+          addIfPresent(list, PlatformEditor);
+          addIfPresent(list, DungeonEditor);
         }
       };
 

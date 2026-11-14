@@ -21,7 +21,7 @@ public final class MineFantasyRegistry {
         };
         families = new WoodFamily[planks.length];
         for (int i = 0; i < planks.length; ++i) {
-            if (planks[i] != null) families[i] = new WoodFamily(NAMES[i], planks[i], 0, CreativeTabs.tabBlock);
+            if (planks[i] != null) families[i] = new WoodFamily(NAMES[i], planks[i], 0, minefantasy.mf2.item.list.CreativeTabMF.tabOres);
         }
     }
 }

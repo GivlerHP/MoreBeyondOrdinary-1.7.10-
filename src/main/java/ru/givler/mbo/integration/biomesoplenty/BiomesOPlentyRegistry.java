@@ -36,10 +36,32 @@ public final class BiomesOPlentyRegistry {
 
     private BiomesOPlentyRegistry() { }
 
+    private static boolean creativeOrderRegistered;
+
     public static void moveToModTab() {
         if (biomesoplenty.BiomesOPlenty.tabBiomesOPlenty != null) {
-            setCreativeTab(biomesoplenty.BiomesOPlenty.tabBiomesOPlenty);
+            CreativeTabs tab = biomesoplenty.BiomesOPlenty.tabBiomesOPlenty;
+            setCreativeTab(tab);
+            if (!creativeOrderRegistered) {
+                for (int meta = 0; meta < BOP_WOOD_NAMES.length; meta++) {
+                    ru.givler.mbo.integration.wood.CreativeWoodOrder.register(tab,
+                            new ItemStack(biomesoplenty.api.content.BOPCBlocks.planks, 1, meta),
+                            creativeStack(doorItemsBoP, meta), creativeStack(trapdoorBlocksBoP, meta),
+                            FenceBoP == null ? null : new ItemStack(FenceBoP, 1, meta),
+                            creativeStack(FenceGatesBoP, meta), creativeStack(bopButtons, meta),
+                            creativeStack(bopPressurePlates, meta));
+                }
+                creativeOrderRegistered = true;
+            }
         }
+    }
+
+    private static ItemStack creativeStack(Object[] entries, int index) {
+        if (entries == null || index >= entries.length) return null;
+        Object value = entries[index];
+        if (value instanceof Item) return new ItemStack((Item) value);
+        if (value instanceof Block) return new ItemStack((Block) value);
+        return null;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
