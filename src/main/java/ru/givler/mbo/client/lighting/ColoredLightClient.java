@@ -7,6 +7,9 @@ import java.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.EmptyChunk;
+import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.event.world.ChunkEvent;
 import ru.givler.mbo.config.ColoredLightConfig;
 import ru.givler.mbo.lighting.*;
@@ -30,6 +33,7 @@ public final class ColoredLightClient {
   private byte[] scanOpacity;
   private int[] scanEmission;
   private int cursor, cx = Integer.MIN_VALUE, cy, cz, discoveryDistance = -1;
+  private int cleanupTicks;
   private boolean disabled, urgent;
   private long geometryVersion;
   public long geometryVersion() { return geometryVersion; }
@@ -83,6 +87,7 @@ public final class ColoredLightClient {
     long diagnosticTick=ColoredLightDiagnostics.start();
     long allocationTick=ColoredLightAllocationDiagnostics.start();
     try {
+      if (++cleanupTicks >= 20) { cleanupTicks = 0; removeUnloadedSections(); }
       int darkness = world.calculateSkylightSubtracted(1F);
       if (skyDarkness != darkness) { skyDarkness = darkness; CACHE.invalidateAll(this::mark); ColoredDynamicLights.INSTANCE.invalidateGeometry(); }
       int sx = (int) Math.floor(mc.renderViewEntity.posX) >> 4;
@@ -93,7 +98,7 @@ public final class ColoredLightClient {
         discoveryDistance = distance;
         cx = sx; cy = sy; cz = sz; requestArea();
         // Discover the whole loaded view, including sources never approached by the player.
-        // Chunk unload notifications, world changes and full disable own their removal.
+        // Missing client chunks are EmptyChunk placeholders, not propagation inputs.
       }
       long diagnosticScan=ColoredLightDiagnostics.start();
       long allocationScan=ColoredLightAllocationDiagnostics.start();
@@ -135,15 +140,45 @@ public final class ColoredLightClient {
     lighting = new ColoredLightSections(); dirty.clear(); waiting.clear(); known.clear(); scans.clear(); changedCells.clear();
     scanning = null; cx = Integer.MIN_VALUE; discoveryDistance = -1; disabled = false; urgent = true;
     scanOpacity = null; scanEmission = null; cursor = 0;
+    cleanupTicks = 0;
+  }
+
+  private Chunk loadedChunk(int x, int z) {
+    IChunkProvider provider = world == null ? null : world.getChunkProvider();
+    if (provider == null || !provider.chunkExists(x, z)) return null;
+    // Client chunkExists() always returns true; provideChunk() only looks up its map.
+    Chunk chunk = provider.provideChunk(x, z);
+    return chunk == null || chunk instanceof EmptyChunk || !chunk.isChunkLoaded ? null : chunk;
+  }
+
+  private void removeUnloadedSections() {
+    ColoredLightCache.Editor editor = null;
+    for (Iterator<Section> iterator = known.iterator(); iterator.hasNext();) {
+      Section section = iterator.next();
+      if (loadedChunk(section.x, section.z) != null) continue;
+      lighting.remove(section.x, section.y, section.z); iterator.remove();
+      if (editor == null) editor = CACHE.edit();
+      editor.remove(section.x, section.y, section.z, this::mark);
+    }
+    waiting.removeIf(s -> loadedChunk(s.x, s.z) == null);
+    scans.removeIf(s -> loadedChunk(s.x, s.z) == null);
+    changedCells.removeIf(s -> loadedChunk(s.x >> 4, s.z >> 4) == null);
+    if (scanning != null && loadedChunk(scanning.x, scanning.z) == null) scanning = null;
+    if (editor != null) {
+      editor.commit(); lighting.discardRemovedWork(); urgent = true; geometryVersion++;
+      ColoredDynamicLights.INSTANCE.invalidate();
+    }
   }
 
   private void requestArea() {
     int radius = Math.max(1, discoveryDistance) + 1; ArrayList<Section> requests = new ArrayList<>();
-    for (int y = ColoredLightApi.minimumY(world) >> 4; y < 16; y++)
-      for (int z = cz - radius; z <= cz + radius; z++) for (int x = cx - radius; x <= cx + radius; x++) {
+    for (int z = cz - radius; z <= cz + radius; z++) for (int x = cx - radius; x <= cx + radius; x++) {
+      if (loadedChunk(x, z) == null) continue;
+      for (int y = ColoredLightApi.minimumY(world) >> 4; y < 16; y++) {
         Section s = new Section(x, y, z);
-        if (!lighting.contains(x, y, z) && !waiting.contains(s) && world.blockExists(x * 16, y * 16, z * 16)) requests.add(s);
+        if (!lighting.contains(x, y, z) && !waiting.contains(s)) requests.add(s);
       }
+    }
     requests.sort(Comparator.comparingInt(s -> s.squaredDistance(cx, cy, cz)));
     for (Section s : requests) { waiting.add(s); scans.addLast(s); }
   }
@@ -151,10 +186,13 @@ public final class ColoredLightClient {
   private void scanInputs() {
     int budget = ColoredLightConfig.scanWorkBudget(!scans.isEmpty() || (scanning != null && !known.contains(scanning)));
     while (budget > 0) {
+      if (scanning != null && loadedChunk(scanning.x, scanning.z) == null) {
+        waiting.remove(scanning); scanning = null;
+      }
       if (scanning == null) {
         while (!scans.isEmpty()) {
           Section candidate = scans.removeFirst();
-          if (world.blockExists(candidate.x * 16, candidate.y * 16, candidate.z * 16)) { scanning = candidate; break; }
+          if (loadedChunk(candidate.x, candidate.z) != null) { scanning = candidate; break; }
           waiting.remove(candidate);
         }
         if (scanning == null) return;
@@ -163,7 +201,7 @@ public final class ColoredLightClient {
         if(scanOpacity==null)scanOpacity=new byte[4096];
         if(scanEmission==null)scanEmission=new int[4096];
         // Absent vanilla storage is all air. Keep its propagation path without 4096 world reads.
-        if(scanning.y>=0 && scanning.y<16 && world.getChunkProvider()!=null && world.getChunkFromChunkCoords(scanning.x,scanning.z)
+        if(scanning.y>=0 && scanning.y<16 && loadedChunk(scanning.x,scanning.z)
             .getBlockStorageArray()[scanning.y]==null) {
           Arrays.fill(scanOpacity,(byte)1);Arrays.fill(scanEmission,0);cursor=4096;
           budget-=4096;
@@ -221,6 +259,7 @@ public final class ColoredLightClient {
   }
 
   private void applyChange(int x,int y,int z) {
+    if (loadedChunk(x >> 4, z >> 4) == null) return;
     if(!world.blockExists(x,y,z)) {
       if(lighting.contains(x>>4,y>>4,z>>4)) { lighting.update(x,y,z,15,0);urgent=true;geometryVersion++;ColoredDynamicLights.INSTANCE.invalidate(); }
       return;
@@ -246,6 +285,9 @@ public final class ColoredLightClient {
     if (!event.world.isRemote || event.world != world) return;
     int x = event.getChunk().xPosition, z = event.getChunk().zPosition;
     for (int y = ColoredLightApi.minimumY(world)>>4; y < 16; y++) { lighting.remove(x, y, z); probe.x = x; probe.y = y; probe.z = z; known.remove(probe); waiting.remove(probe); }
+    ColoredLightCache.Editor editor = CACHE.edit();
+    for (int y = ColoredLightApi.minimumY(world)>>4; y < 16; y++) editor.remove(x, y, z, this::mark);
+    editor.commit(); lighting.discardRemovedWork();
     scans.removeIf(s -> s.x == x && s.z == z);
     changedCells.removeIf(s -> (s.x >> 4) == x && (s.z >> 4) == z);
     if (scanning != null && scanning.x == x && scanning.z == z) scanning = null;

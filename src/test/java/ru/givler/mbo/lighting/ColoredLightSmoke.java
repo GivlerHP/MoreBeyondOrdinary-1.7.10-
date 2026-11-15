@@ -23,10 +23,13 @@ import org.lwjgl.opengl.GL20;
 /** Propagation, walls, mixing, native colors and real Forge/OptiFine bytecode regression checks. */
 public final class ColoredLightSmoke {
   public static void main(String[] args) throws Exception {
+    // Exercise the standalone RGB backend without bootstrapping Forge's LaunchClassLoader.
+    Field backendChecked=ru.givler.mbo.integration.angelica.client.AngelicaDynamicLightBridge.class.getDeclaredField("checked");
+    backendChecked.setAccessible(true);backendChecked.setBoolean(null,true);
     rules(); defaults(); allocationCounters(); sparseSections(); cacheLookupTransitions(); burning(); mf2Bridge(); propagation(); color(); falloffEquivalence(); sectionTransitions(); incrementalSections(); vanillaBytecode(); customGeometry(); clientNightLighting();
     if (Boolean.getBoolean("mbo.lightPixels")) shaderPrograms();
     if (args.length == 3) optifineBytecode(args);
-    negativeHeight();
+    negativeHeight(); clientChunkLifecycle();
     AnimatedTrapdoorLightingSmoke.run();
     AngelicaTileEntitySmoke.run();
     AngelicaLiveTileSmoke.run();
@@ -41,6 +44,59 @@ public final class ColoredLightSmoke {
     return v;
   }
   private static volatile Object allocationSink;
+  private static void clientChunkLifecycle() throws Exception {
+    Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);
+    Unsafe unsafe=(Unsafe)unsafeField.get(null);
+    NightWorld world=(NightWorld)unsafe.allocateInstance(NightWorld.class);
+    net.minecraft.world.WorldProvider dimension=new net.minecraft.world.WorldProviderSurface();dimension.dimensionId=23457;
+    Field provider=net.minecraft.world.World.class.getDeclaredField("provider");provider.setAccessible(true);provider.set(world,dimension);
+    ColoredLightApi.registerMinimumY(23457,-64);world.negative=true;world.present=true;world.pretendChunksExist=true;
+    world.fire=new net.minecraft.block.Block(net.minecraft.block.material.Material.rock) {};
+    world.air=new net.minecraft.block.Block(net.minecraft.block.material.Material.air) {}.setLightOpacity(0);
+    ColoredLightApi.register(world.fire,(access,x,y,z)->ColoredLightApi.emission(0xFF0000,15));
+    ColoredLightClient client=ColoredLightClient.INSTANCE;
+    Field worldField=ColoredLightClient.class.getDeclaredField("world");worldField.setAccessible(true);Object previous=worldField.get(client);
+    Field lightingField=ColoredLightClient.class.getDeclaredField("lighting");lightingField.setAccessible(true);
+    Method reset=ColoredLightClient.class.getDeclaredMethod("reset");reset.setAccessible(true);
+    Method queue=ColoredLightClient.class.getDeclaredMethod("queueSection",int.class,int.class,int.class);queue.setAccessible(true);
+    Method scan=ColoredLightClient.class.getDeclaredMethod("scanInputs");scan.setAccessible(true);
+    Method cleanup=ColoredLightClient.class.getDeclaredMethod("removeUnloadedSections");cleanup.setAccessible(true);
+    Method request=ColoredLightClient.class.getDeclaredMethod("requestArea");request.setAccessible(true);
+    try {
+      worldField.set(client,world);reset.invoke(client);
+      check(world.getChunkProvider().chunkExists(100,0) && world.blockExists(1600,64,0),"Test must reproduce client chunkExists placeholder behaviour");
+      queue.invoke(client,100,4,0);scan.invoke(client);
+      ColoredLightSections sections=(ColoredLightSections)lightingField.get(client);
+      equal(0,sections.sectionCount());
+      for(String fieldName:new String[]{"cx","discoveryDistance"}) {
+        Field f=ColoredLightClient.class.getDeclaredField(fieldName);f.setAccessible(true);f.setInt(client,fieldName.equals("cx")?100:1);
+      }
+      request.invoke(client);
+      Field pending=ColoredLightClient.class.getDeclaredField("scans");pending.setAccessible(true);
+      check(((Deque<?>)pending.get(client)).isEmpty(),"Discovery queued absent client chunks");
+      queue.invoke(client,0,-4,0);
+      for(int i=0;i<64;i++)scan.invoke(client);
+      check(sections.contains(0,-4,0),"Loaded deep section was discarded");
+      settle(sections);sections.publish(ColoredLightClient.CACHE,(x,y,z)->{});
+      equal(0xFF0000,ColoredLightClient.CACHE.sample(0,-64,0));
+      cleanup.invoke(client);
+      check(sections.contains(0,-4,0),"Cleanup removed a loaded section below Y=0");
+      queue.invoke(client,0,-3,0);
+      world.noChunks=true;cleanup.invoke(client); // No ChunkEvent.Unload: exercise fallback cleanup.
+      equal(0,sections.sectionCount());equal(0,ColoredLightClient.CACHE.sample(0,-64,0));
+      for(String fieldName:new String[]{"known","waiting","scans","changedCells"}) {
+        Field f=ColoredLightClient.class.getDeclaredField(fieldName);f.setAccessible(true);
+        check(((Collection<?>)f.get(client)).isEmpty(),"Unloaded chunk retained in "+fieldName);
+      }
+      Field work=ColoredLightSections.class.getDeclaredField("work");work.setAccessible(true);
+      check(((Deque<?>)work.get(sections)).isEmpty(),"Removed section retained in propagation work");
+      scan.invoke(client);equal(0,sections.sectionCount());
+      world.noChunks=false;queue.invoke(client,0,-4,0);
+      for(int i=0;i<64;i++)scan.invoke(client);
+      check(sections.contains(0,-4,0),"Reloaded chunk cannot acquire RGB inputs");
+    } finally {reset.invoke(client);worldField.set(client,previous);}
+    System.out.println("RGB client lifecycle: EmptyChunk rejection, loaded deep sections, missed-unload cleanup and reload passed");
+  }
   private static void negativeHeight() throws Exception {
     Field unsafeField=Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);
     Unsafe unsafe=(Unsafe)unsafeField.get(null);
@@ -1040,6 +1096,22 @@ public final class ColoredLightSmoke {
 
   private static final class NightWorld extends net.minecraft.client.multiplayer.WorldClient implements ColoredLightRenderHooks.WorldCoordinates {
     boolean negative;
+    boolean pretendChunksExist, noChunks;
+    net.minecraft.client.multiplayer.ChunkProviderClient testProvider;
+    @Override public net.minecraft.world.chunk.IChunkProvider getChunkProvider() {
+      if(testProvider==null) {
+        final net.minecraft.world.chunk.Chunk loaded=new net.minecraft.world.chunk.Chunk(this,0,0);
+        loaded.isChunkLoaded=true;
+        // Force the block-reading path; mock getBlock() supplies the actual test cells.
+        Arrays.fill(loaded.getBlockStorageArray(),new net.minecraft.world.chunk.storage.ExtendedBlockStorage(0,true));
+        testProvider=new net.minecraft.client.multiplayer.ChunkProviderClient(this) {
+          @Override public net.minecraft.world.chunk.Chunk provideChunk(int x,int z) {
+            return !noChunks && ((Math.abs(x)<=2 && Math.abs(z)<=2) || (farLoaded && x==8 && z==0)) ? loaded : super.provideChunk(x,z);
+          }
+        };
+      }
+      return testProvider;
+    }
     double rgbX,rgbY,rgbZ;
     public double lightOriginX(){return rgbX;} public double lightOriginY(){return rgbY;} public double lightOriginZ(){return rgbZ;}
     long time;
@@ -1056,6 +1128,7 @@ public final class ColoredLightSmoke {
     net.minecraft.world.IWorldAccess observer;
     private NightWorld() { super(null, null, 0, net.minecraft.world.EnumDifficulty.NORMAL, null); }
     @Override public boolean blockExists(int x, int y, int z) {
+      if(pretendChunksExist)return y>=(negative?-64:0) && y<256;
       return y>=(negative?-64:0) && y<256 && ((Math.abs(x>>4)<=2 && Math.abs(z>>4)<=2) || (farLoaded && (x>>4)==8 && (z>>4)==0))
           && !(missingSourceCell && x==0 && y==64 && z==0);
     }
@@ -1185,7 +1258,8 @@ public final class ColoredLightSmoke {
     check(!ColoredLightClient.cacheActive && ColoredLightClient.volume == null && world.observer == null, "Disabling must detach world observer and renderer field");
     equal(0,ColoredLightClient.CACHE.sample(0,64,0));
     check(ColoredLightClient.INSTANCE.statistics().contains("sections=0") && ColoredLightClient.INSTANCE.statistics().contains("pending=0"), "No section data or pending scans while disabled");
-    equal(0,ru.givler.mbo.client.lighting.ColoredDynamicLights.INSTANCE.cachedCells());
+    check(ru.givler.mbo.client.lighting.ColoredDynamicLights.INSTANCE.sources().isEmpty(),"Disabled dynamic lights retained active sources");
+    equal(0,ru.givler.mbo.client.lighting.ColoredDynamicLights.INSTANCE.sample(0,64,0));
     check(!ru.givler.mbo.client.lighting.ColoredLightShaderBridge.retainsField(), "Disabled light must not retain GPU/CPU shader field");
     int reads = world.blockReads;
     for (int i = 0; i < 12; i++) ColoredLightClient.INSTANCE.tick(new cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent(cpw.mods.fml.common.gameevent.TickEvent.Phase.END));

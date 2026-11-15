@@ -151,6 +151,8 @@ public final class ColoredLightSections {
     if (s == null) return;
     s.live = false; changed.remove(s); removed.add(new Key(sx, sy, sz));
     s.buffers=null;s.queue=null;s.queued=null;s.count=0;
+    // A dark section contributed nothing to its neighbours; avoid rescheduling them on eviction.
+    if (s.light == null) return;
     for (int i = 0; i < 4096; i++) if (border(i)) for (int d = 0; d < 6; d++) {
       Section n = neighbor(s, i, d); if (n != s) enqueue(n, adjacent(i, d));
     }
@@ -161,6 +163,8 @@ public final class ColoredLightSections {
     for (Key key : sections.keySet()) if (Math.abs(key.x - sx) > radius || Math.abs(key.y - sy) > radius || Math.abs(key.z - sz) > radius) discard.add(key);
     for (Key key : discard) remove(key.x, key.y, key.z);
   }
+  /** Drop queued references after a batch of chunk removals, even while propagation is busy. */
+  public void discardRemovedWork() { work.removeIf(s -> !s.live); }
   public int sectionCount() { return sections.size(); }
   public int opacity(int x, int y, int z) {
     Section s = section(x >> 4, y >> 4, z >> 4);
