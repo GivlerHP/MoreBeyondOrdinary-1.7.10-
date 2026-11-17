@@ -1856,3 +1856,15 @@ mbo.research_scroll.missing=Unrecognized research
 mbo.research_scroll.unavailable=The description of this research is unavailable.
 mbo.research_scroll.complete=Complete - right-click to learn
 mbo.research_scroll.incomplete=Unfinished research notes
+
+tile.DescriptionWorkbench.name=Description workbench
+container.mbo.description_workbench=Description workbench
+mbo.description.clear=Clear description
+mbo.description.lines=Description (up to 6 lines)
+mbo.description.save=Save description
+mbo.description.clear_short=Clear draft
+mbo.description.selection=Selection
+mbo.description.line_color=Line color
+mbo.description.all_color=All text
+mbo.description.preview=Live preview
+mbo.description.preview_empty=Type a description on the left.

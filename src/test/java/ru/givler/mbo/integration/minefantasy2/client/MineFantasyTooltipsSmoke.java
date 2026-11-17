@@ -55,6 +55,7 @@ public final class MineFantasyTooltipsSmoke {
             boundKeys(sword);
         }
         materials(stack(ItemSwordMF.class));
+        equipmentDetails();
         List<String> vanilla = new ArrayList<String>(Arrays.asList("Other item", "+7 Attack Damage"));
         List<String> original = new ArrayList<String>(vanilla);
         MineFantasyTooltips.decorate(new ItemStack(new Item()), vanilla);
@@ -73,6 +74,32 @@ public final class MineFantasyTooltipsSmoke {
         tag.setString("MF_CustomTag0", "Custom lore");
         stack.setTagCompound(tag);
         return stack;
+    }
+
+    private static void equipmentDetails() throws Exception {
+        ItemStack tool = stack(minefantasy.mf2.item.tool.ItemPickMF.class);
+        check(MineFantasyTooltips.isEquipment(tool), "MF2 pickaxe omitted from equipment layout");
+        ItemStack weapon = stack(ru.givler.mbo.item.weapon.ItemWeaponBase.class);
+        weapon.getItem().setMaxDamage(300);
+        weapon.setItemDamage(4);
+        weapon.addEnchantment(net.minecraft.enchantment.Enchantment.sharpness, 3);
+        String enchantment = net.minecraft.enchantment.Enchantment.sharpness.getTranslatedName(3);
+        String durability = tr("tooltip.mbo.durability") + ": 296 / 300";
+        List<String> rows = new ArrayList<String>(Arrays.asList("MBO weapon", enchantment,
+                "Custom lore", "+2 " + tr("attribute.name.generic.attackDamage"), durability,
+                "Durability: 296 / 300"));
+        String nbt = weapon.getTagCompound().toString();
+        MineFantasyTooltips.decorate(weapon, rows);
+        ru.givler.mbo.client.gui.EquipmentTooltipDetails.decorate(weapon, rows, true);
+        check(find(rows, "<mbo:durability>") < find(rows, "<mbo:weapon>"), "Durability interrupts damage/conditional bonuses");
+        check(find(rows, "<mbo:enchants>") > find(rows, "<mbo:weapon>"), "Enchantments missing their separate group");
+        check(rows.get(find(rows, "<mbo:enchants>")).endsWith(enchantment), "Enchantment name or level changed");
+        int count = 0;
+        for (String row : rows) if (row.contains(durability)) count++;
+        check(count == 1, "Durability duplicated");
+        for (String row : rows) check(!row.contains("Durability: 296 / 300") || row.contains("<mbo:durability>"),
+                "Vanilla 1.7.10 hardcoded advanced durability row survived");
+        check(nbt.equals(weapon.getTagCompound().toString()), "Formatting changed enchantment or item NBT");
     }
 
     private static void weapon(ItemStack stack) {
@@ -109,11 +136,13 @@ public final class MineFantasyTooltipsSmoke {
         List<String> before = new ArrayList<String>(lines);
         MineFantasyTooltips.decorate(stack, lines);
         check(lines.get(2).startsWith("<mbo:statline><mbo:armour>"), "Existing armour heading was not decorated");
-        check(lines.get(7).contains("<mbo:statline><mbo:magicguard>"), "Magic resistance needs its own icon and rail");
+        check(lines.get(find(lines, "<mbo:magicguard>")).contains("<mbo:statline>"), "Magic resistance needs its own icon");
+        check(lines.get(find(lines, "<mbo:magicguard>") - 1).equals("<mbo:end>"), "Missing resistance spacing");
         check(lines.get(6).contains("<mbo:fireguard>"), "Fire resistance needs the potion icon");
         TooltipElements.expandBlocks(lines);
-        unchangedRows(before, lines);
-        check(!lines.get(8).contains("<mbo:pad:"), "Resistance block indented unrelated description");
+        sameContent(before, lines);
+        check(!lines.get(find(lines, "<mbo:magicguard>")).contains("<mbo:statline"), "Stray rail under standalone magic icon");
+        check(!lines.get(find(lines, "NBT description")).contains("<mbo:pad:"), "Resistance block indented unrelated description");
     }
 
     private static void lance(ItemStack stack) {
@@ -134,7 +163,8 @@ public final class MineFantasyTooltipsSmoke {
         for (String line : lines) if (line.contains("<mbo:weapon>")) swords++;
         check(swords == 1, "Repeated sword icons on lance");
         check(lines.get(2).startsWith("<mbo:pad:16>"), "Damage types lost alignment");
-        check(lines.get(lines.size() - 1).startsWith("<mbo:pad:16>"), "Mounted bonuses lost alignment");
+        check(lines.get(lines.size() - 2).startsWith("<mbo:pad:16>"), "Mounted bonuses lost alignment");
+        check(lines.get(lines.size() - 1).equals("<mbo:end>"), "Missing bottom space below final rail");
     }
 
     private static int find(List<String> lines, String text) {
@@ -195,7 +225,7 @@ public final class MineFantasyTooltipsSmoke {
         List<String> rows = new ArrayList<String>(Arrays.asList("Weapon", "Test metal", "Handle: Test wood"));
         MineFantasyTooltips.decorate(stack, rows);
         check(rows.get(1).equals("<mbo:ingot:1e3c5a>Test metal"), "Wrong metal icon or material colour");
-        check(rows.get(2).equals("<mbo:timber:785028>Handle: Test wood"), "Wrong timber icon or haft colour");
+        check(rows.get(2).equals("<mbo:timber:785028>Test wood"), "Wrong timber icon, colour or redundant handle label");
         check(before.equals(stack.getTagCompound().toString()), "Material decoration changed item NBT");
         TooltipElements.Token token = TooltipElements.tokenAt(rows.get(2), 0);
         Field tint = TooltipElements.Token.class.getDeclaredField("tint");

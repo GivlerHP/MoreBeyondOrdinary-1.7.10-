@@ -152,6 +152,8 @@ public class PacketManager {
         PacketDungeonTriggerSettings.class,
         nextID++,
         Side.SERVER);
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketItemDescription.Handler.class,
+        ru.givler.mbo.network.packet.PacketItemDescription.class, nextID++, Side.SERVER);
   }
 
   public static void registerClientPackets() {

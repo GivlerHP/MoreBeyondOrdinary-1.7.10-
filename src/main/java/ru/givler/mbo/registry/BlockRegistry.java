@@ -100,6 +100,7 @@ public class BlockRegistry {
     public static BlockCopperBulb[] CopperBulbs;
     public static BlockLockableDoor LockableDoor;
     public static BlockPlatformStation PlatformStation;
+    public static ru.givler.mbo.block.craft.BlockDescriptionWorkbench DescriptionWorkbench;
     public static BlockInvertedDaylightDetector InvertedDaylightDetector;
     public static BlockColourFire ColourFire, ColourFireVanilla;
 
@@ -115,6 +116,7 @@ public class BlockRegistry {
         Blocks.water.setLightOpacity(3);
         Blocks.flowing_water.setLightOpacity(3);
         PlatformStation = new BlockPlatformStation();
+        DescriptionWorkbench = new ru.givler.mbo.block.craft.BlockDescriptionWorkbench();
         ColourFire = new BlockColourFire(true);
         ColourFireVanilla = new BlockColourFire(false);
         GameRegistry.registerBlock(ColourFire, "ColourFire");

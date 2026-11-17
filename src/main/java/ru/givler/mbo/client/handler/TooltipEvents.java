@@ -18,31 +18,18 @@ public class TooltipEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onItemTooltip(ItemTooltipEvent event) {
         TooltipFrameHooks.markItemTooltip(event.toolTip);
-        if (event.itemStack != null) {
-            ItemStack is = event.itemStack;
-            if (is.isItemDamaged()) {
-                int max = is.getMaxDamage();
-                int current = max - is.getItem().getDisplayDamage(is);
-                String tooltip = EnumChatFormatting.GRAY
-                        + StatCollector.translateToLocal("tooltip.mbo.durability")
-                        + ": " + current + " / " + max;
-
-                int insertAt = event.toolTip.size();
-                String durabilityValues = current + " / " + max;
-                for (int i = event.toolTip.size() - 1; i >= 0; i--) {
-                    String line = (String) event.toolTip.get(i);
-                    String plain = EnumChatFormatting.getTextWithoutFormattingCodes(line);
-                    if (plain != null && plain.endsWith(durabilityValues)) {
-                        insertAt = i;
-                        event.toolTip.remove(i);
-                    }
-                }
-                event.toolTip.add(insertAt, tooltip);
-            }
-        }
         if (TooltipFrameConfig.mf2EquipmentIcons
                 && Minecraft.getMinecraft().fontRenderer instanceof ModernFontRenderer) {
             MineFantasyTooltips.decorate(event.itemStack, event.toolTip);
+        }
+        ru.givler.mbo.client.gui.EquipmentTooltipDetails.decorate(event.itemStack, event.toolTip,
+                TooltipFrameConfig.mf2EquipmentIcons && Minecraft.getMinecraft().fontRenderer instanceof ModernFontRenderer);
+        if (Minecraft.getMinecraft().fontRenderer instanceof ModernFontRenderer) {
+            ru.givler.mbo.client.gui.ItemDescriptionTooltips.decorate(event.itemStack, event.toolTip,
+                    Minecraft.getMinecraft().fontRenderer);
+        } else {
+            for (String text : ru.givler.mbo.item.ItemDescription.read(event.itemStack))
+                event.toolTip.add(EnumChatFormatting.GRAY + text);
         }
         TooltipElements.expandBlocks(event.toolTip);
     }

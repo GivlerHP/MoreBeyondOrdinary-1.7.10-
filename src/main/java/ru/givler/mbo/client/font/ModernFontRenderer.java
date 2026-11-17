@@ -401,6 +401,10 @@ public final class ModernFontRenderer extends FontRenderer
       }
       TooltipElements.Token token = TooltipElements.tokenAt(text, offset);
       if (token != null) {
+        if (token.textColor >= 0) {
+          int rgb = shadow ? (token.textColor & 0xfcfcfc) >> 2 : token.textColor;
+          color = (initialColor & 0xff000000) | rgb;
+        }
         if (!shadow) x += TooltipElements.draw(token, x, y);
         else x += token.advance;
         offset = token.end;

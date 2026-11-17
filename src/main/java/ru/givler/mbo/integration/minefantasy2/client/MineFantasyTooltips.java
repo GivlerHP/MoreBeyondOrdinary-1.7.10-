@@ -54,6 +54,15 @@ public final class MineFantasyTooltips {
                     || name.equals("minefantasy.mf2.item.archery.ItemBowMF")
                     || name.equals("minefantasy.mf2.item.gadget.ItemCrossbow")) return 1;
         }
+        String owner = stack.getItem().getClass().getName();
+        if (owner.startsWith("minefantasy.mf2.") || owner.startsWith("ru.givler.mbo.")) {
+            net.minecraft.item.Item item = stack.getItem();
+            if (item instanceof net.minecraft.item.ItemSword || item instanceof net.minecraft.item.ItemBow
+                    || item instanceof net.minecraft.item.ItemTool || item instanceof net.minecraft.item.ItemHoe
+                    || owner.startsWith("minefantasy.mf2.item.tool.")) return 1;
+            if (item instanceof net.minecraft.item.ItemArmor) return 2;
+            return 3;
+        }
         return 0;
     }
 
@@ -66,6 +75,11 @@ public final class MineFantasyTooltips {
 
         // Translate for each tooltip so language/resource-pack reloads cannot leave stale label caches.
         Labels labels = new Labels();
+        if (kind == 3) {
+            for (int i = 1; i < lines.size(); i++) lines.set(i, decorateInline(lines.get(i), labels));
+            MineFantasyMaterials.decorate(stack, lines);
+            return;
+        }
         if (kind == 1) {
             layoutWeapon(lines, labels);
             MineFantasyMaterials.decorate(stack, lines);
@@ -78,6 +92,10 @@ public final class MineFantasyTooltips {
             int block = matches(plain, labels.core) ? 1
                     : labels.magic.matches(plain) ? 3 : matches(plain, labels.resistances) ? 2 : 0;
             String prefix = "";
+            if (block == 3 && previousBlock == 2) {
+                lines.add(i, "<mbo:end>");
+                i++;
+            }
             if (block != previousBlock) {
                 if (previousBlock != 0) prefix = "<mbo:end>";
                 if (block != 0) {

@@ -646,10 +646,15 @@ public class BlockDecorModel extends BlockDirectional implements ITileEntityProv
     return true;
   }
 
+  /** Shared by placement validation and helper creation, so oriented structures cannot disagree. */
+  protected int getPlacementFacing(EntityLivingBase placer) {
+    return MathHelper.floor_double((double) (placer.rotationYaw * 4.0F / 360.0F) + 2.5) & 3;
+  }
+
   @Override
   public void onBlockPlacedBy(
       World world, int x, int y, int z, EntityLivingBase player, ItemStack stack) {
-    int facing = MathHelper.floor_double((double) (player.rotationYaw * 4.0F / 360.0F) + 2.5) & 3;
+    int facing = getPlacementFacing(player);
     world.setBlockMetadataWithNotify(x, y, z, facing, 2);
     for (int i = 1; i < blockHeight; i++) {
       world.setBlock(x, y + i, z, this, facing + TOP_META_OFFSET, 2);
@@ -658,7 +663,7 @@ public class BlockDecorModel extends BlockDirectional implements ITileEntityProv
   }
 
   public boolean canPlaceStructureAt(World world, int x, int y, int z, EntityLivingBase placer) {
-    int facing = MathHelper.floor_double((double) (placer.rotationYaw * 4.0F / 360.0F) + 2.5) & 3;
+    int facing = getPlacementFacing(placer);
     for (int i = 1; i < blockHeight; i++) {
       if (y + i < 0 || y + i >= world.getHeight()) return false;
       Block block = world.getBlock(x, y + i, z);

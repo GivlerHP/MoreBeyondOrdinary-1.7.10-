@@ -29,6 +29,9 @@ public class MboGuiHandler implements IGuiHandler {
         if (gui == null) return null;
         TileEntity tile = world.getTileEntity(x, y, z);
         switch (gui) {
+            case DESCRIPTION_WORKBENCH:
+                return tile instanceof TileEntityDescriptionWorkbench && TileEntityDescriptionWorkbench.canEdit(player)
+                        ? new ru.givler.mbo.container.ContainerDescriptionWorkbench(player.inventory, (TileEntityDescriptionWorkbench) tile) : null;
             case INFUSION_WORKBENCH:
                 return tile instanceof TileEntityArcanum ? new ContainerArcanum(player.inventory, (TileEntityArcanum) tile) : null;
             case LOOT_CONTAINER_CONFIG:
@@ -62,6 +65,9 @@ public class MboGuiHandler implements IGuiHandler {
         if (gui == null) return null;
         TileEntity tile = world.getTileEntity(x, y, z);
         switch (gui) {
+            case DESCRIPTION_WORKBENCH:
+                return tile instanceof TileEntityDescriptionWorkbench
+                        ? new GuiDescriptionWorkbench(player.inventory, (TileEntityDescriptionWorkbench) tile) : null;
             case INFUSION_WORKBENCH:
                 return tile instanceof TileEntityArcanum ? new GuiArcanum(player.inventory, (TileEntityArcanum) tile) : null;
             case LOOT_CONTAINER_CONFIG:

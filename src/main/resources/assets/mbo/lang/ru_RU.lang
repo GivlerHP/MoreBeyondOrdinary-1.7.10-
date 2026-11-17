@@ -2146,3 +2146,15 @@ mbo.research_scroll.missing=Неизвестное исследование
 mbo.research_scroll.unavailable=Описание этого исследования недоступно.
 mbo.research_scroll.complete=Завершено — изучить ПКМ
 mbo.research_scroll.incomplete=Незавершённые записи
+
+tile.DescriptionWorkbench.name=Стол описаний
+container.mbo.description_workbench=Стол описаний
+mbo.description.clear=Очистить описание
+mbo.description.lines=Описание (до 6 строк)
+mbo.description.save=Сохранить
+mbo.description.clear_short=Очистить
+mbo.description.selection=Выделение
+mbo.description.line_color=Строка
+mbo.description.all_color=Весь текст
+mbo.description.preview=Предпросмотр
+mbo.description.preview_empty=Введите описание слева.

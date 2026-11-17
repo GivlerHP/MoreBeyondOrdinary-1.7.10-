@@ -30,6 +30,8 @@ public final class TooltipElements {
         addStatRail("mounted", 6, 12);
         addStatRail("magicguard", 7, 12);
         addStatRail("fireguard", 7, 10);
+        addStatRail("scroll", 6, 12);
+        addStatRail("enchants", 6, 12);
         ELEMENTS.put("fireguard", new Element("fireguard", 13, 13, false, 13, -1, -1));
         ELEMENTS.put("weapon", new Element("swordstat", 13, 76, false, 13, -1, -1));
         ELEMENTS.put("armour", new Element("passiveatribute", 12, 12, false, 12, -1, -1));
@@ -49,6 +51,12 @@ public final class TooltipElements {
         add("ctrlalt_a", 40, 10);
         add("shift", 26, 10);
         add("shift_a", 26, 10);
+        ELEMENTS.put("durability", new Element("durability", 13, 13, false, 13, -1, -1,
+                new ResourceLocation("minecraft", "textures/items/iron_pickaxe.png")));
+        ELEMENTS.put("enchants", new Element("enchants", 13, 13, false, 13, -1, -1,
+                new ResourceLocation("minecraft", "textures/items/book_enchanted.png")));
+        ELEMENTS.put("scroll", new Element("scroll", 13, 13, false, 13, -1, -1,
+                new ResourceLocation("minecraft", "textures/items/map_empty.png")));
         ELEMENTS.put("ingot", new Element("ingot", 12, 12, false, 12, -1, -1,
                 new ResourceLocation("minecraft", "textures/items/iron_ingot.png")));
         ELEMENTS.put("timber", new Element("timber", 12, 12, false, 12, -1, -1,
@@ -75,6 +83,9 @@ public final class TooltipElements {
         int end = text.indexOf('>', offset + PREFIX.length());
         if (end < 0) return null;
         String name = text.substring(offset + PREFIX.length(), end);
+        if (name.startsWith("color:") && name.substring(6).matches("[0-9a-fA-F]{6}")) {
+            return new Token(end + 1, null, 0, -2, false, Integer.parseInt(name.substring(6), 16));
+        }
         if (name.startsWith("itemtex:")) {
             String[] parts = name.split(":", 3);
             if (parts.length != 3 || !parts[1].matches("[a-z0-9_]+")
@@ -153,8 +164,10 @@ public final class TooltipElements {
             int sampleY = e.iconHeight == 0 ? 2 : e.lineY;
             float v0 = sampleY / (float) e.height;
             float v1 = (sampleY + 1) / (float) e.height;
-            // One quad avoids seams between pixels at fractional GUI/font scales.
-            if (height > e.lineY) quad(x + e.lineX, y + e.lineY, 1, height - e.lineY, u0, v0, u1, v1);
+            // Keep the rail solid through the text, then fade its extended lower tip.
+            int fadeStart = Math.max(e.lineY, height - 5);
+            if (fadeStart > e.lineY) quad(x + e.lineX, y + e.lineY, 1, fadeStart - e.lineY, u0, v0, u1, v1);
+            if (height > fadeStart) fadingRail(x + e.lineX, y + fadeStart, height - fadeStart, u0, v0, u1, v1);
         }
         GL11.glColor4f(1F, 1F, 1F, 1F);
         return token.advance;
@@ -187,6 +200,24 @@ public final class TooltipElements {
         t.draw();
     }
 
+    private static void fadingRail(float x, float y, float height, float u0, float v0, float u1, float v1) {
+        boolean alphaTest = GL11.glIsEnabled(GL11.GL_ALPHA_TEST);
+        int shadeModel = GL11.glGetInteger(GL11.GL_SHADE_MODEL);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glShadeModel(GL11.GL_SMOOTH);
+        Tessellator t = Tessellator.instance;
+        t.startDrawingQuads();
+        t.setColorRGBA_F(1F, 1F, 1F, 0F);
+        t.addVertexWithUV(x, y + height, 0, u0, v1);
+        t.addVertexWithUV(x + 1, y + height, 0, u1, v1);
+        t.setColorRGBA_F(1F, 1F, 1F, 1F);
+        t.addVertexWithUV(x + 1, y, 0, u1, v0);
+        t.addVertexWithUV(x, y, 0, u0, v0);
+        t.draw();
+        GL11.glShadeModel(shadeModel);
+        if (alphaTest) GL11.glEnable(GL11.GL_ALPHA_TEST);
+    }
+
     /** Extends each block until the next block and indents all contained rows. */
     public static void expandBlocks(List lines) {
         if (lines == null) return;
@@ -217,8 +248,13 @@ public final class TooltipElements {
                     break;
                 }
             }
-            int height = Math.max(start.element.iconHeight, (endLine - start.line) * 10 - 2);
+            int height = Math.max(start.element.iconHeight, (endLine - start.line) * 10 + 3);
             String line = String.valueOf(lines.get(start.line));
+            if (start.element.iconHeight == 0 && endLine - start.line == 1) {
+                // A standalone resistance icon needs no one-pixel rail below it.
+                lines.set(start.line, line.substring(0, start.offset) + line.substring(start.end));
+                continue;
+            }
             String tagName = start.element.iconHeight == 0 ? (start.element.lineY == 0 ? "statrail" : "statline") : start.element.name;
             String dynamicTag = PREFIX + tagName + "@" + height + ">";
             lines.set(start.line, line.substring(0, start.offset) + dynamicTag + line.substring(start.end));
@@ -227,6 +263,14 @@ public final class TooltipElements {
                 String content = String.valueOf(lines.get(row));
                 if (!content.startsWith(padding)) lines.set(row, padding + content);
             }
+        }
+        // Reserve a real layout row below a final rail. NEI measures the list itself,
+        // so extending only the frame would leave its tooltip sizing unchanged.
+        if (!blocks.isEmpty()) {
+            int lastStart = blocks.get(blocks.size() - 1).line;
+            boolean hasEnding = false;
+            for (Integer ending : endings) if (ending > lastStart) hasEnding = true;
+            if (!hasEnding) lines.add(PREFIX + "end>");
         }
     }
 
@@ -237,6 +281,7 @@ public final class TooltipElements {
         private final int renderHeight;
         private final boolean endMarker;
         private final int tint;
+        public final int textColor;
 
         private Token(int end, Element element, int advance, int renderHeight, boolean endMarker) {
             this(end, element, advance, renderHeight, endMarker, 0xffffff);
@@ -249,6 +294,7 @@ public final class TooltipElements {
             this.renderHeight = renderHeight;
             this.endMarker = endMarker;
             this.tint = tint;
+            this.textColor = renderHeight == -2 ? tint : -1;
         }
     }
 

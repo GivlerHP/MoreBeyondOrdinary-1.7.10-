@@ -17,6 +17,13 @@ final class MineFantasyMaterials {
         CustomMaterial haft = CustomMaterial.getMaterialFor(stack, "haft_wood");
         decorateMaterial(lines, primary, false);
         decorateMaterial(lines, haft, true);
+        for (int i = 2; i < lines.size(); i++) {
+            String previous = lines.get(i - 1);
+            if (lines.get(i).contains("<mbo:weight>") && (previous.contains("<mbo:ingot:")
+                    || previous.contains("<mbo:itemtex:") || previous.contains("<mbo:timber:"))) {
+                lines.add(i++, "");
+            }
+        }
     }
 
     private static void decorateMaterial(List<String> lines, CustomMaterial material, boolean haft) {
@@ -40,7 +47,9 @@ final class MineFantasyMaterials {
             String line = lines.get(i);
             String text = EnumChatFormatting.getTextWithoutFormattingCodes(line);
             if (text != null && (text.trim().equals(label) || !haft && text.trim().equals(joint))) {
-                lines.set(i, tag + line);
+                int colorEnd = 0;
+                while (colorEnd + 1 < line.length() && line.charAt(colorEnd) == '\u00a7') colorEnd += 2;
+                lines.set(i, tag + (haft ? line.substring(0, colorEnd) + name : line));
                 break;
             }
         }

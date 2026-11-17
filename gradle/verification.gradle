@@ -323,3 +323,20 @@ task verifyMineFantasyTooltips(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.integration.minefantasy2.client.MineFantasyTooltipsSmoke'
 }
+
+task verifyItemDescriptions(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.item.ItemDescriptionSmoke'
+}
+
+task verifyDescriptionWorkbenchModel(type: JavaExec, dependsOn: [testClasses, extractNativeResourceTestLibraries]) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.decor.DescriptionWorkbenchModelSmoke'
+    systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
+}
+
+task verifyDescriptionEditorGui(type: JavaExec, dependsOn: [testClasses, extractNativeResourceTestLibraries]) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.decor.DescriptionEditorGuiSmoke'
+    systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
+}

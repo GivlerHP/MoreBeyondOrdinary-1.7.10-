@@ -162,6 +162,7 @@ public class CommonProxy {
       invokeOptional("ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry", "init");
     }
     GameRegistry.registerTileEntity(ModelTileBase.class, "ModelTileBase");
+    GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileEntityDescriptionWorkbench.class, "mbo_description_workbench");
     GameRegistry.registerTileEntity(
         ru.givler.mbo.tileentity.TileEntityModelCollision.class, "ModelCollisionPartTile");
     GameRegistry.registerTileEntity(TileEntityArcanum.class, "magic_furnace");
