@@ -93,6 +93,7 @@ public class MoreBeyondOrdinary {
     TooltipFrameConfig.load(event.getModConfigurationDirectory());
     ru.givler.mbo.config.HudConfig.load(event.getModConfigurationDirectory());
     LockSecurityConfig.load(event.getModConfigurationDirectory());
+    ru.givler.mbo.config.WorkbenchConfig.load(event.getModConfigurationDirectory());
   }
 
   @Mod.EventHandler

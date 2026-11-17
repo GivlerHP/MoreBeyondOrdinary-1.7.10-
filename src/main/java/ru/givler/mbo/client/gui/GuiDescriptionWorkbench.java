@@ -36,6 +36,10 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
     private final java.nio.IntBuffer oldScissor = org.lwjgl.BufferUtils.createIntBuffer(16);
     private int dragLine = -1, dragAnchor, lastClickLine = -1;
     private long lastTextClick;
+    private boolean weaponTab;
+    private final WeaponWorkbenchPanel weapons = new WeaponWorkbenchPanel();
+    private boolean weaponAccess() { return ((ContainerDescriptionWorkbench)inventorySlots).weaponAccess; }
+    private boolean historyAccess() { return ((ContainerDescriptionWorkbench)inventorySlots).historyAccess; }
 
     private static final class Draft {
         final List<String> text = new ArrayList<String>();
@@ -50,7 +54,7 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         ItemStack previousItem = editing;
         String brush = hex == null ? null : hex.getText();
         List<Draft> history = new ArrayList<Draft>(undo);
-        xSize = Math.min(420, width - 8);
+        xSize = Math.min(420, width - 64);
         super.initGui(); Keyboard.enableRepeatEvents(true); fields.clear(); buttonList.clear();
         editorWidth = (xSize - 24) / 2; previewX = editorWidth + 16;
         for (int i = 0; i < ItemDescription.MAX_LINES; i++) {
@@ -71,6 +75,7 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
             net.minecraft.inventory.Slot slot = (net.minecraft.inventory.Slot) inventorySlots.inventorySlots.get(i);
             slot.xDisplayPosition = inventoryX + (i - 1) % 9 * 18;
         }
+        weapons.init(fontRendererObj,guiLeft,guiTop,editorWidth+12,previewX);
         loadItem();
         if (pending != null && ItemStack.areItemStacksEqual(previousItem, editing)) {
             styles.clear();
@@ -92,6 +97,7 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         }
         hex.setText(String.format(Locale.ROOT, "%06X", ItemDescription.color(stack)));
         selectionStart = selectionEnd = 0; activeLine = 0;
+        weapons.load(stack);
         previewDirty = true;
     }
     @Override public void updateScreen() {
@@ -99,8 +105,9 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         if (!ItemStack.areItemStacksEqual(editing, tile.getStackInSlot(0))) loadItem();
         for (GuiTextField field : fields) field.updateCursorCounter();
         hex.updateCursorCounter();
-        for (Object object : buttonList) ((GuiButton)object).enabled = editing != null;
-        ((GuiButton) buttonList.get(0)).enabled = editing != null && hex.getText().matches("[0-9a-fA-F]{6}");
+        if(weaponTab && !weaponAccess()) weaponTab=false;
+        for (Object object : buttonList) { ((GuiButton)object).enabled = editing != null && historyAccess(); ((GuiButton)object).visible=!weaponTab; }
+        ((GuiButton) buttonList.get(0)).enabled = editing != null && historyAccess() && hex.getText().matches("[0-9a-fA-F]{6}");
     }
     private int color() {
         try { return Integer.parseInt(hex.getText(), 16) & 0xffffff; }
@@ -144,7 +151,7 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         }
     }
     @Override protected void actionPerformed(GuiButton button) {
-        if (editing == null) return;
+        if (editing == null || !historyAccess()) return;
         if (button.id >= 2) { applyColor(button.id); return; }
         if (button.id == 1) {
             previewDirty = true;
@@ -156,6 +163,14 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
                 editing.copy(), text(), styles, color()));
     }
     @Override protected void mouseClicked(int x, int y, int button) {
+        if(button==0 && x>=guiLeft-27 && x<guiLeft+1) {
+            if(y>=guiTop+28 && y<guiTop+50 && historyAccess()) weaponTab=false;
+            if(y>=guiTop+54 && y<guiTop+76 && weaponAccess()) weaponTab=true;
+            for(Object object:buttonList)((GuiButton)object).visible=!weaponTab;
+            return;
+        }
+        if(weaponTab) { if(weaponAccess() && weapons.click(x,y,button,inventorySlots.windowId))return; super.mouseClicked(x,y,button);return; }
+        if(!historyAccess()) {super.mouseClicked(x,y,button);return;}
         captureSelection();
         if (button == 0 && y >= guiTop + 125 && y < guiTop + 135 && x >= guiLeft + 12) {
             int index = (x - guiLeft - 12) / 8;
@@ -191,6 +206,11 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         super.mouseMovedOrUp(x, y, button);
     }
     @Override protected void keyTyped(char c, int key) {
+        if(weaponTab) {
+            if(key!=Keyboard.KEY_ESCAPE && weaponAccess() && weapons.key(c,key)) return;
+            super.keyTyped(c,key);return;
+        }
+        if(!historyAccess()) {super.keyTyped(c,key);return;}
         if (isCtrlKeyDown() && key == Keyboard.KEY_Z) { undo(); return; }
         if (key == Keyboard.KEY_ESCAPE) { super.keyTyped(c, key); return; }
         for (int i = 0; i < fields.size(); i++) if (fields.get(i).isFocused()) {
@@ -217,11 +237,13 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
     }
     @Override protected void drawGuiContainerBackgroundLayer(float partial, int x, int y) {
         DescriptionWorkbenchSkin.background(guiLeft,guiTop,xSize,ySize);
+        if(historyAccess())DescriptionWorkbenchSkin.tab(guiLeft-27,guiTop+28,!weaponTab);
+        if(weaponAccess())DescriptionWorkbenchSkin.tab(guiLeft-27,guiTop+54,weaponTab);
         DescriptionWorkbenchSkin.panel(guiLeft+previewX,guiTop+28,xSize-previewX-8,171);
         net.minecraft.inventory.Slot input = (net.minecraft.inventory.Slot)inventorySlots.inventorySlots.get(0);
         DescriptionWorkbenchSkin.inputSlot(guiLeft+input.xDisplayPosition-1,guiTop+input.yDisplayPosition-1);
         DescriptionWorkbenchSkin.inventory(guiLeft+(xSize-162)/2-1,guiTop+204);
-        for (int i=0;i<COLORS.length;i++) DescriptionWorkbenchSkin.swatch(guiLeft+12+i*8,guiTop+125,i);
+        if(!weaponTab)for (int i=0;i<COLORS.length;i++) DescriptionWorkbenchSkin.swatch(guiLeft+12+i*8,guiTop+125,i);
     }
     @Override protected void drawGuiContainerForegroundLayer(int x, int y) {
         fontRendererObj.drawString(I18n.format("container.mbo.description_workbench"), 12, 10, 0xf1dfac);
@@ -257,6 +279,10 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         if (!scissor) GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
     private void drawEditorWidgets(int mouseX,int mouseY) {
+        if(historyAccess())fontRendererObj.drawString("<mbo:scroll>",guiLeft-20,guiTop+33,0xffffff);
+        if(weaponAccess())fontRendererObj.drawString("<mbo:weapon>",guiLeft-20,guiTop+59,0xffffff);
+        if(weaponTab) { weapons.draw(mouseX,mouseY); return; }
+        if(!historyAccess()) return;
         for (int i=0;i<fields.size();i++) {
             DescriptionWorkbenchSkin.field(guiLeft+12,guiTop+29+i*15,editorWidth-8,13,i==activeLine);
             fields.get(i).setTextColor(0xe0d5bf); fields.get(i).drawTextBox();

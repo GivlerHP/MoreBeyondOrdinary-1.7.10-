@@ -57,7 +57,9 @@ public final class PacketItemDescription implements IMessage {
                         || player.openContainer.windowId != message.window) return;
                 ContainerDescriptionWorkbench container = (ContainerDescriptionWorkbench) player.openContainer;
                 ItemStack item = container.tile.getStackInSlot(0);
-                if (!container.canInteractWith(player) || item == null
+                if (!container.canInteractWith(player)
+                        || !(ru.givler.mbo.config.WorkbenchConfig.publicHistory
+                            || ru.givler.mbo.tileentity.TileEntityDescriptionWorkbench.canEditWeapon(player)) || item == null
                         || !ItemStack.areItemStacksEqual(item, message.expected)) return;
                 ItemDescription.write(item, message.lines, message.colors, message.color);
                 container.tile.markDirty();

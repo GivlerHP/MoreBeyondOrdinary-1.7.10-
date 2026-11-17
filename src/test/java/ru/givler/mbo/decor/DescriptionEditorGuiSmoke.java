@@ -78,7 +78,7 @@ public final class DescriptionEditorGuiSmoke {
             EntityClientPlayerMP player = (EntityClientPlayerMP)unsafe.allocateInstance(EntityClientPlayerMP.class);
             player.inventory = new InventoryPlayer(player); mc.thePlayer = player;
             TileEntityDescriptionWorkbench tile = new TileEntityDescriptionWorkbench();
-            ItemStack item = new ItemStack(new Item().setUnlocalizedName("example"));
+            ItemStack item = new ItemStack(new net.minecraft.item.ItemSword(Item.ToolMaterial.IRON).setUnlocalizedName("example"));
             ItemDescription.write(item, Arrays.asList("Древний клинок", "Слово другого цвета", "Третья строка"),
                 Arrays.asList(new int[]{0xffaa00,0xffaa00,0xffaa00,0xffaa00,0xffaa00,0xffaa00,0xffaa00,0xffffff,0xffffff,0xffffff,0xffffff,0xffffff,0xffffff},
                     new int[]{0x55ffff,0x55ffff,0x55ffff,0x55ffff,0x55ffff,0xffffff,0xff55ff,0xff55ff,0xff55ff,0xff55ff,0xff55ff,0xff55ff,0xff55ff,0xffffff,0xffffff,0xffffff,0xffffff,0xffffff}, new int[0]), 0xd0c4ad);
@@ -86,10 +86,14 @@ public final class DescriptionEditorGuiSmoke {
             GuiDescriptionWorkbench gui = new GuiDescriptionWorkbench(player.inventory, tile);
             set(gui, GuiScreen.class, "mc", mc); set(gui, GuiScreen.class, "fontRendererObj", font);
             gui.width = 334; gui.height = 310; mc.currentScreen = gui; gui.initGui();
+            Object container = get(gui,net.minecraft.client.gui.inventory.GuiContainer.class,"inventorySlots");
+            ((ru.givler.mbo.container.ContainerDescriptionWorkbench)container).historyAccess = true;
+            ((ru.givler.mbo.container.ContainerDescriptionWorkbench)container).weaponAccess = true;
             List<int[]> originalStyles = (List<int[]>)get(gui,GuiDescriptionWorkbench.class,"styles");
             int[] originalFirst = originalStyles.get(0).clone();
             Method mouseClick = GuiDescriptionWorkbench.class.getDeclaredMethod("mouseClicked",int.class,int.class,int.class);
-            mouseClick.setAccessible(true); mouseClick.invoke(gui,4+12+15*8+2,12+126,0);
+            int actualLeft=(Integer)get(gui,net.minecraft.client.gui.inventory.GuiContainer.class,"guiLeft");
+            mouseClick.setAccessible(true); mouseClick.invoke(gui,actualLeft+12+15*8+2,12+126,0);
             if (!Arrays.equals(originalFirst, originalStyles.get(0))) throw new AssertionError("Brush selection recoloured existing text");
             Field palette = GuiDescriptionWorkbench.class.getDeclaredField("COLORS"); palette.setAccessible(true);
             if (((int[])palette.get(null)).length != 16) throw new AssertionError("Minecraft palette must have 16 colours");
@@ -111,13 +115,21 @@ public final class DescriptionEditorGuiSmoke {
             fields = (List<GuiTextField>)get(gui,GuiDescriptionWorkbench.class,"fields");
             if (!fields.get(3).getText().equals("Unsaved draft")) throw new AssertionError("Resize discarded unsaved text");
             fields.get(3).setText(previousLine);
+            boolean weaponMode=Boolean.getBoolean("mbo.weaponEditorPreview");
+            if(weaponMode) {
+                set(gui,GuiDescriptionWorkbench.class,"weaponTab",true);
+                Object panel=get(gui,GuiDescriptionWorkbench.class,"weapons");
+                List<GuiTextField> numeric=(List<GuiTextField>)get(panel,panel.getClass(),"fields");
+                numeric.get(0).setText("9");numeric.get(1).setText("200");
+                for(Object button:(List<?>)get(gui,GuiScreen.class,"buttonList"))((GuiButton)button).visible=false;
+            }
             GL11.glViewport(0,0,668,620); GL11.glMatrixMode(GL11.GL_PROJECTION); GL11.glLoadIdentity(); GL11.glOrtho(0,334,310,0,-100,100);
             GL11.glMatrixMode(GL11.GL_MODELVIEW); GL11.glLoadIdentity(); GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glClearColor(.08F,.09F,.1F,1); GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
             Method background = GuiDescriptionWorkbench.class.getDeclaredMethod("drawGuiContainerBackgroundLayer",float.class,int.class,int.class); background.setAccessible(true); background.invoke(gui,0F,-1,-1);
             GL11.glEnable(GL11.GL_ALPHA_TEST); GL11.glAlphaFunc(GL11.GL_GREATER,.1F);
             Method foreground = GuiDescriptionWorkbench.class.getDeclaredMethod("drawGuiContainerForegroundLayer",int.class,int.class); foreground.setAccessible(true);
-            int left = (334 - 326) / 2, top = (310 - 286) / 2;
+            int left = (Integer)get(gui,net.minecraft.client.gui.inventory.GuiContainer.class,"guiLeft"), top = (310 - 286) / 2;
             GL11.glPushMatrix(); GL11.glTranslatef(left,top,0); foreground.invoke(gui,-1,-1); GL11.glPopMatrix();
             for (Object button : (List<?>)get(gui,GuiScreen.class,"buttonList")) {
                 if (((GuiButton)button).height != 20) throw new AssertionError("Vanilla button texture needs its full 20-pixel height");
@@ -127,7 +139,7 @@ public final class DescriptionEditorGuiSmoke {
             ByteBuffer pixels = BufferUtils.createByteBuffer(668*620*4); GL11.glReadPixels(0,0,668,620,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,pixels);
             BufferedImage image = new BufferedImage(668,620,BufferedImage.TYPE_INT_ARGB);
             for(int y=0;y<620;y++) for(int x=0;x<668;x++) {int r=pixels.get()&255,g=pixels.get()&255,b=pixels.get()&255,a=pixels.get()&255; image.setRGB(x,619-y,a<<24|r<<16|g<<8|b);}
-            ImageIO.write(image,"png",Paths.get("build/description-editor-preview.png").toFile());
+            ImageIO.write(image,"png",Paths.get(weaponMode?"build/weapon-editor-preview.png":"build/description-editor-preview.png").toFile());
             vanilla.close();
             System.out.println("Description editor narrow-layout widgets and rich-colour preview rendered successfully.");
         } finally { buffer.destroy(); }

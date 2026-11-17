@@ -10,7 +10,10 @@ public final class TileEntityDescriptionWorkbench extends ModelTileBase implemen
     public TileEntityDescriptionWorkbench() { super("description_workbench", "description_workbench"); }
     @Override public boolean canUpdate() { return false; }
     public static boolean canEdit(EntityPlayer player) {
-        return player != null && (player.capabilities.isCreativeMode || player.canCommandSenderUseCommand(2, "mbo.description"));
+        return player != null && (ru.givler.mbo.config.WorkbenchConfig.publicHistory || canEditWeapon(player));
+    }
+    public static boolean canEditWeapon(EntityPlayer player) {
+        return ru.givler.mbo.editor.BuilderAccess.canEdit(player);
     }
     @Override public int getSizeInventory() { return 1; }
     @Override public ItemStack getStackInSlot(int slot) { return slot == 0 ? item : null; }

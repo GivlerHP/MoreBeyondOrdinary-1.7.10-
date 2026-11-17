@@ -9,12 +9,33 @@ import ru.givler.mbo.tileentity.TileEntityDescriptionWorkbench;
 
 public final class ContainerDescriptionWorkbench extends Container {
     public final TileEntityDescriptionWorkbench tile;
+    private final EntityPlayer owner;
+    public boolean weaponAccess, historyAccess;
+    private int lastAccess = -1;
     public ContainerDescriptionWorkbench(InventoryPlayer inventory, TileEntityDescriptionWorkbench tile) {
-        this.tile = tile;
+        this.tile = tile; this.owner = inventory.player;
         addSlotToContainer(new Slot(tile, 0, 18, 35));
         for (int row = 0; row < 3; row++) for (int col = 0; col < 9; col++)
             addSlotToContainer(new Slot(inventory, col + row * 9 + 9, 60 + col * 18, 205 + row * 18));
         for (int col = 0; col < 9; col++) addSlotToContainer(new Slot(inventory, col, 60 + col * 18, 263));
+    }
+    @Override public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        if(owner.worldObj != null && owner.worldObj.isRemote) return;
+        weaponAccess = TileEntityDescriptionWorkbench.canEditWeapon(owner);
+        historyAccess = ru.givler.mbo.config.WorkbenchConfig.publicHistory || weaponAccess;
+        int access=(weaponAccess?1:0)|(historyAccess?2:0);
+        if(access==lastAccess)return;
+        lastAccess=access;
+        for(Object object:crafters) {
+            net.minecraft.inventory.ICrafting listener=(net.minecraft.inventory.ICrafting)object;
+            listener.sendProgressBarUpdate(this,0,weaponAccess?1:0);
+            listener.sendProgressBarUpdate(this,1,historyAccess?1:0);
+        }
+    }
+    @Override public void updateProgressBar(int id,int value) {
+        if(id==0) weaponAccess=value!=0;
+        if(id==1) historyAccess=value!=0;
     }
     @Override public boolean canInteractWith(EntityPlayer player) { return tile.isUseableByPlayer(player); }
     @Override public ItemStack transferStackInSlot(EntityPlayer player, int index) {

@@ -340,3 +340,15 @@ task verifyDescriptionEditorGui(type: JavaExec, dependsOn: [testClasses, extract
     main = 'ru.givler.mbo.decor.DescriptionEditorGuiSmoke'
     systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
 }
+
+task verifyWeaponSettings(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.item.WeaponSettingsSmoke'
+}
+
+task verifyWeaponEditorGui(type: JavaExec, dependsOn: [testClasses, extractNativeResourceTestLibraries]) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.decor.DescriptionEditorGuiSmoke'
+    systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
+    systemProperty 'mbo.weaponEditorPreview', 'true'
+}
