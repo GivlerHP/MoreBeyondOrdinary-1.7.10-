@@ -318,3 +318,8 @@ task verifyThaumcraftAspects(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.integration.thaumcraft.ThaumcraftAspectsSmoke'
 }
+
+task verifyMineFantasyTooltips(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.integration.minefantasy2.client.MineFantasyTooltipsSmoke'
+}

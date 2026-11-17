@@ -9,12 +9,15 @@ import net.minecraft.util.StatCollector;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import ru.givler.mbo.client.gui.TooltipFrameHooks;
 import ru.givler.mbo.client.font.TooltipElements;
+import ru.givler.mbo.client.font.ModernFontRenderer;
+import ru.givler.mbo.config.TooltipFrameConfig;
+import ru.givler.mbo.integration.minefantasy2.client.MineFantasyTooltips;
+import net.minecraft.client.Minecraft;
 
 public class TooltipEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onItemTooltip(ItemTooltipEvent event) {
         TooltipFrameHooks.markItemTooltip(event.toolTip);
-        TooltipElements.expandBlocks(event.toolTip);
         if (event.itemStack != null) {
             ItemStack is = event.itemStack;
             if (is.isItemDamaged()) {
@@ -37,5 +40,10 @@ public class TooltipEvents {
                 event.toolTip.add(insertAt, tooltip);
             }
         }
+        if (TooltipFrameConfig.mf2EquipmentIcons
+                && Minecraft.getMinecraft().fontRenderer instanceof ModernFontRenderer) {
+            MineFantasyTooltips.decorate(event.itemStack, event.toolTip);
+        }
+        TooltipElements.expandBlocks(event.toolTip);
     }
 }

@@ -13,6 +13,7 @@ import java.util.Map;
 
 /** Per-item ornamental tooltip frames. */
 public final class TooltipFrameConfig {
+    public static boolean mf2EquipmentIcons = true;
     private static final String CATEGORY = "custom_frames";
     private static final String COLOR_CATEGORY = "background_colors";
     private static final ResourceLocation DEFAULT_FRAME = frame("ramka1");
@@ -26,6 +27,8 @@ public final class TooltipFrameConfig {
         Configuration cfg = new Configuration(new File(configDir, "MoreBeyondOrdinary/tooltip.cfg"));
         try {
             cfg.load();
+            mf2EquipmentIcons = cfg.getBoolean("mf2EquipmentIcons", "general", true,
+                    "Group MF2 weapon statistics and decorate equipment rows with icons; preserve original values.");
             cfg.get(CATEGORY, "mbo:DragonSlayer", "ramka2",
                     "Item registry name = frame texture beside textures/gui/tooltip/ramka1.png");
             cfg.get(COLOR_CATEGORY, "mbo:DragonSlayer", "#06181B",
