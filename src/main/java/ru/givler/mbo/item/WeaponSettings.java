@@ -83,7 +83,10 @@ public final class WeaponSettings {
     public static double attackDelay(ItemStack stack, boolean speed) {
         try {
             Class<?> type=Class.forName("ru.givler.attackdelay.common.WeaponStats");
-            return ((Number)type.getMethod(speed?"getMeleeSpeed":"getMeleeReachFactor",ItemStack.class).invoke(null,stack)).doubleValue()*100;
+            java.lang.reflect.Method getter;
+            try {getter=type.getMethod(speed?"getBaseMeleeSpeed":"getBaseMeleeReachFactor",ItemStack.class);}
+            catch(NoSuchMethodException oldVersion) {getter=type.getMethod(speed?"getMeleeSpeed":"getMeleeReachFactor",ItemStack.class);}
+            return ((Number)getter.invoke(null,stack)).doubleValue()*100;
         } catch (ReflectiveOperationException absent) { return 100; }
     }
 }

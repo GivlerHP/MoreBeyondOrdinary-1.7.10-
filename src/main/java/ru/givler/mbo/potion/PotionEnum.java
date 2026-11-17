@@ -15,4 +15,8 @@ public class PotionEnum {
     public static final Potion SIXTH = PotionRegistry.SixthSense;
     public static final Potion THORNS = PotionRegistry.Thorns;
     public static final Potion LUCK = PotionRegistry.Luck;
+    public static final Potion ATTACK_HASTE = PotionRegistry.AttackHaste;
+    public static final Potion LONG_REACH = PotionRegistry.LongReach;
+    public static final Potion ATTACK_SLOWNESS = PotionRegistry.AttackSlowness;
+    public static final Potion SHORT_REACH = PotionRegistry.ShortReach;
 }

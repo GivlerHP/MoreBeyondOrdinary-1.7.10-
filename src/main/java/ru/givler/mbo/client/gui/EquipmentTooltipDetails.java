@@ -76,7 +76,7 @@ public final class EquipmentTooltipDetails {
             NBTTagCompound entry = tags.getCompoundTagAt(i);
             int id = entry.getShort("id");
             if (id >= 0 && id < Enchantment.enchantmentsList.length && Enchantment.enchantmentsList[id] != null)
-                names.add(Enchantment.enchantmentsList[id].getTranslatedName(entry.getShort("lvl")));
+                names.add(plain(Enchantment.enchantmentsList[id].getTranslatedName(entry.getShort("lvl"))));
         }
     }
     private static String plain(String row) {

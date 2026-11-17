@@ -151,6 +151,7 @@ public class CommonProxy {
   }
 
   public void init(FMLInitializationEvent event) {
+    ru.givler.mbo.integration.attackdelay.AttackDelayCombatIntegration.register();
     CreativeTabRegistry.init(event);
     BoatRegistry.registerRecipes();
     moveWoodIntegrationToBoPTab();

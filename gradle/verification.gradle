@@ -346,6 +346,11 @@ task verifyWeaponSettings(type: JavaExec, dependsOn: testClasses) {
     main = 'ru.givler.mbo.item.WeaponSettingsSmoke'
 }
 
+task verifyCombatModifiers(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath + files('../Ariamis-attack-delay/build/libs/Ariamis-attack-delay-1.13-deobf.jar')
+    main = 'ru.givler.mbo.item.CombatModifiersSmoke'
+}
+
 task verifyWeaponEditorGui(type: JavaExec, dependsOn: [testClasses, extractNativeResourceTestLibraries]) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.decor.DescriptionEditorGuiSmoke'
