@@ -91,7 +91,8 @@ public final class MineFantasyTooltipsSmoke {
         String nbt = weapon.getTagCompound().toString();
         MineFantasyTooltips.decorate(weapon, rows);
         ru.givler.mbo.client.gui.EquipmentTooltipDetails.decorate(weapon, rows, true);
-        check(find(rows, "<mbo:durability>") < find(rows, "<mbo:weapon>"), "Durability interrupts damage/conditional bonuses");
+        check(find(rows, "<mbo:durability>") > find(rows, "<mbo:weapon>")
+                && find(rows, "<mbo:durability>") < find(rows, "<mbo:enchants>"), "Durability must follow stats and precede enchantments");
         check(find(rows, "<mbo:enchants>") > find(rows, "<mbo:weapon>"), "Enchantments missing their separate group");
         check(rows.get(find(rows, "<mbo:enchants>")).endsWith(enchantment), "Enchantment name or level changed");
         int count = 0;

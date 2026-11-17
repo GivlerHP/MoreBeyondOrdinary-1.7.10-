@@ -39,7 +39,11 @@ public final class EquipmentTooltipDetails {
         int anchor = rows.size();
         for (int i = 1; i < rows.size(); i++) {
             String row = rows.get(i);
-            if (row.contains("<mbo:statline>") || row.contains("<mbo:enchants>")) { anchor = i; break; }
+            if (row.contains("<mbo:enchants>")) {
+                anchor = i;
+                if (i > 1 && rows.get(i - 1).equals("<mbo:end>")) anchor--;
+                break;
+            }
         }
         List<String> section = new ArrayList<String>();
         if (anchor > 1 && !plain(rows.get(anchor - 1)).isEmpty()) section.add("<mbo:end>");

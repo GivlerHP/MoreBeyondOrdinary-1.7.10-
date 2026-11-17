@@ -72,10 +72,12 @@ public final class ItemSpellScroll extends Item {
   @SideOnly(Side.CLIENT)
   @SuppressWarnings({"rawtypes", "unchecked"})
   public void addInformation(ItemStack stack, EntityPlayer player, List lines, boolean advanced) {
+    int start = lines.size();
     Spell spell = getSpell(stack);
     if (spell == null) {
       lines.add(
           EnumChatFormatting.RED + StatCollector.translateToLocal("item.spellScroll.invalid"));
+      ru.givler.mbo.client.gui.SpellScrollTooltips.decorate(lines, start, false);
       return;
     }
     lines.add(
@@ -97,6 +99,7 @@ public final class ItemSpellScroll extends Item {
           EnumChatFormatting.DARK_GRAY
               + StatCollector.translateToLocal("item.spellScroll.holdShift"));
     }
+    ru.givler.mbo.client.gui.SpellScrollTooltips.decorate(lines, start, spell.element());
   }
 
   @Override

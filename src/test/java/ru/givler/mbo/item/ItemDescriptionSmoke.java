@@ -19,6 +19,27 @@ import ru.givler.mbo.tileentity.TileEntityDescriptionWorkbench;
 public final class ItemDescriptionSmoke {
     private static void check(boolean value, String message) { if (!value) throw new AssertionError(message); }
     public static void main(String[] args) throws Exception {
+        List<String> scrollRows = new ArrayList<String>(Arrays.asList("Name: Fireball", "Tier: Novice",
+                "First spell description line", "Second spell description line"));
+        ru.givler.mbo.client.gui.SpellScrollTooltips.format(scrollRows, 0, true);
+        check(scrollRows.get(0).startsWith("<mbo:element_arcane>") && scrollRows.get(1).startsWith("<mbo:upbonus>"),
+                "Scroll name/tier icons missing");
+        for (ru.givler.mbo.magic.api.MagicElement element : ru.givler.mbo.magic.api.MagicElement.values()) {
+            List<String> elemental = new ArrayList<String>(Arrays.asList("Spell", "Tier"));
+            ru.givler.mbo.client.gui.SpellScrollTooltips.format(elemental, 0, true, element);
+            String icon = "element_" + element.name().toLowerCase(java.util.Locale.ROOT);
+            check(elemental.get(0).startsWith("<mbo:" + icon + ">"), "Incorrect scroll element mapping");
+            check(TooltipElements.tokenAt("<mbo:" + icon + ">", 0) != null, "Element icon renderer missing");
+            java.awt.image.BufferedImage image = javax.imageio.ImageIO.read(
+                    new java.io.File("src/main/resources/assets/mbo/textures/gui/tooltip/" + icon + ".png"));
+            check(image.getWidth() == 8 && image.getHeight() == 8, "Element sprite was resized");
+        }
+        TooltipElements.expandBlocks(scrollRows);
+        check(scrollRows.get(3).contains("<mbo:statline@") && scrollRows.get(4).startsWith("<mbo:pad:16>"),
+                "Scroll description lost its section or alignment");
+        List<String> emptyScroll = new ArrayList<String>(Arrays.asList("No spell"));
+        ru.givler.mbo.client.gui.SpellScrollTooltips.format(emptyScroll, 0, false);
+        check(emptyScroll.get(0).equals("<mbo:voklicatel>No spell"), "Empty scroll warning missing");
         int modelCount = ru.givler.mbo.block.BlockDecorModel.getAllModels().size();
         ru.givler.mbo.block.craft.BlockDescriptionWorkbench block = new ru.givler.mbo.block.craft.BlockDescriptionWorkbench();
         check(ru.givler.mbo.block.BlockDecorModel.getAllModels().size() == modelCount + 1

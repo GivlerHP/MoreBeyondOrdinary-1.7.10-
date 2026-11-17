@@ -31,6 +31,7 @@ public final class TooltipElements {
         addStatRail("magicguard", 7, 12);
         addStatRail("fireguard", 7, 10);
         addStatRail("scroll", 6, 12);
+        addStatRail("spellscroll", 6, 12);
         addStatRail("enchants", 6, 12);
         ELEMENTS.put("fireguard", new Element("fireguard", 13, 13, false, 13, -1, -1));
         ELEMENTS.put("weapon", new Element("swordstat", 13, 76, false, 13, -1, -1));
@@ -51,6 +52,11 @@ public final class TooltipElements {
         add("ctrlalt_a", 40, 10);
         add("shift", 26, 10);
         add("shift_a", 26, 10);
+        for (ru.givler.mbo.magic.api.MagicElement element : ru.givler.mbo.magic.api.MagicElement.values())
+            add("element_" + element.name().toLowerCase(java.util.Locale.ROOT), 8, 8);
+        ELEMENTS.put("spellscroll", new Element("spellscroll", 13, 13, false, 13, -1, -1,
+                new ResourceLocation("minecraft", "textures/items/map_empty.png")));
+        ELEMENTS.put("upbonus", new Element("upatribute", 13, 80, false, 12, -1, -1));
         ELEMENTS.put("durability", new Element("durability", 13, 13, false, 13, -1, -1,
                 new ResourceLocation("minecraft", "textures/items/iron_pickaxe.png")));
         ELEMENTS.put("enchants", new Element("enchants", 13, 13, false, 13, -1, -1,
@@ -152,7 +158,7 @@ public final class TooltipElements {
         GL11.glColor4f(((token.tint >> 16) & 255) / 255F,
                 ((token.tint >> 8) & 255) / 255F, (token.tint & 255) / 255F, 1F);
         if (!e.block) {
-            quad(x, y, e.name.equals("swordstat") ? 10 : e.width,
+            quad(x + (e.name.startsWith("element_") ? 2 : 0), y, e.name.equals("swordstat") ? 10 : e.width,
                     e.name.equals("swordstat") ? 10 : e.iconHeight, 0, 0, 1, e.iconHeight / (float) e.height);
         } else {
             int height = Math.max(e.iconHeight, token.renderHeight);
