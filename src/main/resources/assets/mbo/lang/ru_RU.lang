@@ -2184,3 +2184,14 @@ focus.upgrade.corrosive_darklight.name=Разъедающая молния
 focus.upgrade.corrosive_darklight.text=Накладывает случайный негативный эффект при попадании.
 
 tooltip.mbo.thaumcraft.details=для подробностей
+
+mbo.weapon_skin.mace_test=Тестовая булава
+mbo.weapon_skin.catalog=Каталог скинов
+mbo.weapon_skin.insert=Вставьте оружие в слот.
+mbo.weapon_skin.incompatible=Этот скин не подходит к оружию.
+mbo.weapon_skin.apply=Применить
+mbo.weapon_skin.remove=Снять скин
+mbo.weapon_skin.view.0=От первого лица
+mbo.weapon_skin.view.1=От третьего лица
+mbo.weapon_skin.view.2=Инвентарь
+mbo.weapon_skin.view.3=На земле

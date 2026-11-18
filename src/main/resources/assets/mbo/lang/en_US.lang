@@ -1894,3 +1894,14 @@ focus.upgrade.corrosive_darklight.name=Corrosive Lightning
 focus.upgrade.corrosive_darklight.text=Applies a random harmful effect on hit.
 
 tooltip.mbo.thaumcraft.details=for details
+
+mbo.weapon_skin.mace_test=Test Mace
+mbo.weapon_skin.catalog=Skin catalog
+mbo.weapon_skin.insert=Insert a weapon in the slot.
+mbo.weapon_skin.incompatible=This skin does not fit the weapon.
+mbo.weapon_skin.apply=Apply
+mbo.weapon_skin.remove=Remove skin
+mbo.weapon_skin.view.0=First person
+mbo.weapon_skin.view.1=Third person
+mbo.weapon_skin.view.2=Inventory
+mbo.weapon_skin.view.3=On the ground
