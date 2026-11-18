@@ -38,12 +38,16 @@ public class PacketLockpickSuccess implements IMessage {
     }
     private void apply(PacketLockpickSuccess m,EntityPlayerMP p){
       ILockableTile tile = LockableAccess.get(p.worldObj, m.x, m.y, m.z);
-      if (tile == null
+      if (!(p.openContainer instanceof ru.givler.mbo.container.ContainerLockpicking)
+          || !((ru.givler.mbo.container.ContainerLockpicking) p.openContainer).matches(p, tile)
+          || tile == null
           || !LockableAccess.hasLockpick(p)
           || !tile.getLockData().hasCompleted(p.getUniqueID())
           || p.getDistanceSq(m.x + .5, m.y + .5, m.z + .5) > 64) return;
+      if (!tile.getLockData().isLocked()) return;
       tile.getLockData().clearAttempt(p.getUniqueID());
       tile.getLockData().unlock();
+      p.closeScreen();
       tile.onUnlocked(p);
       tile.asTileEntity().markDirty();
       p.worldObj.playSoundEffect(m.x + .5, m.y + .5, m.z + .5, "mbo:lock_open", 1F, 1F);

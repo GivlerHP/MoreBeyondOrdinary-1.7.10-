@@ -6,14 +6,20 @@ import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 import ru.givler.mbo.lootcontainer.LootContainerData;
 import ru.givler.mbo.lootcontainer.action.LootContainerAction;
+import ru.givler.mbo.security.WorldTickBudget;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
 
 /** Reuses the validated LootContainer actions without placing a TileEntity in the world. */
 final class DungeonTriggerExecutor {
+  private static final WorldTickBudget EVALUATIONS = new WorldTickBudget(128);
+  private static final WorldTickBudget ACTIONS = new WorldTickBudget(128);
+
   private DungeonTriggerExecutor() {}
 
   static void execute(World world, int x, int y, int z, Entity source, String json, boolean multi) {
     if (world == null || world.isRemote) return;
+    long tick = world.getTotalWorldTime();
+    if (EVALUATIONS.reserve(world, tick, 1) == 0) return;
     if (!ru.givler.mbo.lootcontainer.LootContainerConfigValidator.areActionsValid(json)) return;
     List<LootContainerAction> actions;
     try {
@@ -30,10 +36,13 @@ final class DungeonTriggerExecutor {
     context.yCoord = y;
     context.zCoord = z;
     if (multi) {
-      for (LootContainerAction action : actions)
+      for (LootContainerAction action : actions) {
         if (action != null
-            && world.rand.nextFloat() * 100F < Math.max(0F, Math.min(100F, action.getChance())))
+            && world.rand.nextFloat() * 100F < Math.max(0F, Math.min(100F, action.getChance()))) {
+          if (ACTIONS.reserve(world, tick, 1) == 0) return;
           action.execute(context, source);
+        }
+      }
       return;
     }
     List<LootContainerAction> valid = new ArrayList<LootContainerAction>();
@@ -44,6 +53,7 @@ final class DungeonTriggerExecutor {
         total += action.getChance();
       }
     if (valid.isEmpty() || total <= 0F) return;
+    if (ACTIONS.reserve(world, tick, 1) == 0) return;
     float roll = world.rand.nextFloat() * total, at = 0F;
     for (LootContainerAction action : valid) {
       at += action.getChance();

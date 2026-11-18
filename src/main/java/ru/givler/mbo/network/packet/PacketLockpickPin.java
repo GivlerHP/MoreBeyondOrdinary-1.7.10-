@@ -56,7 +56,9 @@ public class PacketLockpickPin implements IMessage {
     }
     private PacketLockpickResult process(PacketLockpickPin m,EntityPlayerMP player){
       ILockableTile tile = LockableAccess.get(player.worldObj, m.x, m.y, m.z);
-      if (tile == null
+      if (!(player.openContainer instanceof ru.givler.mbo.container.ContainerLockpicking)
+          || !((ru.givler.mbo.container.ContainerLockpicking) player.openContainer).matches(player, tile)
+          || tile == null
           || !tile.getLockData().isLocked()
           || !LockableAccess.hasLockpick(player)
           || player.getDistanceSq(m.x + .5, m.y + .5, m.z + .5) > 64.0)

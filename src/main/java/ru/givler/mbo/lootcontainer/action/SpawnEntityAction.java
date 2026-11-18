@@ -3,9 +3,13 @@ package ru.givler.mbo.lootcontainer.action;
 import com.google.gson.JsonObject;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
+import ru.givler.mbo.lootcontainer.LootContainerData;
+import ru.givler.mbo.security.WorldTickBudget;
 import ru.givler.mbo.tileentity.TileEntityLootContainer;
 
 public class SpawnEntityAction extends LootContainerAction {
+    private static final WorldTickBudget BUDGET = new WorldTickBudget(512);
+
     public String entityId = "";
     public int spawnCount = 1;
     public String countExpr = "1";
@@ -24,7 +28,9 @@ public class SpawnEntityAction extends LootContainerAction {
         String expr = countExpr == null || countExpr.trim().isEmpty() ? String.valueOf(spawnCount) : countExpr;
         int normalizedSpawnCount = Math.max(1, LootContainerActionRuntime.parseCountExpression(expr, world));
 
-        for (int i = 0; i < normalizedSpawnCount; i++) {
+        int allowed = BUDGET.reserve(world, world.getTotalWorldTime(),
+                Math.min(normalizedSpawnCount, LootContainerData.MAX_ACTION_COUNT));
+        for (int i = 0; i < allowed; i++) {
             Entity spawned = net.minecraft.entity.EntityList.createEntityByName(entityId, world);
             if (spawned == null) continue;
             spawned.setPosition(tile.xCoord + 0.5D, tile.yCoord + 1.0D, tile.zCoord + 0.5D);

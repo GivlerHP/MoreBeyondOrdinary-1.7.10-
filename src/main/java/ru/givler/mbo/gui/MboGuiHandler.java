@@ -43,7 +43,7 @@ public class MboGuiHandler implements IGuiHandler {
             case BARREL:
                 return tile instanceof TileEntityBarrel ? new ContainerChest(player.inventory, (TileEntityBarrel) tile) : null;
             case LOCKPICKING:
-                return tile instanceof ILockableTile ? new ContainerLockpicking(player.inventory) : null;
+                return tile instanceof ILockableTile ? new ContainerLockpicking(player.inventory, (ILockableTile) tile) : null;
             case LOCKABLE_CHEST:
                 return tile instanceof TileEntityLockableChest ? new ContainerChest(player.inventory, (TileEntityLockableChest) tile) : null;
             case LOCK_CONFIG:

@@ -134,7 +134,6 @@ public class GuiLockpicking extends GuiScreen {
       }
     } else if (key == Keyboard.KEY_RETURN && allMoved()) {
       PacketManager.INSTANCE.sendToServer(new PacketLockpickSuccess(x, y, z));
-      mc.displayGuiScreen(null);
     } else super.keyTyped(ch, key);
   }
 

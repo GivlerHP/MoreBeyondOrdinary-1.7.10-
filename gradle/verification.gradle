@@ -367,6 +367,10 @@ task verifySecurityRegressions(type: JavaExec, dependsOn: testClasses) {
             classpath = sourceSets.test.runtimeClasspath
             main = 'ru.givler.mbo.security.ActionValidationTest'
         }
+        javaexec {
+            classpath = sourceSets.test.runtimeClasspath
+            main = 'ru.givler.mbo.lootcontainer.action.SpawnBudgetTest'
+        }
     }
 }
 check.dependsOn verifySecurityRegressions
