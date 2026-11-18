@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.regex.Matcher;
+import minefantasy.mf2.api.armour.CustomArmourEntry;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
@@ -45,6 +47,7 @@ public final class MineFantasyTooltips {
 
     private static int equipmentKind(ItemStack stack) {
         if (stack == null || stack.getItem() == null) return 0;
+        if (stack.getItem() instanceof ItemArmor && CustomArmourEntry.getEntry(stack) != null) return 2;
         for (Class<?> type = stack.getItem().getClass(); type != null; type = type.getSuperclass()) {
             String name = type.getName();
             if (name.equals("minefantasy.mf2.api.armour.ItemArmourMFBase")
@@ -92,10 +95,6 @@ public final class MineFantasyTooltips {
             int block = matches(plain, labels.core) ? 1
                     : labels.magic.matches(plain) ? 3 : matches(plain, labels.resistances) ? 2 : 0;
             String prefix = "";
-            if (block == 3 && previousBlock == 2) {
-                lines.add(i, "<mbo:end>");
-                i++;
-            }
             if (block != previousBlock) {
                 if (previousBlock != 0) prefix = "<mbo:end>";
                 if (block != 0) {

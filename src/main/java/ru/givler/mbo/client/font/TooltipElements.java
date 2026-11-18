@@ -2,6 +2,9 @@ package ru.givler.mbo.client.font;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
@@ -33,6 +36,12 @@ public final class TooltipElements {
         addStatRail("scroll", 6, 12);
         addStatRail("spellscroll", 6, 12);
         addStatRail("enchants", 6, 12);
+        addStatRail("viscapacity", 6, 12);
+        addStatRail("viscost", 6, 12);
+        addStatRail("wandfocus", 6, 12);
+        addThaumcraftIcon("viscapacity", "wand_rod_greatwood.png");
+        addThaumcraftIcon("viscost", "focus.png");
+        addThaumcraftIcon("wandfocus", "focus.png");
         ELEMENTS.put("fireguard", new Element("fireguard", 13, 13, false, 13, -1, -1));
         ELEMENTS.put("weapon", new Element("swordstat", 13, 76, false, 13, -1, -1));
         ELEMENTS.put("armour", new Element("passiveatribute", 12, 12, false, 12, -1, -1));
@@ -71,6 +80,11 @@ public final class TooltipElements {
 
     private TooltipElements() {}
 
+    private static void addThaumcraftIcon(String name, String texture) {
+        ELEMENTS.put(name, new Element(name, 13, 13, false, 13, -1, -1,
+                new ResourceLocation("thaumcraft", "textures/items/" + texture)));
+    }
+
     private static void add(String name, int width, int height) {
         ELEMENTS.put(name, new Element(name, width, height, false, height, -1, -1));
     }
@@ -89,6 +103,13 @@ public final class TooltipElements {
         int end = text.indexOf('>', offset + PREFIX.length());
         if (end < 0) return null;
         String name = text.substring(offset + PREFIX.length(), end);
+        if (name.startsWith("focusicon:")) {
+            String sprite = name.substring("focusicon:".length());
+            if (!sprite.matches("[a-zA-Z0-9_./:-]+")) return null;
+            Element icon = new Element("focusicon:" + sprite, 13, 10, false, 10, -1, -1,
+                    TextureMap.locationItemsTexture);
+            return new Token(end + 1, icon, 16, -1, false);
+        }
         if (name.startsWith("color:") && name.substring(6).matches("[0-9a-fA-F]{6}")) {
             return new Token(end + 1, null, 0, -2, false, Integer.parseInt(name.substring(6), 16));
         }
@@ -99,6 +120,17 @@ public final class TooltipElements {
             Element item = new Element("itemtex", 12, 12, false, 12, -1, -1,
                     new ResourceLocation(parts[1], "textures/items/" + parts[2] + ".png"));
             return new Token(end + 1, item, 16, -1, false);
+        }
+        if (name.startsWith("aspect:")) {
+            String[] parts = name.split(":", 4);
+            if (parts.length < 3 || !parts[1].matches("[a-z0-9_.-]+")
+                    || !parts[2].matches("textures/[a-zA-Z0-9_./-]+\\.png")
+                    || parts[2].contains("..")
+                    || (parts.length == 4 && !parts[3].matches("[0-9a-fA-F]{6}"))) return null;
+            Element aspect = new Element("aspect", 8, 8, false, 8, -1, -1,
+                    new ResourceLocation(parts[1], parts[2]));
+            int tint = parts.length == 4 ? Integer.parseInt(parts[3], 16) : 0xffffff;
+            return new Token(end + 1, aspect, 10, -1, false, tint);
         }
         if (name.startsWith("ingot:") || name.startsWith("timber:")) {
             int separator = name.indexOf(':');
@@ -157,7 +189,13 @@ public final class TooltipElements {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glColor4f(((token.tint >> 16) & 255) / 255F,
                 ((token.tint >> 8) & 255) / 255F, (token.tint & 255) / 255F, 1F);
-        if (!e.block) {
+        if (e.name.startsWith("focusicon:")) {
+            ITextureObject texture = Minecraft.getMinecraft().getTextureManager().getTexture(e.texture);
+            if (texture instanceof TextureMap) {
+                IIcon icon = ((TextureMap) texture).getAtlasSprite(e.name.substring("focusicon:".length()));
+                quad(x + 2, y - 1, 10, 10, icon.getMinU(), icon.getMinV(), icon.getMaxU(), icon.getMaxV());
+            }
+        } else if (!e.block) {
             quad(x + (e.name.startsWith("element_") ? 2 : 0), y, e.name.equals("swordstat") ? 10 : e.width,
                     e.name.equals("swordstat") ? 10 : e.iconHeight, 0, 0, 1, e.iconHeight / (float) e.height);
         } else {

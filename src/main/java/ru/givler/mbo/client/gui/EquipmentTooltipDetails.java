@@ -18,8 +18,10 @@ public final class EquipmentTooltipDetails {
 
     public static void decorate(ItemStack stack, List<String> rows, boolean icons) {
         if (stack == null || rows.size() < 1) return;
-        boolean supported = MineFantasyTooltips.isEquipment(stack);
-        if (icons && supported) moveEnchantments(stack, rows);
+        if (icons) {
+            if (!MineFantasyTooltips.isEquipment(stack)) decorateAttackDamage(rows);
+            moveEnchantments(stack, rows);
+        }
         if (!stack.isItemDamaged()) return;
         int max = stack.getMaxDamage();
         int remaining = max - stack.getItem().getDisplayDamage(stack);
@@ -35,7 +37,7 @@ public final class EquipmentTooltipDetails {
             }
         }
         String line = EnumChatFormatting.GRAY + label + ": " + values;
-        if (!icons || !supported) { rows.add(line); return; }
+        if (!icons) { rows.add(line); return; }
         int anchor = rows.size();
         for (int i = 1; i < rows.size(); i++) {
             String row = rows.get(i);
@@ -50,6 +52,18 @@ public final class EquipmentTooltipDetails {
         section.add("<mbo:end><mbo:durability>" + line);
         section.add("<mbo:end>");
         rows.addAll(anchor, section);
+    }
+
+    private static void decorateAttackDamage(List<String> rows) {
+        String attribute = StatCollector.translateToLocal("attribute.name.generic.attackDamage");
+        for (int i = 1; i < rows.size(); i++) {
+            String row = rows.get(i);
+            if (row.contains("<mbo:")) continue;
+            String text = plain(row);
+            if (text.endsWith(" " + attribute) && (text.startsWith("+") || text.startsWith("-"))) {
+                rows.set(i, "<mbo:end><mbo:weapon>" + row);
+            }
+        }
     }
 
     private static void moveEnchantments(ItemStack stack, List<String> rows) {

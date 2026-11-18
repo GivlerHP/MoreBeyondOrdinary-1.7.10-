@@ -25,6 +25,9 @@ public class TooltipEvents {
         ru.givler.mbo.client.gui.EquipmentTooltipDetails.decorate(event.itemStack, event.toolTip,
                 TooltipFrameConfig.mf2EquipmentIcons && Minecraft.getMinecraft().fontRenderer instanceof ModernFontRenderer);
         if (Minecraft.getMinecraft().fontRenderer instanceof ModernFontRenderer) {
+            if (cpw.mods.fml.common.Loader.isModLoaded("Thaumcraft")) {
+                ru.givler.mbo.integration.thaumcraft.client.ThaumcraftTooltips.decorate(event.itemStack, event.toolTip);
+            }
             ru.givler.mbo.client.gui.ItemDescriptionTooltips.decorate(event.itemStack, event.toolTip,
                     Minecraft.getMinecraft().fontRenderer);
         } else {

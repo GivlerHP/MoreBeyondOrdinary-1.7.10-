@@ -17,13 +17,6 @@ final class MineFantasyMaterials {
         CustomMaterial haft = CustomMaterial.getMaterialFor(stack, "haft_wood");
         decorateMaterial(lines, primary, false);
         decorateMaterial(lines, haft, true);
-        for (int i = 2; i < lines.size(); i++) {
-            String previous = lines.get(i - 1);
-            if (lines.get(i).contains("<mbo:weight>") && (previous.contains("<mbo:ingot:")
-                    || previous.contains("<mbo:itemtex:") || previous.contains("<mbo:timber:"))) {
-                lines.add(i++, "");
-            }
-        }
     }
 
     private static void decorateMaterial(List<String> lines, CustomMaterial material, boolean haft) {

@@ -96,7 +96,7 @@ public class TMFocusUpgrades {
 
         tripleEye = new FocusUpgradeType(
                 ThaumcraftConfig.TRIPLE_EYE_UPGRADE_ID,
-                new ResourceLocation("mbo", "textures/foci/IconTripleEye.png"),
+                new ResourceLocation("thaumcraft", "textures/foci/seeker.png"),
                 "focus.upgrade.tripleeye.name",
                 "focus.upgrade.tripleeye.text",
                 new AspectList().add(Aspect.DARKNESS, 2).add(Aspect.SENSES, 3).add(Aspect.AURA, 2)

@@ -1888,3 +1888,9 @@ enchantment.mbo.attackSlowness=Sluggish Strikes
 enchantment.mbo.shortReach=Short Reach
 potion.attack_slowness=Sluggishness
 potion.short_reach=Short Reach
+focus.upgrade.tripleeye.name=Triple Eye
+focus.upgrade.tripleeye.text=Hits up to three targets at once.
+focus.upgrade.corrosive_darklight.name=Corrosive Lightning
+focus.upgrade.corrosive_darklight.text=Applies a random harmful effect on hit.
+
+tooltip.mbo.thaumcraft.details=for details

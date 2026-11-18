@@ -2178,3 +2178,9 @@ enchantment.mbo.attackSlowness=Неповоротливость
 enchantment.mbo.shortReach=Короткий выпад
 potion.attack_slowness=Неповоротливость
 potion.short_reach=Короткий выпад
+focus.upgrade.tripleeye.name=Тройной взгляд
+focus.upgrade.tripleeye.text=Поражает до трёх целей за один раз.
+focus.upgrade.corrosive_darklight.name=Разъедающая молния
+focus.upgrade.corrosive_darklight.text=Накладывает случайный негативный эффект при попадании.
+
+tooltip.mbo.thaumcraft.details=для подробностей

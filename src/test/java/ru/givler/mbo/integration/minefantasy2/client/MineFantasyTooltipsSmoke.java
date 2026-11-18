@@ -138,7 +138,8 @@ public final class MineFantasyTooltipsSmoke {
         MineFantasyTooltips.decorate(stack, lines);
         check(lines.get(2).startsWith("<mbo:statline><mbo:armour>"), "Existing armour heading was not decorated");
         check(lines.get(find(lines, "<mbo:magicguard>")).contains("<mbo:statline>"), "Magic resistance needs its own icon");
-        check(lines.get(find(lines, "<mbo:magicguard>") - 1).equals("<mbo:end>"), "Missing resistance spacing");
+        check(lines.get(find(lines, "<mbo:magicguard>") - 1).contains("<mbo:fireguard>"),
+                "Fire and magic resistance must occupy consecutive rows");
         check(lines.get(6).contains("<mbo:fireguard>"), "Fire resistance needs the potion icon");
         TooltipElements.expandBlocks(lines);
         sameContent(before, lines);

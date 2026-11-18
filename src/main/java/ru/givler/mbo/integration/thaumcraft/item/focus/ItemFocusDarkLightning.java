@@ -1,12 +1,12 @@
 package ru.givler.mbo.integration.thaumcraft.item.focus;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -34,6 +34,7 @@ public class ItemFocusDarkLightning extends ItemFocusPartyBasic {
 
     private static final float BASE_DAMAGE = 5.0F;
     private static final double RANGE = GazeEffectHandler.DEFAULT_RANGE;
+    private static final double TARGET_CONE_COS = Math.cos(Math.toRadians(25.0D));
     private static final int STRIKE_INTERVAL_TICKS = 10;
 
     private static final AspectList COST = new AspectList().add(Aspect.ENTROPY, 25);
@@ -66,13 +67,24 @@ public class ItemFocusDarkLightning extends ItemFocusPartyBasic {
         return isUpgradedWith(stack, TMFocusUpgrades.tripleEye) ? 3 : 1;
     }
 
+    @Override
+    public short[] getAppliedUpgrades(ItemStack stack) {
+        short[] upgrades = super.getAppliedUpgrades(stack);
+        // Older configs used the Triple Eye ID for the rank-three Corrosive upgrade too.
+        if (TMFocusUpgrades.tripleEye != null && TMFocusUpgrades.corrosive_darklight != null
+                && upgrades[2] == TMFocusUpgrades.tripleEye.id) {
+            upgrades[2] = TMFocusUpgrades.corrosive_darklight.id;
+        }
+        return upgrades;
+    }
+
     private boolean canApplyDebuff (final ItemStack stack) {
-        return isUpgradedWith(stack, TMFocusUpgrades.corrosive);
+        return isUpgradedWith(stack, TMFocusUpgrades.corrosive_darklight);
     }
 
     @Override
     public AspectList getVisCost (final ItemStack stack) {
-        final boolean corrosive = isUpgradedWith(stack, TMFocusUpgrades.corrosive);
+        final boolean corrosive = canApplyDebuff(stack);
         final boolean triple = isUpgradedWith(stack, TMFocusUpgrades.tripleEye);
 
         if (corrosive && triple) {
@@ -136,60 +148,68 @@ public class ItemFocusDarkLightning extends ItemFocusPartyBasic {
         final ItemWandCasting wand = (ItemWandCasting) stack.getItem();
         final ItemStack focusItem = wand.getFocusItem(stack);
 
-        if (count % STRIKE_INTERVAL_TICKS != 0) {
-            return;
-        }
-
-        if (!wand.consumeAllVis(stack, player, getVisCost(focusItem), true, false)) {
-            player.stopUsingItem();
+        if (focusItem == null || count % STRIKE_INTERVAL_TICKS != 0) {
             return;
         }
 
         final boolean applyDebuff = canApplyDebuff(focusItem);
         final int maxTargets = getMaxTargets(focusItem);
+        final boolean trace = Boolean.TRUE.equals(Launch.blackboard.get("fml.deobfuscatedEnvironment"));
 
-        final List<EntityLivingBase> targets = findValidTargets(playerMP, RANGE, maxTargets);
+        final List<EntityLivingBase> targets = findValidTargets(playerMP, RANGE);
+        if (trace) {
+            org.apache.logging.log4j.LogManager.getLogger("MBO").info(
+                    "[Triple Eye] upgrades={}, limit={}, eligible={}",
+                    java.util.Arrays.toString(getAppliedUpgrades(focusItem)), maxTargets, targets.size());
+        }
         if (targets.isEmpty()) {
+            return;
+        }
+        if (!wand.consumeAllVis(stack, player, getVisCost(focusItem), true, false)) {
+            player.stopUsingItem();
             return;
         }
 
         final float damage = BASE_DAMAGE + wand.getFocusPotency(stack);
+        int hits = 0;
         for (final EntityLivingBase target : targets) {
-            final boolean hitLanded = GazeEffectHandler.dealDamage(playerMP, target, damage);
-            if (hitLanded && applyDebuff) {
+            float before = trace ? target.getHealth() : 0F;
+            boolean landed = GazeEffectHandler.dealDamage(playerMP, target, damage, true);
+            if (trace) {
+                org.apache.logging.log4j.LogManager.getLogger("MBO").info(
+                        "[Triple Eye] target={} type={} accepted={} health={}->{}",
+                        target.getEntityId(), target.getClass().getSimpleName(), landed, before, target.getHealth());
+            }
+            if (!landed) continue;
+            if (applyDebuff) {
                 GazeEffectHandler.applyDebuffEffect(target, player.worldObj.rand);
             }
+            if (++hits == maxTargets) break;
         }
 
-        player.worldObj.playSoundAtEntity(player, "thaumcraft:brain", 0.4F,
-                0.8F + player.worldObj.rand.nextFloat() * 0.2F);
+        if (hits > 0) {
+            player.worldObj.playSoundAtEntity(player, "thaumcraft:brain", 0.4F,
+                    0.8F + player.worldObj.rand.nextFloat() * 0.2F);
+        }
     }
 
     @SuppressWarnings ("unchecked")
-    private List<EntityLivingBase> findValidTargets (final EntityPlayerMP player, final double range, final int maxTargets) {
+    private List<EntityLivingBase> findValidTargets (final EntityPlayerMP player, final double range) {
         final AxisAlignedBB box = player.boundingBox.expand(range, range, range);
-        final List<Entity> candidates = player.worldObj.getEntitiesWithinAABB(Entity.class, box);
+        final List<EntityLivingBase> candidates = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, box);
+        final Vec3 look = player.getLookVec().normalize();
 
         final List<EntityLivingBase> valid = new ArrayList<EntityLivingBase>();
-        for (final Entity candidate : candidates) {
-            if (GazeEffectHandler.isValidTargetIgnoringLookCone(player, candidate, range)) {
-                valid.add((EntityLivingBase) candidate);
+        for (final EntityLivingBase candidate : candidates) {
+            if (angleCos(player, look, candidate) >= TARGET_CONE_COS
+                    && GazeEffectHandler.isValidTargetIgnoringLookCone(player, candidate, range)) {
+                valid.add(candidate);
             }
         }
 
-        if (valid.size() > 1) {
-            final Vec3 look = player.getLookVec().normalize();
-            Collections.sort(valid, new Comparator<EntityLivingBase>() {
-                @Override
-                public int compare (final EntityLivingBase a, final EntityLivingBase b) {
-                    return Double.compare(angleCos(player, look, b), angleCos(player, look, a));
-                }
-            });
-        }
+        valid.sort(Comparator.<EntityLivingBase>comparingDouble(target -> angleCos(player, look, target))
+                .reversed().thenComparingDouble(player::getDistanceSqToEntity));
 
-        if (valid.size() > maxTargets) {
-            return valid.subList(0, maxTargets);
-        }
         return valid;
     }
 

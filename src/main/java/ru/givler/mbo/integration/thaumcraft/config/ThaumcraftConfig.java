@@ -54,8 +54,13 @@ public final class ThaumcraftConfig {
         TRIPLE_EYE_UPGRADE_ID = config.getInt("TRIPLE_EYE_UPGRADE_ID", "wands_and_foci", TRIPLE_EYE_UPGRADE_ID,
                 FocusUpgradeType.types.length + 1, Short.MAX_VALUE, "The ID for the Triple Eye (Dark Lightning) focus upgrade.");
 
-        CORROSIVEDARKLIGHT_UPGRADE_ID = config.getInt("CORROSIVEDARKLIGHT_UPGRADE_ID", "wands_and_foci", TRIPLE_EYE_UPGRADE_ID,
-                FocusUpgradeType.types.length + 1, Short.MAX_VALUE, "The ID for the Triple Eye (Dark Lightning) focus upgrade.");
+        CORROSIVEDARKLIGHT_UPGRADE_ID = config.getInt("CORROSIVEDARKLIGHT_UPGRADE_ID", "wands_and_foci", CORROSIVEDARKLIGHT_UPGRADE_ID,
+                FocusUpgradeType.types.length + 1, Short.MAX_VALUE, "The ID for the Corrosive Dark Lightning focus upgrade.");
+        if (CORROSIVEDARKLIGHT_UPGRADE_ID == TRIPLE_EYE_UPGRADE_ID) {
+            CORROSIVEDARKLIGHT_UPGRADE_ID = TRIPLE_EYE_UPGRADE_ID == 61 ? 60 : 61;
+            config.get("wands_and_foci", "CORROSIVEDARKLIGHT_UPGRADE_ID", CORROSIVEDARKLIGHT_UPGRADE_ID)
+                    .set(CORROSIVEDARKLIGHT_UPGRADE_ID);
+        }
 
         config.save();
     }

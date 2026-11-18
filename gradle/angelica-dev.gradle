@@ -5,6 +5,7 @@ ext.angelicaDevEnabled = !project.hasProperty('withoutAngelica')
 def oldChickenJars = ['CodeChickenCore-1.7.10-1.0.7.48-universal.jar',
         'CodeChickenLib-1.7.10-1.1.3.141-universal.jar',
         'NotEnoughItems-1.7.10-1.0.5.120-universal.jar']
+def supersededThaumcraftJars = ['Thaumcraft-4-Ariamis-4.2.4.0-deobf.jar', 'Thaumic-Dyes-deobf.jar', 'Thaumic-Dyes-1.4-deobf.jar']
 configurations { angelicaDevTools }
 
 dependencies {
@@ -19,7 +20,7 @@ dependencies {
     }
 }
 
-def angelicaDevInputs = fileTree('libs') { include '*.jar'; exclude oldChickenJars } +
+def angelicaDevInputs = fileTree('libs') { include '*.jar'; exclude(oldChickenJars + supersededThaumcraftJars) } +
         files('.angelica-dev/libs/AAunimixins-all-1.7.10-0.3.1.jar')
 task compileAngelicaDevTools(type: JavaCompile) {
     source = files('devtools/RemapDevJars.java')
@@ -67,6 +68,8 @@ afterEvaluate {
             jvmArgs '-XX:NativeMemoryTracking=summary'
         }
         doFirst {
+            // A running dev client may still have the replaced JARs open on Windows.
+            classpath = classpath.filter { !supersededThaumcraftJars.contains(it.name) }
             // ForgeGradle runs from the main jar, which build/reobf can replace mid-game.
             def launchRoot = file("build/dev-client-runtime/${java.util.UUID.randomUUID()}")
             def mainOutputs = sourceSets.main.output.files.collect { it.canonicalFile }.toSet()
