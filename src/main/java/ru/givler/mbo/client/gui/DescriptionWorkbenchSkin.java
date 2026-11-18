@@ -16,6 +16,12 @@ public final class DescriptionWorkbenchSkin {
     public static void inventory(int x, int y) { part(x,y,162,76,0,160,162,76); }
     public static void swatch(int x, int y, int index) { part(x,y,8,10,index*8,120,8,10); }
     public static void tab(int x,int y,boolean selected) { nine(x,y,28,22,144,0,28,22,3); }
+    public static void scrollTrack(int x, int y, int height) {
+        part(x, y, 14, height, 242, 0, 14, 112);
+    }
+    public static void scrollThumb(int x, int y, boolean dragging) {
+        part(x, y, 12, 15, dragging ? 230 : 218, 0, 12, 15);
+    }
     /** Fixed-size corners; edges and centre repeat native pixels, with partial final tiles. */
     private static void nine(int x, int y, int w, int h, int u, int v, int sw, int sh, int border) {
         int[] xs={x,x+border,x+w-border,x+w}, ys={y,y+border,y+h-border,y+h};

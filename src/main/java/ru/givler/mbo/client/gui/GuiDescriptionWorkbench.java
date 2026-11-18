@@ -204,7 +204,7 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         }
     }
     @Override protected void mouseClickMove(int x, int y, int button, long elapsed) {
-        if (tab == Tab.SKINS && button == 0 && weaponAccess() && skins.dragScrollbar(y)) return;
+        if (tab == Tab.SKINS && button == 0 && weaponAccess() && skins.drag(x, y)) return;
         if (button == 0 && dragLine >= 0) {
             GuiTextField field = fields.get(dragLine);
             int clampedX = Math.max(guiLeft + 16, Math.min(guiLeft + editorWidth, x));
@@ -213,7 +213,7 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         } else super.mouseClickMove(x, y, button, elapsed);
     }
     @Override protected void mouseMovedOrUp(int x, int y, int button) {
-        if (button == 0) skins.releaseScrollbar();
+        if (button == 0) skins.releaseDrag();
         if (button == 0) dragLine = -1;
         super.mouseMovedOrUp(x, y, button);
     }
@@ -251,6 +251,7 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
             previewScroll = Math.max(0, previewScroll - Integer.signum(wheel) * 20);
     }
     @Override public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        ru.givler.mbo.client.render.weaponskin.WeaponSkinCapture.INSTANCE.beforeScreen(this);
         super.drawScreen(mouseX, mouseY, partialTicks);
         if (tab != Tab.SKINS || !weaponAccess()) return;
         String name = skins.hoveredName(mouseX, mouseY);
@@ -315,5 +316,9 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         hex.drawTextBox();
         drawPreview();
     }
-    @Override public void onGuiClosed() { super.onGuiClosed(); Keyboard.enableRepeatEvents(false); }
+    @Override public void onGuiClosed() {
+        skins.close(this);
+        super.onGuiClosed();
+        Keyboard.enableRepeatEvents(false);
+    }
 }

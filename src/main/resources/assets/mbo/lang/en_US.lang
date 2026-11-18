@@ -1895,7 +1895,11 @@ focus.upgrade.corrosive_darklight.text=Applies a random harmful effect on hit.
 
 tooltip.mbo.thaumcraft.details=for details
 
-mbo.weapon_skin.mace_test=Test Mace
+mbo.weapon_skin.mace_base=Base Mace
+mbo.weapon_skin.hammer_base=Base Hammer
+mbo.weapon_skin.hammer=Warhammer
+mbo.weapon_skin.dragonslayer=Dragonslayer
+mbo.weapon_skin.axe_base=Base Axe
 mbo.weapon_skin.catalog=Skin catalog
 mbo.weapon_skin.insert=Insert a weapon in the slot.
 mbo.weapon_skin.incompatible=This skin does not fit the weapon.
@@ -1905,3 +1909,6 @@ mbo.weapon_skin.view.0=First person
 mbo.weapon_skin.view.1=Third person
 mbo.weapon_skin.view.2=Inventory
 mbo.weapon_skin.view.3=On the ground
+mbo.weapon_skin.capture=Check in hand
+mbo.weapon_skin.capturing=Capturing…
+mbo.weapon_skin.capture_failed=Could not capture the frame.

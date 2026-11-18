@@ -10,7 +10,8 @@ public final class WeaponSkinData {
     private WeaponSkinData() {}
 
     public static String id(ItemStack stack) {
-        return stack != null && stack.hasTagCompound() ? stack.getTagCompound().getString(KEY) : "";
+        return stack != null && stack.hasTagCompound()
+                ? WeaponSkinRegistry.canonicalId(stack.getTagCompound().getString(KEY)) : "";
     }
 
     public static WeaponSkinDefinition resolve(ItemStack stack) {

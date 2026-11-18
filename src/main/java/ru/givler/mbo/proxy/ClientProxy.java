@@ -684,5 +684,6 @@ public class ClientProxy extends CommonProxy {
     ru.givler.mbo.client.render.light.PortableLights.register();
     ModernFontSupport.install();
     ru.givler.mbo.client.render.weaponskin.WeaponSkinRenderer.register();
+    ru.givler.mbo.client.render.weaponskin.WeaponSkinCapture.INSTANCE.register();
   }
 }

@@ -1,8 +1,11 @@
 package ru.givler.mbo.client.gui;
 
-import java.nio.IntBuffer;
 import java.util.List;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.util.ResourceLocation;
+import ru.givler.mbo.client.render.weaponskin.WeaponSkinCapture;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -10,8 +13,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.IItemRenderer.ItemRenderType;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.client.render.weaponskin.WeaponSkinRenderer;
 import ru.givler.mbo.item.skin.WeaponSkinData;
@@ -23,14 +24,17 @@ import ru.givler.mbo.registry.WeaponSkinRegistry;
 final class WeaponSkinTab {
     private static final int CELL = 23, GRID_TOP = 51, ROWS = 4;
     private final List<WeaponSkinDefinition> catalog = WeaponSkinRegistry.ALL;
-    private final IntBuffer viewport = BufferUtils.createIntBuffer(16);
-    private final IntBuffer clip = BufferUtils.createIntBuffer(16);
     private FontRenderer font;
     private ItemStack item, previewStack;
     private EntityOtherPlayerMP mannequin;
-    private GuiButton apply, remove;
+    private GuiButton apply, remove, capture;
+    private DynamicTexture snapshot;
+    private ResourceLocation snapshotLocation;
+    private boolean waitingForCapture, captureFailed, hasSnapshot;
     private int left, top, previewX, width, columns, selected, scroll;
-    private boolean draggingScrollbar;
+    private boolean draggingScrollbar, rotatingPreview;
+    private int lastDragX, lastDragY;
+    private float previewYaw = 25F, previewPitch = -8F;
 
     void init(FontRenderer font, int left, int top, int previewX, int width) {
         this.font = font;
@@ -39,7 +43,8 @@ final class WeaponSkinTab {
         this.previewX = previewX;
         this.width = width;
         int listWidth = previewX - 24;
-        columns = Math.max(1, (listWidth - 12) / CELL);
+        capture = new GuiButton(5, left + previewX + 7, top + 174, paneWidth(), 20, "");
+        columns = Math.max(1, (listWidth - 21) / CELL);
         scroll = Math.min(scroll, maxScroll());
         apply = new GuiButton(3, left + 12, top + 174, (listWidth - 4) / 2, 20, I18n.format("mbo.weapon_skin.apply"));
         remove = new GuiButton(4, left + 16 + (listWidth - 4) / 2, top + 174,
@@ -63,6 +68,8 @@ final class WeaponSkinTab {
 
     private void refreshPreview() {
         previewStack = null;
+        hasSnapshot = false;
+        captureFailed = false;
         if (catalog.isEmpty()) return;
         WeaponSkinDefinition skin = catalog.get(selected);
         if (compatible()) {
@@ -86,6 +93,8 @@ final class WeaponSkinTab {
     private void updateButtons() {
         apply.enabled = compatible() && !catalog.get(selected).id.equals(WeaponSkinData.id(item));
         remove.enabled = !WeaponSkinData.id(item).isEmpty();
+        capture.enabled = previewStack != null && !waitingForCapture;
+        capture.displayString = font.trimStringToWidth(I18n.format("mbo.weapon_skin.capture"), paneWidth() - 6);
     }
 
     private void drawCatalog(int mouseX, int mouseY) {
@@ -106,13 +115,10 @@ final class WeaponSkinTab {
             WeaponSkinDefinition skin = catalog.get(index);
             WeaponSkinRenderer.INSTANCE.preview(skin, skin.inventory, cellX + 11, cellY + 16, 9);
         }
-        if (maxScroll() > 0) {
-            int height = CELL * ROWS;
-            int thumb = thumbHeight();
-            int offset = scroll * (height - thumb) / maxScroll();
-            Gui.drawRect(right - 8, y, right - 3, y + height, 0xff221913);
-            Gui.drawRect(right - 8, y + offset, right - 3, y + offset + thumb, 0xff927b59);
-        }
+        int trackX = right - 16;
+        DescriptionWorkbenchSkin.scrollTrack(trackX, y, CELL * ROWS);
+        int offset = maxScroll() == 0 ? 0 : scroll * (CELL * ROWS - 15) / maxScroll();
+        DescriptionWorkbenchSkin.scrollThumb(trackX + 1, y + offset, draggingScrollbar);
     }
 
     private int cellAt(int x, int y) {
@@ -132,10 +138,6 @@ final class WeaponSkinTab {
         return Math.max(0, (catalog.size() + columns - 1) / columns - ROWS);
     }
 
-    private int thumbHeight() {
-        return Math.max(10, CELL * ROWS * ROWS / (maxScroll() + ROWS));
-    }
-
     boolean scroll(int x, int y, int wheel) {
         if (wheel == 0 || x < left + 12 || x >= left + previewX - 12
                 || y < top + GRID_TOP - 2 || y >= top + GRID_TOP + CELL * ROWS + 2) return false;
@@ -143,16 +145,32 @@ final class WeaponSkinTab {
         return true;
     }
 
-    boolean dragScrollbar(int y) {
+    boolean drag(int x, int y) {
+        if (rotatingPreview) {
+            previewYaw = (previewYaw + (x - lastDragX) * 2.5F) % 360F;
+            previewPitch = (previewPitch + (y - lastDragY) * 2.5F) % 360F;
+            lastDragX = x;
+            lastDragY = y;
+            return true;
+        }
         if (!draggingScrollbar) return false;
-        int track = CELL * ROWS - thumbHeight();
-        int position = Math.max(0, Math.min(track, y - top - GRID_TOP - thumbHeight() / 2));
-        scroll = track == 0 ? 0 : Math.round(position * maxScroll() / (float) track);
+        int track = CELL * ROWS - 15;
+        int position = Math.max(0, Math.min(track, y - top - GRID_TOP - 7));
+        scroll = Math.round(position * maxScroll() / (float) track);
         return true;
     }
 
-    void releaseScrollbar() {
+    void releaseDrag() {
         draggingScrollbar = false;
+        rotatingPreview = false;
+    }
+
+    private int paneWidth() {
+        return (width - previewX - 26) / 2;
+    }
+
+    private int thirdPaneX() {
+        return left + previewX + 11 + paneWidth();
     }
 
     void draw(int mouseX, int mouseY, int screenWidth, int screenHeight) {
@@ -170,25 +188,51 @@ final class WeaponSkinTab {
         }
         apply.drawButton(mc, mouseX, mouseY);
         remove.drawButton(mc, mouseX, mouseY);
+        capture.drawButton(mc, mouseX, mouseY);
     }
 
     private void drawPreviews(Minecraft mc, int screenWidth, int screenHeight) {
         int x = left + previewX + 7, y = top + 66;
-        int pane = (width - previewX - 26) / 2;
+        int pane = paneWidth();
         int height = 104;
-        int thirdX = x + pane + 4;
+        int thirdX = thirdPaneX();
         DescriptionWorkbenchSkin.panel(x, y, pane, height);
         DescriptionWorkbenchSkin.panel(thirdX, y, pane, height);
-        drawFirstPerson(mc, x + 3, y + 3, pane - 6, height - 6, screenWidth, screenHeight);
+        drawSnapshot(mc, x, y, pane, height);
         if (mannequin == null || mannequin.worldObj != mc.theWorld) {
             mannequin = new EntityOtherPlayerMP(mc.theWorld, mc.thePlayer.getGameProfile());
         }
         // Preview inventory belongs to the mannequin, not the active player.
         mannequin.setCurrentItemOrArmor(0, previewStack);
         int view = Math.max(12, Math.min(38, (pane - 10) * 2 / 3));
-        GuiInventory.func_147046_a(thirdX + pane / 2 + 5, y + height - 10, view, -24, -6, mannequin);
-        drawCaption("mbo.weapon_skin.view.0", x, y + height + 9, pane);
-        drawCaption("mbo.weapon_skin.view.1", thirdX, y + height + 9, pane);
+        drawThirdPerson(mc, thirdX, y, pane, height, view, screenWidth, screenHeight);
+        drawCaption("mbo.weapon_skin.view.0", x, y - 12, pane);
+        drawCaption("mbo.weapon_skin.view.1", thirdX, y - 12, pane);
+    }
+
+    private void drawThirdPerson(Minecraft mc, int x, int y, int w, int h, int scale,
+                                 int screenWidth, int screenHeight) {
+        GL11.glPushAttrib(GL11.GL_SCISSOR_BIT | GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        GL11.glPushMatrix();
+        try {
+            GL11.glEnable(GL11.GL_SCISSOR_TEST);
+            int leftPixel = (x + 2) * mc.displayWidth / screenWidth;
+            int bottomPixel = mc.displayHeight - (y + h - 2) * mc.displayHeight / screenHeight;
+            GL11.glScissor(leftPixel, bottomPixel, (w - 4) * mc.displayWidth / screenWidth,
+                    (h - 4) * mc.displayHeight / screenHeight);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            GL11.glDepthMask(true);
+            int centerX = x + w / 2;
+            int centerY = y + h / 2;
+            GL11.glTranslatef(centerX, centerY, 50);
+            GL11.glRotatef(previewPitch, 1, 0, 0);
+            GL11.glRotatef(previewYaw, 0, 1, 0);
+            GL11.glTranslatef(-centerX, -centerY, -50);
+            GuiInventory.func_147046_a(centerX, centerY + scale, scale, 0, 0, mannequin);
+        } finally {
+            GL11.glPopMatrix();
+            GL11.glPopAttrib();
+        }
     }
 
     private void drawCaption(String key, int x, int y, int width) {
@@ -196,63 +240,69 @@ final class WeaponSkinTab {
         font.drawString(text, x + (width - font.getStringWidth(text)) / 2, y, 0xdac99f);
     }
 
-    private void drawFirstPerson(Minecraft mc, int x, int y, int w, int h, int screenWidth, int screenHeight) {
-        int px = x * mc.displayWidth / screenWidth;
-        int py = mc.displayHeight - (y + h) * mc.displayHeight / screenHeight;
-        int pw = w * mc.displayWidth / screenWidth;
-        int ph = h * mc.displayHeight / screenHeight;
-        if (pw < 1 || ph < 1) return;
-        viewport.clear();
-        GL11.glGetInteger(GL11.GL_VIEWPORT, viewport);
-        clip.clear();
-        GL11.glGetInteger(GL11.GL_SCISSOR_BOX, clip);
-        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_CURRENT_BIT);
-        GL11.glViewport(px, py, pw, ph);
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor(px, py, pw, ph);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(true);
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
-        // Keep the horizontal field of view for a wide preview, including the right-hand offset.
-        double halfHeight = 0.075D;
-        double halfWidth = halfHeight * Math.max(1.35D, pw / (double) ph);
-        // Aim the preview camera toward the hand so the whole grip fits the pane.
-        double centerX = 0.027D, centerY = -0.017D;
-        GL11.glFrustum(centerX - halfWidth, centerX + halfWidth, centerY - halfHeight,
-                centerY + halfHeight, 0.05D, 16D);
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
-        try {
-            // Vanilla resting hand transform, followed by the actual equipped item render path.
-            GL11.glTranslatef(0.56F, -0.52F, -0.72F);
-            GL11.glRotatef(45, 0, 1, 0);
-            GL11.glScalef(0.4F, 0.4F, 0.4F);
-            GL11.glDisable(GL11.GL_LIGHTING);
-            mc.entityRenderer.itemRenderer.renderItem(mc.thePlayer, previewStack, 0, ItemRenderType.EQUIPPED_FIRST_PERSON);
-        } finally {
-            GL11.glPopMatrix();
-            GL11.glMatrixMode(GL11.GL_PROJECTION);
-            GL11.glPopMatrix();
-            GL11.glMatrixMode(GL11.GL_MODELVIEW);
-            GL11.glViewport(viewport.get(0), viewport.get(1), viewport.get(2), viewport.get(3));
-            GL11.glScissor(clip.get(0), clip.get(1), clip.get(2), clip.get(3));
-            GL11.glPopAttrib();
+    private void drawSnapshot(Minecraft mc, int x, int y, int w, int h) {
+        if (hasSnapshot) {
+            int side = Math.min(w, h) - 6;
+            mc.getTextureManager().bindTexture(snapshotLocation);
+            GL11.glColor4f(1, 1, 1, 1);
+            Gui.func_146110_a(x + (w - side) / 2, y + (h - side) / 2,
+                    0, 0, side, side, side, side);
+        } else if (waitingForCapture || captureFailed) {
+            font.drawSplitString(I18n.format(waitingForCapture ? "mbo.weapon_skin.capturing" : "mbo.weapon_skin.capture_failed"),
+                    x + 6, y + h / 2 - 9, w - 12, 0xdac99f);
         }
+    }
+
+    private void requestCapture(Minecraft mc) {
+        ItemStack expected = previewStack;
+        waitingForCapture = true;
+        captureFailed = false;
+        WeaponSkinCapture.INSTANCE.request(mc.currentScreen, expected, pixels -> {
+            waitingForCapture = false;
+            if (expected != previewStack) return;
+            if (pixels == null) {
+                captureFailed = true;
+                return;
+            }
+            if (snapshot == null) {
+                snapshot = new DynamicTexture(WeaponSkinCapture.SIZE, WeaponSkinCapture.SIZE);
+                snapshotLocation = mc.getTextureManager().getDynamicTextureLocation("mbo_weapon_skin_preview", snapshot);
+            }
+            System.arraycopy(pixels, 0, snapshot.getTextureData(), 0, pixels.length);
+            snapshot.updateDynamicTexture();
+            hasSnapshot = true;
+        });
+    }
+
+    void close(GuiScreen owner) {
+        WeaponSkinCapture.INSTANCE.cancel(owner);
+        if (snapshotLocation != null) Minecraft.getMinecraft().getTextureManager().deleteTexture(snapshotLocation);
+        snapshotLocation = null;
+        snapshot = null;
+        hasSnapshot = false;
     }
 
     boolean click(int x, int y, int mouseButton, int window) {
         if (mouseButton != 0) return false;
         updateButtons();
         Minecraft mc = Minecraft.getMinecraft();
+        if (capture.mousePressed(mc, x, y)) {
+            requestCapture(mc);
+            return true;
+        }
+        int thirdX = thirdPaneX();
+        if (previewStack != null && x >= thirdX && x < thirdX + paneWidth()
+                && y >= top + 66 && y < top + 170) {
+            rotatingPreview = true;
+            lastDragX = x;
+            lastDragY = y;
+            return true;
+        }
         if (x >= left + 12 && x < left + previewX - 12 && y >= top + GRID_TOP
                 && y < top + GRID_TOP + CELL * ROWS) {
-            if (x >= left + previewX - 22) {
+            if (x >= left + previewX - 28) {
                 draggingScrollbar = maxScroll() > 0;
-                dragScrollbar(y);
+                drag(x, y);
             } else {
                 int index = cellAt(x, y);
                 if (index >= 0) {
