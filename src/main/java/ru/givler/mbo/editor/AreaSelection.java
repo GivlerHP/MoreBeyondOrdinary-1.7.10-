@@ -19,7 +19,13 @@ public final class AreaSelection {
   }
 
   public long volume() {
-    return (long) (maxX - minX + 1) * (maxY - minY + 1) * (maxZ - minZ + 1);
+    return boundedVolume((long) maxX - minX + 1, (long) maxY - minY + 1, (long) maxZ - minZ + 1);
+  }
+
+  private static long boundedVolume(long x, long y, long z) {
+    if (x <= 0 || y <= 0 || z <= 0 || x > Long.MAX_VALUE / y) return Long.MAX_VALUE;
+    long xy = x * y;
+    return xy > Long.MAX_VALUE / z ? Long.MAX_VALUE : xy * z;
   }
 
   public static AreaSelection read(ItemStack stack, int dimension) {
@@ -46,6 +52,6 @@ public final class AreaSelection {
   }
 
   public static long prospectiveVolume(int[] a, int x, int y, int z) {
-    return (long) (Math.abs(a[0] - x) + 1) * (Math.abs(a[1] - y) + 1) * (Math.abs(a[2] - z) + 1);
+    return boundedVolume(Math.abs((long) a[0] - x) + 1, Math.abs((long) a[1] - y) + 1, Math.abs((long) a[2] - z) + 1);
   }
 }

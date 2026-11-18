@@ -14,6 +14,7 @@ final class DungeonTriggerExecutor {
 
   static void execute(World world, int x, int y, int z, Entity source, String json, boolean multi) {
     if (world == null || world.isRemote) return;
+    if (!ru.givler.mbo.lootcontainer.LootContainerConfigValidator.areActionsValid(json)) return;
     List<LootContainerAction> actions;
     try {
       actions = LootContainerAction.fromJsonList(json);

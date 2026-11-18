@@ -36,7 +36,7 @@ public class ItemBlockLootContainer extends ItemBlock {
     }
 
     public static boolean isEditor(EntityPlayer player) {
-        return BuilderAccess.canEdit(player);
+        return BuilderAccess.canEdit(player, "ariamis.editor.loot");
     }
 
     @Override

@@ -56,6 +56,13 @@ public final class LootContainerConfigValidator {
         return errors;
     }
 
+    public static boolean areActionsValid(String json) {
+        if (json != null && json.length() > LootContainerData.MAX_ACTIONS_JSON_LENGTH) return false;
+        List<String> errors = new ArrayList<String>();
+        validateActionsJson(json, errors);
+        return errors.isEmpty();
+    }
+
     private static void validateActionsJson(String json, List<String> errors) {
         if (json == null || json.trim().isEmpty()) return;
         JsonElement root;

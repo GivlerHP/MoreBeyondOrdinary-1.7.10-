@@ -357,3 +357,16 @@ task verifyWeaponEditorGui(type: JavaExec, dependsOn: [testClasses, extractNativ
     systemProperty 'java.library.path', file("$buildDir/native-resource-test-libraries").absolutePath
     systemProperty 'mbo.weaponEditorPreview', 'true'
 }
+
+// Security regressions run against the actual project classes and dependencies.
+task verifySecurityRegressions(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.security.AreaVolumeTest'
+    doLast {
+        javaexec {
+            classpath = sourceSets.test.runtimeClasspath
+            main = 'ru.givler.mbo.security.ActionValidationTest'
+        }
+    }
+}
+check.dependsOn verifySecurityRegressions

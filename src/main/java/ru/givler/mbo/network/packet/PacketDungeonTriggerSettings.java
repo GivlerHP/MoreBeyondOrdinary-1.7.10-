@@ -54,6 +54,7 @@ public final class PacketDungeonTriggerSettings implements IMessage {
               String actions = m.tag.getString("Actions");
               if (actions.length()
                   > ru.givler.mbo.lootcontainer.LootContainerData.MAX_ACTIONS_JSON_LENGTH) return;
+              if (!ru.givler.mbo.lootcontainer.LootContainerConfigValidator.areActionsValid(actions)) return;
               try {
                 if (ru.givler.mbo.lootcontainer.action.LootContainerAction.fromJsonList(actions)
                         .size()

@@ -81,13 +81,34 @@ public class PacketBoatMove implements IMessage {
                               + boat.motionZ * boat.motionZ)
                       * 2D
                   + .5D);
-      if (dx * dx + dy * dy + dz * dz > allowed * allowed
+      long tick = world.getTotalWorldTime();
+      net.minecraft.nbt.NBTTagCompound budget = boat.getEntityData();
+      double spent = budget.hasKey("MBO_MoveTick") && budget.getLong("MBO_MoveTick") == tick
+          ? budget.getDouble("MBO_MoveDistance") : 0D;
+      double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (spent + distance > allowed
+          || dx * dx + dy * dy + dz * dz > allowed * allowed
           || !world
               .getCollidingBoundingBoxes(boat, boat.boundingBox.getOffsetBoundingBox(dx, dy, dz))
               .isEmpty()) {
         handler.sendPacket(new S18PacketEntityTeleport(boat));
         return;
       }
+      // Check the swept path using the same axis clipping as ordinary entity movement.
+      java.util.List obstacles = world.getCollidingBoundingBoxes(boat, boat.boundingBox.addCoord(dx, dy, dz));
+      net.minecraft.util.AxisAlignedBB swept = boat.boundingBox.copy();
+      double clippedY = dy, clippedX = dx, clippedZ = dz;
+      for (Object obstacle : obstacles) clippedY = ((net.minecraft.util.AxisAlignedBB) obstacle).calculateYOffset(swept, clippedY);
+      swept.offset(0, clippedY, 0);
+      for (Object obstacle : obstacles) clippedX = ((net.minecraft.util.AxisAlignedBB) obstacle).calculateXOffset(swept, clippedX);
+      swept.offset(clippedX, 0, 0);
+      for (Object obstacle : obstacles) clippedZ = ((net.minecraft.util.AxisAlignedBB) obstacle).calculateZOffset(swept, clippedZ);
+      if (Math.abs(clippedX - dx) > 1E-6 || Math.abs(clippedY - dy) > 1E-6 || Math.abs(clippedZ - dz) > 1E-6) {
+        handler.sendPacket(new S18PacketEntityTeleport(boat));
+        return;
+      }
+      budget.setLong("MBO_MoveTick", tick);
+      budget.setDouble("MBO_MoveDistance", spent + distance);
       boat.setPositionAndRotation(message.x, message.y, message.z, message.yaw, message.pitch);
     }
 

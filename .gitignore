@@ -2,6 +2,7 @@
 
 thumbs.db
 *.db
+/.md
 
 ### Java ###
 

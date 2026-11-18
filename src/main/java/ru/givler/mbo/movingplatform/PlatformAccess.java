@@ -6,6 +6,6 @@ import ru.givler.mbo.editor.BuilderAccess;
 public final class PlatformAccess {
     private PlatformAccess() {}
     public static boolean canEdit(EntityPlayer player) {
-        return BuilderAccess.canEdit(player);
+        return BuilderAccess.canEdit(player, "ariamis.editor.platform");
     }
 }

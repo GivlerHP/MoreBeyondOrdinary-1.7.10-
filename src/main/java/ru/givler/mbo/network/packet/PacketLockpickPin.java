@@ -45,7 +45,14 @@ public class PacketLockpickPin implements IMessage {
   public static class Handler implements IMessageHandler<PacketLockpickPin, PacketLockpickResult> {
     @Override
     public PacketLockpickResult onMessage(final PacketLockpickPin m, MessageContext ctx) {
-      final EntityPlayerMP player = ctx.getServerHandler().playerEntity;EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){PacketManager.INSTANCE.sendTo(process(m,player),player);}});return null;
+      final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+      EditorPacketAccess.schedule(ctx,new Runnable(){@Override public void run(){
+        long now = player.worldObj.getTotalWorldTime();
+        net.minecraft.nbt.NBTTagCompound budget = player.getEntityData();
+        if (budget.hasKey("MBO_LastPinTick") && budget.getLong("MBO_LastPinTick") == now) return;
+        budget.setLong("MBO_LastPinTick", now);
+        PacketManager.INSTANCE.sendTo(process(m,player),player);
+      }});return null;
     }
     private PacketLockpickResult process(PacketLockpickPin m,EntityPlayerMP player){
       ILockableTile tile = LockableAccess.get(player.worldObj, m.x, m.y, m.z);

@@ -13,7 +13,7 @@ public final class TileEntityDescriptionWorkbench extends ModelTileBase implemen
         return player != null && (ru.givler.mbo.config.WorkbenchConfig.publicHistory || canEditWeapon(player));
     }
     public static boolean canEditWeapon(EntityPlayer player) {
-        return ru.givler.mbo.editor.BuilderAccess.canEdit(player);
+        return ru.givler.mbo.editor.BuilderAccess.canEdit(player, "ariamis.editor.weapon");
     }
     @Override public int getSizeInventory() { return 1; }
     @Override public ItemStack getStackInSlot(int slot) { return slot == 0 ? item : null; }

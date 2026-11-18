@@ -27,6 +27,8 @@ public abstract class ItemAreaEditor extends Item {
       long maxVolume,
       String messageKey) {
     if (!BuilderAccess.canUseTool(player, this)) return false;
+    if (x < -30000000 || x >= 30000000 || z < -30000000 || z >= 30000000
+        || y < 0 || y >= player.worldObj.getActualHeight()) return false;
     if (AreaSelection.SECOND.equals(key) && maxVolume > 0) {
       int[] first = AreaSelection.getPoint(stack, AreaSelection.FIRST, player.dimension);
       if (first != null && AreaSelection.prospectiveVolume(first, x, y, z) > maxVolume) {
