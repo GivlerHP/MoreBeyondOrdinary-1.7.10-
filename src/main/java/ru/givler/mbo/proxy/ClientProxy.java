@@ -238,6 +238,7 @@ public class ClientProxy extends CommonProxy {
   @Override public EntityLivingBase possessionView(net.minecraft.entity.player.EntityPlayer player){return ru.givler.mbo.client.handler.PossessionClient.INSTANCE.view(player);}
 
   public void preInit(FMLPreInitializationEvent event) {
+    ru.givler.mbo.client.settings.ItemSpriteSettings.load(event.getModConfigurationDirectory());
     super.preInit(event);
     PlayerPingConfig.load(event.getModConfigurationDirectory());
     ru.givler.mbo.config.ColoredLightConfig.load(event.getModConfigurationDirectory());
@@ -365,6 +366,7 @@ public class ClientProxy extends CommonProxy {
     MinecraftForge.EVENT_BUS.register(windowSettings);
     FMLCommonHandler.instance().bus().register(windowSettings);
     MinecraftForge.EVENT_BUS.register(new WaterSurfaceColor());
+    MinecraftForge.EVENT_BUS.register(new ItemSpriteOutline());
     MinecraftForge.EVENT_BUS.register(new PlatformTechnicalRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaSelectionRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaEditorMouseEvents());

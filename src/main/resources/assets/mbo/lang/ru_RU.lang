@@ -1948,6 +1948,11 @@ mbo.window.apply=Применить
 mbo.light.particles=Свет на частицах
 mbo.light.particlesHint=Цветное освещение для обычных и 3D-частиц.
 mbo.light.cubicParticles=3D-частицы
+mbo.light.itemOutline=Улучшение краёв предметов
+mbo.light.itemOutlineHint=Уменьшает мерцание пикселей по краям плоских предметов.
+mbo.light.itemOutline.all=Все предметы
+mbo.light.itemOutline.firstPerson=Только от первого лица
+mbo.light.itemOutline.off=Отключено
 mbo.light.cubicParticlesHint=Объёмные частицы разрушения полных блоков.
 
 # Model descriptions

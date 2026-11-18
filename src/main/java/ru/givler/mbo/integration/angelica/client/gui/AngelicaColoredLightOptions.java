@@ -10,6 +10,7 @@ import ru.givler.mbo.config.ColoredLightConfig;
 import ru.givler.mbo.config.ParticleConfig;
 import ru.givler.mbo.client.lighting.ColoredLightClient;
 import ru.givler.mbo.client.lighting.ColoredEntityLightHooks;
+import ru.givler.mbo.client.settings.ItemSpriteSettings;
 
 /** Native Angelica controls through its optional API; vanilla keeps MBO's existing menu. */
 public final class AngelicaColoredLightOptions {
@@ -24,6 +25,7 @@ public final class AngelicaColoredLightOptions {
       AngelicaGuiScale.replace(pages);
       AngelicaWindowOptions.attach(pages);
       attachCubicParticles(pages);
+      attachItemOutline(pages);
       pages.add(createPage());
       pages.add(AngelicaCtmOptions.createPage());
       screen.getClass().getMethod("rebuildGUI").invoke(screen);
@@ -66,6 +68,15 @@ public final class AngelicaColoredLightOptions {
     Function<Object,Object> control=option->{try {
       Class<?> optionType=Class.forName(ROOT+"Option");
       if(valueType==Boolean.class)return Class.forName(ROOT+"control.TickBoxControl").getConstructor(optionType).newInstance(option);
+      if(valueType==ItemSpriteSettings.Mode.class) {
+        String[] labels={
+            I18n.format("mbo.light.itemOutline.all"),
+            I18n.format("mbo.light.itemOutline.firstPerson"),
+            I18n.format("mbo.light.itemOutline.off")
+        };
+        return Class.forName(ROOT+"control.CyclingControl")
+            .getConstructor(optionType,Class.class,String[].class).newInstance(option,valueType,labels);
+      }
       Class<?> formatterType=Class.forName(ROOT+"control.ControlValueFormatter");
       Object formatter=Proxy.newProxyInstance(formatterType.getClassLoader(),new Class<?>[]{formatterType},(p,m,a)->{
         if(m.getName().equals("format"))return key.equals("speed")?I18n.format("mbo.light.speed."+a[0]):a[0]+"%";
@@ -95,40 +106,59 @@ public final class AngelicaColoredLightOptions {
 
   /** Insert the independent cube toggle immediately after Angelica's particle quantity. */
   public static void attachCubicParticles(List<Object> pages)throws ReflectiveOperationException {
+    attachOption(pages,"cubicParticles",null,"options.particles",Boolean.class,ParticleConfig.cubicParticles,value->{
+      ParticleConfig.cubicParticles=value;
+      ParticleConfig.save();
+    });
+  }
+
+  private static void attachItemOutline(List<Object> pages)throws ReflectiveOperationException {
+    attachOption(pages,"itemOutline","sodium.options.pages.quality",null,
+        ItemSpriteSettings.Mode.class,ItemSpriteSettings.mode(),ItemSpriteSettings::apply);
+  }
+
+  private static <T> void attachOption(List<Object> pages,String key,String pageKey,String anchorKey,
+      Class<T> valueType,T initial,Consumer<T> save)throws ReflectiveOperationException {
     for(int index=0;index<pages.size();index++) {
       Object page=pages.get(index);
-      boolean found=false;
+      boolean found=pageKey!=null && I18n.format(pageKey).equals(page.getClass().getMethod("getName").invoke(page));
       for(Object option:(List<?>)page.getClass().getMethod("getOptions").invoke(page)) {
         Object label=option.getClass().getMethod("getName").invoke(option);
-        if(I18n.format("mbo.light.cubicParticles").equals(label)) return;
-        if(I18n.format("options.particles").equals(label)) found=true;
+        if(I18n.format("mbo.light."+key).equals(label)) return;
+        if(anchorKey!=null && I18n.format(anchorKey).equals(label)) found=true;
       }
       if(!found) continue;
-      Map<String,Object> values=new HashMap<String,Object>();values.put("cubicParticles",ParticleConfig.cubicParticles);
+      Map<String,Object> values=new HashMap<String,Object>();values.put(key,initial);
       Class<?> storageType=Class.forName(ROOT+"storage.OptionStorage");
       Object storage=Proxy.newProxyInstance(storageType.getClassLoader(),new Class<?>[]{storageType},(proxy,method,args)->{
         if(method.getName().equals("getData"))return values;
         if(method.getName().equals("save")) {
-          ParticleConfig.cubicParticles=(Boolean)values.get("cubicParticles");ParticleConfig.save();return null;
+          save.accept(valueType.cast(values.get(key)));return null;
         }
         if(method.getName().equals("hashCode"))return System.identityHashCode(proxy);
-        if(method.getName().equals("equals"))return proxy==args[0];return "MBO particle geometry options";
+        if(method.getName().equals("equals"))return proxy==args[0];return "MBO "+key;
       });
       List<Object> groups=new ArrayList<Object>();
       for(Object group:(List<?>)page.getClass().getMethod("getGroups").invoke(page)) {
+        if(anchorKey==null){groups.add(group);continue;}
         Object builder=Class.forName(ROOT+"OptionGroup").getMethod("createBuilder").invoke(null);
         Method append=builder.getClass().getMethod("add",Class.forName(ROOT+"Option"));
         for(Object option:(List<?>)group.getClass().getMethod("getOptions").invoke(group)) {
           append.invoke(builder,option);
-          if(I18n.format("options.particles").equals(option.getClass().getMethod("getName").invoke(option)))
-            add(builder,storage,storageType,"cubicParticles",Boolean.class,1,"cubicParticlesHint");
+          if(I18n.format(anchorKey).equals(option.getClass().getMethod("getName").invoke(option)))
+            add(builder,storage,storageType,key,valueType,1,key+"Hint");
         }
+        groups.add(builder.getClass().getMethod("build").invoke(builder));
+      }
+      if(anchorKey==null) {
+        Object builder=Class.forName(ROOT+"OptionGroup").getMethod("createBuilder").invoke(null);
+        add(builder,storage,storageType,key,valueType,1,key+"Hint");
         groups.add(builder.getClass().getMethod("build").invoke(builder));
       }
       pages.set(index,page.getClass().getConstructor(String.class,ImmutableList.class).newInstance(
           page.getClass().getMethod("getName").invoke(page),ImmutableList.copyOf(groups)));
       return;
     }
-    throw new IllegalStateException("Angelica particle quantity option not found");
+    if(anchorKey!=null) throw new IllegalStateException("Angelica option not found: "+anchorKey);
   }
 }

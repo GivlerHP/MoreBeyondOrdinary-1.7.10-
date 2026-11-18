@@ -45,6 +45,7 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.core.DungeonAreaRenderTransformer",
       "ru.givler.mbo.core.SmoothOpeningTransformer",
       "ru.givler.mbo.core.TessellatorEmptyBufferTransformer",
+      "ru.givler.mbo.core.ItemSpriteOutlineTransformer",
       "ru.givler.mbo.core.ColoredLightTransformer",
       "ru.givler.mbo.core.ColoredEntityLightTransformer",
       "ru.givler.mbo.core.ColoredDynamicLightTransformer",

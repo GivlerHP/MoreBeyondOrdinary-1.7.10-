@@ -1658,6 +1658,11 @@ mbo.window.apply=Apply
 mbo.light.particles=Particle lighting
 mbo.light.particlesHint=Colored lighting for flat and 3D particles.
 mbo.light.cubicParticles=3D particles
+mbo.light.itemOutline=Improve item edges
+mbo.light.itemOutlineHint=Reduces flickering pixels along the edges of flat items in the selected rendering contexts.
+mbo.light.itemOutline.all=All items
+mbo.light.itemOutline.firstPerson=First person only
+mbo.light.itemOutline.off=Off
 mbo.light.cubicParticlesHint=Render debris from full blocks as textured cubes.
 
 # Model descriptions
