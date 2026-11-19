@@ -13,6 +13,8 @@ import ru.givler.mbo.client.font.ModernFontRenderer;
 import ru.givler.mbo.config.TooltipFrameConfig;
 import ru.givler.mbo.integration.minefantasy2.client.MineFantasyTooltips;
 import net.minecraft.client.Minecraft;
+import ru.givler.mbo.client.render.weaponskin.WeaponSkinRenderer;
+import ru.givler.mbo.item.skin.EquipmentSkinData;
 
 public class TooltipEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -35,5 +37,9 @@ public class TooltipEvents {
                 event.toolTip.add(EnumChatFormatting.GRAY + text);
         }
         TooltipElements.expandBlocks(event.toolTip);
+        if (WeaponSkinRenderer.INSTANCE.available(EquipmentSkinData.resolve(event.itemStack))) {
+            String alt = Minecraft.getMinecraft().fontRenderer instanceof ModernFontRenderer ? "<mbo:alt>" : "Alt";
+            event.toolTip.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("mbo.skin.tooltip.hint", alt));
+        }
     }
 }

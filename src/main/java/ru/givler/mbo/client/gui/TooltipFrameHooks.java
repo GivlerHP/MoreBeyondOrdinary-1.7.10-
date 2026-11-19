@@ -12,7 +12,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.input.Keyboard;
 import ru.givler.mbo.config.TooltipFrameConfig;
+import ru.givler.mbo.client.render.weaponskin.WeaponSkinRenderer;
+import ru.givler.mbo.item.skin.EquipmentSkinData;
+import ru.givler.mbo.item.skin.EquipmentSkinDefinition;
 
 import java.util.List;
 import java.util.Collections;
@@ -55,6 +59,12 @@ public final class TooltipFrameHooks {
                                    FontRenderer font) {
         if (lines == null || lines.isEmpty()) return;
 
+        ItemStack hoveredStack = findMouseOverItem(screen, mouseX, mouseY);
+        boolean marked = ITEM_TOOLTIP_LISTS.remove(lines);
+        if (marked || ITEM_TOOLTIP_DEPTH.get() > 0) {
+            if (drawSkinTooltip(screen, hoveredStack, mouseX, mouseY)) return;
+        }
+
         GL11.glDisable(GL12.GL_RESCALE_NORMAL);
         RenderHelper.disableStandardItemLighting();
         GL11.glDisable(GL11.GL_LIGHTING);
@@ -75,8 +85,7 @@ public final class TooltipFrameHooks {
         int right = x + textWidth + 4;
         int bottom = y + textHeight + 4;
 
-        ItemStack hoveredStack = findMouseOverItem(screen, mouseX, mouseY);
-        boolean itemTooltip = ITEM_TOOLTIP_DEPTH.get() > 0 || ITEM_TOOLTIP_LISTS.remove(lines)
+        boolean itemTooltip = ITEM_TOOLTIP_DEPTH.get() > 0 || marked
                 || hoveredStack != null;
         Gui.drawRect(left, top, right, bottom, TooltipFrameConfig.getBackground(hoveredStack));
         if (itemTooltip) drawFrame(left - 4, top - 4, right + 4, bottom + 4,
@@ -132,6 +141,55 @@ public final class TooltipFrameHooks {
         if (itemTooltip) drawFrame(x - 4, y - 4, right + 4, bottom + 4,
                 TooltipFrameConfig.getFrame(hoveredStack));
         else drawVanillaFrame(x, y, right, bottom);
+    }
+
+    public static boolean drawNeiSkinTooltip(int mouseX, int mouseY) {
+        if (!isSkinKeyDown()) return false;
+        GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+        return screen != null && drawSkinTooltip(screen, findNeiItemUnderMouse(screen), mouseX, mouseY);
+    }
+
+    private static boolean isSkinKeyDown() {
+        return Keyboard.isCreated() && (Keyboard.isKeyDown(Keyboard.KEY_LMENU)
+                || Keyboard.isKeyDown(Keyboard.KEY_RMENU));
+    }
+
+    private static boolean drawSkinTooltip(GuiScreen screen, ItemStack stack, int mouseX, int mouseY) {
+        if (!isSkinKeyDown()) return false;
+        EquipmentSkinDefinition skin = EquipmentSkinData.resolve(stack);
+        WeaponSkinRenderer renderer = WeaponSkinRenderer.INSTANCE;
+        if (!renderer.available(skin)) return false;
+
+        int size = 64;
+        int x = mouseX + 12;
+        if (x + size + 5 > screen.width) x = mouseX - size - 12;
+        x = Math.max(5, Math.min(x, screen.width - size - 5));
+        int y = Math.max(5, Math.min(mouseY - 12, screen.height - size - 5));
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_CURRENT_BIT | GL11.GL_SCISSOR_BIT
+                | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_TEXTURE_BIT);
+        try {
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDisable(GL11.GL_LIGHTING);
+            Gui.drawRect(x, y, x + size, y + size, TooltipFrameConfig.getBackground(stack) | 0xff000000);
+            drawFrame(x - 4, y - 4, x + size + 4, y + size + 4, TooltipFrameConfig.getFrame(stack));
+            // Discard inventory depth only inside the card, so the model can depth-test against itself.
+            Minecraft mc = Minecraft.getMinecraft();
+            int pixelLeft = x * mc.displayWidth / screen.width;
+            int pixelRight = (x + size) * mc.displayWidth / screen.width;
+            int pixelBottom = mc.displayHeight - (y + size) * mc.displayHeight / screen.height;
+            int pixelTop = mc.displayHeight - y * mc.displayHeight / screen.height;
+            GL11.glEnable(GL11.GL_SCISSOR_TEST);
+            GL11.glScissor(pixelLeft, pixelBottom, pixelRight - pixelLeft, pixelTop - pixelBottom);
+            GL11.glDepthMask(true);
+            GL11.glClearDepth(1);
+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+            GL11.glDepthRange(0, 1);
+            GL11.glDepthFunc(GL11.GL_LEQUAL);
+            renderer.preview(skin, skin.inventory, x + size / 2F, y + size - 7, 26);
+        } finally {
+            GL11.glPopAttrib();
+        }
+        return true;
     }
 
     private static ItemStack findNeiItemUnderMouse(GuiScreen screen) {

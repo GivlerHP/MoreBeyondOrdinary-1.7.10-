@@ -43,7 +43,7 @@ public final class WeaponSkinRenderer implements IGeoRenderer<EquipmentSkinDefin
         }
     }
 
-    boolean available(EquipmentSkinDefinition skin) {
+    public boolean available(EquipmentSkinDefinition skin) {
         return skin != null && GeckoLibCache.getInstance().getGeoModels().get(skin.model) != null;
     }
 
@@ -83,11 +83,11 @@ public final class WeaponSkinRenderer implements IGeoRenderer<EquipmentSkinDefin
         }
     }
 
-    public void preview(EquipmentSkinDefinition skin, Pose pose, int x, int y, float scale) {
+    public void preview(EquipmentSkinDefinition skin, Pose pose, float x, float y, float scale) {
         preview(skin, pose, x, y, scale, 80);
     }
 
-    private void preview(EquipmentSkinDefinition skin, Pose pose, int x, int y, float scale, float depth) {
+    private void preview(EquipmentSkinDefinition skin, Pose pose, float x, float y, float scale, float depth) {
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GL11.glPushMatrix();
         try {
@@ -126,7 +126,7 @@ public final class WeaponSkinRenderer implements IGeoRenderer<EquipmentSkinDefin
         }
 
         private EquipmentSkinDefinition visibleSkin(ItemStack stack, ItemRenderType type) {
-            if (type == ItemRenderType.FIRST_PERSON_MAP) return null;
+            if (type == ItemRenderType.FIRST_PERSON_MAP || type == ItemRenderType.INVENTORY) return null;
             EquipmentSkinDefinition skin = EquipmentSkinData.resolve(stack);
             return INSTANCE.available(skin) ? skin : null;
         }
@@ -155,7 +155,6 @@ public final class WeaponSkinRenderer implements IGeoRenderer<EquipmentSkinDefin
             switch (type) {
                 case EQUIPPED_FIRST_PERSON: INSTANCE.draw(skin, skin.firstPerson); break;
                 case EQUIPPED: INSTANCE.draw(skin, skin.thirdPerson); break;
-                case INVENTORY: INSTANCE.preview(skin, skin.inventory, 8, 13, 8, 4); break;
                 case ENTITY: INSTANCE.draw(skin, skin.ground); break;
                 default: break;
             }

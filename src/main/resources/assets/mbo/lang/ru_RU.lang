@@ -1734,6 +1734,7 @@ mbo.weapon_skin.category.armor=Броня
 mbo.weapon_skin.category.tool=Инструменты
 mbo.weapon_skin.category.shield=Щиты
 mbo.weapon_skin.search=Поиск по имени скина
+mbo.skin.tooltip.hint=Удерживайте %s для просмотра скина
 mbo.weapon_skin.empty=Скины не найдены.
 mbo.weapon_skin.armor.insert=Вставьте часть брони в слот.
 mbo.weapon_skin.armor.part=Показать часть

@@ -17,6 +17,19 @@ public final class NeiTooltipFrameTransformer implements IClassTransformer, Opco
         new ClassReader(bytes).accept(node, 0);
         boolean patched = false;
         for (MethodNode method : node.methods) {
+            if ("drawMultilineTip".equals(method.name) && method.desc.endsWith("IILjava/util/List;IIII)V")) {
+                LabelNode normal = new LabelNode();
+                InsnList guard = new InsnList();
+                guard.add(new VarInsnNode(ILOAD, 1));
+                guard.add(new VarInsnNode(ILOAD, 2));
+                guard.add(new MethodInsnNode(INVOKESTATIC, HOOK, "drawNeiSkinTooltip", "(II)Z", false));
+                guard.add(new JumpInsnNode(IFEQ, normal));
+                guard.add(new InsnNode(RETURN));
+                guard.add(normal);
+                method.instructions.insert(guard);
+                patched = true;
+                continue;
+            }
             if (!"drawTooltipBox".equals(method.name)
                     || (!"(IIII)V".equals(method.desc) && !"(IIIIIIII)V".equals(method.desc))) continue;
             method.instructions.clear();

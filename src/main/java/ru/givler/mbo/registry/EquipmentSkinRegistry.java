@@ -39,7 +39,7 @@ public final class EquipmentSkinRegistry {
             new Pose(-0.14F, 0.24F, 0, -15, 25, -36, 0.64F),
             new Pose(0, 0.4F, 0, 0, 20, -35, 1.0F));
     public static final EquipmentSkinDefinition MAGICIAN_BASE = new EquipmentSkinDefinition(
-            "armor_magician_base", 0b0111, new Pose(0, 0, 0, 0, 18, 0, 0.56F));
+            "armor_magician_base", 0b0111, new Pose(0, 0, 0, 0, 198, 0, 0.56F));
     public static final List<EquipmentSkinDefinition> ALL = Collections.unmodifiableList(
             Arrays.asList(MACE_BASE, HAMMER_BASE, AXE_BASE, HAMMER, DRAGONSLAYER, MAGICIAN_BASE));
 
