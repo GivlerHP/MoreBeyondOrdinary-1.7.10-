@@ -38,7 +38,7 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
     private long lastTextClick;
     private enum Tab { HISTORY, WEAPON, SKINS }
     private Tab tab = Tab.HISTORY;
-    private final WeaponSkinTab skins = new WeaponSkinTab();
+    private final EquipmentSkinTab skins = new EquipmentSkinTab();
     private final WeaponWorkbenchPanel weapons = new WeaponWorkbenchPanel();
     private boolean weaponAccess() { return ((ContainerDescriptionWorkbench)inventorySlots).weaponAccess; }
     private boolean historyAccess() { return ((ContainerDescriptionWorkbench)inventorySlots).historyAccess; }
@@ -109,6 +109,7 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         if (!ItemStack.areItemStacksEqual(editing, tile.getStackInSlot(0))) loadItem();
         for (GuiTextField field : fields) field.updateCursorCounter();
         hex.updateCursorCounter();
+        if (tab == Tab.SKINS) skins.tick();
         if (tab != Tab.HISTORY && !weaponAccess()) tab = Tab.HISTORY;
         for (Object object : buttonList) { ((GuiButton)object).enabled = editing != null && historyAccess(); ((GuiButton)object).visible = tab == Tab.HISTORY; }
         ((GuiButton) buttonList.get(0)).enabled = editing != null && historyAccess() && hex.getText().matches("[0-9a-fA-F]{6}");
@@ -218,7 +219,7 @@ public final class GuiDescriptionWorkbench extends GuiContainer {
         super.mouseMovedOrUp(x, y, button);
     }
     @Override protected void keyTyped(char c, int key) {
-        if (tab == Tab.SKINS) { super.keyTyped(c, key); return; }
+        if (tab == Tab.SKINS) { if (!weaponAccess() || !skins.keyTyped(c, key)) super.keyTyped(c, key); return; }
         if(tab == Tab.WEAPON) {
             if(key!=Keyboard.KEY_ESCAPE && weaponAccess() && weapons.key(c,key)) return;
             super.keyTyped(c,key);return;

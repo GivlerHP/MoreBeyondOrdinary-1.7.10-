@@ -8,18 +8,18 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import ru.givler.mbo.container.ContainerDescriptionWorkbench;
-import ru.givler.mbo.item.skin.WeaponSkinData;
+import ru.givler.mbo.item.skin.EquipmentSkinData;
 import ru.givler.mbo.network.EditorPacketAccess;
 import ru.givler.mbo.tileentity.TileEntityDescriptionWorkbench;
 
-public final class PacketWeaponSkin implements IMessage {
+public final class PacketEquipmentSkin implements IMessage {
     private int window;
     private ItemStack expected;
     private String skinId;
 
-    public PacketWeaponSkin() {}
+    public PacketEquipmentSkin() {}
 
-    public PacketWeaponSkin(int window, ItemStack expected, String skinId) {
+    public PacketEquipmentSkin(int window, ItemStack expected, String skinId) {
         this.window = window;
         this.expected = expected.copy();
         this.skinId = skinId;
@@ -37,8 +37,8 @@ public final class PacketWeaponSkin implements IMessage {
         ByteBufUtils.writeUTF8String(buf, skinId);
     }
 
-    public static final class Handler implements IMessageHandler<PacketWeaponSkin, IMessage> {
-        @Override public IMessage onMessage(PacketWeaponSkin message, MessageContext context) {
+    public static final class Handler implements IMessageHandler<PacketEquipmentSkin, IMessage> {
+        @Override public IMessage onMessage(PacketEquipmentSkin message, MessageContext context) {
             EntityPlayerMP player = context.getServerHandler().playerEntity;
             EditorPacketAccess.schedule(context, () -> {
                 if (!(player.openContainer instanceof ContainerDescriptionWorkbench)
@@ -48,7 +48,7 @@ public final class PacketWeaponSkin implements IMessage {
                 ItemStack stack = container.tile.getStackInSlot(0);
                 if (!container.canInteractWith(player) || stack == null
                         || !ItemStack.areItemStacksEqual(stack, message.expected)
-                        || !WeaponSkinData.set(stack, message.skinId)) return;
+                        || !EquipmentSkinData.set(stack, message.skinId)) return;
                 container.tile.markDirty();
                 container.detectAndSendChanges();
             });

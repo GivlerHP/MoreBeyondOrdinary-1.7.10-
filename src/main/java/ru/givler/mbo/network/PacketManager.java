@@ -63,7 +63,7 @@ public class PacketManager {
       ReflectionHelper.findField(SimpleNetworkWrapper.class, "packetCodec");
 
   public static int nextID = 0;
-  private static final int WEAPON_SKIN_PACKET_ID = 120;
+  private static final int EQUIPMENT_SKIN_PACKET_ID = 120;
 
   public static void registerCommonPackets() {
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketPossessionInput.Handler.class,ru.givler.mbo.network.packet.PacketPossessionInput.class,nextID++,Side.SERVER);
@@ -157,8 +157,8 @@ public class PacketManager {
         ru.givler.mbo.network.packet.PacketItemDescription.class, nextID++, Side.SERVER);
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketWeaponSettings.Handler.class,
         ru.givler.mbo.network.packet.PacketWeaponSettings.class,nextID++,Side.SERVER);
-    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketWeaponSkin.Handler.class,
-        ru.givler.mbo.network.packet.PacketWeaponSkin.class,WEAPON_SKIN_PACKET_ID,Side.SERVER);
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketEquipmentSkin.Handler.class,
+        ru.givler.mbo.network.packet.PacketEquipmentSkin.class,EQUIPMENT_SKIN_PACKET_ID,Side.SERVER);
   }
 
   public static void registerClientPackets() {

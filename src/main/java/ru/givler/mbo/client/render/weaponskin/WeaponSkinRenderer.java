@@ -10,10 +10,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.MinecraftForgeClient;
 import org.lwjgl.opengl.GL11;
-import ru.givler.mbo.item.skin.WeaponSkinData;
-import ru.givler.mbo.item.skin.WeaponSkinDefinition;
-import ru.givler.mbo.item.skin.WeaponSkinDefinition.Pose;
-import ru.givler.mbo.registry.WeaponSkinRegistry;
+import ru.givler.mbo.item.skin.EquipmentSkinData;
+import ru.givler.mbo.item.skin.EquipmentSkinDefinition;
+import ru.givler.mbo.item.skin.EquipmentSkinDefinition.Pose;
+import ru.givler.mbo.registry.EquipmentSkinRegistry;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoCube;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
@@ -22,11 +22,11 @@ import software.bernie.geckolib3.model.provider.GeoModelProvider;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 import software.bernie.geckolib3.resource.GeckoLibCache;
 
-public final class WeaponSkinRenderer implements IGeoRenderer<WeaponSkinDefinition> {
+public final class WeaponSkinRenderer implements IGeoRenderer<EquipmentSkinDefinition> {
     public static final WeaponSkinRenderer INSTANCE = new WeaponSkinRenderer();
-    private final GeoModelProvider<WeaponSkinDefinition> models = new GeoModelProvider<WeaponSkinDefinition>() {
-        @Override public ResourceLocation getModelLocation(WeaponSkinDefinition skin) { return skin.model; }
-        @Override public ResourceLocation getTextureLocation(WeaponSkinDefinition skin) { return skin.texture; }
+    private final GeoModelProvider<EquipmentSkinDefinition> models = new GeoModelProvider<EquipmentSkinDefinition>() {
+        @Override public ResourceLocation getModelLocation(EquipmentSkinDefinition skin) { return skin.model; }
+        @Override public ResourceLocation getTextureLocation(EquipmentSkinDefinition skin) { return skin.texture; }
     };
 
     private WeaponSkinRenderer() {}
@@ -34,8 +34,8 @@ public final class WeaponSkinRenderer implements IGeoRenderer<WeaponSkinDefiniti
     public static void register() {
         for (Object entry : Item.itemRegistry) {
             Item item = (Item) entry;
-            for (WeaponSkinDefinition skin : WeaponSkinRegistry.ALL) {
-                if (skin.supports(item)) {
+            for (EquipmentSkinDefinition skin : EquipmentSkinRegistry.ALL) {
+                if (skin.category != EquipmentSkinDefinition.Category.ARMOR && skin.supports(item)) {
                     MinecraftForgeClient.registerItemRenderer(item, new ModelItemRenderer(item));
                     break;
                 }
@@ -43,11 +43,22 @@ public final class WeaponSkinRenderer implements IGeoRenderer<WeaponSkinDefiniti
         }
     }
 
-    private boolean available(WeaponSkinDefinition skin) {
+    boolean available(EquipmentSkinDefinition skin) {
         return skin != null && GeckoLibCache.getInstance().getGeoModels().get(skin.model) != null;
     }
 
-    private void draw(WeaponSkinDefinition skin, Pose pose) {
+    void drawArmorBone(EquipmentSkinDefinition skin, String name) {
+        GeoModel model = GeckoLibCache.getInstance().getGeoModels().get(skin.model);
+        if (model == null) return;
+        GeoBone bone = model.getBone(name).orElse(null);
+        if (bone == null) return;
+        GeoModel part = new GeoModel();
+        part.properties = model.properties;
+        part.topLevelBones.add(bone);
+        render(part, skin, 0, 1, 1, 1, 1);
+    }
+
+    private void draw(EquipmentSkinDefinition skin, Pose pose) {
         GeoModel model = GeckoLibCache.getInstance().getGeoModels().get(skin.model);
         if (model == null) return;
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_CURRENT_BIT
@@ -72,11 +83,11 @@ public final class WeaponSkinRenderer implements IGeoRenderer<WeaponSkinDefiniti
         }
     }
 
-    public void preview(WeaponSkinDefinition skin, Pose pose, int x, int y, float scale) {
+    public void preview(EquipmentSkinDefinition skin, Pose pose, int x, int y, float scale) {
         preview(skin, pose, x, y, scale, 80);
     }
 
-    private void preview(WeaponSkinDefinition skin, Pose pose, int x, int y, float scale, float depth) {
+    private void preview(EquipmentSkinDefinition skin, Pose pose, int x, int y, float scale, float depth) {
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GL11.glPushMatrix();
         try {
@@ -100,8 +111,8 @@ public final class WeaponSkinRenderer implements IGeoRenderer<WeaponSkinDefiniti
         IGeoRenderer.super.renderCube(builder, cube, r, g, b, a);
     }
 
-    @Override public GeoModelProvider<WeaponSkinDefinition> getGeoModelProvider() { return models; }
-    @Override public ResourceLocation getTextureLocation(WeaponSkinDefinition skin) { return skin.texture; }
+    @Override public GeoModelProvider<EquipmentSkinDefinition> getGeoModelProvider() { return models; }
+    @Override public ResourceLocation getTextureLocation(EquipmentSkinDefinition skin) { return skin.texture; }
 
     private static final class ModelItemRenderer implements IItemRenderer {
         private final Map<ItemRenderType, IItemRenderer> previous = new EnumMap<>(ItemRenderType.class);
@@ -114,9 +125,9 @@ public final class WeaponSkinRenderer implements IGeoRenderer<WeaponSkinDefiniti
             }
         }
 
-        private WeaponSkinDefinition visibleSkin(ItemStack stack, ItemRenderType type) {
+        private EquipmentSkinDefinition visibleSkin(ItemStack stack, ItemRenderType type) {
             if (type == ItemRenderType.FIRST_PERSON_MAP) return null;
-            WeaponSkinDefinition skin = WeaponSkinData.resolve(stack);
+            EquipmentSkinDefinition skin = EquipmentSkinData.resolve(stack);
             return INSTANCE.available(skin) ? skin : null;
         }
 
@@ -135,7 +146,7 @@ public final class WeaponSkinRenderer implements IGeoRenderer<WeaponSkinDefiniti
         }
 
         @Override public void renderItem(ItemRenderType type, ItemStack stack, Object... data) {
-            WeaponSkinDefinition skin = visibleSkin(stack, type);
+            EquipmentSkinDefinition skin = visibleSkin(stack, type);
             if (skin == null) {
                 IItemRenderer fallback = previous.get(type);
                 if (fallback != null) fallback.renderItem(type, stack, data);

@@ -377,5 +377,5 @@ check.dependsOn verifySecurityRegressions
 
 task verifyWeaponSkin(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
-    main = 'ru.givler.mbo.decor.WeaponSkinSmoke'
+    main = 'ru.givler.mbo.decor.EquipmentSkinSmoke'
 }

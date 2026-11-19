@@ -2,20 +2,20 @@ package ru.givler.mbo.item.skin;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import ru.givler.mbo.registry.WeaponSkinRegistry;
+import ru.givler.mbo.registry.EquipmentSkinRegistry;
 
-public final class WeaponSkinData {
+public final class EquipmentSkinData {
     private static final String KEY = "MBO_WeaponSkin";
 
-    private WeaponSkinData() {}
+    private EquipmentSkinData() {}
 
     public static String id(ItemStack stack) {
         return stack != null && stack.hasTagCompound()
-                ? WeaponSkinRegistry.canonicalId(stack.getTagCompound().getString(KEY)) : "";
+                ? EquipmentSkinRegistry.canonicalId(stack.getTagCompound().getString(KEY)) : "";
     }
 
-    public static WeaponSkinDefinition resolve(ItemStack stack) {
-        WeaponSkinDefinition skin = WeaponSkinRegistry.find(id(stack));
+    public static EquipmentSkinDefinition resolve(ItemStack stack) {
+        EquipmentSkinDefinition skin = EquipmentSkinRegistry.find(id(stack));
         return skin != null && skin.supports(stack.getItem()) ? skin : null;
     }
 
@@ -28,7 +28,7 @@ public final class WeaponSkinData {
             }
             return true;
         }
-        WeaponSkinDefinition skin = WeaponSkinRegistry.find(id);
+        EquipmentSkinDefinition skin = EquipmentSkinRegistry.find(id);
         if (skin == null || !skin.supports(stack.getItem())) return false;
         if (!stack.hasTagCompound()) stack.setTagCompound(new NBTTagCompound());
         stack.getTagCompound().setString(KEY, id);
