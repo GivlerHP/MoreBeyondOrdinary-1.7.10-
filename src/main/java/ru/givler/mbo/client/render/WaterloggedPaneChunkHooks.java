@@ -18,14 +18,14 @@ public final class WaterloggedPaneChunkHooks {
   }
 
   public static boolean filterAngelicaPass(boolean original,Block block,int pass,IBlockAccess view,int x,int y,int z) {
-    return original || pass==1 && hasAngelicaWater(block,view,x,y,z);
+    return original || pass==1 && (hasAngelicaWater(block,view,x,y,z) || GlassRain.needsPass(block));
   }
 
   public static boolean deferAngelicaBlock(Block block,IBlockAccess view) {
     // Water geometry consults collision/flow information in World. Keep it on the client thread.
     boolean wet=view instanceof WaterloggingRenderHooks.ClientView
         && ((WaterloggingRenderHooks.ClientView)view).mbo$hasWaterlogging();
-    return block instanceof BlockPane || wet && (block.getMaterial()==Material.water
+    return GlassRain.supports(block) || block instanceof BlockPane || wet && (block.getMaterial()==Material.water
         || ru.givler.mbo.waterlogging.WaterloggedBlockSupport.supportsWaterlogging(block));
   }
 
@@ -48,18 +48,18 @@ public final class WaterloggedPaneChunkHooks {
         drawn=true;
       }
     }
-    return drawn;
+    return GlassRain.render(renderer, block, x, y, z, pass) || drawn;
   }
 
   public static int renderPass(Block block, RenderBlocks renderer, int x, int y, int z) {
-    return hasWater(renderer, block, x, y, z) ? 1 : block.getRenderBlockPass();
+    return hasWater(renderer, block, x, y, z) || GlassRain.needsPass(block) ? 1 : block.getRenderBlockPass();
   }
 
   public static boolean canRender(Block block, int pass, RenderBlocks renderer, int x, int y, int z) {
-    return block.canRenderInPass(pass) || pass == 1 && hasWater(renderer, block, x, y, z);
+    return block.canRenderInPass(pass) || pass == 1 && (hasWater(renderer, block, x, y, z) || GlassRain.needsPass(block));
   }
   public static boolean filterCanRender(boolean original, Block block, int pass, RenderBlocks renderer, int x, int y, int z) {
-    return original || pass == 1 && hasWater(renderer, block, x, y, z);
+    return original || pass == 1 && (hasWater(renderer, block, x, y, z) || GlassRain.needsPass(block));
   }
 
   public static boolean render(RenderBlocks renderer, Block block, int x, int y, int z, int pass) {
@@ -72,6 +72,6 @@ public final class WaterloggedPaneChunkHooks {
         drawn = true;
       }
     }
-    return drawn;
+    return GlassRain.render(renderer, block, x, y, z, pass) || drawn;
   }
 }

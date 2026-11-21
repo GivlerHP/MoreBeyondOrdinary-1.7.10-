@@ -84,6 +84,9 @@ public final class TextureInterpolation {
   }
   public static void update(TextureAtlasSprite sprite) {
     int[][] pixels=frame(sprite);if(pixels==null)return;
+    upload(sprite,pixels);
+  }
+  static void upload(TextureAtlasSprite sprite,int[][] pixels) {
     if(AngelicaUpload.upload(sprite,pixels))return;
     TextureUtil.uploadTextureMipmap(pixels,sprite.getIconWidth(),sprite.getIconHeight(),sprite.getOriginX(),sprite.getOriginY(),false,false);
   }
