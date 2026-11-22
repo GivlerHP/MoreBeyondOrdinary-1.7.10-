@@ -18,7 +18,8 @@ public final class WaterloggedPaneChunkHooks {
   }
 
   public static boolean filterAngelicaPass(boolean original,Block block,int pass,IBlockAccess view,int x,int y,int z) {
-    return original || pass==1 && (hasAngelicaWater(block,view,x,y,z) || GlassRain.needsPass(block));
+    return original || pass==1 && (hasAngelicaWater(block,view,x,y,z)
+        || !(block instanceof BlockPane) && GlassRain.needsPass(block));
   }
 
   public static boolean deferAngelicaBlock(Block block,IBlockAccess view) {
@@ -47,6 +48,11 @@ public final class WaterloggedPaneChunkHooks {
         WaterloggedBlockRenderer.renderPaneWaterInChunk(world,x,y,z);
         drawn=true;
       }
+    }
+    if (block instanceof BlockPane) {
+      // Keep the native pane submission intact; draw its weather after translucent terrain.
+      GlassRain.trackAngelicaPane(block, x, y, z);
+      return drawn;
     }
     return GlassRain.render(renderer, block, x, y, z, pass) || drawn;
   }

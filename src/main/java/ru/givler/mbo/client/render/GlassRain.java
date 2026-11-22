@@ -4,6 +4,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import java.awt.image.BufferedImage;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -11,14 +12,18 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockPane;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import org.lwjgl.opengl.GL11;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.world.ChunkEvent;
 import cpw.mods.fml.common.FMLLog;
@@ -31,6 +36,9 @@ public final class GlassRain {
   private static final int[] DZ = {-1, 1, 0, 0};
   private static final boolean ENABLED = !Boolean.getBoolean("mbo.disableGlassRain");
   private static final int EXPOSURE_REACH = 4;
+  private static final int PANE_EFFECT_DISTANCE = 48;
+  private static final Map<ChunkCoordinates, Set<ChunkCoordinates>> ANGELICA_PANES =
+      new ConcurrentHashMap<>();
   private static final Set<ChunkCoordinates> SECTIONS = ConcurrentHashMap.newKeySet();
   private static final Set<ChunkCoordinates> QUEUED = ConcurrentHashMap.newKeySet();
   private static final ConcurrentLinkedQueue<ChunkCoordinates> REFRESH = new ConcurrentLinkedQueue<>();
@@ -97,6 +105,7 @@ public final class GlassRain {
   public void stitched(TextureStitchEvent.Post event) {
     if (!ENABLED || event.map.getTextureType() != 0 || SIDE_RAIN[0] == null) return;
     try {
+      verifyAtlasSlots(event.map);
       int mipmaps = WeatherAtlasFilm.mipmapLevels(event.map);
       loadSnowflakeFilms(mipmaps);
       loadSideRain(mipmaps);
@@ -124,6 +133,27 @@ public final class GlassRain {
       atlasReady = true;
     } catch (IOException failure) {
       FMLLog.warning("MBO could not load weather glass keyframes: %s", failure.getMessage());
+    }
+  }
+
+  private static void verifyAtlasSlots(TextureMap atlas) throws IOException {
+    verifyAtlasSlot(atlas, rainTop);
+    verifyAtlasSlot(atlas, dust);
+    for (IIcon icon : SIDE_RAIN) verifyAtlasSlot(atlas, icon);
+    for (IIcon[] strip : SNOWFLAKES) {
+      for (IIcon icon : strip) verifyAtlasSlot(atlas, icon);
+    }
+    for (int mask = 0; mask < FROST.length; mask++) {
+      verifyAtlasSlot(atlas, FROST[mask]);
+      verifyAtlasSlot(atlas, FOG[mask]);
+      if ((mask & BOTTOM) != 0) verifyAtlasSlot(atlas, SNOW_LEDGES[mask]);
+    }
+  }
+
+  private static void verifyAtlasSlot(TextureMap atlas, IIcon icon) throws IOException {
+    TextureAtlasSprite missing = atlas.getAtlasSprite("missingno");
+    if (icon == null || icon == missing || atlas.getAtlasSprite(icon.getIconName()) == missing) {
+      throw new IOException("Missing atlas slot for " + (icon == null ? "weather texture" : icon.getIconName()));
     }
   }
 
@@ -317,7 +347,10 @@ public final class GlassRain {
     if (event.world != world) return;
     int x = event.getChunk().xPosition << 4, z = event.getChunk().zPosition << 4;
     for (ChunkCoordinates section : SECTIONS) {
-      if (section.posX == x && section.posZ == z) SECTIONS.remove(section);
+      if (section.posX == x && section.posZ == z) {
+        SECTIONS.remove(section);
+        ANGELICA_PANES.remove(section);
+      }
     }
     changed(x, 0, z, x + 15, 255, z + 15);
   }
@@ -359,9 +392,86 @@ public final class GlassRain {
     if (world == current) return;
     world = current;
     SECTIONS.clear();
+    ANGELICA_PANES.clear();
     REFRESH.clear();
     QUEUED.clear();
     hasColdWindows = false;
+  }
+
+  static void trackAngelicaPane(Block block, int x, int y, int z) {
+    if (!supports(block)) return;
+    World current = Minecraft.getMinecraft().theWorld;
+    if (current == null || current.provider.hasNoSky) return;
+    if (world != current) reset(current);
+    ChunkCoordinates section = new ChunkCoordinates(x & ~15, y & ~15, z & ~15);
+    SECTIONS.add(section);
+    ANGELICA_PANES.computeIfAbsent(section, unused -> ConcurrentHashMap.newKeySet())
+        .add(new ChunkCoordinates(x, y, z));
+  }
+
+  @SubscribeEvent
+  public void renderAngelicaPanes(RenderWorldLastEvent event) {
+    Minecraft client = Minecraft.getMinecraft();
+    EntityLivingBase camera = client.renderViewEntity;
+    World current = world;
+    if (!atlasReady || ANGELICA_PANES.isEmpty() || current == null || current != client.theWorld
+        || camera == null || current.provider.hasNoSky) return;
+    float partial = event.partialTicks;
+    double cx = camera.lastTickPosX + (camera.posX - camera.lastTickPosX) * partial;
+    double cy = camera.lastTickPosY + (camera.posY - camera.lastTickPosY) * partial;
+    double cz = camera.lastTickPosZ + (camera.posZ - camera.lastTickPosZ) * partial;
+    int radius = PANE_EFFECT_DISTANCE;
+    java.util.List<ChunkCoordinates> nearby = new java.util.ArrayList<>();
+    for (int x = ((int) Math.floor(cx - radius)) & ~15; x <= cx + radius; x += 16) {
+      for (int z = ((int) Math.floor(cz - radius)) & ~15; z <= cz + radius; z += 16) {
+        for (int y = ((int) Math.floor(cy - radius)) & ~15; y <= cy + radius; y += 16) {
+          Set<ChunkCoordinates> panes = ANGELICA_PANES.get(new ChunkCoordinates(x, y, z));
+          if (panes == null || !current.blockExists(x, y, z)) continue;
+          for (ChunkCoordinates pos : panes) {
+            Block block = current.getBlock(pos.posX, pos.posY, pos.posZ);
+            if (!(block instanceof BlockPane) || !supports(block)) {
+              panes.remove(pos);
+            } else if (distanceSquared(pos, cx, cy, cz) <= radius * radius) {
+              nearby.add(pos);
+            }
+          }
+        }
+      }
+    }
+    if (nearby.isEmpty()) return;
+    nearby.sort(java.util.Comparator.comparingDouble(pos -> -distanceSquared(pos, cx, cy, cz)));
+    RenderBlocks renderer = new RenderBlocks(current);
+    Tessellator out = Tessellator.instance;
+    GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_CURRENT_BIT);
+    try {
+      WeatherAtlasFilm.bind();
+      client.entityRenderer.enableLightmap(partial);
+      GL11.glEnable(GL11.GL_BLEND);
+      GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+      GL11.glEnable(GL11.GL_DEPTH_TEST);
+      GL11.glEnable(GL11.GL_CULL_FACE);
+      GL11.glDepthMask(false);
+      out.startDrawingQuads();
+      out.setTranslation(-cx, -cy, -cz);
+      for (ChunkCoordinates pos : nearby) {
+        int x = pos.posX, y = pos.posY, z = pos.posZ;
+        BiomeGenBase climate = current.getBiomeGenForCoords(x, z);
+        boolean cold = isColdWindow(climate, x, y, z);
+        if (cold || (climate.canSpawnLightningBolt() ? rainOpacity : dustLevel) > 0) {
+          renderPane(renderer, (BlockPane) current.getBlock(x, y, z), x, y, z, climate, cold);
+        }
+      }
+      out.draw();
+    } finally {
+      out.setTranslation(0, 0, 0);
+      client.entityRenderer.disableLightmap(partial);
+      GL11.glPopAttrib();
+    }
+  }
+
+  private static double distanceSquared(ChunkCoordinates pos, double x, double y, double z) {
+    double dx = pos.posX + .5 - x, dy = pos.posY + .5 - y, dz = pos.posZ + .5 - z;
+    return dx * dx + dy * dy + dz * dz;
   }
 
   public static boolean render(RenderBlocks renderer, Block block, int x, int y, int z, int pass) {
