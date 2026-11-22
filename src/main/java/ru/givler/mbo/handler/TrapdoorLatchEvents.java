@@ -6,7 +6,6 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -35,8 +34,6 @@ public final class TrapdoorLatchEvents {
       boolean latched = data.toggle(event.world, event.x, event.y, event.z);
       event.world.playSoundEffect(event.x + .5D, event.y + .5D, event.z + .5D,
           "random.click", .8F, latched ? .7F : 1.2F);
-      event.entityPlayer.addChatMessage(new ChatComponentTranslation(
-          latched ? "mbo.trapdoor.latched" : "mbo.trapdoor.unlatched"));
       return;
     }
     if (!event.entityPlayer.isSneaking() && data.contains(event.x, event.y, event.z)) {

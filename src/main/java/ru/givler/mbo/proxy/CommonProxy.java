@@ -133,9 +133,9 @@ public class CommonProxy {
     MinecraftForge.EVENT_BUS.register(new ColoredBurning());
     MinecraftForge.EVENT_BUS.register(new DaylightDetectorEvents());
     MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.handler.LogStrippingEvents());
-    FenceConnectionEvents fenceConnectionEvents = new FenceConnectionEvents();
-    MinecraftForge.EVENT_BUS.register(fenceConnectionEvents);
-    FMLCommonHandler.instance().bus().register(fenceConnectionEvents);
+    BlockConnectionEvents blockConnectionEvents = new BlockConnectionEvents();
+    MinecraftForge.EVENT_BUS.register(blockConnectionEvents);
+    FMLCommonHandler.instance().bus().register(blockConnectionEvents);
     TrapdoorLatchEvents trapdoorLatchEvents = new TrapdoorLatchEvents();
     MinecraftForge.EVENT_BUS.register(trapdoorLatchEvents);
     FMLCommonHandler.instance().bus().register(trapdoorLatchEvents);

@@ -1,19 +1,19 @@
-package ru.givler.mbo.integration.wood;
+package ru.givler.mbo.registry;
 
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 
-/** Explicit positions for optional wood families; unrelated tab entries retain their order. */
-public final class CreativeWoodOrder {
+/** Explicit positions for block families; unrelated tab entries retain their order. */
+public final class CreativeTabOrder {
     private static final List<Family> FAMILIES = new ArrayList<Family>();
-    private CreativeWoodOrder() {}
+    private CreativeTabOrder() {}
 
-    public static void register(CreativeTabs tab, ItemStack planks, ItemStack... parts) {
+    public static void register(CreativeTabs tab, ItemStack anchor, ItemStack... parts) {
         List<ItemStack> entries = new ArrayList<ItemStack>();
         for (ItemStack part : parts) if (part != null && part.getItem() != null) entries.add(part);
-        if (!entries.isEmpty()) FAMILIES.add(new Family(tab, planks, entries));
+        if (!entries.isEmpty()) FAMILIES.add(new Family(tab, anchor, entries));
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -29,7 +29,7 @@ public final class CreativeWoodOrder {
             }
             int at = items.size();
             for (int i = 0; i < items.size(); i++) {
-                if (items.get(i) instanceof ItemStack && same((ItemStack) items.get(i), family.planks)) at = i + 1;
+                if (items.get(i) instanceof ItemStack && same((ItemStack) items.get(i), family.anchor)) at = i + 1;
             }
             for (ItemStack part : family.parts) items.add(at++, part.copy());
         }
@@ -42,10 +42,10 @@ public final class CreativeWoodOrder {
 
     private static final class Family {
         final CreativeTabs tab;
-        final ItemStack planks;
+        final ItemStack anchor;
         final List<ItemStack> parts;
-        Family(CreativeTabs tab, ItemStack planks, List<ItemStack> parts) {
-            this.tab = tab; this.planks = planks; this.parts = parts;
+        Family(CreativeTabs tab, ItemStack anchor, List<ItemStack> parts) {
+            this.tab = tab; this.anchor = anchor; this.parts = parts;
         }
     }
 }

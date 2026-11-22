@@ -3,9 +3,11 @@ package ru.givler.mbo.registry;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import ru.givler.mbo.block.BlockVerticalSlab;
 import ru.givler.mbo.block.craft.BlockStonecutter;
 import ru.givler.mbo.recipes.stonecutter.StonecutterRecipes;
 
@@ -145,6 +147,11 @@ public final class StonecutterRegistry {
     registerTuffRecipes();
     registerPrismarineRecipes();
     registerMineFantasyRecipes();
+    for (BlockVerticalSlab slab : BlockRegistry.getVerticalSlabs()) {
+      if (slab.source.getMaterial() == Material.rock) {
+        StonecutterRecipes.add(slab.ingredient(), new ItemStack(slab, 2));
+      }
+    }
   }
 
   private static void addFamily(

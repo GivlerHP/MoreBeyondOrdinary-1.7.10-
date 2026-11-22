@@ -4,8 +4,8 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
-/** Orders optional wood additions after the owning tab has populated its list. */
-public final class WoodCreativeTransformer implements IClassTransformer, Opcodes {
+/** Orders block variants after the owning creative tab has populated its list. */
+public final class CreativeTabOrderTransformer implements IClassTransformer, Opcodes {
     public byte[] transform(String name, String transformedName, byte[] bytes) {
         if (bytes == null || !("net.minecraft.creativetab.CreativeTabs".equals(transformedName)
                 || "minefantasy.mf2.item.list.CreativeTabMF".equals(transformedName)
@@ -22,7 +22,7 @@ public final class WoodCreativeTransformer implements IClassTransformer, Opcodes
                 InsnList hook = new InsnList();
                 hook.add(new VarInsnNode(ALOAD, 0)); hook.add(new VarInsnNode(ALOAD, 1));
                 hook.add(new MethodInsnNode(INVOKESTATIC,
-                        "ru/givler/mbo/integration/wood/CreativeWoodOrder", "arrange",
+                        "ru/givler/mbo/registry/CreativeTabOrder", "arrange",
                         "(Lnet/minecraft/creativetab/CreativeTabs;Ljava/util/List;)V", false));
                 method.instructions.insertBefore(insn, hook);
                 changed = true;

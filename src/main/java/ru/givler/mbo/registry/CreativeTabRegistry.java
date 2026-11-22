@@ -46,22 +46,26 @@ public class CreativeTabRegistry {
           list.add(new ItemStack(BlockGreyStone));
           list.add(new ItemStack(StairsStone));
           list.add(new ItemStack(SlabStone));
+          addVerticalSlabs(list, BlockGreyStone, -1);
 
           list.add(new ItemStack(BlockGreyCobblestone));
           list.add(new ItemStack(BlockGreyCobblesMossy));
           list.add(new ItemStack(StairsGreyCobblestone));
           list.add(new ItemStack(SlabCobblestone));
+          addVerticalSlabs(list, BlockGreyCobblestone, -1);
 
           for (int i = 0; i <= 3; i++) {
             list.add(new ItemStack(BlockStonebrick, 1, i));
           }
           list.add(new ItemStack(StairsStonebrick));
           list.add(new ItemStack(SlabStonebrick));
+          addVerticalSlabs(list, BlockStonebrick, -1);
           list.add(new ItemStack(WallStonebrick));
 
           list.add(new ItemStack(SmoothStone));
           list.add(new ItemStack(StairsSmoothStone));
           list.add(new ItemStack(SlabSmoothStone));
+          addVerticalSlabs(list, SmoothStone, -1);
           list.add(new ItemStack(WallSmoothStone));
 
           list.add(new ItemStack(WallVanillaStonebrick));
@@ -73,39 +77,47 @@ public class CreativeTabRegistry {
           }
           list.add(new ItemStack(StairsSandstone));
           list.add(new ItemStack(SlabSandstone));
+          addVerticalSlabs(list, BlockSandstone, -1);
           list.add(new ItemStack(WallSandstone));
           list.add(new ItemStack(WallVanillaSandstone));
 
           list.add(new ItemStack(BlockImperialBrick));
           list.add(new ItemStack(StairsImperialBrick));
           list.add(new ItemStack(SlabImperialBrick));
+          addVerticalSlabs(list, BlockImperialBrick, -1);
 
           list.add(new ItemStack(BlockHeneizenBrick));
           list.add(new ItemStack(StairsHeneizenBrick));
           list.add(new ItemStack(SlabHeneizenBrick));
+          addVerticalSlabs(list, BlockHeneizenBrick, -1);
 
           list.add(new ItemStack(BlockIrgadBrick));
           list.add(new ItemStack(StairsIrgadBrick));
           list.add(new ItemStack(SlabIrgadBrick));
+          addVerticalSlabs(list, BlockIrgadBrick, -1);
 
           list.add(new ItemStack(BlockAshgarBrick));
           list.add(new ItemStack(StairsAshgarBrick));
           list.add(new ItemStack(SlabAshgarBrick));
+          addVerticalSlabs(list, BlockAshgarBrick, -1);
           list.add(new ItemStack(WallAshgarBrick));
 
           list.add(new ItemStack(BlockEndbrick));
           list.add(new ItemStack(StairsEndbrick));
           list.add(new ItemStack(SlabEndbrick));
+          addVerticalSlabs(list, BlockEndbrick, -1);
 
           list.add(new ItemStack(BlockFiredClay));
           list.add(new ItemStack(StairsFiredClay));
           list.add(new ItemStack(SlabFiredClay));
+          addVerticalSlabs(list, BlockFiredClay, -1);
           list.add(new ItemStack(WallFiredClay));
 
           for (int meta = 0; meta < 3; meta++) {
             list.add(new ItemStack(BlockTuff, 1, meta));
             list.add(new ItemStack(StairsTuff[meta]));
             list.add(new ItemStack(SlabTuff[meta]));
+            addVerticalSlabs(list, BlockTuff, meta);
             list.add(new ItemStack(WallTuff[meta]));
           }
           list.add(new ItemStack(BlockChiseledTuff));
@@ -115,6 +127,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BlockPrismarine, 1, meta));
             list.add(new ItemStack(StairsPrismarine[meta]));
             list.add(new ItemStack(SlabPrismarine[meta]));
+            addVerticalSlabs(list, BlockPrismarine, meta);
             list.add(new ItemStack(WallPrismarine[meta]));
           }
           list.add(new ItemStack(BlockSeaLantern));
@@ -150,6 +163,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BlockRegistry.CopperGrate, 1, stage));
             list.add(new ItemStack(BlockRegistry.CutCopperStairs[stage]));
             list.add(new ItemStack(BlockRegistry.CutCopperSlabs[stage]));
+            addVerticalSlabs(list, CutCopper, stage);
             list.add(new ItemStack(BlockRegistry.CopperTrapdoors[stage]));
             list.add(new ItemStack(ItemRegistry.CopperDoorItems[stage]));
             list.add(new ItemStack(BlockRegistry.CopperBulbs[stage]));
@@ -159,6 +173,7 @@ public class CreativeTabRegistry {
             list.add(new ItemStack(BlockRegistry.CopperGrate, 1, stage + 8));
             list.add(new ItemStack(BlockRegistry.CutCopperStairs[stage + 8]));
             list.add(new ItemStack(BlockRegistry.CutCopperSlabs[stage + 8]));
+            addVerticalSlabs(list, CutCopper, stage + 8);
             list.add(new ItemStack(BlockRegistry.CopperTrapdoors[stage + 8]));
             list.add(new ItemStack(ItemRegistry.CopperDoorItems[stage + 8]));
             list.add(new ItemStack(BlockRegistry.CopperBulbs[stage + 8]));
@@ -213,6 +228,7 @@ public class CreativeTabRegistry {
           }
           for (int i = 0; i <= 5; i++) {
             list.add(new ItemStack(SlabRoofWood[i]));
+            addVerticalSlabs(list, RoofWood, i);
           }
 
           for (int i = 0; i <= 2; i++) {
@@ -226,6 +242,7 @@ public class CreativeTabRegistry {
           }
           for (int i = 0; i <= 2; i++) {
             list.add(new ItemStack(SlabRoofStandart[i]));
+            addVerticalSlabs(list, RoofStandart, i);
           }
 
           for (int i = 0; i <= 15; i++) {
@@ -236,6 +253,7 @@ public class CreativeTabRegistry {
           }
           for (int i = 0; i <= 15; i++) {
             list.add(new ItemStack(SlabRoofLaminated[i]));
+            addVerticalSlabs(list, RoofLaminated, i);
           }
 
           for (int i = 0; i <= 15; i++) {
@@ -246,6 +264,7 @@ public class CreativeTabRegistry {
           }
           for (int i = 0; i <= 15; i++) {
             list.add(new ItemStack(SlabRoofSheet[i]));
+            addVerticalSlabs(list, RoofSheet, i);
           }
 
           for (int i = 0; i <= 15; i++) {
@@ -256,6 +275,7 @@ public class CreativeTabRegistry {
           }
           for (int i = 0; i <= 15; i++) {
             list.add(new ItemStack(SlabRoofFlake[i]));
+            addVerticalSlabs(list, RoofFlake, i);
           }
         }
       };

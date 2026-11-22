@@ -1,5 +1,7 @@
 package ru.givler.mbo.integration.wood;
 
+import ru.givler.mbo.registry.CreativeTabOrder;
+
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -42,7 +44,7 @@ public final class WoodFamily {
         pressurePlate.setCreativeTab(tab);
 
         ItemStack plank = new ItemStack(planks, 1, meta);
-        CreativeWoodOrder.register(tab, plank, new ItemStack(doorItem), new ItemStack(trapdoor),
+        CreativeTabOrder.register(tab, plank, new ItemStack(doorItem), new ItemStack(trapdoor),
                 new ItemStack(fence), new ItemStack(gate), new ItemStack(button), new ItemStack(pressurePlate));
         GameRegistry.addRecipe(new ItemStack(doorItem), "PP", "PP", "PP", 'P', plank);
         GameRegistry.addRecipe(new ItemStack(trapdoor, 2), "PPP", "PPP", 'P', plank);

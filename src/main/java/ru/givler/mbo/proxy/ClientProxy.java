@@ -257,6 +257,9 @@ public class ClientProxy extends CommonProxy {
     ru.givler.mbo.block.BlockShelf.renderId = RenderingRegistry.getNextAvailableRenderId();
     RenderingRegistry.registerBlockHandler(new ru.givler.mbo.client.render.RenderShelf());
     ClientRegistry.bindTileEntitySpecialRenderer(ru.givler.mbo.tileentity.TileEntityShelf.class, new ru.givler.mbo.client.render.RenderShelfItems());
+    ru.givler.mbo.block.BlockVerticalSlab.renderId = RenderingRegistry.getNextAvailableRenderId();
+    RenderingRegistry.registerBlockHandler(new ru.givler.mbo.client.render.RenderVerticalSlab());
+
     registerFenceRenderer();
     registerBarrierRenderer();
     int adminFireRenderId = RenderingRegistry.getNextAvailableRenderId();

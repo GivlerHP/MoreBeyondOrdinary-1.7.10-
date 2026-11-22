@@ -31,7 +31,7 @@ public class MBOCorePlugin implements IFMLLoadingPlugin {
       "ru.givler.mbo.core.PossessionTransformer",
       "ru.givler.mbo.core.BlockButtonTransformer",
       "ru.givler.mbo.core.BoatCreativeTransformer",
-      "ru.givler.mbo.core.WoodCreativeTransformer",
+      "ru.givler.mbo.core.CreativeTabOrderTransformer",
       "ru.givler.mbo.core.BoatRiderRenderTransformer",
       "ru.givler.mbo.core.PortableCarryTransformer",
       "ru.givler.mbo.core.TrapdoorPlacementTransformer",

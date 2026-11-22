@@ -25,6 +25,7 @@ import net.minecraft.world.World;
 import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.block.DoorBase;
 import ru.givler.mbo.block.BlockCampfire;
+import ru.givler.mbo.block.BlockVerticalSlab;
 import ru.givler.mbo.block.model.BlockModelCollision;
 
 public final class WaterloggedBlockSupport {
@@ -97,6 +98,9 @@ public final class WaterloggedBlockSupport {
   public static boolean canWaterlog(World world, int x, int y, int z) {
     if (world == null || y < -64 || y > 255 || !world.blockExists(x, y, z)) return false;
     Block block = world.getBlock(x, y, z);
+    if (block instanceof BlockVerticalSlab) {
+      return BlockVerticalSlab.shapeMask(world, x, y, z) != 15;
+    }
     // CaveAbyss crystal blocks contain source water, including when placed by hand.
     if (block.getMaterial() == Material.water) {
       Object name = Block.blockRegistry.getNameForObject(block);
@@ -110,7 +114,7 @@ public final class WaterloggedBlockSupport {
   /** Shared block eligibility for server flow, bucket use and client rendering. */
   public static boolean supportsWaterlogging(Block block) {
     if(block==null || block.getMaterial()==Material.lava) return false;
-    if (block instanceof BlockStairs) return true;
+    if (block instanceof BlockStairs || block instanceof BlockVerticalSlab) return true;
     if (block instanceof BlockChest || block instanceof BlockCampfire
         || block instanceof ru.givler.mbo.block.BlockShelf) return true;
     if (block instanceof BlockSlab) return !block.isOpaqueCube();

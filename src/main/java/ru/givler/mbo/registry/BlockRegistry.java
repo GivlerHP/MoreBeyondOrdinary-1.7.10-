@@ -1,10 +1,15 @@
 package ru.givler.mbo.registry;
 
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -28,6 +33,9 @@ import ru.givler.mbo.item.fauna.ItemFrogspawn;
 import ru.givler.mbo.movingplatform.BlockPlatformStation;
 
 public class BlockRegistry {
+    private static final List<BlockVerticalSlab> VERTICAL_SLABS = new ArrayList<>();
+    public static final BlockMetaVerticalSlab[] CutCopperVerticalSlabs = new BlockMetaVerticalSlab[12];
+
     public static final BlockShelf[] Shelves = new BlockShelf[6];
     public static Block powderSnow, turtleEgg;
     public static Block frogspawn, froglight;
@@ -398,6 +406,132 @@ public class BlockRegistry {
         FenceGateAcacia = new BlockBasicFenceGate("FenceGateAcacia", Blocks.planks, 4);
         FenceGateDarkOak = new BlockBasicFenceGate("FenceGateDarkOak", Blocks.planks, 5);
 
+        registerVerticalSlabs();
+    }
+
+    private static void registerVerticalSlabs() {
+        registerVerticalFamily(Blocks.planks, 6);
+        registerVerticalFamily(Blocks.sandstone, 3);
+        registerVerticalFamily(Blocks.stonebrick, 4);
+        registerVerticalFamily(Blocks.quartz_block, 3);
+        registerVerticalFamily(Blocks.dirt, 3);
+        registerVerticalFamily(Blocks.stained_hardened_clay, 16);
+        registerVerticalBasics(Blocks.stone, Blocks.cobblestone, Blocks.mossy_cobblestone,
+                Blocks.brick_block, Blocks.nether_brick, Blocks.hardened_clay, Blocks.end_stone,
+                BlockGreyStone, BlockGreyCobblestone, BlockIrgadBrick, BlockEndbrick,
+                BlockImperialBrick, BlockHeneizenBrick, BlockAshgarBrick, BlockFiredClay, SmoothStone);
+
+        registerVerticalFamily(BlockStonebrick, 4);
+        registerVerticalFamily(BlockSandstone, 3);
+        registerVerticalFamily(BlockTuff, 3);
+        registerVerticalFamily(BlockPrismarine, 3);
+        registerVerticalFamily(RoofStandart, 3);
+        registerVerticalFamily(RoofLaminated, 16);
+        registerVerticalFamily(RoofSheet, 16);
+        registerVerticalFamily(RoofFlake, 16);
+        registerVerticalFamily(RoofWood, 6);
+
+        for (int wax = 0; wax <= 8; wax += 8) {
+            for (int stage = 0; stage < 4; stage++) {
+                int state = wax + stage;
+                BlockMetaVerticalSlab slab = new BlockMetaVerticalSlab(CutCopper, state);
+                registerVerticalSlab(slab, state);
+                CutCopperVerticalSlabs[state] = slab;
+            }
+        }
+
+        for (String name : new String[] {"refined_planks", "nailed_planks", "mud_brick",
+                "mud_pavement", "cobble_brick", "cobble_pavement", "firebricks",
+                "yew_planks", "ironbark_planks", "ebony_planks", "thatch"}) {
+            registerVerticalBasics(GameRegistry.findBlock("minefantasy2", name));
+        }
+        registerVerticalFamily(GameRegistry.findBlock("minefantasy2", "reinforced_stone"), 5);
+        registerVerticalFamily(GameRegistry.findBlock("minefantasy2", "reinforced_stone_bricks"), 3);
+
+        Block thaumWood = GameRegistry.findBlock("Thaumcraft", "blockWoodenDevice");
+        if (thaumWood != null) {
+            registerVerticalSlab(new BlockMetaVerticalSlab(thaumWood, 6), 6);
+            registerVerticalSlab(new BlockMetaVerticalSlab(thaumWood, 7), 7);
+        }
+        Block thaumStone = GameRegistry.findBlock("Thaumcraft", "blockCosmeticSolid");
+        if (thaumStone != null) {
+            registerVerticalSlab(new BlockMetaVerticalSlab(thaumStone, 7), 7);
+            registerVerticalSlab(new BlockMetaVerticalSlab(thaumStone, 11), 11);
+        }
+        if (Loader.isModLoaded("BiomesOPlenty")) {
+            registerVerticalFamily(biomesoplenty.api.content.BOPCBlocks.planks, 15);
+        }
+    }
+
+    private static void registerVerticalBasics(Block... sources) {
+        for (Block source : sources) {
+            if (source != null) registerVerticalSlab(new BlockVerticalSlab(source), 0);
+        }
+    }
+
+    private static void registerVerticalFamily(Block source, int count) {
+        if (source == null) return;
+        for (int meta = 0; meta < count; meta++) {
+            registerVerticalSlab(new BlockMetaVerticalSlab(source, meta), meta);
+        }
+    }
+
+    private static void registerVerticalSlab(BlockVerticalSlab slab, int sourceMeta) {
+        String source = (String) Block.blockRegistry.getNameForObject(slab.source);
+        String name = "VerticalSlab_" + source.replace(':', '_') + "_" + sourceMeta;
+        GameRegistry.registerBlock(slab.setBlockName(name), BlockVerticalSlab.ItemVerticalSlab.class, name);
+        VERTICAL_SLABS.add(slab);
+    }
+
+    static List<BlockVerticalSlab> getVerticalSlabs() {
+        return Collections.unmodifiableList(VERTICAL_SLABS);
+    }
+
+    static void addVerticalSlabs(List<ItemStack> list, Block source, int meta) {
+        for (BlockVerticalSlab slab : VERTICAL_SLABS) {
+            if (slab.source == source && (meta < 0 || slab.ingredient().getItemDamage() == meta)) {
+                list.add(new ItemStack(slab));
+            }
+        }
+    }
+
+    private static void orderVerticalSlab(BlockVerticalSlab slab, ItemStack source) {
+        CreativeTabs tab = slab.source.getCreativeTabToDisplayOn();
+        if (tab == null || tab == CreativeTabRegistry.tabMBOblocks) return;
+        slab.setCreativeTab(tab);
+        ItemStack anchor = source;
+        int meta = source.getItemDamage();
+        if (slab.source == Blocks.planks) anchor = new ItemStack(Blocks.wooden_slab, 1, meta);
+        else if (slab.source == Blocks.sandstone && meta == 0) anchor = new ItemStack(Blocks.stone_slab, 1, 1);
+        else if (slab.source == Blocks.cobblestone) anchor = new ItemStack(Blocks.stone_slab, 1, 3);
+        else if (slab.source == Blocks.brick_block) anchor = new ItemStack(Blocks.stone_slab, 1, 4);
+        else if (slab.source == Blocks.stonebrick && meta == 0) anchor = new ItemStack(Blocks.stone_slab, 1, 5);
+        else if (slab.source == Blocks.nether_brick) anchor = new ItemStack(Blocks.stone_slab, 1, 6);
+        else if (slab.source == Blocks.quartz_block && meta == 0) anchor = new ItemStack(Blocks.stone_slab, 1, 7);
+
+        GameRegistry.UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(slab.source);
+        if (id != null && "minefantasy2".equals(id.modId) && meta == 0) {
+            String name = id.name;
+            if ("firebricks".equals(name)) name = "firebrick";
+            else if ("reinforced_stone_bricks".equals(name)) name = "reinforced_stone_brick";
+            else if ("yew_planks".equals(name) || "ironbark_planks".equals(name) || "ebony_planks".equals(name)) {
+                name = name.substring(0, name.length() - "_planks".length());
+            }
+            Block horizontal = GameRegistry.findBlock(id.modId, name + "_slab");
+            if (horizontal != null) anchor = new ItemStack(horizontal);
+        }
+        if (id != null && "Thaumcraft".equals(id.modId)) {
+            Block horizontal = GameRegistry.findBlock(id.modId, "blockWoodenDevice".equals(id.name)
+                    ? "blockCosmeticSlabWood" : "blockCosmeticSlabStone");
+            if (horizontal != null && ("blockWoodenDevice".equals(id.name) || meta == 7)) {
+                anchor = new ItemStack(horizontal, 1, "blockWoodenDevice".equals(id.name) ? meta - 6 : 0);
+            }
+        }
+        if (id != null && "BiomesOPlenty".equals(id.modId) && meta < 13) {
+            Block horizontal = GameRegistry.findBlock(id.modId, meta < 8 ? "woodenSingleSlab1" : "woodenSingleSlab2");
+            if (horizontal != null) anchor = new ItemStack(horizontal, 1, meta & 7);
+        }
+        CreativeTabOrder.register(tab, anchor, new ItemStack(slab));
     }
 
     private static String[] copperTextures(String fresh, String exposed, String weathered, String oxidized) {
@@ -409,6 +543,11 @@ public class BlockRegistry {
     }
 
     public static void initRecipe() {
+        for (BlockVerticalSlab slab : VERTICAL_SLABS) {
+            ItemStack source = slab.ingredient();
+            orderVerticalSlab(slab, source);
+            GameRegistry.addRecipe(new ItemStack(slab, 6), "X", "X", "X", 'X', source);
+        }
         Block[] shelfLogs = {DebarkedOak, DebarkedSpruce, DebarkedBirch,
                 DebarkedJungle, DebarkedAcacia, DebarkedBigOak};
         for (int i = 0; i < Shelves.length; i++) {

@@ -44,7 +44,7 @@ public final class BiomesOPlentyRegistry {
             setCreativeTab(tab);
             if (!creativeOrderRegistered) {
                 for (int meta = 0; meta < BOP_WOOD_NAMES.length; meta++) {
-                    ru.givler.mbo.integration.wood.CreativeWoodOrder.register(tab,
+                    ru.givler.mbo.registry.CreativeTabOrder.register(tab,
                             new ItemStack(biomesoplenty.api.content.BOPCBlocks.planks, 1, meta),
                             creativeStack(doorItemsBoP, meta), creativeStack(trapdoorBlocksBoP, meta),
                             FenceBoP == null ? null : new ItemStack(FenceBoP, 1, meta),

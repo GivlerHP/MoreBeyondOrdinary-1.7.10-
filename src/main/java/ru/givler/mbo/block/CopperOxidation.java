@@ -139,6 +139,7 @@ public final class CopperOxidation {
     private static int state(Block block, int meta) {
         if (block instanceof BlockMeta && ((BlockMeta) block).isCopper()) return meta;
         if (block instanceof BlockMetaStairs) return ((BlockMetaStairs) block).getCopperState();
+        if (block instanceof BlockMetaVerticalSlab) return ((BlockMetaVerticalSlab) block).getCopperState();
         if (block instanceof BlockMetaSlab) return ((BlockMetaSlab) block).getCopperState();
         if (block instanceof TrapDoorBase) return ((TrapDoorBase) block).getCopperState();
         if (block instanceof DoorBase) return ((DoorBase) block).getCopperState();
@@ -150,6 +151,8 @@ public final class CopperOxidation {
         if (block instanceof BlockMeta && ((BlockMeta) block).isCopper()) world.setBlockMetadataWithNotify(x, y, z, state, 3);
         else if (block instanceof BlockMetaStairs)
             world.setBlock(x, y, z, BlockRegistry.CutCopperStairs[state], meta, 3);
+        else if (block instanceof BlockMetaVerticalSlab)
+            world.setBlock(x, y, z, BlockRegistry.CutCopperVerticalSlabs[state], meta, 3);
         else if (block instanceof BlockMetaSlab)
             world.setBlock(x, y, z, ((BlockMetaSlab) block).isDoubleSlab()
                     ? BlockRegistry.CutCopperDoubleSlabs[state] : BlockRegistry.CutCopperSlabs[state], meta, 3);
