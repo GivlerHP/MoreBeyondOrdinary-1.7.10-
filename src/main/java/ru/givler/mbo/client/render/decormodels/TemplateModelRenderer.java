@@ -16,6 +16,19 @@ public class TemplateModelRenderer extends GeoAnimatedBlockRenderer<ModelTileBas
     }
 
     @Override
+    public void renderTileEntityAt(net.minecraft.tileentity.TileEntity tile, double x, double y, double z, float tick) {
+        // Older saves used ModelTileBase for this registry ID. Draw those through the new flat renderer too.
+        if (tile.getWorldObj() != null && tile.getBlockType() instanceof ru.givler.mbo.block.BlockMirror) {
+            net.minecraft.client.Minecraft.getMinecraft().getTextureManager().bindTexture(
+                new net.minecraft.util.ResourceLocation("mbo", "textures/models/decor/mirror.png"));
+            ru.givler.mbo.client.render.RenderWallMirror.renderPanel(x, y, z, tile.getBlockMetadata() & 3);
+            ru.givler.mbo.client.render.MirrorRenderer.INSTANCE.renderMirror(tile, x, y, z, tick);
+            return;
+        }
+        super.renderTileEntityAt(tile, x, y, z, tick);
+    }
+
+    @Override
     protected void applyModelTransform(ModelTileBase tile) {
         if (tile.getWorldObj() != null && tile.getBlockType() instanceof ru.givler.mbo.block.BlockDecorModel) {
             GlStateManager.translate(0,

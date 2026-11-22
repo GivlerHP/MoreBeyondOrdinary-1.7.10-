@@ -2411,3 +2411,5 @@ tile.GroundCover_BiomesOPlenty_hardSand_0.name=Ковёр из твёрдого 
 tile.GroundCover_BiomesOPlenty_driedDirt_0.name=Ковёр из сухой земли
 tile.GroundCover_BiomesOPlenty_mud_0.name=Грязевой ковёр
 tile.GroundCover_BiomesOPlenty_mud_1.name=Ковёр из зыбучего песка
+
+tile.ModelMirror.name=Зеркало

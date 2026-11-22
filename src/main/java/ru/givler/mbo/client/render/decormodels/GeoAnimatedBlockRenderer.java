@@ -43,13 +43,16 @@ public class GeoAnimatedBlockRenderer<T extends TileEntity & IAnimatable>
     }
 
     public void render(T tile, double x, double y, double z, float partialTicks) {
-        if(tile.getWorldObj()!=null && getClass()==TemplateModelRenderer.class
+        if(!ru.givler.mbo.client.render.MirrorRenderer.isRenderingReflection()
+                && tile.getWorldObj()!=null && getClass()==TemplateModelRenderer.class
                 && tile instanceof ru.givler.mbo.tileentity.ModelTileBase
                 && InstancedDecorRenderer.INSTANCE.renders((ru.givler.mbo.tileentity.ModelTileBase)tile))return;
-        if (tile.getWorldObj()!=null && getClass()==TemplateModelRenderer.class
+        if (!ru.givler.mbo.client.render.MirrorRenderer.isRenderingReflection()
+                && tile.getWorldObj()!=null && getClass()==TemplateModelRenderer.class
                 && tile instanceof ru.givler.mbo.tileentity.ModelTileBase
                 && ChunkDecorRenderer.renders((ru.givler.mbo.tileentity.ModelTileBase)tile)) return;
-        if (ru.givler.mbo.client.handler.HangingClientEvents.hideAttachment(tile)) return;
+        if (!ru.givler.mbo.client.render.MirrorRenderer.isRenderingReflection()
+                && ru.givler.mbo.client.handler.HangingClientEvents.hideAttachment(tile)) return;
         long diagnosticStart=tile.getWorldObj()==null?0:DecorRenderDiagnostics.beginModel();
         long allocationStart=tile.getWorldObj()==null?-1:ru.givler.mbo.client.lighting.ColoredLightAllocationDiagnostics.start();
         boolean itemRender = tile.getWorldObj() == null;

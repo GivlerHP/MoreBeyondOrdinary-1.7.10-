@@ -378,6 +378,11 @@ public class ClientProxy extends CommonProxy {
     MinecraftForge.EVENT_BUS.register(new ItemSpriteOutline());
     MinecraftForge.EVENT_BUS.register(new PlatformTechnicalRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaSelectionRenderer());
+    MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.render.MirrorRenderer.INSTANCE);
+    ClientRegistry.bindTileEntitySpecialRenderer(ru.givler.mbo.tileentity.TileMirror.class,
+        new ru.givler.mbo.client.render.RenderWallMirror());
+    MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ru.givler.mbo.registry.DecorBlockRegistry.ModelMirror),
+        new ru.givler.mbo.client.render.RenderMirrorItem());
     MinecraftForge.EVENT_BUS.register(new AreaEditorMouseEvents());
     FMLCommonHandler.instance().bus().register(new MovingPlatformClientEvents());
     activateAmuletKey = new KeyBinding("key.mbo.amulet.desc", Keyboard.KEY_R, "MoreBeyondOrdinary");

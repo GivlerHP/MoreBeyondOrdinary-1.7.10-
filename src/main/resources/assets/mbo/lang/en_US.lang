@@ -2121,3 +2121,5 @@ tile.GroundCover_BiomesOPlenty_hardSand_0.name=Hard Sand Carpet
 tile.GroundCover_BiomesOPlenty_driedDirt_0.name=Dried Dirt Carpet
 tile.GroundCover_BiomesOPlenty_mud_0.name=Mud Carpet
 tile.GroundCover_BiomesOPlenty_mud_1.name=Quicksand Carpet
+
+tile.ModelMirror.name=Mirror

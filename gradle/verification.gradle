@@ -379,3 +379,12 @@ task verifyWeaponSkin(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.decor.EquipmentSkinSmoke'
 }
+
+// Optional native GL check: actual world-block reflection, including the shader/FBO boundary.
+task verifyMirrorRendering(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.decor.MirrorPixelsSmoke'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(8) }
+    jvmArgs '-Djava.library.path=' + (project.findProperty('mirrorNatives') ?: new File(gradle.gradleUserHomeDir,
+        'caches/minecraft/net/minecraft/minecraft_natives/1.7.10').absolutePath)
+}
