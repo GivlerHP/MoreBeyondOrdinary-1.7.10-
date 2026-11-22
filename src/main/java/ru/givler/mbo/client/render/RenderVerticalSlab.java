@@ -4,10 +4,8 @@ import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.block.BlockVerticalSlab;
@@ -20,7 +18,7 @@ public final class RenderVerticalSlab implements ISimpleBlockRenderingHandler {
     public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z,
                                     Block block, int modelId, RenderBlocks renderer) {
         BlockVerticalSlab slab = (BlockVerticalSlab) block;
-        IBlockAccess materials = new SlabMaterialAccess(world);
+        IBlockAccess materials = new GroundMaterialAccess(world);
         int mask = BlockVerticalSlab.shapeMask(world, x, y, z);
         Tessellator tess = Tessellator.instance;
         int brightness = block.getMixedBrightnessForBlock(world, x, y, z);
@@ -72,7 +70,7 @@ public final class RenderVerticalSlab implements ISimpleBlockRenderingHandler {
         }
     }
 
-    private static void face(RenderBlocks renderer, Block block, int x, int y, int z, int side, IIcon icon) {
+    static void face(RenderBlocks renderer, Block block, int x, int y, int z, int side, IIcon icon) {
         switch (side) {
             case 0: renderer.renderFaceYNeg(block, x, y, z, icon); break;
             case 1: renderer.renderFaceYPos(block, x, y, z, icon); break;
@@ -81,58 +79,6 @@ public final class RenderVerticalSlab implements ISimpleBlockRenderingHandler {
             case 4: renderer.renderFaceXNeg(block, x, y, z, icon); break;
             case 5: renderer.renderFaceXPos(block, x, y, z, icon); break;
             default: throw new IllegalArgumentException("Invalid block face: " + side);
-        }
-    }
-
-    /** Material rules see source metadata, which is independent of slab direction and connections. */
-    private static final class SlabMaterialAccess implements IBlockAccess {
-        private final IBlockAccess world;
-
-        SlabMaterialAccess(IBlockAccess world) {
-            this.world = world;
-        }
-
-        @Override public Block getBlock(int x, int y, int z) {
-            Block block = world.getBlock(x, y, z);
-            return block instanceof BlockVerticalSlab ? ((BlockVerticalSlab) block).source : block;
-        }
-
-        @Override public int getBlockMetadata(int x, int y, int z) {
-            Block block = world.getBlock(x, y, z);
-            return block instanceof BlockVerticalSlab ? ((BlockVerticalSlab) block).getSourceMetadata()
-                    : world.getBlockMetadata(x, y, z);
-        }
-
-        @Override public TileEntity getTileEntity(int x, int y, int z) {
-            return world.getTileEntity(x, y, z);
-        }
-
-        @Override public int getLightBrightnessForSkyBlocks(int x, int y, int z, int minimum) {
-            return world.getLightBrightnessForSkyBlocks(x, y, z, minimum);
-        }
-
-        @Override public int isBlockProvidingPowerTo(int x, int y, int z, int side) {
-            return world.isBlockProvidingPowerTo(x, y, z, side);
-        }
-
-        @Override public boolean isAirBlock(int x, int y, int z) {
-            return world.isAirBlock(x, y, z);
-        }
-
-        @Override public BiomeGenBase getBiomeGenForCoords(int x, int z) {
-            return world.getBiomeGenForCoords(x, z);
-        }
-
-        @Override public int getHeight() {
-            return world.getHeight();
-        }
-
-        @Override public boolean extendedLevelsInChunkCache() {
-            return world.extendedLevelsInChunkCache();
-        }
-
-        @Override public boolean isSideSolid(int x, int y, int z, ForgeDirection side, boolean fallback) {
-            return world.isSideSolid(x, y, z, side, fallback);
         }
     }
 

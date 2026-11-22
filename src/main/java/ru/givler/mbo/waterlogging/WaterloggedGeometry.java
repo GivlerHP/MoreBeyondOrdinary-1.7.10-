@@ -3,6 +3,7 @@ package ru.givler.mbo.waterlogging;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.block.Block;
+import ru.givler.mbo.block.BlockGroundCover;
 import net.minecraft.block.BlockPane;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
@@ -42,6 +43,14 @@ public final class WaterloggedGeometry {
   public static boolean[] freeCells(World world, int x, int y, int z) {
     boolean[] free = new boolean[8];
     Block block = world.getBlock(x, y, z);
+    if (block instanceof BlockGroundCover) {
+      double height = BlockGroundCover.height(world.getBlockMetadata(x, y, z));
+      for (int cellX = 0; cellX < 2; cellX++)
+        for (int cellY = 0; cellY < 2; cellY++)
+          for (int cellZ = 0; cellZ < 2; cellZ++)
+            free[index(cellX, cellY, cellZ)] = height < (cellY + 1) * .5;
+      return free;
+    }
     if (block instanceof BlockChest || block instanceof BlockCampfire
         || WaterloggedBlockSupport.isWaterPermeableModel(block)) {
       for (int i = 0; i < free.length; i++) free[i] = true;
@@ -184,6 +193,9 @@ public final class WaterloggedGeometry {
   public static boolean isFaceOpen(
       World world, int x, int y, int z, int directionX, int directionY, int directionZ) {
     Block block = world.getBlock(x, y, z);
+    if (block instanceof BlockGroundCover) {
+      return directionY >= 0 && BlockGroundCover.height(world.getBlockMetadata(x, y, z)) < 1;
+    }
     if(WaterloggedBlockSupport.isWaterPermeableModel(block)) return true;
     List<AxisAlignedBB> collision = new ArrayList<AxisAlignedBB>();
     block.addCollisionBoxesToList(
@@ -276,6 +288,10 @@ public final class WaterloggedGeometry {
       World world, int x, int y, int z, byte ingressMask, int outX, int outY, int outZ) {
     if (ingressMask == 0) return false;
     Block block = world.getBlock(x, y, z);
+    if (block instanceof BlockGroundCover) {
+      return outY >= 0 && (ingressMask & ~faceBit(0, -1, 0)) != 0
+          && BlockGroundCover.height(world.getBlockMetadata(x, y, z)) < 1;
+    }
     if(WaterloggedBlockSupport.isWaterPermeableModel(block)) return true;
     List<AxisAlignedBB> boxes = new ArrayList<AxisAlignedBB>();
     block.addCollisionBoxesToList(

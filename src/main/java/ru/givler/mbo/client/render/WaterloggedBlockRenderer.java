@@ -335,6 +335,11 @@ public final class WaterloggedBlockRenderer {
     double maxX = cellX == 1 ? 1.0D : 0.5D;
     double maxY = cellMaxY(world, position, cellX, cellY, cellZ);
     double maxZ = cellZ == 1 ? 1.0D : 0.5D;
+    if (world.getBlock(position.x, position.y, position.z) instanceof ru.givler.mbo.block.BlockGroundCover) {
+      minY = Math.max(minY, ru.givler.mbo.block.BlockGroundCover.height(
+          world.getBlockMetadata(position.x, position.y, position.z)));
+      if (minY >= maxY) return;
+    }
     if(world.getBlock(position.x,position.y,position.z) instanceof net.minecraft.block.BlockTrapDoor
         && (world.getBlockMetadata(position.x,position.y,position.z) & 12)==0)
       minY=Math.max(minY,3D/16D);

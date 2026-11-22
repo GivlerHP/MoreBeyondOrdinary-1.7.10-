@@ -26,6 +26,7 @@ import ru.givler.mbo.block.BlockDecorModel;
 import ru.givler.mbo.block.DoorBase;
 import ru.givler.mbo.block.BlockCampfire;
 import ru.givler.mbo.block.BlockVerticalSlab;
+import ru.givler.mbo.block.BlockGroundCover;
 import ru.givler.mbo.block.model.BlockModelCollision;
 
 public final class WaterloggedBlockSupport {
@@ -101,6 +102,7 @@ public final class WaterloggedBlockSupport {
     if (block instanceof BlockVerticalSlab) {
       return BlockVerticalSlab.shapeMask(world, x, y, z) != 15;
     }
+    if (block instanceof BlockGroundCover) return BlockGroundCover.height(world.getBlockMetadata(x, y, z)) < 1;
     // CaveAbyss crystal blocks contain source water, including when placed by hand.
     if (block.getMaterial() == Material.water) {
       Object name = Block.blockRegistry.getNameForObject(block);
@@ -114,7 +116,7 @@ public final class WaterloggedBlockSupport {
   /** Shared block eligibility for server flow, bucket use and client rendering. */
   public static boolean supportsWaterlogging(Block block) {
     if(block==null || block.getMaterial()==Material.lava) return false;
-    if (block instanceof BlockStairs || block instanceof BlockVerticalSlab) return true;
+    if (block instanceof BlockStairs || block instanceof BlockVerticalSlab || block instanceof BlockGroundCover) return true;
     if (block instanceof BlockChest || block instanceof BlockCampfire
         || block instanceof ru.givler.mbo.block.BlockShelf) return true;
     if (block instanceof BlockSlab) return !block.isOpaqueCube();

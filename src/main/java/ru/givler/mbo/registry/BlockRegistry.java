@@ -33,6 +33,7 @@ import ru.givler.mbo.item.fauna.ItemFrogspawn;
 import ru.givler.mbo.movingplatform.BlockPlatformStation;
 
 public class BlockRegistry {
+    private static final List<BlockGroundCover> GROUND_COVERS = new ArrayList<>();
     private static final List<BlockVerticalSlab> VERTICAL_SLABS = new ArrayList<>();
     public static final BlockMetaVerticalSlab[] CutCopperVerticalSlabs = new BlockMetaVerticalSlab[12];
 
@@ -407,6 +408,47 @@ public class BlockRegistry {
         FenceGateDarkOak = new BlockBasicFenceGate("FenceGateDarkOak", Blocks.planks, 5);
 
         registerVerticalSlabs();
+        registerGroundCovers();
+    }
+
+    private static void registerGroundCovers() {
+        registerGroundCover(new BlockGroundCover(Blocks.grass, true));
+        registerGroundCover(new BlockGroundCover(Blocks.gravel, false));
+        registerGroundCover(new BlockGroundCover(Blocks.mycelium, false));
+        registerGroundCoverVariants(Blocks.dirt, 3, false);
+        registerGroundCoverVariants(Blocks.sand, 2, false);
+        if (Loader.isModLoaded("BiomesOPlenty")) {
+            Block bopGrass = biomesoplenty.api.content.BOPCBlocks.bopGrass;
+            if (bopGrass != null) {
+                registerGroundCover(new BlockGroundCover(bopGrass, false));
+                registerGroundCover(new BlockMetaGroundCover(bopGrass, 1, false, BlockGroundCover.SurfaceEffect.SMOLDERING));
+            }
+            registerGroundCoverVariants(biomesoplenty.api.content.BOPCBlocks.newBopGrass, 3, true);
+            registerGroundCoverVariants(biomesoplenty.api.content.BOPCBlocks.newBopDirt, 6, false);
+            Block mud = biomesoplenty.api.content.BOPCBlocks.mud;
+            if (mud != null) {
+                registerGroundCover(new BlockMetaGroundCover(mud, 0, false, BlockGroundCover.SurfaceEffect.MUD));
+                registerGroundCover(new BlockMetaGroundCover(mud, 1, false, BlockGroundCover.SurfaceEffect.QUICKSAND));
+            }
+            for (Block source : new Block[] {biomesoplenty.api.content.BOPCBlocks.hardDirt,
+                    biomesoplenty.api.content.BOPCBlocks.hardSand, biomesoplenty.api.content.BOPCBlocks.driedDirt}) {
+                if (source != null) registerGroundCover(new BlockGroundCover(source, false));
+            }
+        }
+    }
+
+    private static void registerGroundCoverVariants(Block source, int count, boolean tintedTop) {
+        if (source == null) return;
+        for (int meta = 0; meta < count; meta++) {
+            registerGroundCover(new BlockMetaGroundCover(source, meta, tintedTop));
+        }
+    }
+
+    private static void registerGroundCover(BlockGroundCover cover) {
+        String source = (String) Block.blockRegistry.getNameForObject(cover.source);
+        String name = "GroundCover_" + source.replace(':', '_') + "_" + cover.getSourceMetadata();
+        GameRegistry.registerBlock(cover.setBlockName(name), BlockGroundCover.ItemGroundCover.class, name);
+        GROUND_COVERS.add(cover);
     }
 
     private static void registerVerticalSlabs() {
@@ -547,6 +589,14 @@ public class BlockRegistry {
             ItemStack source = slab.ingredient();
             orderVerticalSlab(slab, source);
             GameRegistry.addRecipe(new ItemStack(slab, 6), "X", "X", "X", 'X', source);
+        }
+        for (BlockGroundCover cover : GROUND_COVERS) {
+            ItemStack source = cover.ingredient();
+            GameRegistry.addRecipe(new ItemStack(cover, 4), "XX", 'X', source);
+            Object[] layers = new Object[8];
+            java.util.Arrays.fill(layers, net.minecraft.item.Item.getItemFromBlock(cover));
+            GameRegistry.addShapelessRecipe(source, layers);
+            CreativeTabOrder.register(cover.source.getCreativeTabToDisplayOn(), source, new ItemStack(cover));
         }
         Block[] shelfLogs = {DebarkedOak, DebarkedSpruce, DebarkedBirch,
                 DebarkedJungle, DebarkedAcacia, DebarkedBigOak};

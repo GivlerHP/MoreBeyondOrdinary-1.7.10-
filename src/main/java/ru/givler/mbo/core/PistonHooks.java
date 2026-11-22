@@ -9,7 +9,6 @@ import java.util.Set;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.BlockPistonMoving;
-import net.minecraft.block.BlockSnow;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -192,7 +191,7 @@ public final class PistonHooks {
     for (Move move : moves) {
       int nx = move.x + dx, ny = move.y + dy, nz = move.z + dz;
       if (move.block.getMobilityFlag() == 1) {
-        float chance = move.block instanceof BlockSnow ? -1.0F : 1.0F;
+        float chance = move.block == Blocks.snow_layer ? -1.0F : 1.0F;
         move.block.dropBlockAsItemWithChance(world, move.x, move.y, move.z, move.meta, chance, 0);
         world.setBlockToAir(nx, ny, nz);
       } else {
