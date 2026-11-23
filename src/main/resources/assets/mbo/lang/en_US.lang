@@ -2127,3 +2127,9 @@ tile.ModelMirror.name=Mirror
 tile.ModelSilverMirror.name=Silver Mirror
 mbo.silverMirror.unavailable=This mirror is already linked or its partner is unavailable.
 mbo.silverMirror.remembered=First mirror remembered. Place this silver mirror to link the pair.
+
+mbo.light.mirrors=Mirrors
+mbo.light.mirrorsHint=Detailed uses the full mirror quality. Fast uses a smaller image and a shorter range. Off shows the static texture.
+mbo.light.mirrors.detailed=Detailed
+mbo.light.mirrors.fast=Fast
+mbo.light.mirrors.off=Off

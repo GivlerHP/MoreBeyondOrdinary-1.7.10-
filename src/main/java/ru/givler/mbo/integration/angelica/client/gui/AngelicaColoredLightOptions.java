@@ -11,6 +11,7 @@ import ru.givler.mbo.config.ParticleConfig;
 import ru.givler.mbo.client.lighting.ColoredLightClient;
 import ru.givler.mbo.client.lighting.ColoredEntityLightHooks;
 import ru.givler.mbo.client.settings.ItemSpriteSettings;
+import ru.givler.mbo.client.settings.MirrorSettings;
 
 /** Native Angelica controls through its optional API; vanilla keeps MBO's existing menu. */
 public final class AngelicaColoredLightOptions {
@@ -26,6 +27,7 @@ public final class AngelicaColoredLightOptions {
       AngelicaWindowOptions.attach(pages);
       attachCubicParticles(pages);
       attachItemOutline(pages);
+      attachMirrors(pages);
       pages.add(createPage());
       pages.add(AngelicaCtmOptions.createPage());
       screen.getClass().getMethod("rebuildGUI").invoke(screen);
@@ -77,6 +79,15 @@ public final class AngelicaColoredLightOptions {
         return Class.forName(ROOT+"control.CyclingControl")
             .getConstructor(optionType,Class.class,String[].class).newInstance(option,valueType,labels);
       }
+      if(valueType==MirrorSettings.Mode.class) {
+        String[] labels={
+            I18n.format("mbo.light.mirrors.detailed"),
+            I18n.format("mbo.light.mirrors.fast"),
+            I18n.format("mbo.light.mirrors.off")
+        };
+        return Class.forName(ROOT+"control.CyclingControl")
+            .getConstructor(optionType,Class.class,String[].class).newInstance(option,valueType,labels);
+      }
       Class<?> formatterType=Class.forName(ROOT+"control.ControlValueFormatter");
       Object formatter=Proxy.newProxyInstance(formatterType.getClassLoader(),new Class<?>[]{formatterType},(p,m,a)->{
         if(m.getName().equals("format"))return key.equals("speed")?I18n.format("mbo.light.speed."+a[0]):a[0]+"%";
@@ -115,6 +126,11 @@ public final class AngelicaColoredLightOptions {
   private static void attachItemOutline(List<Object> pages)throws ReflectiveOperationException {
     attachOption(pages,"itemOutline","sodium.options.pages.quality",null,
         ItemSpriteSettings.Mode.class,ItemSpriteSettings.mode(),ItemSpriteSettings::apply);
+  }
+
+  public static void attachMirrors(List<Object> pages)throws ReflectiveOperationException {
+    attachOption(pages,"mirrors","sodium.options.pages.quality",null,
+        MirrorSettings.Mode.class,MirrorSettings.mode(),MirrorSettings::apply);
   }
 
   private static <T> void attachOption(List<Object> pages,String key,String pageKey,String anchorKey,

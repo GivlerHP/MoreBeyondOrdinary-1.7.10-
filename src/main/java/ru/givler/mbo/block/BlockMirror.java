@@ -1,12 +1,19 @@
 package ru.givler.mbo.block;
 
 import java.util.Random;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import ru.givler.mbo.client.model.decormodels.DecorResources;
+import ru.givler.mbo.client.render.decormodels.DecorAtlasSprite;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -17,6 +24,7 @@ import ru.givler.mbo.tileentity.TileMirror;
 public final class BlockMirror extends BlockContainer {
     public static final int[] NX = {0, -1, 0, 1}, NZ = {1, 0, -1, 0};
     private final boolean silver;
+    @SideOnly(Side.CLIENT) private IIcon modelParticleIcon;
     public BlockMirror() { this(false); }
     public BlockMirror(boolean silver) {
         super(Material.wood);
@@ -29,6 +37,18 @@ public final class BlockMirror extends BlockContainer {
         setLightOpacity(0);
     }
     public boolean isSilver() { return silver; }
+    @SideOnly(Side.CLIENT)
+    @Override public void registerBlockIcons(IIconRegister icons) {
+        modelParticleIcon = DecorAtlasSprite.registerParticles(icons,
+            DecorResources.texture(silver ? "mirror_silver" : "mirror", ""));
+        blockIcon = modelParticleIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override public IIcon getIcon(int side, int metadata) {
+        return modelParticleIcon != null ? modelParticleIcon : Blocks.glass.getIcon(side, 0);
+    }
+
     @Override public TileEntity createNewTileEntity(World world, int meta) {
         if ((meta & 4) != 0) return null;
         return silver ? new ru.givler.mbo.tileentity.TileSilverMirror() : new TileMirror();

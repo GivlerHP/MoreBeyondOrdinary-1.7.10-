@@ -47,6 +47,24 @@ public final class AngelicaOptionsSmoke { public static final class ScaleValue {
     if(general.size()!=2||!"mbo.light.cubicParticles".equals(general.get(1).getClass().getMethod("getName").invoke(general.get(1))))throw new AssertionError("3D toggle must follow particle quantity");
     AngelicaColoredLightOptions.attachCubicParticles(pages);
     if(((List<?>)pages.get(0).getClass().getMethod("getOptions").invoke(pages.get(0))).size()!=2)throw new AssertionError("Duplicate 3D toggle");
+    Object qualityPage=Class.forName(root+"OptionPage").getConstructor(String.class,com.google.common.collect.ImmutableList.class)
+        .newInstance("sodium.options.pages.quality",com.google.common.collect.ImmutableList.of(builtGroup));
+    pages.add(qualityPage);
+    AngelicaColoredLightOptions.attachMirrors(pages);
+    AngelicaColoredLightOptions.attachMirrors(pages);
+    List<?> quality=(List<?>)pages.get(1).getClass().getMethod("getOptions").invoke(pages.get(1));
+    if(quality.size()!=2)throw new AssertionError("Mirror quality option missing or duplicated");
+    Object mirrors=quality.get(1);
+    if(!"mbo.light.mirrors".equals(mirrors.getClass().getMethod("getName").invoke(mirrors))
+        || !mirrors.getClass().getMethod("getControl").invoke(mirrors).getClass().getSimpleName().equals("CyclingControl"))
+      throw new AssertionError("Mirrors should use a native cycling control in Quality");
+    for(ru.givler.mbo.client.settings.MirrorSettings.Mode mode:ru.givler.mbo.client.settings.MirrorSettings.Mode.values()) {
+      mirrors.getClass().getMethod("setValue",Object.class).invoke(mirrors,mode);
+      mirrors.getClass().getMethod("applyChanges").invoke(mirrors);
+      Object mirrorStorage=mirrors.getClass().getMethod("getStorage").invoke(mirrors);
+      Class.forName(root+"storage.OptionStorage").getMethod("save").invoke(mirrorStorage);
+      if(ru.givler.mbo.client.settings.MirrorSettings.mode()!=mode)throw new AssertionError("Mirror quality was not applied");
+    }
     nameField.set(particleLight,"mbo.light.particles");
     Object enabled=options.get(0);Class<?> type=enabled.getClass();
     boolean initial=ColoredLightConfig.enabled;

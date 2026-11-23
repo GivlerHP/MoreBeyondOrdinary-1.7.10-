@@ -1,6 +1,7 @@
 package ru.givler.mbo.client.render;
 
 import net.minecraft.block.Block;
+import ru.givler.mbo.client.settings.MirrorSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -69,7 +70,10 @@ public final class MirrorRenderer {
     /** Runs beside the frame TESR, with its exact camera-relative origin and render destination. */
     public void renderMirror(TileEntity tile, double x, double y, double z, float tick) {
         Minecraft mc = Minecraft.getMinecraft();
-        if (renderingReflection || mc.theWorld == null || !OpenGlHelper.framebufferSupported) return;
+        MirrorSettings.Mode quality = MirrorSettings.mode();
+        if (quality == MirrorSettings.Mode.OFF || renderingReflection || mc.theWorld == null
+                || !OpenGlHelper.framebufferSupported) return;
+        int range = quality == MirrorSettings.Mode.FAST ? VIEW_RANGE / 2 : VIEW_RANGE;
         double ox = tile.xCoord - x, oy = tile.yCoord - y, oz = tile.zCoord - z;
         cameraMatrix.clear();
         GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, cameraMatrix);
@@ -81,9 +85,9 @@ public final class MirrorRenderer {
         double dz = ez - (tile.zCoord + .5 - NZ[facing] * .4375);
         double dy = ey - tile.yCoord - 1;
         if (dx * NX[facing] + dz * NZ[facing] <= .01
-                || dx * dx + dy * dy + dz * dz > VIEW_RANGE * VIEW_RANGE) return;
+                || dx * dx + dy * dy + dz * dz > range * range) return;
         if (!visibleOnScreen(tile,x,y,z,ex,ey,ez)) return;
-        if (dx * dx + dy * dy + dz * dz <= RANGE * RANGE) {
+        if (quality == MirrorSettings.Mode.DETAILED && dx * dx + dy * dy + dz * dz <= RANGE * RANGE) {
             if (detailTarget == null) detailTarget = new MirrorRenderTarget();
             reflection = detailTarget;
         } else {
@@ -162,7 +166,10 @@ public final class MirrorRenderer {
     /** Projects the exit aperture into the same bounded scene renderer used by ordinary mirrors. */
     public void renderLinkedView(TileEntity source, TileEntity exit, double x, double y, double z, float tick) {
         Minecraft mc = Minecraft.getMinecraft();
-        if (renderingReflection || !OpenGlHelper.framebufferSupported || mc.theWorld == null) return;
+        MirrorSettings.Mode quality = MirrorSettings.mode();
+        if (quality == MirrorSettings.Mode.OFF || renderingReflection || !OpenGlHelper.framebufferSupported
+                || mc.theWorld == null) return;
+        int range = quality == MirrorSettings.Mode.FAST ? VIEW_RANGE / 2 : VIEW_RANGE;
         net.minecraftforge.common.util.ForgeDirection entryNormal = mirrorNormal(source);
         net.minecraft.util.Vec3 normal = direction(entryNormal);
         net.minecraft.util.Vec3 up = apertureUp(entryNormal);
@@ -176,7 +183,7 @@ public final class MirrorRenderer {
         net.minecraft.util.Vec3 offset = net.minecraft.util.Vec3.createVectorHelper(
             inverseView.m30-center.xCoord,inverseView.m31-center.yCoord,inverseView.m32-center.zCoord);
         double distance = offset.dotProduct(normal), rangeSq = offset.dotProduct(offset);
-        if (distance <= .01 || rangeSq > VIEW_RANGE * VIEW_RANGE) return;
+        if (distance <= .01 || rangeSq >= range * range) return;
         double half = HALF_WIDTH;
         double halfHeight = (TOP-BOTTOM)/2;
         double ox=source.xCoord-x, oy=source.yCoord-y, oz=source.zCoord-z;
@@ -196,8 +203,13 @@ public final class MirrorRenderer {
         double ex=mx-outward.xCoord*distance+exitRight.xCoord*lateral+exitUp.xCoord*vertical;
         double ey=my-outward.yCoord*distance+exitRight.yCoord*lateral+exitUp.yCoord*vertical;
         double ez=mz-outward.zCoord*distance+exitRight.zCoord*lateral+exitUp.zCoord*vertical;
-        if (portalTarget == null) portalTarget = new MirrorRenderTarget();
-        reflection = portalTarget;
+        if (quality == MirrorSettings.Mode.FAST) {
+            if (distantTarget == null) distantTarget = new MirrorRenderTarget(24,56);
+            reflection = distantTarget;
+        } else {
+            if (portalTarget == null) portalTarget = new MirrorRenderTarget();
+            reflection = portalTarget;
+        }
         int facing = exitNormal == net.minecraftforge.common.util.ForgeDirection.WEST ? 1
             : exitNormal == net.minecraftforge.common.util.ForgeDirection.NORTH ? 2
             : exitNormal == net.minecraftforge.common.util.ForgeDirection.EAST ? 3 : 0;
@@ -217,8 +229,9 @@ public final class MirrorRenderer {
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GL11.glDisable(GL11.GL_ALPHA_TEST);
             GL11.glTexEnvi(GL11.GL_TEXTURE_ENV,GL11.GL_TEXTURE_ENV_MODE,GL11.GL_MODULATE);
-            float mix = smoothstep((VIEW_RANGE - Math.sqrt(rangeSq)) / 12);
-            double blur = (1 - smoothstep((16 - Math.sqrt(rangeSq)) / 8)) * 4;
+            float mix = smoothstep((range - Math.sqrt(rangeSq)) / (range * .5));
+            double blur = quality == MirrorSettings.Mode.FAST ? 0
+                : (1 - smoothstep((16 - Math.sqrt(rangeSq)) / 8)) * 4;
             if (blur < .1) {
                 portalQuad(center,right,up,half,halfHeight,0,0,0,1,1,.3F,.7F,1F,mix);
             } else {

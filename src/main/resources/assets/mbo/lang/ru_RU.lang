@@ -2417,3 +2417,9 @@ tile.ModelMirror.name=Зеркало
 tile.ModelSilverMirror.name=Серебряное зеркало
 mbo.silverMirror.unavailable=Зеркало уже связано или пара недоступна.
 mbo.silverMirror.remembered=Первое зеркало запомнено. Поставьте это зеркало, чтобы связать пару.
+
+mbo.light.mirrors=Зеркала
+mbo.light.mirrorsHint=Быстрый режим снижает разрешение и дальность. При отключении видна текстура.
+mbo.light.mirrors.detailed=Детально
+mbo.light.mirrors.fast=Быстро
+mbo.light.mirrors.off=Выключено
