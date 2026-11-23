@@ -64,8 +64,11 @@ public class PacketManager {
 
   public static int nextID = 0;
   private static final int EQUIPMENT_SKIN_PACKET_ID = 120;
+  private static final int SILVER_MIRROR_VIEW_PACKET_ID = 121;
 
   public static void registerCommonPackets() {
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketSilverMirrorView.Handler.class,
+        ru.givler.mbo.network.packet.PacketSilverMirrorView.class, SILVER_MIRROR_VIEW_PACKET_ID, Side.SERVER);
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketPossessionInput.Handler.class,ru.givler.mbo.network.packet.PacketPossessionInput.class,nextID++,Side.SERVER);
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketPossessionState.Handler.class,ru.givler.mbo.network.packet.PacketPossessionState.class,nextID++,Side.CLIENT);
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketHangingEscape.Handler.class,
@@ -232,6 +235,8 @@ public class PacketManager {
     INSTANCE.registerMessage(
         PacketTickRate.Handler.class, PacketTickRate.class, nextID++, Side.CLIENT);
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketLanternBeltVisual.Handler.class, ru.givler.mbo.network.packet.PacketLanternBeltVisual.class, nextID++, Side.CLIENT);
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketSilverMirrorScene.Handler.class,
+        ru.givler.mbo.network.packet.PacketSilverMirrorScene.class, nextID++, Side.CLIENT);
   }
 
   /** Registers outgoing client-bound packet IDs without loading client-only handlers. */
@@ -261,7 +266,8 @@ public class PacketManager {
       PacketTrapdoorLatchSnapshot.class,
       PacketColoredBurning.class,
       PacketTickRate.class,
-      ru.givler.mbo.network.packet.PacketLanternBeltVisual.class
+      ru.givler.mbo.network.packet.PacketLanternBeltVisual.class,
+      ru.givler.mbo.network.packet.PacketSilverMirrorScene.class
     };
     try {
       FMLIndexedMessageToMessageCodec codec =

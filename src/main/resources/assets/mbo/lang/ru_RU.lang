@@ -2413,3 +2413,7 @@ tile.GroundCover_BiomesOPlenty_mud_0.name=Грязевой ковёр
 tile.GroundCover_BiomesOPlenty_mud_1.name=Ковёр из зыбучего песка
 
 tile.ModelMirror.name=Зеркало
+
+tile.ModelSilverMirror.name=Серебряное зеркало
+mbo.silverMirror.unavailable=Зеркало уже связано или пара недоступна.
+mbo.silverMirror.remembered=Первое зеркало запомнено. Поставьте это зеркало, чтобы связать пару.

@@ -16,16 +16,23 @@ import ru.givler.mbo.tileentity.TileMirror;
 /** A two-block wall hanging, one texture pixel deep. Metadata keeps the original mirror facings. */
 public final class BlockMirror extends BlockContainer {
     public static final int[] NX = {0, -1, 0, 1}, NZ = {1, 0, -1, 0};
-    public BlockMirror() {
+    private final boolean silver;
+    public BlockMirror() { this(false); }
+    public BlockMirror(boolean silver) {
         super(Material.wood);
-        setBlockName("ModelMirror");
+        this.silver = silver;
+        setBlockName(silver ? "ModelSilverMirror" : "ModelMirror");
         setBlockTextureName("mbo:mirror");
         setCreativeTab(CreativeTabRegistry.tabMBOdecors);
         setHardness(.5F);
         setStepSound(soundTypeGlass);
         setLightOpacity(0);
     }
-    @Override public TileEntity createNewTileEntity(World world, int meta) { return (meta & 4) == 0 ? new TileMirror() : null; }
+    public boolean isSilver() { return silver; }
+    @Override public TileEntity createNewTileEntity(World world, int meta) {
+        if ((meta & 4) != 0) return null;
+        return silver ? new ru.givler.mbo.tileentity.TileSilverMirror() : new TileMirror();
+    }
     @Override public boolean hasTileEntity(int meta) { return (meta & 4) == 0; }
     @Override public boolean isOpaqueCube() { return false; }
     @Override public boolean renderAsNormalBlock() { return false; }

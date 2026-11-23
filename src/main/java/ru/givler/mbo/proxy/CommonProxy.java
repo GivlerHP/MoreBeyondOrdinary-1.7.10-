@@ -94,6 +94,8 @@ public class CommonProxy {
     ArmorRegistry.preLoad(event);
     MagicItemRegistry.preLoad(event);
     MagicModule.preInit(event);
+    FMLCommonHandler.instance().bus().register(ru.givler.mbo.mirror.SilverMirrorStreaming.INSTANCE);
+    net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(ru.givler.mbo.mirror.SilverMirrorStreaming.INSTANCE);
     if (Loader.isModLoaded("Thaumcraft")) {
       invokeOptional(
           "ru.givler.mbo.integration.thaumcraft.ThaumcraftRegistry",

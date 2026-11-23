@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.*;
@@ -368,10 +369,108 @@ public final class MirrorPixelsSmoke {
             check(held[2]>held[0]+3,"Held mirror shows back or edge, type="+heldType+" pixel="+java.util.Arrays.toString(held));
             check(GL11.glGetError()==GL11.GL_NO_ERROR,"Held item leaked GL errors");
         }
+        // Only the distant exit has a red block. The source must show that block through its aperture.
+        Tile portalSource=new Tile();portalSource.facing=0;portalSource.yCoord=64;
+        Tile portalExit=new Tile();portalExit.facing=0;portalExit.xCoord=20;portalExit.yCoord=64;
+        scene.bx=20;scene.bz=3;
+        output.begin();
+        GL11.glMatrixMode(GL11.GL_PROJECTION);GL11.glLoadIdentity();GL11.glOrtho(-.5,.5,-.5,.5,.1,8);
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);GL11.glLoadIdentity();
+        renderer.renderLinkedView(portalSource,portalExit,-.5,-.5,-2,0);
+        int[] through=pixel(48,112);
+        check(through[0]>40 && through[0]<85 && through[1]<20 && through[2]<20,
+            "Linked mirror did not show the tinted exit scene: "+java.util.Arrays.toString(through));
+        // A streamed chunk must survive encoding, and exist only in the detached render world.
+        Field worldProvider=World.class.getDeclaredField("provider");worldProvider.setAccessible(true);
+        net.minecraft.world.WorldProviderSurface surfaceProvider=new net.minecraft.world.WorldProviderSurface();
+        worldProvider.set(scene,surfaceProvider);
+        WorldSettings settings=new WorldSettings(0,WorldSettings.GameType.SURVIVAL,false,false,WorldType.DEFAULT);
+        Field worldInfo=World.class.getDeclaredField("worldInfo");worldInfo.setAccessible(true);
+        worldInfo.set(scene,new net.minecraft.world.storage.WorldInfo(settings,"mirror-test"));
+        surfaceProvider.registerWorld(scene);
+        net.minecraft.world.chunk.Chunk sent=new net.minecraft.world.chunk.Chunk(scene,10,11);
+        net.minecraft.world.chunk.storage.ExtendedBlockStorage[] sections=new net.minecraft.world.chunk.storage.ExtendedBlockStorage[16];
+        sections[4]=new net.minecraft.world.chunk.storage.ExtendedBlockStorage(64,true);
+        sections[4].func_150818_a(2,0,3,net.minecraft.init.Blocks.stone);
+        sections[4].setExtBlockMetadata(2,0,3,1);
+        sent.setStorageArrays(sections);
+        ru.givler.mbo.network.packet.PacketSilverMirrorScene outgoing=new ru.givler.mbo.network.packet.PacketSilverMirrorScene();
+        outgoing.addChunk(new net.minecraft.network.play.server.S21PacketChunkData(sent,true,1<<4));
+        ru.givler.mbo.network.packet.PacketSilverMirrorScene incoming=new ru.givler.mbo.network.packet.PacketSilverMirrorScene();
+        io.netty.buffer.ByteBuf wire=io.netty.buffer.Unpooled.buffer();
+        try { outgoing.toBytes(wire); incoming.fromBytes(wire); }
+        finally { wire.release(); }
+        Method buildScene=SilverMirrorView.class.getDeclaredMethod("buildScene",World.class,ru.givler.mbo.network.packet.PacketSilverMirrorScene.class);
+        buildScene.setAccessible(true);
+        World detached=(World)buildScene.invoke(null,scene,incoming);
+        check(!(detached.getChunkProvider() instanceof net.minecraft.client.multiplayer.ChunkProviderClient),
+            "Detached world invokes Angelica hooks for the main client world");
+        check(detached.getBlock(162,64,179)==net.minecraft.init.Blocks.stone
+                && detached.getBlockMetadata(162,64,179)==1,"Streamed block data did not reach the render world");
+        check(mc.theWorld==scene && scene.getBlock(162,64,179)!=net.minecraft.init.Blocks.stone,
+            "Streamed data changed the main client world");
+        ru.givler.mbo.network.packet.PacketSilverMirrorScene delta=new ru.givler.mbo.network.packet.PacketSilverMirrorScene();
+        delta.initial=false;delta.streamId=42;
+        int centerIndex=(14*29+14)*22+10;
+        delta.addChange(centerIndex,Block.getIdFromBlock(net.minecraft.init.Blocks.dirt));
+        net.minecraft.entity.passive.EntityCow remoteCow=new net.minecraft.entity.passive.EntityCow(detached);
+        remoteCow.setPosition(162,64,179);
+        remoteCow.setCurrentItemOrArmor(0,new net.minecraft.item.ItemStack(net.minecraft.init.Items.iron_sword));
+        remoteCow.setCurrentItemOrArmor(4,new net.minecraft.item.ItemStack(net.minecraft.init.Items.iron_helmet));
+        remoteCow.setSneaking(true);
+        java.lang.reflect.Constructor<ru.givler.mbo.network.packet.PacketSilverMirrorScene.Actor> actorConstructor=
+            ru.givler.mbo.network.packet.PacketSilverMirrorScene.Actor.class.getDeclaredConstructor(int.class,EntityLivingBase.class);
+        actorConstructor.setAccessible(true);
+        int cowType=net.minecraft.entity.EntityList.getEntityID(remoteCow);
+        delta.actors.add(actorConstructor.newInstance(cowType,remoteCow));
+        ru.givler.mbo.network.packet.PacketSilverMirrorScene decodedDelta=new ru.givler.mbo.network.packet.PacketSilverMirrorScene();
+        io.netty.buffer.ByteBuf deltaWire=io.netty.buffer.Unpooled.buffer();
+        try { delta.toBytes(deltaWire); decodedDelta.fromBytes(deltaWire); }
+        finally { deltaWire.release(); }
+        check(!decodedDelta.initial && decodedDelta.streamId==42 && decodedDelta.chunks.isEmpty()
+                && decodedDelta.changes.size()==2 && decodedDelta.actors.get(0).id==remoteCow.getEntityId(),
+            "Incremental mirror packet lost its identity, block update or entity ID");
+        ru.givler.mbo.mirror.SilverMirrorBlocks.apply(detached,162,64,179,decodedDelta.changes.get(0),decodedDelta.changes.get(1));
+        check(!(detached.getChunkProvider() instanceof net.minecraft.client.multiplayer.ChunkProviderClient),
+            "Detached world invokes Angelica hooks for the main client world");
+        check(detached.getBlock(162,64,179)==net.minecraft.init.Blocks.dirt && mc.theWorld==scene,
+            "Incremental mirror block change did not reach the detached world");
+        Method actorsUpdate=detached.getClass().getDeclaredMethod("updateActors",delta.getClass(),long.class);
+        actorsUpdate.setAccessible(true);
+        Method interpolate=detached.getClass().getDeclaredMethod("interpolate",long.class);
+        interpolate.setAccessible(true);
+        actorsUpdate.invoke(detached,decodedDelta,100_000_000L);
+        EntityLivingBase copy=(EntityLivingBase)detached.loadedEntityList.get(0);
+        check(copy.getHeldItem()!=null && copy.getHeldItem().getItem()==net.minecraft.init.Items.iron_sword
+                && copy.getEquipmentInSlot(4)!=null && copy.getEquipmentInSlot(4).getItem()==net.minecraft.init.Items.iron_helmet
+                && copy.isSneaking(),"Remote equipment or pose disappeared during the network round trip");
+        java.util.Map<Integer,ru.givler.mbo.network.packet.PacketSilverMirrorScene.Actor> appearance=new java.util.HashMap<>();
+        delta.omitUnchangedAppearance(appearance);
+        delta.actors.clear();delta.actors.add(actorConstructor.newInstance(cowType,remoteCow));
+        delta.omitUnchangedAppearance(appearance);
+        ru.givler.mbo.network.packet.PacketSilverMirrorScene motionOnly=new ru.givler.mbo.network.packet.PacketSilverMirrorScene();
+        io.netty.buffer.ByteBuf motionWire=io.netty.buffer.Unpooled.buffer();
+        try { delta.toBytes(motionWire); motionOnly.fromBytes(motionWire); }
+        finally { motionWire.release(); }
+        check(!motionOnly.actors.get(0).sendEquipment,"Unchanged equipment was sent again");
+        actorsUpdate.invoke(detached,motionOnly,100_000_000L);
+        check(copy.getEquipmentInSlot(4)!=null && copy.getHeldItem()!=null,
+            "A movement-only update cleared visible equipment");
+        remoteCow.setPosition(163,64,179);
+        remoteCow.setCurrentItemOrArmor(4,null);
+        delta.actors.clear();delta.actors.add(actorConstructor.newInstance(cowType,remoteCow));
+        delta.omitUnchangedAppearance(appearance);
+        check(delta.actors.get(0).sendEquipment,"Armor removal was omitted");
+        actorsUpdate.invoke(detached,delta,200_000_000L);
+        interpolate.invoke(detached,250_000_000L);
+        check(detached.loadedEntityList.get(0)==copy && Math.abs(copy.posX-162.5)<.001,
+            "Remote actor was recreated or jumped instead of interpolating");
+        check(copy.getEquipmentInSlot(4)==null,"Remote armor remained after being unequipped");
+        delta.actors.clear();actorsUpdate.invoke(detached,delta,300_000_000L);
+        check(detached.loadedEntityList.isEmpty(),"Remote actor survived leaving the streamed scene");
         low.delete();
         check(scene.calls>0,"No world blocks rendered");
         GL20.glUseProgram(0);OpenGlHelper.func_153171_g(36160,0);target.delete();output.delete();context.destroy();
-        System.out.println("PASS mirror capture/surface, four facings, original frame, shader/FBO state, no rear support, distant low resolution, animals/players, entity visibility and cap, fire, real MBO Geo model, non-ticking decor/mirrors from chunk maps with empty ticking list, offscreen/occlusion culling, back atlas UVs, Forge inventory/held model, both-half collisions");
+        System.out.println("PASS mirror capture/surface, four facings, original frame, shader/FBO state, no rear support, distant low resolution, animals/players, entity visibility and cap, fire, real MBO Geo model, non-ticking decor/mirrors from chunk maps with empty ticking list, offscreen/occlusion culling, back atlas UVs, Forge inventory/held model, both-half collisions, isolated chunk and block delta, remote actor interpolation, equipment and pose");
     }
 }
-

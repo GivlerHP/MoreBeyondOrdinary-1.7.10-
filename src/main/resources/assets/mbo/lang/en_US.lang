@@ -2123,3 +2123,7 @@ tile.GroundCover_BiomesOPlenty_mud_0.name=Mud Carpet
 tile.GroundCover_BiomesOPlenty_mud_1.name=Quicksand Carpet
 
 tile.ModelMirror.name=Mirror
+
+tile.ModelSilverMirror.name=Silver Mirror
+mbo.silverMirror.unavailable=This mirror is already linked or its partner is unavailable.
+mbo.silverMirror.remembered=First mirror remembered. Place this silver mirror to link the pair.

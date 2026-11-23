@@ -29,6 +29,11 @@ public class ThaumcraftRegistry {
     }
 
     public static void init() {
+        cpw.mods.fml.common.registry.GameRegistry.addShapelessRecipe(
+            new net.minecraft.item.ItemStack(ru.givler.mbo.registry.DecorBlockRegistry.ModelSilverMirror),
+            new net.minecraft.item.ItemStack(ru.givler.mbo.registry.DecorBlockRegistry.ModelMirror),
+            new net.minecraft.item.ItemStack(thaumcraft.common.config.ConfigBlocks.blockMirror, 1, 0));
+
         if (Loader.isModLoaded("Thaumcraft")) {
 
             greatwoodFamily = new WoodFamily("ThaumGreatwood",

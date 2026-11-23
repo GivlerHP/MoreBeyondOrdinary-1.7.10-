@@ -14,7 +14,7 @@ import ru.givler.mbo.block.model.BlockModelFood;
 import static net.minecraft.block.Block.*;
 
 public class DecorBlockRegistry {
-    public static ru.givler.mbo.block.BlockMirror ModelMirror;
+    public static ru.givler.mbo.block.BlockMirror ModelMirror, ModelSilverMirror;
     //Интерьер портного
     public static BlockDecorModel ModelThreads;
     public static BlockDecorModel  ModelTailorShelf, ModelCloth, ModelDummy, ModelHangers, ModelPillow, ModelRulers, ModelScissors;
@@ -113,6 +113,7 @@ public class DecorBlockRegistry {
 
     public static void preInit(FMLPreInitializationEvent event){
         ModelMirror = new ru.givler.mbo.block.BlockMirror();
+        ModelSilverMirror = new ru.givler.mbo.block.BlockMirror(true);
 
         ModelThreads = new BlockDecorModel(Material.cloth, "ModelThreads", "threads", "threads");
         ModelTailorShelf = new BlockDecorModel(Material.wood,"ModelTailorShelf", "tailor's_shelf", "tailor's_shelf");
@@ -1260,6 +1261,8 @@ public class DecorBlockRegistry {
     public static void init(FMLInitializationEvent event){
         cpw.mods.fml.common.registry.GameRegistry.registerBlock(ModelMirror, ru.givler.mbo.item.ItemBlockMirror.class, "ModelMirror");
         cpw.mods.fml.common.registry.GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileMirror.class, "mbo_mirror");
+        cpw.mods.fml.common.registry.GameRegistry.registerBlock(ModelSilverMirror, ru.givler.mbo.item.ItemBlockMirror.class, "ModelSilverMirror");
+        cpw.mods.fml.common.registry.GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileSilverMirror.class, "mbo_silver_mirror");
         for (BlockDecorModel model : BlockDecorModel.getAllModels()) {
             model.register();
         }
