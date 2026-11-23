@@ -99,6 +99,9 @@ public final class WaterloggedBlockSupport {
   public static boolean canWaterlog(World world, int x, int y, int z) {
     if (world == null || y < -64 || y > 255 || !world.blockExists(x, y, z)) return false;
     Block block = world.getBlock(x, y, z);
+    if (ru.givler.mbo.block.BlockQuarterColumn.isCube(block)) {
+      return ru.givler.mbo.block.BlockQuarterColumn.cubeMask(world, x, y, z) != 255;
+    }
     if (block instanceof BlockVerticalSlab) {
       return BlockVerticalSlab.shapeMask(world, x, y, z) != 15;
     }

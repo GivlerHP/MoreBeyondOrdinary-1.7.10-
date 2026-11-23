@@ -76,6 +76,7 @@ public class MoreBeyondOrdinary {
     proxy.initPackets();
     EntityMobRegistry.registerEntities();
     MinecraftForge.EVENT_BUS.register(new FaunaEvents());
+    MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.data.world.QuarterCubeData.Events());
     MinecraftForge.EVENT_BUS.register(new SkeletonCombatEvents());
     MinecraftForge.EVENT_BUS.register(new UndeadEvents());
     MinecraftForge.EVENT_BUS.register(new EffectArrowEvents());

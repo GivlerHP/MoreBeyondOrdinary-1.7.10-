@@ -1,5 +1,7 @@
 package ru.givler.mbo.block;
 
+import ru.givler.mbo.data.world.QuarterCubeData;
+
 import cpw.mods.fml.common.network.NetworkRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -139,6 +141,7 @@ public final class CopperOxidation {
     private static int state(Block block, int meta) {
         if (block instanceof BlockMeta && ((BlockMeta) block).isCopper()) return meta;
         if (block instanceof BlockMetaStairs) return ((BlockMetaStairs) block).getCopperState();
+        if (block instanceof BlockQuarterColumn) return ((BlockQuarterColumn) block).getCopperState();
         if (block instanceof BlockMetaVerticalSlab) return ((BlockMetaVerticalSlab) block).getCopperState();
         if (block instanceof BlockMetaSlab) return ((BlockMetaSlab) block).getCopperState();
         if (block instanceof TrapDoorBase) return ((TrapDoorBase) block).getCopperState();
@@ -151,6 +154,12 @@ public final class CopperOxidation {
         if (block instanceof BlockMeta && ((BlockMeta) block).isCopper()) world.setBlockMetadataWithNotify(x, y, z, state, 3);
         else if (block instanceof BlockMetaStairs)
             world.setBlock(x, y, z, BlockRegistry.CutCopperStairs[state], meta, 3);
+        else if (block instanceof BlockQuarterColumn) {
+            boolean cube = ((BlockQuarterColumn) block).isCube();
+            int mask = cube && (meta & 8) != 0 ? BlockQuarterColumn.cubeMask(world, x, y, z) : 0;
+            if (world.setBlock(x, y, z, cube ? BlockRegistry.CutCopperCubes[state] : BlockRegistry.CutCopperColumns[state], meta, 3)
+                    && mask != 0) QuarterCubeData.set(world, x, y, z, mask);
+        }
         else if (block instanceof BlockMetaVerticalSlab)
             world.setBlock(x, y, z, BlockRegistry.CutCopperVerticalSlabs[state], meta, 3);
         else if (block instanceof BlockMetaSlab)

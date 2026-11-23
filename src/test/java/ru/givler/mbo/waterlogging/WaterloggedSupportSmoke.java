@@ -47,9 +47,21 @@ public final class WaterloggedSupportSmoke {
     @Override public boolean blockExists(int x,int y,int z) { return true; }
     @Override public int getHeight() { return 256; }
     @Override public void markBlockForUpdate(int x,int y,int z) {}
+    @Override public void markBlockRangeForRenderUpdate(int a,int b,int c,int x,int y,int z) {}
+    @Override public void notifyBlocksOfNeighborChange(int x,int y,int z,Block block) {}
+    @Override public boolean setBlockMetadataWithNotify(int x,int y,int z,int meta,int flags) {
+      return !Objects.equals(metadata.put(key(x,y,z),meta),meta);
+    }
+    @Override public boolean canMineBlock(net.minecraft.entity.player.EntityPlayer player,int x,int y,int z) { return true; }
+    @Override public boolean checkNoEntityCollision(net.minecraft.util.AxisAlignedBB box) { return true; }
+    @Override public void playSoundEffect(double x,double y,double z,String sound,float volume,float pitch) {}
     @Override public void scheduleBlockUpdate(int x,int y,int z,Block block,int delay) {}
     @Override public boolean isAirBlock(int x,int y,int z) { return false; }
     @Override public net.minecraft.tileentity.TileEntity getTileEntity(int x,int y,int z) { return null; }
+  }
+  static final class CubeBuilder extends net.minecraft.entity.player.EntityPlayerMP {
+    CubeBuilder() { super(null, null, null, null); }
+    @Override public boolean canPlayerEdit(int x,int y,int z,int side,net.minecraft.item.ItemStack stack) { return true; }
   }
   static final class TestMultiPlace extends BlockEvent.MultiPlaceEvent {
     List<BlockSnapshot> snapshots;
@@ -105,6 +117,86 @@ public final class WaterloggedSupportSmoke {
       require(WaterloggedBlockSupport.supportsWaterlogging(block),"Unsupported block: "+name);
     }
     require(!WaterloggedBlockSupport.supportsWaterlogging(ROCK),"Full ordinary blocks must remain dry");
+    ru.givler.mbo.block.BlockQuarterColumn column=new ru.givler.mbo.block.BlockQuarterColumn(
+        new ru.givler.mbo.block.BlockVerticalSlab(ROCK));
+    String columnPos=TestWorld.key(0,100,0);
+    ru.givler.mbo.block.BlockBase greyStone=new ru.givler.mbo.block.BlockBase(
+        Material.rock,"opacity_test_grey_stone","stone/stone",false);
+    ru.givler.mbo.block.BlockVerticalSlab opaqueSlab=new ru.givler.mbo.block.BlockVerticalSlab(greyStone);
+    world.cells.put(columnPos,opaqueSlab);
+    require(opaqueSlab.getLightOpacity(world,0,100,0)==255,"Stone vertical slabs must use the source opacity");
+    world.metadata.put(columnPos,4);
+    require(opaqueSlab.getLightOpacity(world,0,100,0)==255,"A joined vertical slab must block light");
+    require(!opaqueSlab.getUseNeighborBrightness(),"A vertical slab must not relay light to adjoining faces");
+    world.cells.put(columnPos,column);
+    for (int quarter=0;quarter<4;quarter++) {
+      world.metadata.put(columnPos,quarter);
+      float hitX=(quarter&1)==0?.25F:.75F,hitZ=(quarter&2)==0?.25F:.75F;
+      require(column.onBlockPlaced(world,0,100,0,1,hitX,1,hitZ,0)==quarter,"Column did not select the clicked quarter");
+      require(ru.givler.mbo.block.BlockVerticalSlab.shapeMask(world,0,100,0)==(1<<quarter),"Wrong solid column quarter");
+      net.minecraft.util.AxisAlignedBB box=column.getCollisionBoundingBoxFromPool(world,0,100,0);
+      require(box.minX==(quarter&1)*.5 && box.minZ==(quarter>>1)*.5
+          && box.maxX-box.minX==.5 && box.maxZ-box.minZ==.5 && box.maxY-box.minY==1,
+          "Column collision is not a full-height quarter");
+      require(WaterloggedBlockSupport.canWaterlog(world,0,100,0),"Column cannot contain water in its free quarters");
+      require(column.getLightOpacity(world,0,100,0)==0,"An isolated column must leave room for light");
+    }
+    ru.givler.mbo.block.BlockQuarterColumn cube=new ru.givler.mbo.block.BlockQuarterColumn(
+        new ru.givler.mbo.block.BlockVerticalSlab(ROCK),true);
+    world.cells.put(columnPos,cube);
+    require(!cube.getUseNeighborBrightness(),"A filled cube cell must not relay light to adjoining faces");
+    for (int meta=0;meta<8;meta++) {
+      world.metadata.put(columnPos,meta);
+      net.minecraft.util.AxisAlignedBB box=cube.getCollisionBoundingBoxFromPool(world,0,100,0);
+      require(box.minX==(meta&1)*.5 && box.minY==100+(meta>>2)*.5 && box.minZ==(meta>>1&1)*.5
+          && box.maxX-box.minX==.5 && box.maxY-box.minY==.5 && box.maxZ-box.minZ==.5,
+          "Cube collision must occupy one of eight half-block positions");
+      float x=(meta&1)==0?.25F:.75F,z=(meta&2)==0?.25F:.75F;
+      require(cube.onBlockPlaced(world,0,100,0,(meta&4)==0?1:0,x,.5F,z,0)==meta,
+          "Cube did not use the clicked quarter and half");
+      require(WaterloggedBlockSupport.canWaterlog(world,0,100,0),"Cube cannot contain water around it");
+      require(cube.getLightOpacity(world,0,100,0)==0,"An isolated cube must leave room for light");
+    }
+    world.metadata.put(columnPos,0);
+    ru.givler.mbo.block.BlockQuarterColumn.ItemQuarterColumn item=
+        new ru.givler.mbo.block.BlockQuarterColumn.ItemQuarterColumn(cube);
+    net.minecraft.item.ItemStack stack=new net.minecraft.item.ItemStack(item,7);
+    CubeBuilder builder=(CubeBuilder)unsafe.allocateInstance(CubeBuilder.class);
+    float[][] placements={{5,.5F,.25F,.25F},{3,.25F,.25F,.5F},{3,.75F,.25F,.5F},
+        {1,.25F,.5F,.25F},{1,.75F,.5F,.25F},{1,.25F,.5F,.75F},{1,.75F,.5F,.75F}};
+    for (int i=0;i<placements.length;i++) {
+      float[] hit=placements[i];
+      require(item.onItemUse(stack,builder,world,0,100,0,(int)hit[0],hit[1],hit[2],hit[3]),
+          "Exposed cube face refused a cube at position "+(i+1));
+      require(ru.givler.mbo.block.BlockQuarterColumn.cubeMask(world,0,100,0)==(1<<(i+2))-1,
+          "Adding a cube changed existing positions");
+      require(stack.stackSize==6-i,"Adding a cube consumed the wrong amount");
+      require(cube.getLightOpacity(world,0,100,0)==(i>=2?255:0),"A closed cube face must block light");
+      if (i==1) {
+        List<net.minecraft.util.AxisAlignedBB> boxes=new ArrayList<>();
+        cube.addCollisionBoxesToList(world,0,100,0,net.minecraft.util.AxisAlignedBB.getBoundingBox(0,100,0,1,101,1),boxes,null);
+        require(boxes.size()==3,"Three cubes must leave the fourth corner empty");
+        net.minecraft.util.Vec3 start=net.minecraft.util.Vec3.createVectorHelper(.75,101.5,.75);
+        net.minecraft.util.Vec3 end=net.minecraft.util.Vec3.createVectorHelper(.75,99.5,.75);
+        require(cube.collisionRayTrace(world,0,100,0,start,end)==null,"Ray hit empty corner");
+      }
+    }
+    require(!WaterloggedBlockSupport.canWaterlog(world,0,100,0),"A full cell of cubes cannot hold water");
+    String cubeDataName="mbo_quarter_cubes";
+    Class<ru.givler.mbo.data.world.QuarterCubeData> cubeDataType=ru.givler.mbo.data.world.QuarterCubeData.class;
+    net.minecraft.nbt.NBTTagCompound savedCubes=new net.minecraft.nbt.NBTTagCompound();
+    world.perWorldStorage.loadData(cubeDataType,cubeDataName).writeToNBT(savedCubes);
+    ru.givler.mbo.data.world.QuarterCubeData loadedCubes=new ru.givler.mbo.data.world.QuarterCubeData(cubeDataName);
+    loadedCubes.readFromNBT(savedCubes);
+    world.perWorldStorage.setData(cubeDataName,loadedCubes);
+    require(ru.givler.mbo.block.BlockQuarterColumn.cubeMask(world,0,100,0)==255,"Reload lost cube positions");
+    require(!cube.hasTileEntity(8),"Stacked cubes must not create a tile entity");
+    cube.breakBlock(world,0,100,0,cube,8);
+    require(ru.givler.mbo.block.BlockQuarterColumn.cubeMask(world,0,100,0)==1,"Broken stack left stale occupancy");
+    System.out.println("PASS cube stacking, empty-corner collision, full coverage, persistence and cleanup");
+    world.cells.remove(columnPos);
+    world.metadata.remove(columnPos);
+
     int extra=0;
     for(String name:new String[]{"biomesoplenty.common.blocks.BlockBones","biomesoplenty.common.blocks.BlockGrave"}) {
       try {
@@ -151,7 +243,30 @@ public final class WaterloggedSupportSmoke {
     for(int x=0;x<2;x++) require(data.contains(x,64,0),"Submerged source was drained after placement");
     verifyTrapdoorBoundary(world);
     verifySlabBoundary(world);
+    verifyDirectWaterSupply(world);
     System.out.println("PASS "+(supported.length+extra)+" vanilla/mod block types, permeable models/helpers and submerged multiblock source preservation");
+  }
+
+  private static void verifyDirectWaterSupply(TestWorld world) {
+    WaterloggedWorldData data=WaterloggedWorldData.get(world);
+    Block slab=new TestSlab();
+    int y=80;
+    for(int x=20;x<24;x++) world.cells.put(TestWorld.key(x,y,0),slab);
+    world.cells.put(TestWorld.key(19,y,0),WATER);
+    WaterloggedFlowQueue.scheduleAround(world,20,y,0);
+    WaterloggedFlowQueue.process(world);
+    require(data.contains(20,y,0),"Adjacent ordinary source must fill a slab");
+    require(!data.contains(21,y,0),"Water propagated through a wet slab");
+
+    require(data.set(world,22,y,0,true),"Cannot place a water source inside a slab");
+    WaterloggedFlowQueue.process(world);
+    require(data.contains(22,y,0),"Water placed directly in the slab was drained");
+    require(!data.contains(21,y,0) && !data.contains(23,y,0),"Internal source flooded neighboring slabs");
+
+    require(data.addIngress(world,23,y,0,-1,0,0),"Cannot reproduce legacy chain water");
+    WaterloggedFlowQueue.process(world);
+    require(!data.contains(23,y,0),"Unsupported chain water must drain when reevaluated");
+    System.out.println("PASS direct water supply, contained bucket source and legacy chain drainage");
   }
 
   private static void verifyTrapdoorBoundary(TestWorld world)throws Exception {

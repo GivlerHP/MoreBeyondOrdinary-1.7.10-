@@ -35,6 +35,10 @@ import ru.givler.mbo.movingplatform.BlockPlatformStation;
 public class BlockRegistry {
     private static final List<BlockGroundCover> GROUND_COVERS = new ArrayList<>();
     private static final List<BlockVerticalSlab> VERTICAL_SLABS = new ArrayList<>();
+    private static final java.util.Map<BlockVerticalSlab,BlockQuarterColumn> QUARTER_COLUMNS = new java.util.IdentityHashMap<>();
+    private static final java.util.Map<BlockVerticalSlab,BlockQuarterColumn> QUARTER_CUBES = new java.util.IdentityHashMap<>();
+    public static final BlockQuarterColumn[] CutCopperCubes = new BlockQuarterColumn[12];
+    public static final BlockQuarterColumn[] CutCopperColumns = new BlockQuarterColumn[12];
     public static final BlockMetaVerticalSlab[] CutCopperVerticalSlabs = new BlockMetaVerticalSlab[12];
 
     public static final BlockShelf[] Shelves = new BlockShelf[6];
@@ -408,6 +412,7 @@ public class BlockRegistry {
         FenceGateDarkOak = new BlockBasicFenceGate("FenceGateDarkOak", Blocks.planks, 5);
 
         registerVerticalSlabs();
+        registerQuarterColumns();
         registerGroundCovers();
     }
 
@@ -525,6 +530,28 @@ public class BlockRegistry {
         VERTICAL_SLABS.add(slab);
     }
 
+    private static void registerQuarterColumns() {
+        registerQuarterShapes(false,QUARTER_COLUMNS,CutCopperColumns);
+        registerQuarterShapes(true,QUARTER_CUBES,CutCopperCubes);
+    }
+
+    private static void registerQuarterShapes(boolean cube,
+            java.util.Map<BlockVerticalSlab,BlockQuarterColumn> shapes, BlockQuarterColumn[] copper) {
+        for (BlockVerticalSlab slab : VERTICAL_SLABS) {
+            String source = (String)Block.blockRegistry.getNameForObject(slab.source);
+            String name = (cube ? "QuarterCube_" : "QuarterColumn_") + source.replace(':', '_') + "_" + slab.getSourceMetadata();
+            BlockQuarterColumn shape = new BlockQuarterColumn(slab,cube);
+            GameRegistry.registerBlock(shape.setBlockName(name), BlockQuarterColumn.ItemQuarterColumn.class, name);
+            shapes.put(slab,shape);
+            if (slab.source == CutCopper && shape.getCopperState() >= 0) {
+                copper[shape.getCopperState()] = shape;
+            }
+        }
+    }
+
+    static BlockQuarterColumn columnFor(BlockVerticalSlab slab) { return QUARTER_COLUMNS.get(slab); }
+    static BlockQuarterColumn cubeFor(BlockVerticalSlab slab) { return QUARTER_CUBES.get(slab); }
+
     static List<BlockVerticalSlab> getVerticalSlabs() {
         return Collections.unmodifiableList(VERTICAL_SLABS);
     }
@@ -533,6 +560,8 @@ public class BlockRegistry {
         for (BlockVerticalSlab slab : VERTICAL_SLABS) {
             if (slab.source == source && (meta < 0 || slab.ingredient().getItemDamage() == meta)) {
                 list.add(new ItemStack(slab));
+                list.add(new ItemStack(columnFor(slab)));
+                list.add(new ItemStack(cubeFor(slab)));
             }
         }
     }
@@ -541,6 +570,10 @@ public class BlockRegistry {
         CreativeTabs tab = slab.source.getCreativeTabToDisplayOn();
         if (tab == null || tab == CreativeTabRegistry.tabMBOblocks) return;
         slab.setCreativeTab(tab);
+        BlockQuarterColumn column = QUARTER_COLUMNS.get(slab);
+        column.setCreativeTab(tab);
+        BlockQuarterColumn cube=cubeFor(slab);
+        cube.setCreativeTab(tab);
         ItemStack anchor = source;
         int meta = source.getItemDamage();
         if (slab.source == Blocks.planks) anchor = new ItemStack(Blocks.wooden_slab, 1, meta);
@@ -573,7 +606,7 @@ public class BlockRegistry {
             Block horizontal = GameRegistry.findBlock(id.modId, meta < 8 ? "woodenSingleSlab1" : "woodenSingleSlab2");
             if (horizontal != null) anchor = new ItemStack(horizontal, 1, meta & 7);
         }
-        CreativeTabOrder.register(tab, anchor, new ItemStack(slab));
+        CreativeTabOrder.register(tab, anchor, new ItemStack(slab), new ItemStack(column), new ItemStack(cube));
     }
 
     private static String[] copperTextures(String fresh, String exposed, String weathered, String oxidized) {
@@ -589,6 +622,14 @@ public class BlockRegistry {
             ItemStack source = slab.ingredient();
             orderVerticalSlab(slab, source);
             GameRegistry.addRecipe(new ItemStack(slab, 6), "X", "X", "X", 'X', source);
+            BlockQuarterColumn column = QUARTER_COLUMNS.get(slab);
+            GameRegistry.addShapelessRecipe(new ItemStack(column, 2), new ItemStack(slab));
+            GameRegistry.addShapelessRecipe(new ItemStack(slab), new ItemStack(column), new ItemStack(column));
+            GameRegistry.addShapelessRecipe(source, new ItemStack(column), new ItemStack(column),
+                new ItemStack(column), new ItemStack(column));
+            BlockQuarterColumn cube=cubeFor(slab);
+            GameRegistry.addShapelessRecipe(new ItemStack(cube,2),new ItemStack(column));
+            GameRegistry.addShapelessRecipe(new ItemStack(column),new ItemStack(cube),new ItemStack(cube));
         }
         for (BlockGroundCover cover : GROUND_COVERS) {
             ItemStack source = cover.ingredient();

@@ -13,6 +13,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import ru.givler.mbo.block.BlockVerticalSlab;
+import ru.givler.mbo.block.BlockQuarterColumn;
 import ru.givler.mbo.data.world.FenceConnectionData;
 import ru.givler.mbo.network.packet.PacketFenceConnectionSnapshot;
 
@@ -21,6 +22,7 @@ public final class BlockConnectionEvents {
   public void interact(PlayerInteractEvent event) {
     if (event.action != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) return;
     Block block = event.world.getBlock(event.x, event.y, event.z);
+    if (block instanceof BlockQuarterColumn) return;
     if (!(isFenceOrWall(block) || block instanceof BlockVerticalSlab)
         || !isMineFantasySaw(event.entityPlayer.getCurrentEquippedItem())) return;
     if (block instanceof BlockVerticalSlab) {

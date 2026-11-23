@@ -2133,3 +2133,7 @@ mbo.light.mirrorsHint=Detailed uses the full mirror quality. Fast uses a smaller
 mbo.light.mirrors.detailed=Detailed
 mbo.light.mirrors.fast=Fast
 mbo.light.mirrors.off=Off
+
+tile.mbo.quarterColumn.format=%s Column
+
+tile.mbo.quarterCube.format=%s Cube

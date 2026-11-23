@@ -127,9 +127,8 @@ public final class WaterloggedGeometry {
     final java.util.Map<Long,boolean[]> cells = new java.util.HashMap<Long,boolean[]>();
     final java.util.Map<Long,boolean[]> renderCells = new java.util.HashMap<Long,boolean[]>();
     final java.util.Map<String,Boolean> reachable = new java.util.HashMap<String,Boolean>();
-    final java.util.Map<String,Boolean> supply = new java.util.HashMap<String,Boolean>();
-    boolean small() {return !oversized && cells.size()<=256 && renderCells.size()<=256 && reachable.size()<=256 && supply.size()<=256;}
-    void clear() {oversized |= !small();cells.clear();renderCells.clear();reachable.clear();supply.clear();}
+    boolean small() {return !oversized && cells.size()<=256 && renderCells.size()<=256 && reachable.size()<=256;}
+    void clear() {oversized |= !small();cells.clear();renderCells.clear();reachable.clear();}
   }
   public static boolean beginScope(World world) {
     Scope current = SCOPE.get();
@@ -148,8 +147,6 @@ public final class WaterloggedGeometry {
     Scope current = SCOPE.get();
     if (current != null) current.clear();
   }
-  static Boolean cachedSupply(String key) { return SCOPE.get().supply.get(key); }
-  static void cacheSupply(String key,boolean value) { SCOPE.get().supply.put(key,value); }
   static void cacheCells(int x,int y,int z,boolean[] cells) {
     SCOPE.get().cells.put(cellKey(x,y,z),cells);
   }

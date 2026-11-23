@@ -41,8 +41,7 @@ public class BlockVerticalSlab extends Block {
         this.source = source;
         this.sourceMeta = sourceMeta;
         setStepSound(source.stepSound);
-        setLightOpacity(0);
-        useNeighborBrightness = true;
+        setLightOpacity(source.getLightOpacity());
         setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         String tool = source.getHarvestTool(sourceMeta);
         int level = source.getHarvestLevel(sourceMeta);
@@ -104,13 +103,15 @@ public class BlockVerticalSlab extends Block {
     // so extensions cannot feed back into neighboring connections.
     public static int shapeMask(IBlockAccess world, int x, int y, int z) {
         int meta = world.getBlockMetadata(x, y, z);
+        if (world.getBlock(x, y, z) instanceof BlockQuarterColumn) return 1 << (meta & 3);
         int own = baseMask(meta);
         if (isDouble(meta) || connectionsDisabled(meta)) return own;
         int additions = 0;
         for (int side = 2; side <= 5; side++) {
             ForgeDirection direction = ForgeDirection.getOrientation(side);
             int nx = x + direction.offsetX, nz = z + direction.offsetZ;
-            if (!(world.getBlock(nx, y, nz) instanceof BlockVerticalSlab)) continue;
+            Block neighborBlock = world.getBlock(nx, y, nz);
+            if (!(neighborBlock instanceof BlockVerticalSlab) || neighborBlock instanceof BlockQuarterColumn) continue;
             int neighbor = world.getBlockMetadata(nx, y, nz);
             if (connectionsDisabled(neighbor)) continue;
             int edge = HALF_MASKS[side - 2];
@@ -203,11 +204,13 @@ public class BlockVerticalSlab extends Block {
         refreshGeometry(world, x, y, z);
     }
 
-    private static void refreshGeometry(World world, int x, int y, int z) {
-        world.markBlockRangeForRenderUpdate(x - 1, y, z - 1, x + 1, y, z + 1);
+    protected static void refreshGeometry(World world, int x, int y, int z) {
+        boolean cube = BlockQuarterColumn.isCube(world.getBlock(x, y, z));
+        int vertical = cube ? 1 : 0;
+        world.markBlockRangeForRenderUpdate(x - 1, y - vertical, z - 1, x + 1, y + vertical, z + 1);
         if (!world.isRemote) {
             WaterloggedGeometry.invalidate();
-            if (shapeMask(world, x, y, z) == 15) {
+            if (cube ? BlockQuarterColumn.cubeMask(world, x, y, z) == 255 : shapeMask(world, x, y, z) == 15) {
                 WaterloggedWorldData.get(world).set(world, x, y, z, false);
             }
             WaterloggedFlowQueue.scheduleAround(world, x, y, z);

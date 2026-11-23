@@ -10,6 +10,9 @@ import net.minecraft.item.ItemStack;
 import ru.givler.mbo.block.BlockVerticalSlab;
 import ru.givler.mbo.block.craft.BlockStonecutter;
 import ru.givler.mbo.recipes.stonecutter.StonecutterRecipes;
+import ru.givler.mbo.recipes.stonecutter.StonecutterRecipe;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class StonecutterRegistry {
   public static BlockStonecutter stonecutter;
@@ -147,11 +150,40 @@ public final class StonecutterRegistry {
     registerTuffRecipes();
     registerPrismarineRecipes();
     registerMineFantasyRecipes();
+    registerCutShapes();
+  }
+
+  private static void registerCutShapes() {
+    // Use the existing full-block conversions as sources of variants, without following recipe chains.
+    List<StonecutterRecipe> conversions = new ArrayList<>(StonecutterRecipes.getAllRecipes());
     for (BlockVerticalSlab slab : BlockRegistry.getVerticalSlabs()) {
-      if (slab.source.getMaterial() == Material.rock) {
-        StonecutterRecipes.add(slab.ingredient(), new ItemStack(slab, 2));
+      ItemStack material = slab.ingredient();
+      if (slab.source.getMaterial()!=Material.rock && BlockRegistry.columnFor(slab).getCopperState()<0) continue;
+      addShapes(material,slab);
+      for (StonecutterRecipe conversion : conversions) {
+        ItemStack output = conversion.getOutput();
+        if (output.stackSize != 1 || !output.isItemEqual(material)) continue;
+        ItemStack input = conversion.getInput();
+        if (input.isItemEqual(material)) continue;
+        addShapes(input,slab);
       }
+      add(new ItemStack(slab),new ItemStack(BlockRegistry.columnFor(slab),2));
+      add(new ItemStack(slab),new ItemStack(BlockRegistry.cubeFor(slab),4));
+      add(new ItemStack(BlockRegistry.columnFor(slab)),new ItemStack(BlockRegistry.cubeFor(slab),2));
     }
+  }
+
+  private static void addShapes(ItemStack input, BlockVerticalSlab slab) {
+    addShapeOnce(input,new ItemStack(slab,2));
+    addShapeOnce(input,new ItemStack(BlockRegistry.columnFor(slab),4));
+    addShapeOnce(input,new ItemStack(BlockRegistry.cubeFor(slab),8));
+  }
+
+  private static void addShapeOnce(ItemStack input, ItemStack output) {
+    for (StonecutterRecipe recipe : StonecutterRecipes.getRecipes(input)) {
+      if (recipe.getOutput().isItemEqual(output)) return;
+    }
+    add(input,output);
   }
 
   private static void addFamily(

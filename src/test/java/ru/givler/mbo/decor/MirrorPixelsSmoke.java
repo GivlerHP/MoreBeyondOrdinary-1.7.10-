@@ -468,6 +468,46 @@ public final class MirrorPixelsSmoke {
         check(copy.getEquipmentInSlot(4)==null,"Remote armor remained after being unequipped");
         delta.actors.clear();actorsUpdate.invoke(detached,delta,300_000_000L);
         check(detached.loadedEntityList.isEmpty(),"Remote actor survived leaving the streamed scene");
+        // Register real cut families for stone and both one-step stone brick variants.
+        Field modController=cpw.mods.fml.common.Loader.class.getDeclaredField("modController");
+        modController.setAccessible(true);
+        cpw.mods.fml.common.Loader testLoader=cpw.mods.fml.common.Loader.instance();
+        modController.set(testLoader,new cpw.mods.fml.common.LoadController(testLoader));
+        int vanillaStairOpacity=net.minecraft.init.Blocks.stone_stairs.getLightOpacity();
+        ru.givler.mbo.block.BlockBase greyStone=new ru.givler.mbo.block.BlockBase(
+            Material.rock,"opacity_test_grey_stone","stone/stone",false);
+        ru.givler.mbo.block.BlockMeta sandstone=new ru.givler.mbo.block.BlockMeta(
+            Material.rock,"opacity_test_sandstone","stone/sandstone",3);
+        check(vanillaStairOpacity==255
+                && new ru.givler.mbo.block.BlockBasicStairs(greyStone).getLightOpacity()==vanillaStairOpacity
+                && new ru.givler.mbo.block.BlockMetaStairs(sandstone,0).getLightOpacity()==vanillaStairOpacity,
+            "MBO stone and sandstone stairs must use the same light opacity as vanilla stone stairs");
+        check(new ru.givler.mbo.block.BlockMeta(Material.glass,"opacity_test_glass","glass/glass",1)
+            .withGlass(false).getLightOpacity()==0,"Clear MBO glass must transmit light");
+        Class<?> blocks=ru.givler.mbo.registry.BlockRegistry.class;
+        Method vertical=blocks.getDeclaredMethod("registerVerticalFamily",Block.class,int.class);vertical.setAccessible(true);
+        vertical.invoke(null,net.minecraft.init.Blocks.stone,1);
+        vertical.invoke(null,net.minecraft.init.Blocks.stonebrick,4);
+        Method quarterShapes=blocks.getDeclaredMethod("registerQuarterColumns");quarterShapes.setAccessible(true);quarterShapes.invoke(null);
+        net.minecraft.item.ItemStack stone=new net.minecraft.item.ItemStack(net.minecraft.init.Blocks.stone);
+        for (int meta : new int[]{0,3}) {
+            ru.givler.mbo.recipes.stonecutter.StonecutterRecipes.add(stone,new net.minecraft.item.ItemStack(net.minecraft.init.Blocks.stonebrick,1,meta));
+        }
+        Method cutShapes=ru.givler.mbo.registry.StonecutterRegistry.class.getDeclaredMethod("registerCutShapes");
+        cutShapes.setAccessible(true);cutShapes.invoke(null);
+        java.util.Set<String> stoneShapes=new java.util.HashSet<>();
+        for (ru.givler.mbo.recipes.stonecutter.StonecutterRecipe recipe : ru.givler.mbo.recipes.stonecutter.StonecutterRecipes.getRecipes(stone)) {
+            net.minecraft.item.ItemStack outputStack=recipe.getOutput();
+            Block result=Block.getBlockFromItem(outputStack.getItem());
+            if (!(result instanceof ru.givler.mbo.block.BlockVerticalSlab)) continue;
+            ru.givler.mbo.block.BlockVerticalSlab shape=(ru.givler.mbo.block.BlockVerticalSlab)result;
+            int expected=result instanceof ru.givler.mbo.block.BlockQuarterColumn
+                ? (((ru.givler.mbo.block.BlockQuarterColumn)result).isCube()?8:4) : 2;
+            check(outputStack.stackSize==expected,"Wrong quantity of stonecutter shapes");
+            check(stoneShapes.add(Block.getIdFromBlock(shape.source)+":"+shape.getSourceMetadata()+":"+expected),
+                "Duplicate stonecutter shape");
+        }
+        check(stoneShapes.size()==9,"Stone should list its shapes and both stone-brick shape families");
         low.delete();
         check(scene.calls>0,"No world blocks rendered");
         GL20.glUseProgram(0);OpenGlHelper.func_153171_g(36160,0);target.delete();output.delete();context.destroy();

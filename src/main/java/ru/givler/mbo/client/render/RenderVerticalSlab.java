@@ -9,6 +9,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.block.BlockVerticalSlab;
+import ru.givler.mbo.block.BlockQuarterColumn;
 import ru.givler.mbo.client.texture.ConnectedTextureHooks;
 
 public final class RenderVerticalSlab implements ISimpleBlockRenderingHandler {
@@ -19,29 +20,42 @@ public final class RenderVerticalSlab implements ISimpleBlockRenderingHandler {
                                     Block block, int modelId, RenderBlocks renderer) {
         BlockVerticalSlab slab = (BlockVerticalSlab) block;
         IBlockAccess materials = new GroundMaterialAccess(world);
-        int mask = BlockVerticalSlab.shapeMask(world, x, y, z);
+        boolean cube = BlockQuarterColumn.isCube(block);
+        int mask = cube ? BlockQuarterColumn.cubeMask(world, x, y, z) : BlockVerticalSlab.shapeMask(world, x, y, z);
         Tessellator tess = Tessellator.instance;
-        int brightness = block.getMixedBrightnessForBlock(world, x, y, z);
+        boolean blocksLight = block.getLightOpacity(world, x, y, z) > 0;
+        int brightness = blocksLight ? 0 : block.getMixedBrightnessForBlock(world, x, y, z);
         for (int side = 0; side < 6; side++) {
             ForgeDirection direction = ForgeDirection.getOrientation(side);
             int nx = x + direction.offsetX, ny = y + direction.offsetY, nz = z + direction.offsetZ;
             Block neighbor = world.getBlock(nx, ny, nz);
             int other = neighbor instanceof BlockVerticalSlab
                     ? BlockVerticalSlab.shapeMask(world, nx, ny, nz) : neighbor.isOpaqueCube() ? 15 : 0;
+            if (BlockQuarterColumn.isCube(neighbor)) {
+                int occupied = BlockQuarterColumn.cubeMask(world, nx, ny, nz);
+                other = cube ? occupied : side == 0 ? occupied >> 4 : side == 1 ? occupied & 15 : occupied & (occupied >> 4);
+            } else if (cube) {
+                other |= other << 4;
+            }
             IIcon base = block.getIcon(side, 0);
             IIcon icon = ConnectedTextureHooks.resolve(base, slab, world, x, y, z, side);
             if (icon == base) {
                 icon = ConnectedTextureHooks.resolve(base, slab.source, materials, x, y, z, side);
             }
             int externalBrightness = block.getMixedBrightnessForBlock(world, nx, ny, nz);
-            for (int quarter = 0; quarter < 4; quarter++) {
-                if ((mask & 1 << quarter) == 0) continue;
-                boolean external = BlockVerticalSlab.touchesEdge(quarter, side);
-                int opposite = BlockVerticalSlab.adjacentQuarter(quarter, side);
+            for (int remaining = mask; remaining != 0; remaining &= remaining - 1) {
+                int quarter = Integer.numberOfTrailingZeros(remaining);
+                boolean external = cube ? BlockQuarterColumn.touchesCubeFace(quarter, side)
+                    : BlockVerticalSlab.touchesEdge(quarter, side);
+                int opposite = cube ? BlockQuarterColumn.adjacentCube(quarter, side)
+                    : BlockVerticalSlab.adjacentQuarter(quarter, side);
                 if (((external ? other : mask) & 1 << opposite) != 0) continue;
-                double minX = (quarter & 1) * .5, minZ = (quarter >> 1) * .5;
-                renderer.setRenderBounds(minX, 0, minZ, minX + .5, 1, minZ + .5);
-                tess.setBrightness(external ? externalBrightness : brightness);
+                double minY = (quarter >> 2) * .5, maxY = cube ? minY + .5 : 1;
+                double minX = (quarter & 1) * .5, minZ = (quarter >> 1 & 1) * .5;
+                renderer.setRenderBounds(minX, minY, minZ, minX + .5, maxY, minZ + .5);
+                // A recessed face of a light barrier still faces the air on this side.
+                // The barrier's own cell has no usable light value for that face.
+                tess.setBrightness(external || blocksLight ? externalBrightness : brightness);
                 tess.setColorOpaque_F(SHADE[side], SHADE[side], SHADE[side]);
                 face(renderer, block, x, y, z, side, icon);
             }
@@ -55,8 +69,10 @@ public final class RenderVerticalSlab implements ISimpleBlockRenderingHandler {
         Tessellator tess = Tessellator.instance;
         GL11.glPushMatrix();
         try {
-            GL11.glTranslatef(-.5F, -.5F, -.25F);
-            renderer.setRenderBounds(0, 0, 0, 1, 1, .5);
+            float width = block instanceof BlockQuarterColumn ? .5F : 1F;
+            float height = BlockQuarterColumn.isCube(block) ? .5F : 1F;
+            GL11.glTranslatef(-width / 2, -height / 2, -.25F);
+            renderer.setRenderBounds(0, 0, 0, width, height, .5);
             for (int side = 0; side < 6; side++) {
                 ForgeDirection direction = ForgeDirection.getOrientation(side);
                 tess.startDrawingQuads();

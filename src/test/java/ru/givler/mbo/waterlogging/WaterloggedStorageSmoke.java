@@ -68,27 +68,30 @@ public final class WaterloggedStorageSmoke {
       ThreadLocal<?> scopes=(ThreadLocal<?>)active.get(null);
       if(!WaterloggedGeometry.beginScope(null))throw new AssertionError("Missing outer geometry scope");
       Object outer=scopes.get();
-      WaterloggedGeometry.cacheSupply("outer",true);
+      java.lang.reflect.Field cells=outer.getClass().getDeclaredField("cells");cells.setAccessible(true);
+      boolean[] outerCells=new boolean[8];
+      WaterloggedGeometry.cacheCells(0,0,0,outerCells);
       if(WaterloggedGeometry.beginScope(null))throw new AssertionError("Same world scope must share calculation");
       java.lang.reflect.Field unsafeField=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);
       net.minecraft.world.World other=(net.minecraft.world.World)((sun.misc.Unsafe)unsafeField.get(null)).allocateInstance(net.minecraft.client.multiplayer.WorldClient.class);
       if(!WaterloggedGeometry.beginScope(other))throw new AssertionError("Different world must isolate geometry");
-      if(WaterloggedGeometry.cachedSupply("outer")!=null)throw new AssertionError("Nested world shared geometry");
-      Object inner=scopes.get();WaterloggedGeometry.cacheSupply("inner",true);
+      Object inner=scopes.get();
+      if(!((java.util.Map<?,?>)cells.get(inner)).isEmpty())throw new AssertionError("Nested world shared geometry");
+      WaterloggedGeometry.cacheCells(0,0,0,new boolean[8]);
       WaterloggedGeometry.endScope();
-      if(scopes.get()!=outer || !Boolean.TRUE.equals(WaterloggedGeometry.cachedSupply("outer")))throw new AssertionError("Nested scope failed to restore outer calculation");
+      if(scopes.get()!=outer || WaterloggedGeometry.waterCellsForFlow(null,0,0,0)!=outerCells)throw new AssertionError("Nested scope failed to restore outer calculation");
       WaterloggedGeometry.invalidate();
-      if(WaterloggedGeometry.cachedSupply("outer")!=null)throw new AssertionError("Invalidation retained water state");
+      if(!((java.util.Map<?,?>)cells.get(outer)).isEmpty())throw new AssertionError("Invalidation retained water state");
       WaterloggedGeometry.endScope();
       if(scopes.get()!=null)throw new AssertionError("Completed calculation retained active scope");
       java.lang.reflect.Field world=outer.getClass().getDeclaredField("world"),previous=outer.getClass().getDeclaredField("previous");world.setAccessible(true);previous.setAccessible(true);
       if(world.get(outer)!=null || world.get(inner)!=null || previous.get(inner)!=null)throw new AssertionError("Pool retained world or nested scope");
       WaterloggedGeometry.beginScope(null);
-      if(scopes.get()!=outer || WaterloggedGeometry.cachedSupply("inner")!=null)throw new AssertionError("Scope reuse failed to clear data");
-      for(int i=0;i<300;i++)WaterloggedGeometry.cacheSupply("large"+i,true);
+      if(scopes.get()!=outer || !((java.util.Map<?,?>)cells.get(outer)).isEmpty())throw new AssertionError("Scope reuse failed to clear data");
+      for(int i=0;i<300;i++)WaterloggedGeometry.cacheCells(i,0,0,new boolean[8]);
       WaterloggedGeometry.invalidate(); // Clearing entries must not conceal an oversized backing table.
       WaterloggedGeometry.endScope();WaterloggedGeometry.beginScope(null);
-      if(scopes.get()==outer || WaterloggedGeometry.cachedSupply("large0")!=null)throw new AssertionError("Large geometry traversal was retained in pool");
+      if(scopes.get()==outer || !((java.util.Map<?,?>)cells.get(scopes.get())).isEmpty())throw new AssertionError("Large geometry traversal was retained in pool");
       WaterloggedGeometry.endScope();
       System.out.println("Geometry scope pool: reuse, fresh state, nested worlds, invalidation and oversized-map disposal passed");
     }catch(ReflectiveOperationException error){throw new AssertionError(error);}
