@@ -14,6 +14,9 @@ import org.objectweb.asm.tree.analysis.BasicVerifier;
 import ru.givler.mbo.core.ArmorSkinTransformer;
 import ru.givler.mbo.item.skin.EquipmentSkinData;
 import ru.givler.mbo.item.skin.EquipmentSkinDefinition;
+import ru.givler.mbo.item.skin.ItemSkinTemplate;
+import ru.givler.mbo.item.skin.WardrobeData;
+import ru.givler.mbo.item.skin.WardrobeSlot;
 import ru.givler.mbo.registry.EquipmentSkinRegistry;
 import software.bernie.geckolib3.file.GeoModelLoader;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
@@ -29,6 +32,7 @@ public final class EquipmentSkinSmoke {
         checkNbt(EquipmentSkinRegistry.MACE_BASE);
         checkArmorModel();
         checkArmorHooks();
+        checkWardrobe();
         System.out.println("Weapon and armor skin geometry, slots, Forge hooks and NBT verified.");
     }
 
@@ -47,6 +51,85 @@ public final class EquipmentSkinSmoke {
                 new Analyzer<>(new BasicVerifier()).analyze(node.name, method);
             }
         }
+        target = "net.minecraft.client.renderer.ItemRenderer";
+        try (InputStream stream = EquipmentSkinSmoke.class.getResourceAsStream("/" + target.replace('.', '/') + ".class")) {
+            original = org.apache.commons.io.IOUtils.toByteArray(stream);
+        }
+        patched = new ArmorSkinTransformer().transform(target, target, original);
+        check(patched != original, "Held-item wardrobe hook was not installed");
+        node = new ClassNode();
+        new ClassReader(patched).accept(node, 0);
+        for (MethodNode method : node.methods) {
+            if (method.name.equals("renderItem")) new Analyzer<>(new BasicVerifier()).analyze(node.name, method);
+        }
+    }
+
+    private static void checkWardrobe() throws Exception {
+        java.lang.reflect.Field field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+        field.setAccessible(true);
+        sun.misc.Unsafe unsafe = (sun.misc.Unsafe) field.get(null);
+        net.minecraft.entity.player.EntityPlayer wearer = (net.minecraft.entity.player.EntityPlayer)
+            unsafe.allocateInstance(net.minecraft.client.entity.EntityOtherPlayerMP.class);
+        net.minecraft.entity.player.EntityPlayer observer = (net.minecraft.entity.player.EntityPlayer)
+            unsafe.allocateInstance(net.minecraft.client.entity.EntityOtherPlayerMP.class);
+        ItemStack template = new ItemStack(ItemSkinTemplate.INSTANCE);
+        check(ItemSkinTemplate.set(template, EquipmentSkinRegistry.MACE_BASE.id, -1)
+                && ItemSkinTemplate.slot(template) == WardrobeSlot.MACE, "Workbench did not write a weapon template");
+        ItemStack hammerTemplate = new ItemStack(ItemSkinTemplate.INSTANCE);
+        check(ItemSkinTemplate.set(hammerTemplate, EquipmentSkinRegistry.HAMMER.id, -1), "Could not make the hammer template");
+        NBTTagCompound settings = WardrobeData.inventory(wearer);
+        check(!WardrobeData.isDisabled(settings, WardrobeSlot.WARHAMMER, hammerTemplate), "Skin must be active by default");
+        WardrobeData.setDisabled(settings, WardrobeSlot.WARHAMMER, hammerTemplate, true);
+        NBTTagCompound reloaded = (NBTTagCompound) settings.copy();
+        check(WardrobeData.isDisabled(reloaded, WardrobeSlot.WARHAMMER, hammerTemplate)
+                && !WardrobeData.isDisabled(reloaded, WardrobeSlot.MACE, template),
+            "Disabled skin must survive reload without changing other slots");
+        check(ItemSkinTemplate.set(hammerTemplate, EquipmentSkinRegistry.HAMMER_BASE.id, -1)
+                && !WardrobeData.isDisabled(reloaded, WardrobeSlot.WARHAMMER, hammerTemplate),
+            "A different skin in the same slot must start enabled");
+        check(ItemSkinTemplate.set(hammerTemplate, EquipmentSkinRegistry.HAMMER.id, -1), "Could not restore the hammer template");
+        WardrobeData.setDisabled(reloaded, WardrobeSlot.WARHAMMER, hammerTemplate, false);
+        check(!WardrobeData.isDisabled(reloaded, WardrobeSlot.WARHAMMER, hammerTemplate), "Could not re-enable the skin");
+        check(ItemSkinTemplate.set(template, EquipmentSkinRegistry.MAGICIAN_BASE.id, 2)
+                && ItemSkinTemplate.slot(template) == WardrobeSlot.MAGIC_LEGS, "Workbench lost the selected armor part");
+        check(!ItemSkinTemplate.set(template, EquipmentSkinRegistry.MAGICIAN_BASE.id, 3)
+                && ItemSkinTemplate.slot(template) == WardrobeSlot.MAGIC_LEGS, "Unsupported armor part changed the template");
+        check(ItemSkinTemplate.set(template, "", -1) && ItemSkinTemplate.skin(template) == null,
+            "Workbench could not clear a template");
+        template.setTagCompound(new NBTTagCompound());
+        template.getTagCompound().setString("Skin", EquipmentSkinRegistry.MAGICIAN_BASE.id);
+        template.getTagCompound().setString("Slot", "magic_head");
+        check(ItemSkinTemplate.slot(template) == WardrobeSlot.MAGIC_HEAD
+                && !WardrobeSlot.MAGIC_FEET.accepts(EquipmentSkinRegistry.MAGICIAN_BASE),
+            "Armor template must target a supported part");
+        template.getTagCompound().setString("Slot", "light_head");
+        check(ItemSkinTemplate.slot(template) == null, "Magic template was accepted in a light armor slot");
+        template.getTagCompound().removeTag("Slot");
+        template.getTagCompound().setString("Skin", "hammer");
+        check(ItemSkinTemplate.slot(template) == WardrobeSlot.WARHAMMER, "Warhammer template target was not inferred");
+        template.getTagCompound().setString("Slot", "mace");
+        check(ItemSkinTemplate.slot(template) == null, "Warhammer template was accepted as a mace skin");
+
+        EquipmentSkinDefinition skin = EquipmentSkinRegistry.HAMMER, original = EquipmentSkinRegistry.HAMMER_BASE;
+        Item hammer = (Item) unsafe.allocateInstance(skin.weaponType);
+        java.lang.reflect.Field delegate = Item.class.getDeclaredField("delegate");
+        unsafe.putObject(hammer, unsafe.objectFieldOffset(delegate),
+            new cpw.mods.fml.common.registry.RegistryDelegate.Delegate<Item>(hammer, Item.class));
+        ItemStack weapon = new ItemStack(hammer);
+        NBTTagCompound payload = new NBTTagCompound();
+        payload.setString("warhammer", skin.id);
+        WardrobeData.acceptVisual(wearer, payload);
+        check(WardrobeData.resolve(weapon, wearer) == skin && WardrobeData.resolve(weapon, observer) == null,
+            "The wardrobe skin must belong to the wearer only");
+        ItemStack rendered = (ItemStack) WardrobeData.heldStack(wearer, weapon);
+        check(rendered != weapon && EquipmentSkinData.resolve(rendered) == skin && !weapon.hasTagCompound(),
+            "Applying a wardrobe skin must leave the original stack unchanged");
+        EquipmentSkinData.set(weapon, original.id);
+        check(WardrobeData.resolve(weapon, wearer) == original && WardrobeData.heldStack(wearer, weapon) == weapon,
+            "A table skin must take priority over the wardrobe");
+        WardrobeData.inventory(wearer).setString("probe", "persistent");
+        check("persistent".equals(wearer.getEntityData().getCompoundTag(net.minecraft.entity.player.EntityPlayer.PERSISTED_NBT_TAG)
+            .getCompoundTag("MBO_Wardrobe").getString("probe")), "Wardrobe is missing from death-persistent player data");
     }
 
     private static void checkArmorModel() throws Exception {

@@ -65,8 +65,12 @@ public class PacketManager {
   public static int nextID = 0;
   private static final int EQUIPMENT_SKIN_PACKET_ID = 120;
   private static final int SILVER_MIRROR_VIEW_PACKET_ID = 121;
+  private static final int WARDROBE_OPEN_PACKET_ID = 122;
+  private static final int WARDROBE_VISUAL_PACKET_ID = 123;
 
   public static void registerCommonPackets() {
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketWardrobe.OpenHandler.class,
+        ru.givler.mbo.network.packet.PacketWardrobe.Open.class, WARDROBE_OPEN_PACKET_ID, Side.SERVER);
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketSilverMirrorView.Handler.class,
         ru.givler.mbo.network.packet.PacketSilverMirrorView.class, SILVER_MIRROR_VIEW_PACKET_ID, Side.SERVER);
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketPossessionInput.Handler.class,ru.givler.mbo.network.packet.PacketPossessionInput.class,nextID++,Side.SERVER);
@@ -165,6 +169,8 @@ public class PacketManager {
   }
 
   public static void registerClientPackets() {
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketWardrobe.ClientHandler.class,
+        ru.givler.mbo.network.packet.PacketWardrobe.class, WARDROBE_VISUAL_PACKET_ID, Side.CLIENT);
     INSTANCE.registerMessage(PacketElderGuardianCurse.Handler.class, PacketElderGuardianCurse.class, nextID++, Side.CLIENT);
     INSTANCE.registerMessage(
         PacketLightningArc.Handler.class, PacketLightningArc.class, nextID++, Side.CLIENT);
@@ -276,6 +282,7 @@ public class PacketManager {
       FMLIndexedMessageToMessageCodec codec =
           (FMLIndexedMessageToMessageCodec) PACKET_CODEC_FIELD.get(INSTANCE);
       for (Class message : messages) codec.addDiscriminator(nextID++, message);
+      codec.addDiscriminator(WARDROBE_VISUAL_PACKET_ID, ru.givler.mbo.network.packet.PacketWardrobe.class);
     } catch (IllegalAccessException exception) {
       throw new RuntimeException("Could not access the MBO packet codec", exception);
     }

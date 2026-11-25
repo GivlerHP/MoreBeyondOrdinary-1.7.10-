@@ -37,7 +37,8 @@ public class TooltipEvents {
                 event.toolTip.add(EnumChatFormatting.GRAY + text);
         }
         TooltipElements.expandBlocks(event.toolTip);
-        if (WeaponSkinRenderer.INSTANCE.available(EquipmentSkinData.resolve(event.itemStack))) {
+        if (WeaponSkinRenderer.INSTANCE.available(EquipmentSkinData.resolve(event.itemStack))
+                || WeaponSkinRenderer.INSTANCE.available(ru.givler.mbo.item.skin.ItemSkinTemplate.skin(event.itemStack))) {
             String alt = Minecraft.getMinecraft().fontRenderer instanceof ModernFontRenderer ? "<mbo:alt>" : "Alt";
             event.toolTip.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("mbo.skin.tooltip.hint", alt));
         }

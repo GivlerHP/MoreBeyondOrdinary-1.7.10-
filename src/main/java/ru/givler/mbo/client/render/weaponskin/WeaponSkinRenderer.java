@@ -32,6 +32,20 @@ public final class WeaponSkinRenderer implements IGeoRenderer<EquipmentSkinDefin
     private WeaponSkinRenderer() {}
 
     public static void register() {
+        if (cpw.mods.fml.common.Loader.isModLoaded("minefantasy2")) WardrobeOffhand.register();
+        MinecraftForgeClient.registerItemRenderer(ru.givler.mbo.item.skin.ItemSkinTemplate.INSTANCE, new IItemRenderer() {
+            @Override public boolean handleRenderType(ItemStack stack, ItemRenderType type) {
+                return type == ItemRenderType.INVENTORY
+                    && INSTANCE.available(ru.givler.mbo.item.skin.ItemSkinTemplate.skin(stack));
+            }
+            @Override public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack stack, ItemRendererHelper helper) {
+                return false;
+            }
+            @Override public void renderItem(ItemRenderType type, ItemStack stack, Object... data) {
+                EquipmentSkinDefinition skin = ru.givler.mbo.item.skin.ItemSkinTemplate.skin(stack);
+                if (skin != null) INSTANCE.preview(skin, skin.inventory, 8, 14, 8, 4);
+            }
+        });
         for (Object entry : Item.itemRegistry) {
             Item item = (Item) entry;
             for (EquipmentSkinDefinition skin : EquipmentSkinRegistry.ALL) {
@@ -81,6 +95,10 @@ public final class WeaponSkinRenderer implements IGeoRenderer<EquipmentSkinDefin
             GL11.glPopMatrix();
             GL11.glPopAttrib();
         }
+    }
+
+    void drawHeld(EquipmentSkinDefinition skin, boolean firstPerson) {
+        draw(skin, firstPerson ? skin.firstPerson : skin.thirdPerson);
     }
 
     public void preview(EquipmentSkinDefinition skin, Pose pose, float x, float y, float scale) {

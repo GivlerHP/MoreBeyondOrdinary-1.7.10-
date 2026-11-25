@@ -8,7 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
-import ru.givler.mbo.item.skin.EquipmentSkinData;
+import ru.givler.mbo.item.skin.WardrobeData;
 import ru.givler.mbo.item.skin.EquipmentSkinDefinition;
 
 public final class ArmorSkinRenderer extends ModelBiped {
@@ -21,14 +21,14 @@ public final class ArmorSkinRenderer extends ModelBiped {
         this.slot = slot;
     }
 
-    private static EquipmentSkinDefinition resolve(Object item) {
-        EquipmentSkinDefinition skin = EquipmentSkinData.resolve((ItemStack) item);
+    private static EquipmentSkinDefinition resolve(Object item, Object entity) {
+        EquipmentSkinDefinition skin = WardrobeData.resolve((ItemStack) item, (Entity) entity);
         return skin != null && skin.category == EquipmentSkinDefinition.Category.ARMOR
                 && WeaponSkinRenderer.INSTANCE.available(skin) ? skin : null;
     }
 
-    public static Object model(Object item, Object defaultModel) {
-        EquipmentSkinDefinition skin = resolve(item);
+    public static Object model(Object item, Object entity, Object defaultModel) {
+        EquipmentSkinDefinition skin = resolve(item, entity);
         if (skin == null) return null;
         int slot = ((ItemArmor) ((ItemStack) item).getItem()).armorType;
         ArmorSkinRenderer[] slots = MODELS.computeIfAbsent(skin, key -> new ArmorSkinRenderer[4]);
@@ -42,8 +42,8 @@ public final class ArmorSkinRenderer extends ModelBiped {
         return model;
     }
 
-    public static Object texture(Object item) {
-        EquipmentSkinDefinition skin = resolve(item);
+    public static Object texture(Object item, Object entity) {
+        EquipmentSkinDefinition skin = resolve(item, entity);
         return skin == null ? null : skin.texture.toString();
     }
 

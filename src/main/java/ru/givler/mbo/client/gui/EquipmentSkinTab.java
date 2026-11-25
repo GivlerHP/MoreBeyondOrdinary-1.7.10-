@@ -20,13 +20,14 @@ import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.client.render.weaponskin.WeaponSkinRenderer;
 import ru.givler.mbo.item.skin.EquipmentSkinData;
 import ru.givler.mbo.item.skin.EquipmentSkinDefinition;
+import ru.givler.mbo.item.skin.ItemSkinTemplate;
+import ru.givler.mbo.item.skin.WardrobeSlot;
 import ru.givler.mbo.network.PacketManager;
 import ru.givler.mbo.network.packet.PacketEquipmentSkin;
 import ru.givler.mbo.registry.EquipmentSkinRegistry;
@@ -42,6 +43,7 @@ final class EquipmentSkinTab {
     private GuiTextField search;
     private GuiButton armorView;
     private boolean fullSet = true;
+    private int templatePart;
     private FontRenderer font;
     private ItemStack item, previewStack;
     private EntityOtherPlayerMP mannequin;
@@ -92,8 +94,10 @@ final class EquipmentSkinTab {
 
     void load(ItemStack stack) {
         item = stack;
-        EquipmentSkinDefinition installed = EquipmentSkinData.resolve(stack);
+        EquipmentSkinDefinition installed = template() ? ItemSkinTemplate.skin(stack) : EquipmentSkinData.resolve(stack);
         if (installed != null) {
+            WardrobeSlot target = ItemSkinTemplate.slot(stack);
+            if (target != null && target.armor()) templatePart = target.part();
             category = installed.category;
             filter(installed);
         } else if (stack != null && stack.getItem() instanceof ItemArmor && category != Category.ARMOR) {
@@ -137,6 +141,8 @@ final class EquipmentSkinTab {
         return category == Category.ARMOR && !catalog.isEmpty();
     }
 
+    private boolean template() { return item != null && item.getItem() == ItemSkinTemplate.INSTANCE; }
+
     private void refreshPreview() {
         previewStack = null;
         hasSnapshot = false;
@@ -144,14 +150,17 @@ final class EquipmentSkinTab {
         if (catalog.isEmpty()) return;
         EquipmentSkinDefinition skin = catalog.get(selected);
         if (armorPreview()) {
-            if (compatible()) previewStack = item.copy();
+            if (template()) {
+                for (int i = 0; i < 4 && !skin.supportsArmorSlot(templatePart); i++) templatePart = (templatePart + 1) % 4;
+                if (skin.supportsArmorSlot(templatePart)) previewStack = new ItemStack(ARMOR_SAMPLES[templatePart]);
+            } else if (compatible()) previewStack = item.copy();
             else for (int slot = 0; slot < ARMOR_SAMPLES.length; slot++) {
                 if (skin.supportsArmorSlot(slot)) {
                     previewStack = new ItemStack(ARMOR_SAMPLES[slot]);
                     break;
                 }
             }
-        } else if (compatible()) {
+        } else if (compatible() && !template()) {
             previewStack = item.copy();
         } else {
             for (Object entry : net.minecraft.item.Item.itemRegistry) {
@@ -166,17 +175,24 @@ final class EquipmentSkinTab {
     }
 
     private boolean compatible() {
-        return item != null && !catalog.isEmpty() && catalog.get(selected).supports(item.getItem());
+        if (item == null || catalog.isEmpty()) return false;
+        EquipmentSkinDefinition skin = catalog.get(selected);
+        return template() ? ItemSkinTemplate.target(skin, templatePart) != null : skin.supports(item.getItem());
     }
 
     private void updateButtons() {
-        apply.enabled = compatible() && !catalog.get(selected).id.equals(EquipmentSkinData.id(item));
-        remove.enabled = !EquipmentSkinData.id(item).isEmpty();
+        EquipmentSkinDefinition installed = ItemSkinTemplate.skin(item);
+        apply.enabled = compatible() && (template()
+            ? installed != catalog.get(selected) || ItemSkinTemplate.slot(item) != ItemSkinTemplate.target(installed, templatePart)
+            : !catalog.get(selected).id.equals(EquipmentSkinData.id(item)));
+        remove.enabled = installed != null || !EquipmentSkinData.id(item).isEmpty();
         capture.visible = category != Category.ARMOR;
         capture.enabled = previewStack != null && !waitingForCapture;
         armorView.visible = armorPreview();
-        armorView.displayString = font.trimStringToWidth(I18n.format(fullSet
-                ? "mbo.weapon_skin.armor.part" : "mbo.weapon_skin.armor.set"), paneWidth() - 6);
+        WardrobeSlot target = template() && armorPreview() ? ItemSkinTemplate.target(catalog.get(selected), templatePart) : null;
+        String view = target == null ? I18n.format(fullSet ? "mbo.weapon_skin.armor.part" : "mbo.weapon_skin.armor.set")
+            : I18n.format("mbo.wardrobe.part." + new String[]{"head", "chest", "legs", "feet"}[target.part()]);
+        armorView.displayString = font.trimStringToWidth(view, paneWidth() - 6);
         for (Category type : Category.values()) categories[type.ordinal()].enabled = category != type;
         capture.displayString = font.trimStringToWidth(I18n.format("mbo.weapon_skin.capture"), paneWidth() - 6);
     }
@@ -324,7 +340,7 @@ final class EquipmentSkinTab {
             EquipmentSkinDefinition skin = catalog.get(selected);
             int focusSlot = ((ItemArmor) previewStack.getItem()).armorType;
             for (int slot = 0; slot < ARMOR_SAMPLES.length; slot++) {
-                if (!skin.supportsArmorSlot(slot) || (!fullSet && slot != focusSlot)) continue;
+                if (!skin.supportsArmorSlot(slot) || ((template() || !fullSet) && slot != focusSlot)) continue;
                 ItemStack part = slot == focusSlot ? previewStack : new ItemStack(ARMOR_SAMPLES[slot]);
                 EquipmentSkinData.set(part, skin.id);
                 mannequin.setCurrentItemOrArmor(4 - slot, part);
@@ -346,27 +362,7 @@ final class EquipmentSkinTab {
 
     private void drawThirdPerson(Minecraft mc, int x, int y, int w, int h, int scale,
                                  int screenWidth, int screenHeight) {
-        GL11.glPushAttrib(GL11.GL_SCISSOR_BIT | GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glPushMatrix();
-        try {
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-            int leftPixel = (x + 2) * mc.displayWidth / screenWidth;
-            int bottomPixel = mc.displayHeight - (y + h - 2) * mc.displayHeight / screenHeight;
-            GL11.glScissor(leftPixel, bottomPixel, (w - 4) * mc.displayWidth / screenWidth,
-                    (h - 4) * mc.displayHeight / screenHeight);
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glDepthMask(true);
-            int centerX = x + w / 2;
-            int centerY = y + h / 2;
-            GL11.glTranslatef(centerX, centerY, 50);
-            GL11.glRotatef(previewPitch, 1, 0, 0);
-            GL11.glRotatef(previewYaw, 0, 1, 0);
-            GL11.glTranslatef(-centerX, -centerY, -50);
-            GuiInventory.func_147046_a(centerX, centerY + scale, scale, 0, 0, mannequin);
-        } finally {
-            GL11.glPopMatrix();
-            GL11.glPopAttrib();
-        }
+        MannequinPreview.draw(mc, mannequin, x, y, w, h, scale, screenWidth, screenHeight, previewYaw, previewPitch);
     }
 
     private void drawCaption(String key, int x, int y, int width) {
@@ -430,7 +426,10 @@ final class EquipmentSkinTab {
             }
         }
         if (armorView.mousePressed(mc, x, y)) {
-            fullSet = !fullSet;
+            if (template()) {
+                templatePart = (templatePart + 1) % 4;
+                refreshPreview();
+            } else fullSet = !fullSet;
             return true;
         }
         if (capture.mousePressed(mc, x, y)) {
@@ -464,6 +463,6 @@ final class EquipmentSkinTab {
     }
 
     private void send(int window, String id) {
-        PacketManager.INSTANCE.sendToServer(new PacketEquipmentSkin(window, item, id));
+        PacketManager.INSTANCE.sendToServer(new PacketEquipmentSkin(window, item, id, templatePart));
     }
 }

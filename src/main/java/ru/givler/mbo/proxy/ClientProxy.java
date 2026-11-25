@@ -392,6 +392,7 @@ public class ClientProxy extends CommonProxy {
     ClientRegistry.registerKeyBinding(activateAmuletKey);
     activateBeltKey = new KeyBinding("key.mbo.belt.desc", Keyboard.KEY_NONE, "MoreBeyondOrdinary");
     ClientRegistry.registerKeyBinding(activateBeltKey);
+    ru.givler.mbo.client.gui.WardrobeInput.register();
     FMLCommonHandler.instance().bus().register(new ClientKeyEvents());
       SwimmingInputHandler swimmingInput =
           new SwimmingInputHandler();

@@ -7,10 +7,12 @@ import net.minecraft.util.ResourceLocation;
 /** Shared catalog entry. Pose values are in item render units and degrees. */
 public final class EquipmentSkinDefinition {
     public enum Category { WEAPON, ARMOR, TOOL, SHIELD }
+    public enum ArmorGroup { LIGHT, MEDIUM_HEAVY, MAGIC }
 
     public final String id;
     public final Category category;
     private final int armorSlots;
+    public final ArmorGroup armorGroup;
     public final Class<? extends Item> weaponType;
     public final ResourceLocation model, texture;
     public final Pose firstPerson, thirdPerson, inventory, ground;
@@ -26,6 +28,7 @@ public final class EquipmentSkinDefinition {
         this.id = id;
         this.category = category;
         this.armorSlots = 0;
+        this.armorGroup = null;
         this.weaponType = weaponType;
         this.firstPerson = firstPerson;
         this.thirdPerson = thirdPerson;
@@ -36,9 +39,14 @@ public final class EquipmentSkinDefinition {
     }
 
     public EquipmentSkinDefinition(String id, int armorSlots, Pose inventory) {
+        this(id, ArmorGroup.MAGIC, armorSlots, inventory);
+    }
+
+    public EquipmentSkinDefinition(String id, ArmorGroup armorGroup, int armorSlots, Pose inventory) {
         this.id = id;
         this.category = Category.ARMOR;
         this.armorSlots = armorSlots;
+        this.armorGroup = armorGroup;
         this.weaponType = ItemArmor.class;
         this.inventory = inventory;
         this.firstPerson = this.thirdPerson = this.ground = inventory;

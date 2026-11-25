@@ -27,6 +27,7 @@ public class MboGuiHandler implements IGuiHandler {
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
         MboGuiType gui = MboGuiType.byId(id);
         if (gui == null) return null;
+        if (gui == MboGuiType.WARDROBE) return new ru.givler.mbo.container.ContainerWardrobe(player);
         TileEntity tile = world.getTileEntity(x, y, z);
         switch (gui) {
             case DESCRIPTION_WORKBENCH:
@@ -63,6 +64,7 @@ public class MboGuiHandler implements IGuiHandler {
     public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
         MboGuiType gui = MboGuiType.byId(id);
         if (gui == null) return null;
+        if (gui == MboGuiType.WARDROBE) return new GuiWardrobe(player);
         TileEntity tile = world.getTileEntity(x, y, z);
         switch (gui) {
             case DESCRIPTION_WORKBENCH:

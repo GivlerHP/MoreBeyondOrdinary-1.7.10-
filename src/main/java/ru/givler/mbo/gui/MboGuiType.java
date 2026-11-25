@@ -11,7 +11,8 @@ public enum MboGuiType {
     LOCK_CONFIG(7),
     MOVING_PLATFORM(8),
     PLATFORM_STATION(9),
-    DESCRIPTION_WORKBENCH(10);
+    DESCRIPTION_WORKBENCH(10),
+    WARDROBE(11);
 
     public final int id;
 

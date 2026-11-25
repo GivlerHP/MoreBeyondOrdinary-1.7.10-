@@ -104,6 +104,7 @@ public class ItemRegistry {
 
     @Mod.EventHandler
     public static void preLoad(FMLPreInitializationEvent event) {
+        GameRegistry.registerItem(ru.givler.mbo.item.skin.ItemSkinTemplate.INSTANCE, "skin_template");
         registerEffectArrows();
         registerFaunaItems();
         CopperIngot = new ItemBase("CopperIngot", "copper/copper_ingot", 64);

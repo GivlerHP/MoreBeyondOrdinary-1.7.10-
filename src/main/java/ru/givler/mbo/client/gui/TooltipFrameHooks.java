@@ -156,7 +156,8 @@ public final class TooltipFrameHooks {
 
     private static boolean drawSkinTooltip(GuiScreen screen, ItemStack stack, int mouseX, int mouseY) {
         if (!isSkinKeyDown()) return false;
-        EquipmentSkinDefinition skin = EquipmentSkinData.resolve(stack);
+        EquipmentSkinDefinition skin = ru.givler.mbo.item.skin.ItemSkinTemplate.skin(stack);
+        if (skin == null) skin = EquipmentSkinData.resolve(stack);
         WeaponSkinRenderer renderer = WeaponSkinRenderer.INSTANCE;
         if (!renderer.available(skin)) return false;
 
