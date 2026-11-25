@@ -127,7 +127,7 @@ public final class WaterloggedSupportSmoke {
     require(opaqueSlab.getLightOpacity(world,0,100,0)==255,"Stone vertical slabs must use the source opacity");
     world.metadata.put(columnPos,4);
     require(opaqueSlab.getLightOpacity(world,0,100,0)==255,"A joined vertical slab must block light");
-    require(!opaqueSlab.getUseNeighborBrightness(),"A vertical slab must not relay light to adjoining faces");
+    require(opaqueSlab.getUseNeighborBrightness(),"Vertical slabs must render with vanilla neighbor brightness");
     world.cells.put(columnPos,column);
     for (int quarter=0;quarter<4;quarter++) {
       world.metadata.put(columnPos,quarter);
@@ -144,7 +144,7 @@ public final class WaterloggedSupportSmoke {
     ru.givler.mbo.block.BlockQuarterColumn cube=new ru.givler.mbo.block.BlockQuarterColumn(
         new ru.givler.mbo.block.BlockVerticalSlab(ROCK),true);
     world.cells.put(columnPos,cube);
-    require(!cube.getUseNeighborBrightness(),"A filled cube cell must not relay light to adjoining faces");
+    require(cube.getUseNeighborBrightness(),"Cube shapes must render with vanilla neighbor brightness");
     for (int meta=0;meta<8;meta++) {
       world.metadata.put(columnPos,meta);
       net.minecraft.util.AxisAlignedBB box=cube.getCollisionBoundingBoxFromPool(world,0,100,0);

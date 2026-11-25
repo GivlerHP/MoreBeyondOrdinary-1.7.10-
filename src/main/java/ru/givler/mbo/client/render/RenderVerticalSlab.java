@@ -23,8 +23,7 @@ public final class RenderVerticalSlab implements ISimpleBlockRenderingHandler {
         boolean cube = BlockQuarterColumn.isCube(block);
         int mask = cube ? BlockQuarterColumn.cubeMask(world, x, y, z) : BlockVerticalSlab.shapeMask(world, x, y, z);
         Tessellator tess = Tessellator.instance;
-        boolean blocksLight = block.getLightOpacity(world, x, y, z) > 0;
-        int brightness = blocksLight ? 0 : block.getMixedBrightnessForBlock(world, x, y, z);
+        int brightness = block.getMixedBrightnessForBlock(world, x, y, z);
         for (int side = 0; side < 6; side++) {
             ForgeDirection direction = ForgeDirection.getOrientation(side);
             int nx = x + direction.offsetX, ny = y + direction.offsetY, nz = z + direction.offsetZ;
@@ -53,9 +52,7 @@ public final class RenderVerticalSlab implements ISimpleBlockRenderingHandler {
                 double minY = (quarter >> 2) * .5, maxY = cube ? minY + .5 : 1;
                 double minX = (quarter & 1) * .5, minZ = (quarter >> 1 & 1) * .5;
                 renderer.setRenderBounds(minX, minY, minZ, minX + .5, maxY, minZ + .5);
-                // A recessed face of a light barrier still faces the air on this side.
-                // The barrier's own cell has no usable light value for that face.
-                tess.setBrightness(external || blocksLight ? externalBrightness : brightness);
+                tess.setBrightness(external ? externalBrightness : brightness);
                 tess.setColorOpaque_F(SHADE[side], SHADE[side], SHADE[side]);
                 face(renderer, block, x, y, z, side, icon);
             }

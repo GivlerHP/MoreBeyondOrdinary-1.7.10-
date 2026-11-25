@@ -42,6 +42,7 @@ public class BlockVerticalSlab extends Block {
         this.sourceMeta = sourceMeta;
         setStepSound(source.stepSound);
         setLightOpacity(source.getLightOpacity());
+        useNeighborBrightness = true;
         setCreativeTab(CreativeTabRegistry.tabMBOblocks);
         String tool = source.getHarvestTool(sourceMeta);
         int level = source.getHarvestLevel(sourceMeta);

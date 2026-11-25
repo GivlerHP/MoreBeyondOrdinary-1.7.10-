@@ -32,6 +32,7 @@ public final class BlockQuarterColumn extends BlockVerticalSlab {
         super(slab.source,slab.getSourceMetadata());
         this.cube = cube;
         setLightOpacity(0);
+        useNeighborBrightness = cube;
         copperState = slab instanceof BlockMetaVerticalSlab ? ((BlockMetaVerticalSlab)slab).getCopperState() : -1;
         setTickRandomly(copperState >= 0 && (copperState & 8) == 0 && (copperState & 3) < 3);
     }
