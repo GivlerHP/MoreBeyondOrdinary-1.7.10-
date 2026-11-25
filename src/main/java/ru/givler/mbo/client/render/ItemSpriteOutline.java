@@ -73,7 +73,7 @@ public final class ItemSpriteOutline {
     index.clear();
     Map<?, ?> uploaded = ReflectionHelper.getPrivateValue(TextureMap.class, atlas,
         "mapUploadedSprites", "field_94252_e");
-    Field rotated = ReflectionHelper.findField(TextureAtlasSprite.class, "rotated", "field_94202_e");
+    Field rotated = ReflectionHelper.findField(TextureAtlasSprite.class, "rotated", "field_130222_e");
     for (Object value : uploaded.values()) {
       if (!(value instanceof TextureAtlasSprite)) continue;
       TextureAtlasSprite sprite = (TextureAtlasSprite) value;
