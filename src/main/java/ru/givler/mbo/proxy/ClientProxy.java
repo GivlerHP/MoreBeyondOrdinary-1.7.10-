@@ -702,6 +702,9 @@ public class ClientProxy extends CommonProxy {
   @Override
   public void postInit(FMLPostInitializationEvent event) {
     super.postInit(event);
+    if (Loader.isModLoaded("minefantasy2")) {
+      ru.givler.mbo.integration.minefantasy2.client.KnowledgePageRegistryMBO.registerPages();
+    }
     ru.givler.mbo.client.lighting.GardenLanternLight.register();
     ru.givler.mbo.client.render.light.PortableLights.register();
     ModernFontSupport.install();

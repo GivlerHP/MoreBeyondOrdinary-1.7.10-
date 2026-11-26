@@ -3,7 +3,6 @@ package ru.givler.mbo.handler;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockWall;
@@ -15,6 +14,7 @@ import net.minecraftforge.event.world.BlockEvent;
 import ru.givler.mbo.block.BlockVerticalSlab;
 import ru.givler.mbo.block.BlockQuarterColumn;
 import ru.givler.mbo.data.world.FenceConnectionData;
+import ru.givler.mbo.integration.minefantasy2.MineFantasyTools;
 import ru.givler.mbo.network.packet.PacketFenceConnectionSnapshot;
 
 public final class BlockConnectionEvents {
@@ -24,7 +24,7 @@ public final class BlockConnectionEvents {
     Block block = event.world.getBlock(event.x, event.y, event.z);
     if (block instanceof BlockQuarterColumn) return;
     if (!(isFenceOrWall(block) || block instanceof BlockVerticalSlab)
-        || !isMineFantasySaw(event.entityPlayer.getCurrentEquippedItem())) return;
+        || !MineFantasyTools.isSaw(event.entityPlayer.getCurrentEquippedItem())) return;
     if (block instanceof BlockVerticalSlab) {
       int meta = event.world.getBlockMetadata(event.x, event.y, event.z);
       if (BlockVerticalSlab.isDouble(meta)) return;
@@ -94,14 +94,6 @@ public final class BlockConnectionEvents {
 
   private static boolean isFenceOrWall(Block block) {
     return block instanceof BlockFence || block instanceof BlockWall;
-  }
-
-  private static boolean isMineFantasySaw(ItemStack stack) {
-    if (stack == null) return false;
-    GameRegistry.UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(stack.getItem());
-    return id != null
-        && "minefantasy2".equalsIgnoreCase(id.modId)
-        && "standard_saw".equalsIgnoreCase(id.name);
   }
 
   private static int horizontalSide(int face, float hitX, float hitZ) {

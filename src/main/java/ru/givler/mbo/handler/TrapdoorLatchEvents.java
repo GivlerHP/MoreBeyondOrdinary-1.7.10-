@@ -2,7 +2,6 @@ package ru.givler.mbo.handler;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.item.ItemStack;
@@ -11,6 +10,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import ru.givler.mbo.data.world.TrapdoorLatchData;
 import ru.givler.mbo.client.state.ClientTrapdoorLatches;
+import ru.givler.mbo.integration.minefantasy2.MineFantasyTools;
 import ru.givler.mbo.network.packet.PacketTrapdoorLatchSnapshot;
 
 public final class TrapdoorLatchEvents {
@@ -19,7 +19,7 @@ public final class TrapdoorLatchEvents {
     if (event.action != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK
         || !(event.world.getBlock(event.x, event.y, event.z) instanceof BlockTrapDoor)) return;
     ItemStack held = event.entityPlayer.getCurrentEquippedItem();
-    boolean spanner = isMineFantasySpanner(held);
+    boolean spanner = MineFantasyTools.isSpanner(held);
     if (event.world.isRemote) {
       if (spanner) event.entityPlayer.swingItem();
       else if (!event.entityPlayer.isSneaking()
@@ -56,10 +56,4 @@ public final class TrapdoorLatchEvents {
     if (event.player instanceof EntityPlayerMP) PacketTrapdoorLatchSnapshot.send((EntityPlayerMP) event.player);
   }
 
-  private static boolean isMineFantasySpanner(ItemStack stack) {
-    if (stack == null) return false;
-    GameRegistry.UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(stack.getItem());
-    return id != null && "minefantasy2".equalsIgnoreCase(id.modId)
-        && "standard_spanner".equalsIgnoreCase(id.name);
-  }
 }

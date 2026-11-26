@@ -203,6 +203,9 @@ public class CommonProxy {
   }
 
   public void postInit(FMLPostInitializationEvent event) {
+    if (Loader.isModLoaded("minefantasy2")) {
+      ru.givler.mbo.integration.minefantasy2.knowledge.KnowledgeListMBO.init();
+    }
     if (Loader.isModLoaded("Thaumcraft")) invokeOptional(
         "ru.givler.mbo.integration.thaumcraft.ThaumcraftAspects", "register");
   }
