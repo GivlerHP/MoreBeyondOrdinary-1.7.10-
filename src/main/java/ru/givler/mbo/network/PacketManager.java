@@ -67,8 +67,11 @@ public class PacketManager {
   private static final int SILVER_MIRROR_VIEW_PACKET_ID = 121;
   private static final int WARDROBE_OPEN_PACKET_ID = 122;
   private static final int WARDROBE_VISUAL_PACKET_ID = 123;
+  private static final int DOLL_POSE_PACKET_ID = 124;
 
   public static void registerCommonPackets() {
+    INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketDollPose.Handler.class,
+        ru.givler.mbo.network.packet.PacketDollPose.class, DOLL_POSE_PACKET_ID, Side.SERVER);
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketWardrobe.OpenHandler.class,
         ru.givler.mbo.network.packet.PacketWardrobe.Open.class, WARDROBE_OPEN_PACKET_ID, Side.SERVER);
     INSTANCE.registerMessage(ru.givler.mbo.network.packet.PacketSilverMirrorView.Handler.class,

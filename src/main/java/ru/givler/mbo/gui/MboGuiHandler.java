@@ -30,6 +30,10 @@ public class MboGuiHandler implements IGuiHandler {
         if (gui == MboGuiType.WARDROBE) return new ru.givler.mbo.container.ContainerWardrobe(player);
         TileEntity tile = world.getTileEntity(x, y, z);
         switch (gui) {
+            case DOLL:
+                return tile instanceof TileDoll && ((TileDoll) tile).isUseableByPlayer(player)
+                    && ru.givler.mbo.block.BlockDoll.canEdit(player, world, x, y, z, 1)
+                    ? new ru.givler.mbo.container.ContainerDoll(player, (TileDoll) tile) : null;
             case DESCRIPTION_WORKBENCH:
                 return tile instanceof TileEntityDescriptionWorkbench && TileEntityDescriptionWorkbench.canEdit(player)
                         ? new ru.givler.mbo.container.ContainerDescriptionWorkbench(player.inventory, (TileEntityDescriptionWorkbench) tile) : null;
@@ -67,6 +71,8 @@ public class MboGuiHandler implements IGuiHandler {
         if (gui == MboGuiType.WARDROBE) return new GuiWardrobe(player);
         TileEntity tile = world.getTileEntity(x, y, z);
         switch (gui) {
+            case DOLL:
+                return tile instanceof TileDoll ? new GuiDoll(player, (TileDoll) tile) : null;
             case DESCRIPTION_WORKBENCH:
                 return tile instanceof TileEntityDescriptionWorkbench
                         ? new GuiDescriptionWorkbench(player.inventory, (TileEntityDescriptionWorkbench) tile) : null;

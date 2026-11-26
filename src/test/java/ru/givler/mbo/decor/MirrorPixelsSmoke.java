@@ -508,6 +508,17 @@ public final class MirrorPixelsSmoke {
                 "Duplicate stonecutter shape");
         }
         check(stoneShapes.size()==9,"Stone should list its shapes and both stone-brick shape families");
+        cpw.mods.fml.common.registry.GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileDoll.class, "test_mbo_doll");
+        ru.givler.mbo.tileentity.TileDoll doll=new ru.givler.mbo.tileentity.TileDoll();
+        for (int slot=0;slot<6;slot++) doll.setInventorySlotContents(slot,new net.minecraft.item.ItemStack(net.minecraft.init.Items.stick));
+        net.minecraft.nbt.NBTTagCompound dollTag=new net.minecraft.nbt.NBTTagCompound();
+        doll.writeToNBT(dollTag);
+        ru.givler.mbo.tileentity.TileDoll restoredDoll=new ru.givler.mbo.tileentity.TileDoll();
+        restoredDoll.readFromNBT(dollTag);
+        for (int slot=0;slot<6;slot++) {
+            check(restoredDoll.getStackInSlot(slot).getItem()==net.minecraft.init.Items.stick,
+                "Doll equipment lost in NBT, slot "+slot);
+        }
         low.delete();
         check(scene.calls>0,"No world blocks rendered");
         GL20.glUseProgram(0);OpenGlHelper.func_153171_g(36160,0);target.delete();output.delete();context.destroy();

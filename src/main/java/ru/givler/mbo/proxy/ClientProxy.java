@@ -380,6 +380,8 @@ public class ClientProxy extends CommonProxy {
     MinecraftForge.EVENT_BUS.register(new PlatformTechnicalRenderer());
     MinecraftForge.EVENT_BUS.register(new AreaSelectionRenderer());
     MinecraftForge.EVENT_BUS.register(ru.givler.mbo.client.render.MirrorRenderer.INSTANCE);
+    ClientRegistry.bindTileEntitySpecialRenderer(ru.givler.mbo.tileentity.TileDoll.class, new ru.givler.mbo.client.render.RenderDoll());
+    MinecraftForge.EVENT_BUS.register(new ru.givler.mbo.client.render.DollPlayer.Events());
     ClientRegistry.bindTileEntitySpecialRenderer(ru.givler.mbo.tileentity.TileMirror.class,
         new ru.givler.mbo.client.render.RenderWallMirror());
     MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ru.givler.mbo.registry.DecorBlockRegistry.ModelSilverMirror),

@@ -33,7 +33,34 @@ public final class EquipmentSkinSmoke {
         checkArmorModel();
         checkArmorHooks();
         checkWardrobe();
+        checkDollPose();
         System.out.println("Weapon and armor skin geometry, slots, Forge hooks and NBT verified.");
+    }
+
+    private static void checkDollPose() throws Exception {
+        ru.givler.mbo.tileentity.TileDoll doll = new ru.givler.mbo.tileentity.TileDoll();
+        doll.setProfile(new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(), "PoseTest"));
+        doll.setPose(6, -47);
+        doll.setPose(9, 400);
+        doll.setPose(19, 99);
+        ru.givler.mbo.tileentity.TileDoll restored = new ru.givler.mbo.tileentity.TileDoll();
+        restored.readAppearance(doll.appearance());
+        check(restored.getSizeInventory() == 6 && restored.pose(6) == -47 && restored.pose(9) == 180
+                && restored.pose(19) == 10 && restored.profile().equals(doll.profile()),
+            "Doll lost its saved profile, limb pose or bounded offset");
+        restored.resetPose();
+        check(restored.pose(6) == 0 && restored.pose(19) == 0, "Doll reset left pose data behind");
+        String target = "net.minecraft.client.model.ModelBiped";
+        try (InputStream stream = EquipmentSkinSmoke.class.getResourceAsStream("/" + target.replace('.', '/') + ".class")) {
+            byte[] original = org.apache.commons.io.IOUtils.toByteArray(stream);
+            byte[] patched = new ru.givler.mbo.core.DollPoseTransformer().transform(target, target, original);
+            check(patched != original, "Doll pose hook was not installed");
+            ClassNode node = new ClassNode();
+            new ClassReader(patched).accept(node, 0);
+            for (MethodNode method : node.methods) {
+                if (method.name.equals("setRotationAngles")) new Analyzer<>(new BasicVerifier()).analyze(node.name, method);
+            }
+        }
     }
 
     private static void checkArmorHooks() throws Exception {

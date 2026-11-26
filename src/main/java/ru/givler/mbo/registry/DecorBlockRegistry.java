@@ -1260,6 +1260,8 @@ public class DecorBlockRegistry {
     @Mod.EventHandler
     public static void init(FMLInitializationEvent event){
         cpw.mods.fml.common.registry.GameRegistry.registerBlock(ModelMirror, ru.givler.mbo.item.ItemBlockMirror.class, "ModelMirror");
+        cpw.mods.fml.common.registry.GameRegistry.registerBlock(new ru.givler.mbo.block.BlockDoll(), ru.givler.mbo.item.ItemBlockDoll.class, "doll");
+        cpw.mods.fml.common.registry.GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileDoll.class, "mbo_doll");
         cpw.mods.fml.common.registry.GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileMirror.class, "mbo_mirror");
         cpw.mods.fml.common.registry.GameRegistry.registerBlock(ModelSilverMirror, ru.givler.mbo.item.ItemBlockMirror.class, "ModelSilverMirror");
         cpw.mods.fml.common.registry.GameRegistry.registerTileEntity(ru.givler.mbo.tileentity.TileSilverMirror.class, "mbo_silver_mirror");

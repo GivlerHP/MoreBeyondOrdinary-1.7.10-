@@ -12,7 +12,8 @@ public enum MboGuiType {
     MOVING_PLATFORM(8),
     PLATFORM_STATION(9),
     DESCRIPTION_WORKBENCH(10),
-    WARDROBE(11);
+    WARDROBE(11),
+    DOLL(12);
 
     public final int id;
 
