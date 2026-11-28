@@ -22,6 +22,10 @@ public final class WaterloggedPaneChunkHooks {
         || !(block instanceof BlockPane) && GlassRain.needsPass(block));
   }
 
+  public static boolean filterAngelicaRenderPass(boolean original,Block block,int pass,RenderBlocks renderer,int x,int y,int z) {
+    return filterAngelicaPass(original,block,pass,renderer.blockAccess,x,y,z);
+  }
+
   public static boolean deferAngelicaBlock(Block block,IBlockAccess view) {
     // Water geometry consults collision/flow information in World. Keep it on the client thread.
     boolean wet=view instanceof WaterloggingRenderHooks.ClientView

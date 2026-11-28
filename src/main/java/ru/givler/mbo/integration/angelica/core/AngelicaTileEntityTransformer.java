@@ -33,38 +33,60 @@ public final class AngelicaTileEntityTransformer implements IClassTransformer,Op
 
   private static void isolateDeferred(ClassNode node) {
     MethodNode original=null;
-    for(MethodNode m:node.methods)if(m.name.equals("completeDeferred")) {
-      if(original!=null)throw new IllegalStateException("Ambiguous Angelica completeDeferred");
+    for(MethodNode m:node.methods)if((m.name.equals("completeDeferred") || m.name.equals("captureDeferred"))) {
+      if(original!=null)throw new IllegalStateException("Ambiguous Angelica deferred capture");
       original=m;
     }
-    if(original==null)throw new IllegalStateException("Angelica completeDeferred missing");
+    if(original==null)throw new IllegalStateException("Angelica deferred capture missing");
     Type[] args=Type.getArgumentTypes(original.desc);
     Type result=Type.getReturnType(original.desc);
-    if(args.length!=2 || args[0].getSort()!=Type.OBJECT || args[1].getSort()!=Type.OBJECT || result.getSort()!=Type.OBJECT)
-      throw new IllegalStateException("Unexpected Angelica completeDeferred descriptor: "+original.desc);
+    if(args.length<1 || args.length>2 || java.util.Arrays.stream(args).anyMatch(arg->arg.getSort()!=Type.OBJECT) || result.getSort()!=Type.OBJECT)
+      throw new IllegalStateException("Unexpected Angelica deferred capture descriptor: "+original.desc);
     MethodNode wrapper=new MethodNode(original.access,original.name,original.desc,original.signature,
         original.exceptions.toArray(new String[original.exceptions.size()]));
-    original.name="mbo$completeDeferredIsolated";
+    original.name="mbo$"+original.name+"Isolated";
     original.access=(original.access & ~(ACC_PUBLIC|ACC_PROTECTED)) | ACC_PRIVATE;
     String scope="ru/givler/mbo/integration/angelica/client/render/AngelicaDeferredTessellator";
+    String worldPass="com/gtnewhorizons/angelica/rendering/celeritas/threading/RenderPassHelper";
+    String forgeHooks="net/minecraftforge/client/ForgeHooksClient";
+    int terrainPass=args.length+1, tilePass=terrainPass+1, owned=tilePass+1, value=owned+1;
+    Object[] locals=new Object[owned+1];
+    locals[0]=node.name;
+    for(int i=0;i<args.length;i++)locals[i+1]=args[i].getInternalName();
+    locals[terrainPass]=locals[tilePass]=locals[owned]=INTEGER;
     wrapper.visitCode();
+    wrapper.visitMethodInsn(INVOKESTATIC,worldPass,"getWorldRenderPass","()I",false);
+    wrapper.visitVarInsn(ISTORE,terrainPass);
+    wrapper.visitMethodInsn(INVOKESTATIC,"net/minecraftforge/client/MinecraftForgeClient","getRenderPass","()I",false);
+    wrapper.visitVarInsn(ISTORE,tilePass);
     wrapper.visitMethodInsn(INVOKESTATIC,scope,"begin","()Z",false);
-    wrapper.visitVarInsn(ISTORE,3);
+    wrapper.visitVarInsn(ISTORE,owned);
     Label start=new Label(),end=new Label(),handler=new Label();
     wrapper.visitLabel(start);
-    wrapper.visitVarInsn(ALOAD,0);wrapper.visitVarInsn(ALOAD,1);wrapper.visitVarInsn(ALOAD,2);
+    for(int i=0;i<=args.length;i++)wrapper.visitVarInsn(ALOAD,i);
     wrapper.visitMethodInsn(INVOKESPECIAL,node.name,original.name,original.desc,false);
-    wrapper.visitVarInsn(ASTORE,4);
+    wrapper.visitVarInsn(ASTORE,value);
     wrapper.visitLabel(end);
-    wrapper.visitVarInsn(ILOAD,3);wrapper.visitMethodInsn(INVOKESTATIC,scope,"end","(Z)V",false);
-    wrapper.visitVarInsn(ALOAD,4);wrapper.visitInsn(ARETURN);
+    restoreDeferredState(wrapper,worldPass,forgeHooks,scope,terrainPass,tilePass,owned);
+    wrapper.visitVarInsn(ALOAD,value);wrapper.visitInsn(ARETURN);
     wrapper.visitLabel(handler);
-    wrapper.visitFrame(F_FULL,4,new Object[]{node.name,args[0].getInternalName(),args[1].getInternalName(),INTEGER},1,new Object[]{"java/lang/Throwable"});
-    wrapper.visitVarInsn(ASTORE,4);
-    wrapper.visitVarInsn(ILOAD,3);wrapper.visitMethodInsn(INVOKESTATIC,scope,"end","(Z)V",false);
-    wrapper.visitVarInsn(ALOAD,4);wrapper.visitInsn(ATHROW);
+    wrapper.visitFrame(F_FULL,locals.length,locals,1,new Object[]{"java/lang/Throwable"});
+    wrapper.visitVarInsn(ASTORE,value);
+    restoreDeferredState(wrapper,worldPass,forgeHooks,scope,terrainPass,tilePass,owned);
+    wrapper.visitVarInsn(ALOAD,value);wrapper.visitInsn(ATHROW);
     wrapper.visitTryCatchBlock(start,end,handler,null);
-    wrapper.visitMaxs(3,5);wrapper.visitEnd();
+    wrapper.visitMaxs(args.length+1,value+1);wrapper.visitEnd();
     node.methods.add(wrapper);
+  }
+
+  private static void restoreDeferredState(MethodNode wrapper,String worldPass,String forgeHooks,String scope,
+      int terrainPass,int tilePass,int owned) {
+    // Terrain meshing and third-party ISBRHs can change these independently.
+    wrapper.visitVarInsn(ILOAD,terrainPass);
+    wrapper.visitMethodInsn(INVOKESTATIC,worldPass,"setWorldRenderPass","(I)V",false);
+    wrapper.visitVarInsn(ILOAD,tilePass);
+    wrapper.visitMethodInsn(INVOKESTATIC,forgeHooks,"setRenderPass","(I)V",false);
+    wrapper.visitVarInsn(ILOAD,owned);
+    wrapper.visitMethodInsn(INVOKESTATIC,scope,"end","(Z)V",false);
   }
 }

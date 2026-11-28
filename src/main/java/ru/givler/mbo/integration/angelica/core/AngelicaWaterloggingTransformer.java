@@ -15,7 +15,7 @@ public final class AngelicaWaterloggingTransformer implements IClassTransformer,
     boolean slice=target.equals(ROOT+"world.WorldSlice"),task=target.equals(ROOT+"AngelicaChunkBuilderMeshingTask"),
         threaded=target.equals(ROOT+"threading.ThreadedAngelicaChunkBuilderMeshingTask");
     if(!slice && !task && !threaded)return bytes;
-    ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,0);
+    ClassNode node=new ClassNode();new ClassReader(bytes).accept(node,task?ClassReader.EXPAND_FRAMES:0);
     for(FieldNode f:node.fields)if(f.name.equals("mbo$waterChunkHook"))return bytes;
     if(slice)patchSlice(node);else if(task)patchTask(node);else patchThreaded(node);
     node.fields.add(new FieldNode(ACC_PRIVATE|ACC_STATIC|ACC_FINAL|ACC_SYNTHETIC,"mbo$waterChunkHook","Z",null,1));
@@ -62,6 +62,95 @@ public final class AngelicaWaterloggingTransformer implements IClassTransformer,
   }
 
   private static void patchTask(ClassNode node) {
+    for(MethodNode method:node.methods)if(method.name.equals("renderBlockPasses")) {
+      patchSplitTask(node);
+      return;
+    }
+    patchLegacyTask(node);
+  }
+
+  private static void patchSplitTask(ClassNode node) {
+    int gates=0,draws=0,callers=0;
+    for(MethodNode method:node.methods) {
+      if(method.name.equals("drawBlock")) {
+        // The worker and the deferred capture now share this method.
+        method.desc=method.desc.replace(")V","Z)V");
+        // Make room for the additional argument in the original method.
+        shiftDrawLocals(method);
+        for(AbstractInsnNode insn:method.instructions.toArray())if(insn instanceof MethodInsnNode) {
+          MethodInsnNode call=(MethodInsnNode)insn;
+          if(!isBlockDraw(call))continue;
+          InsnList args=new InsnList();
+          args.add(new VarInsnNode(ILOAD,5));args.add(new VarInsnNode(ILOAD,8));
+          method.instructions.insertBefore(call,args);
+          method.instructions.set(call,new MethodInsnNode(INVOKESTATIC,HOOK,"renderAngelica",
+              "(Lnet/minecraft/client/renderer/RenderBlocks;Lnet/minecraft/block/Block;IIIIZ)Z",false));
+          draws++;
+        }
+      }
+      boolean deferred=method.name.equals("captureDeferred") || method.name.equals("mbo$captureDeferredIsolated");
+      boolean worker=method.name.equals("renderBlockPasses");
+      if(!deferred && !worker && !method.name.equals("renderBlock"))continue;
+      int overrideLocal=16;
+      int[] drawLocals=null;
+      if(deferred) {
+        for(AbstractInsnNode insn:method.instructions.toArray())if(insn instanceof MethodInsnNode) {
+          MethodInsnNode call=(MethodInsnNode)insn;
+          if(call.name.equals("drawBlock"))drawLocals=loadsBefore(call,new int[]{ALOAD,ILOAD,ILOAD,ILOAD,ILOAD,ALOAD,ALOAD});
+          if(call.name.equals("isShaderPackOverride"))overrideLocal=loadsBefore(call,new int[]{ALOAD})[0];
+        }
+        if(drawLocals==null)continue;
+      }
+      for(AbstractInsnNode insn:method.instructions.toArray())if(insn instanceof MethodInsnNode) {
+        MethodInsnNode call=(MethodInsnNode)insn;
+        if(call.name.equals("drawBlock")) {
+          if(deferred) {
+            method.instructions.insertBefore(call,new VarInsnNode(ALOAD,overrideLocal));
+            method.instructions.insertBefore(call,new MethodInsnNode(INVOKEVIRTUAL,ROOT.replace('.','/')+"DeferredBlock",
+                "isShaderPackOverride","()Z",false));
+          } else method.instructions.insertBefore(call,new VarInsnNode(ILOAD,overrideLocal));
+          call.desc=call.desc.replace(")V","Z)V");callers++;
+        }
+        if((worker || deferred) && call.name.equals("canRenderInPass") && call.desc.equals("(I)Z")) {
+          int[] blockPass=loadsBefore(call,new int[]{ALOAD,ILOAD});
+          int renderer=deferred?drawLocals[6]:10;
+          InsnList args=new InsnList();
+          args.add(new VarInsnNode(ALOAD,blockPass[0]));args.add(new VarInsnNode(ILOAD,blockPass[1]));
+          args.add(new VarInsnNode(ALOAD,renderer));
+          args.add(new VarInsnNode(ILOAD,deferred?drawLocals[1]:3));
+          args.add(new VarInsnNode(ILOAD,deferred?drawLocals[2]:4));
+          args.add(new VarInsnNode(ILOAD,deferred?drawLocals[3]:5));
+          args.add(new MethodInsnNode(INVOKESTATIC,HOOK,"filterAngelicaRenderPass",
+              "(ZLnet/minecraft/block/Block;ILnet/minecraft/client/renderer/RenderBlocks;III)Z",false));
+          method.instructions.insert(call,args);gates++;
+        }
+      }
+    }
+    if(gates!=2 || draws!=1 || callers!=2)
+      throw new IllegalStateException("Angelica split water mesh anchors: "+gates+"/"+draws+"/"+callers);
+  }
+
+  private static boolean isBlockDraw(MethodInsnNode call) {
+    return call.name.equals("renderBlockByRenderType") || call.name.equals("func_147805_b");
+  }
+
+  private static void shiftDrawLocals(MethodNode method) {
+    // The class is read with expanded frames so the new boolean occupies slot 8 in every frame.
+    for(AbstractInsnNode insn:method.instructions.toArray()) {
+      if(insn instanceof VarInsnNode && ((VarInsnNode)insn).var>=8)((VarInsnNode)insn).var++;
+      if(insn instanceof FrameNode) {
+        FrameNode frame=(FrameNode)insn;
+        frame.local=new java.util.ArrayList<Object>(frame.local);
+        while(frame.local.size()<8)frame.local.add(TOP);
+        frame.local.add(8,INTEGER);
+      }
+    }
+    if(method.localVariables!=null)
+      for(LocalVariableNode local:method.localVariables)if(local.index>=8)local.index++;
+    method.maxLocals++;
+  }
+
+  private static void patchLegacyTask(ClassNode node) {
     int gates=0,renders=0;
     for(MethodNode m:node.methods) {
       if(m.name.equals("execute") && (m.access&ACC_BRIDGE)==0) {

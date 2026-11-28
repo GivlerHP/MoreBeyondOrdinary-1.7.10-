@@ -72,7 +72,6 @@ public final class AngelicaColoredLightOptions {
       if(valueType==Boolean.class)return Class.forName(ROOT+"control.TickBoxControl").getConstructor(optionType).newInstance(option);
       if(valueType==ItemSpriteSettings.Mode.class) {
         String[] labels={
-            I18n.format("mbo.light.itemOutline.all"),
             I18n.format("mbo.light.itemOutline.firstPerson"),
             I18n.format("mbo.light.itemOutline.off")
         };

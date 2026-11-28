@@ -4,7 +4,7 @@ import java.io.File;
 import net.minecraftforge.common.config.Configuration;
 
 public final class ItemSpriteSettings {
-  public enum Mode { ALL, FIRST_PERSON, OFF }
+  public enum Mode { FIRST_PERSON, OFF }
 
   private static Mode mode = Mode.FIRST_PERSON;
   private static Configuration config;
@@ -19,8 +19,10 @@ public final class ItemSpriteSettings {
         && !config.get("quality", "FirstPersonItemOutline", true).getBoolean(true)) {
       fallback = Mode.OFF;
     }
-    mode = Mode.valueOf(config.getString("ItemOutline", "quality", fallback.name(),
-        "Choose where to close seams in flat item sprites.", new String[]{"ALL", "FIRST_PERSON", "OFF"}));
+    String saved = config.getString("ItemOutline", "quality", fallback.name(),
+        "Choose where to close seams in flat item sprites.", new String[]{"FIRST_PERSON", "OFF"});
+    mode = "OFF".equals(saved) ? Mode.OFF : Mode.FIRST_PERSON;
+    config.get("quality", "ItemOutline", fallback.name()).set(mode.name());
     if (config.hasChanged()) config.save();
   }
 
@@ -30,6 +32,7 @@ public final class ItemSpriteSettings {
 
   public static void apply(Mode value) {
     mode = value;
+    if (value == Mode.OFF) ru.givler.mbo.client.render.ItemSpriteOutline.clearCache();
     config.get("quality", "ItemOutline", Mode.FIRST_PERSON.name()).set(value.name());
     config.save();
   }

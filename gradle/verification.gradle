@@ -92,8 +92,8 @@ task verifyUnifiedDynamicLights(type: JavaExec, dependsOn: testClasses) {
 task verifyAngelicaDynamicLights(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.core.AngelicaDynamicLightSmoke'
-    if (project.hasProperty('angelicaJar')) args project.property('angelicaJar')
-    else onlyIf { false }
+    args project.findProperty('angelicaJar') ?: angelicaDevJar.absolutePath
+    onlyIf { angelicaDevEnabled || project.hasProperty('angelicaJar') }
 }
 
 task verifyDynamicLightGeometry(type: JavaExec, dependsOn: testClasses) {
@@ -164,7 +164,7 @@ task verifyAngelicaDefaultCtm(type: JavaExec, dependsOn: testClasses) {
 task verifyPackFeatures(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.client.texture.PackFeaturesSmoke'
-    args 'run/resourcepacks/Cinnersis_v1.7.10.zip', '../MF2/libs/OptiFine_1.7.10_HD_U_E7.jar', '.angelica-dev/libs/angelica-2.2.33-dev.jar'
+    args 'run/resourcepacks/Cinnersis_v1.7.10.zip', '../MF2/libs/OptiFine_1.7.10_HD_U_E7.jar', angelicaDevJar.absolutePath
 }
 
 task verifyTextureInterpolation(type: JavaExec, dependsOn: testClasses) {
@@ -253,6 +253,7 @@ task verifyShelves(type: JavaExec, dependsOn: testClasses) {
 task verifyGuiScaleClipping(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     if (project.hasProperty('guiScaleAuditJar')) classpath += files(project.property('guiScaleAuditJar'))
+    args angelicaDevJar.absolutePath
     main = 'ru.givler.mbo.lighting.GuiScaleClippingSmoke'
 }
 
@@ -274,8 +275,8 @@ task verifyAuditRefactor(type: JavaExec, dependsOn: testClasses) {
 task verifyOpeningLayer(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.lighting.OpeningLayerSmoke'
-    if (project.hasProperty('angelicaJar')) args project.property('angelicaJar')
-    else onlyIf { false }
+    args project.findProperty('angelicaJar') ?: angelicaDevJar.absolutePath
+    onlyIf { angelicaDevEnabled || project.hasProperty('angelicaJar') }
 }
 
 task verifyInstalledMboAbi(type: JavaExec, dependsOn: testClasses) {

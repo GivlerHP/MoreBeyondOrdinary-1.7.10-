@@ -11,7 +11,14 @@ import ru.givler.mbo.integration.angelica.core.AngelicaGuiScaleTransformer;
 public final class GuiScaleClippingSmoke implements Opcodes {
   public static void main(String[] args)throws Exception {
     Field f=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);sun.misc.Unsafe unsafe=(sun.misc.Unsafe)f.get(null);
-    for(boolean fractional:new boolean[]{false,true}) {
+    boolean fractionalAvailable;
+    try {
+      Class.forName("com.github.basdxz.rightproperguiscale.mixin.interfaces.client.minecraft.IScaledResolutionMixin");
+      fractionalAvailable=true;
+    } catch(ClassNotFoundException absent) {
+      fractionalAvailable=false;
+    }
+    for(boolean fractional:fractionalAvailable?new boolean[]{false,true}:new boolean[]{false}) {
       String name="ScaleFixture"+(fractional?"Fractional":"Vanilla");
       ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);w.visit(V1_8,ACC_PUBLIC,name,null,"net/minecraft/client/gui/ScaledResolution",fractional?new String[]{"com/github/basdxz/rightproperguiscale/mixin/interfaces/client/minecraft/IScaledResolutionMixin"}:null);
       MethodVisitor m=w.visitMethod(ACC_PUBLIC,fractional?"scaleFactor":"getScaleFactor",fractional?"()F":"()I",null,null);m.visitCode();
@@ -20,7 +27,7 @@ public final class GuiScaleClippingSmoke implements Opcodes {
       double scale=AngelicaGuiScale.factor((ScaledResolution)unsafe.allocateInstance(c));
       if(Math.abs(scale-(fractional?1.35:3))>1e-6)throw new AssertionError("Wrong clipping scale "+scale);
     }
-    try(ZipFile jar=new ZipFile(".angelica-dev/libs/angelica-2.2.33-dev.jar")) {
+    try(ZipFile jar=new ZipFile(args[0])) {
       for(String name:new String[]{"me.flashyreese.mods.reeses_sodium_options.client.gui.frame.AbstractFrame"}) {
         java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();try(java.io.InputStream in=jar.getInputStream(jar.getEntry(name.replace('.','/')+".class"))){byte[] b=new byte[8192];for(int n;(n=in.read(b))>=0;)out.write(b,0,n);}
         byte[] original=out.toByteArray();AngelicaGuiScaleTransformer patch=new AngelicaGuiScaleTransformer();byte[] changed=patch.transform(name,name,original);
@@ -32,6 +39,6 @@ public final class GuiScaleClippingSmoke implements Opcodes {
         if(hooks==0)throw new AssertionError("Missing factor calls");
       }
     }
-    System.out.println("PASS fractional clipping 1.35, vanilla fallback 3, actual Angelica settings-frame bytecode and idempotency");
+    System.out.println("PASS vanilla fallback 3, actual Angelica settings-frame bytecode and idempotency" + (fractionalAvailable?", fractional clipping 1.35":""));
   }
 }

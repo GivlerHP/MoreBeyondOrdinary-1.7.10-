@@ -18,9 +18,6 @@ public final class ItemSpriteOutlineTransformer implements IClassTransformer, Op
   @Override
   public byte[] transform(String name, String transformedName, byte[] bytes) {
     if (bytes == null || Boolean.getBoolean("mbo.disableItemSpriteOutline")) return bytes;
-    if ("net.minecraft.client.renderer.texture.TextureAtlasSprite".equals(transformedName)) {
-      return captureStaticSprite(bytes);
-    }
     boolean vanilla = ITEM_RENDERER.equals(transformedName);
     boolean offhand = OFFHAND_RENDERER.equals(transformedName);
     boolean cache = ANGELICA_CACHE.equals(transformedName);
@@ -113,24 +110,5 @@ public final class ItemSpriteOutlineTransformer implements IClassTransformer, Op
     key.add(new MethodInsnNode(INVOKESTATIC, HOOK, "cacheThickness", "(F)F", false));
     key.add(new VarInsnNode(FSTORE, 6));
     method.instructions.insert(key);
-  }
-
-  private byte[] captureStaticSprite(byte[] bytes) {
-    ClassNode node = new ClassNode();
-    new ClassReader(bytes).accept(node, 0);
-    for (MethodNode method : node.methods) {
-      String mapped = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(node.name, method.name, method.desc);
-      if (!"()V".equals(method.desc) || !(method.name.equals("clearFramesTextureData")
-          || method.name.equals("func_130103_l") || mapped.equals("func_130103_l"))) continue;
-      InsnList hook = new InsnList();
-      hook.add(new VarInsnNode(ALOAD, 0));
-      hook.add(new MethodInsnNode(INVOKESTATIC, "ru/givler/mbo/client/render/ItemSpriteOutline",
-          "beforeClearFrames", "(Ljava/lang/Object;)V", false));
-      method.instructions.insert(hook);
-      ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-      node.accept(writer);
-      return writer.toByteArray();
-    }
-    return bytes;
   }
 }

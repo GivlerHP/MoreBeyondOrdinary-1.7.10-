@@ -4,11 +4,14 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.io.InputStream;
+import java.io.IOException;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -22,13 +25,12 @@ public final class ItemSpriteOutline {
   private static final double ATLAS_INSET = 0.01;
   // Cover rounding at the shared edge between the side quad and the textured plane.
   private static final float SIDE_DEPTH_OVERLAP = 0.0005F;
-  private static final Map<SpriteBounds, TextureAtlasSprite> BLOCK_SPRITES = new HashMap<>();
-  private static final Map<SpriteBounds, TextureAtlasSprite> ITEM_SPRITES = new HashMap<>();
-  private static final Map<TextureAtlasSprite, List<Edge>> OUTLINES =
-      Collections.synchronizedMap(new WeakHashMap<>());
+  private static TextureMap cachedAtlas;
+  private static SpriteBounds cachedBounds;
+  private static List<Edge> cachedOutline;
   private static TextureMap blockAtlas;
   private static TextureMap itemAtlas;
-  private static boolean reportedFirstDraw;
+  private static int cachedWidth, cachedHeight;
   private static int firstPersonDepth;
 
   public static void enterFirstPerson() {
@@ -41,51 +43,61 @@ public final class ItemSpriteOutline {
 
   private static boolean isEnabledForCurrentRender() {
     ItemSpriteSettings.Mode mode = ItemSpriteSettings.mode();
-    return mode == ItemSpriteSettings.Mode.ALL
-        || (mode == ItemSpriteSettings.Mode.FIRST_PERSON && firstPersonDepth > 0);
+    return firstPersonDepth > 0 && mode == ItemSpriteSettings.Mode.FIRST_PERSON;
   }
 
   public static float cacheThickness(float thickness) {
     return isEnabledForCurrentRender() && thickness > 0 ? -thickness : thickness;
   }
 
-  public static void beforeClearFrames(Object value) {
-    TextureAtlasSprite sprite = (TextureAtlasSprite) value;
-    if (sprite.getFrameCount() != 1) return;
-    List<Edge> outline = readOutline(sprite);
-    if (outline != null) OUTLINES.put(sprite, outline);
+  public static void clearCache() {
+    cachedOutline = null;
+    cachedBounds = null;
+    cachedAtlas = null;
   }
 
   @SubscribeEvent
   public void onTextureStitch(TextureStitchEvent.Post event) {
     if (Boolean.getBoolean("mbo.disableItemSpriteOutline")) return;
+    clearCache();
     TextureMap atlas = event.map;
     if (atlas.getTextureType() == 0) {
-      indexAtlas(atlas, BLOCK_SPRITES);
       blockAtlas = atlas;
     } else if (atlas.getTextureType() == 1) {
-      indexAtlas(atlas, ITEM_SPRITES);
       itemAtlas = atlas;
     }
   }
 
-  private static void indexAtlas(TextureMap atlas, Map<SpriteBounds, TextureAtlasSprite> index) {
-    index.clear();
+  private static List<Edge> findOutline(TextureMap atlas, SpriteBounds bounds, int width, int height) {
     Map<?, ?> uploaded = ReflectionHelper.getPrivateValue(TextureMap.class, atlas,
         "mapUploadedSprites", "field_94252_e");
     Field rotated = ReflectionHelper.findField(TextureAtlasSprite.class, "rotated", "field_130222_e");
     for (Object value : uploaded.values()) {
       if (!(value instanceof TextureAtlasSprite)) continue;
       TextureAtlasSprite sprite = (TextureAtlasSprite) value;
+      if (sprite.getMinU() != bounds.minU || sprite.getMaxU() != bounds.maxU
+          || sprite.getMinV() != bounds.minV || sprite.getMaxV() != bounds.maxV
+          || sprite.getIconWidth() != width || sprite.getIconHeight() != height) continue;
       try {
-        // Leave animated, rotated and custom atlas layouts on their existing rendering path.
-        if (rotated.getBoolean(sprite)
-            || (sprite.getFrameCount() != 1 && !OUTLINES.containsKey(sprite))) continue;
+        if (rotated.getBoolean(sprite) || sprite.hasAnimationMetadata()) return null;
       } catch (IllegalAccessException exception) {
-        throw new IllegalStateException("Could not read atlas sprite orientation", exception);
+        throw new IllegalStateException(exception);
       }
-      index.put(new SpriteBounds(sprite.getMinU(), sprite.getMaxU(), sprite.getMinV(), sprite.getMaxV()), sprite);
+      if (sprite.getFrameCount() == 1) return readOutline(sprite);
+      if (sprite.getFrameCount() != 0 || sprite.getClass() != TextureAtlasSprite.class) return null;
+      ResourceLocation name = new ResourceLocation(sprite.getIconName());
+      String folder = atlas == itemAtlas ? "items" : "blocks";
+      ResourceLocation resource = new ResourceLocation(name.getResourceDomain(),
+          "textures/" + folder + "/" + name.getResourcePath() + ".png");
+      try (InputStream input = Minecraft.getMinecraft().getResourceManager().getResource(resource).getInputStream()) {
+        BufferedImage image = ImageIO.read(input);
+        if (image == null || image.getWidth() != width || image.getHeight() != height) return null;
+        return buildOutline(image.getRGB(0, 0, width, height, null, 0, width), width, height);
+      } catch (IOException missing) {
+        return null;
+      }
     }
+    return null;
   }
 
   public static boolean drawSides(Object buffer, float leftU, float topV, float rightU,
@@ -96,20 +108,18 @@ public final class ItemSpriteOutline {
 
     SpriteBounds bounds = new SpriteBounds(Math.min(leftU, rightU), Math.max(leftU, rightU),
         Math.min(topV, bottomV), Math.max(topV, bottomV));
-    TextureAtlasSprite block = BLOCK_SPRITES.get(bounds);
-    TextureAtlasSprite item = ITEM_SPRITES.get(bounds);
-    if (block == null && item == null) return false;
     int boundTexture = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
-    TextureAtlasSprite sprite = null;
-    if (block != null && blockAtlas.getGlTextureId() == boundTexture) sprite = block;
-    if (item != null && itemAtlas.getGlTextureId() == boundTexture) sprite = item;
-    if (sprite == null || sprite.getIconWidth() != width || sprite.getIconHeight() != height) return false;
-
-    List<Edge> outline = OUTLINES.get(sprite);
-    if (outline == null && sprite.getFrameCount() == 1) {
-      outline = readOutline(sprite);
-      if (outline != null) OUTLINES.put(sprite, outline);
+    TextureMap atlas = itemAtlas != null && itemAtlas.getGlTextureId() == boundTexture ? itemAtlas
+        : blockAtlas != null && blockAtlas.getGlTextureId() == boundTexture ? blockAtlas : null;
+    if (atlas == null) return false;
+    if (cachedAtlas != atlas || !bounds.equals(cachedBounds) || cachedWidth != width || cachedHeight != height) {
+      cachedOutline = findOutline(atlas, bounds, width, height);
+      cachedAtlas = atlas;
+      cachedBounds = bounds;
+      cachedWidth = width;
+      cachedHeight = height;
     }
+    List<Edge> outline = cachedOutline;
     if (outline == null) return false;
 
     if (outline.isEmpty()) return true;
@@ -118,10 +128,6 @@ public final class ItemSpriteOutline {
     Tessellator mesh = (Tessellator) buffer;
     for (Edge edge : outline) {
       edge.draw(mesh, bounds, width, height, thickness, flipX, flipY);
-    }
-    if (!reportedFirstDraw) {
-      reportedFirstDraw = true;
-      System.out.println("[MBO] Drawing item sprite outline for " + sprite.getIconName());
     }
     return true;
   }

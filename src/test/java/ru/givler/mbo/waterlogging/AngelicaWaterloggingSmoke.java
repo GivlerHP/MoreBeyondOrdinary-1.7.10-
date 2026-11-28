@@ -101,17 +101,25 @@ public final class AngelicaWaterloggingSmoke {
       java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();byte[] part=new byte[8192];int count;
       while((count=in.read(part))!=-1)out.write(part,0,count);
       ru.givler.mbo.integration.angelica.core.AngelicaWaterloggingTransformer adapter=new ru.givler.mbo.integration.angelica.core.AngelicaWaterloggingTransformer();
-      byte[] changed=adapter.transform(name,name,out.toByteArray());
+      byte[] original=new ru.givler.mbo.integration.angelica.core.AngelicaTileEntityTransformer().transform(name,name,out.toByteArray());
+      byte[] changed=adapter.transform(name,name,original);
       if(!java.util.Arrays.equals(changed,adapter.transform(name,name,changed)))throw new AssertionError("Water adapter injected twice");
       org.objectweb.asm.tree.ClassNode node=new org.objectweb.asm.tree.ClassNode();new org.objectweb.asm.ClassReader(changed).accept(node,0);
-      int calls=0;
+      int calls=0, passFilters=0, terrainRestores=0, tileRestores=0;
       for(org.objectweb.asm.tree.MethodNode method:node.methods) {
         new org.objectweb.asm.tree.analysis.Analyzer<org.objectweb.asm.tree.analysis.BasicValue>(new org.objectweb.asm.tree.analysis.BasicVerifier()).analyze(node.name,method);
         for(org.objectweb.asm.tree.AbstractInsnNode i:method.instructions.toArray())if(i instanceof org.objectweb.asm.tree.MethodInsnNode) {
           org.objectweb.asm.tree.MethodInsnNode call=(org.objectweb.asm.tree.MethodInsnNode)i;
+          if(method.name.equals("captureDeferred")) {
+            if(call.owner.endsWith("/RenderPassHelper") && call.name.equals("setWorldRenderPass"))terrainRestores++;
+            if(call.owner.equals("net/minecraftforge/client/ForgeHooksClient") && call.name.equals("setRenderPass"))tileRestores++;
+          }
           if(call.owner.endsWith("WaterloggedPaneChunkHooks") && call.name.equals("renderAngelica"))calls++;
+          if(call.owner.endsWith("WaterloggedPaneChunkHooks") && call.name.equals("filterAngelicaRenderPass"))passFilters++;
         }
       }
+      if(terrainRestores!=2 || tileRestores!=2)throw new AssertionError("Deferred capture must restore both passes on return and failure");
+      if(passFilters!=2)throw new AssertionError("Expected worker and deferred water pass filters");
       if(calls!=1)throw new AssertionError("Actual Angelica must invoke the shared water renderer exactly once");
       System.out.println("Actual Angelica all-shape water: shared chunk renderer linked once, bytecode and idempotence passed");
     }catch(Exception error){throw new AssertionError(error);}
