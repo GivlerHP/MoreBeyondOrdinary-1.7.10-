@@ -121,6 +121,12 @@ task verifyUndeadVariants(type: JavaExec, dependsOn: testClasses) {
     main = 'ru.givler.mbo.entity.ai.UndeadVariantsSmoke'
 }
 
+task verifyGlassWeather(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'ru.givler.mbo.client.render.GlassWeatherSmoke'
+}
+check.dependsOn verifyGlassWeather
+
 task verifyAngelicaOptions(type: JavaExec, dependsOn: testClasses) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'ru.givler.mbo.lighting.AngelicaOptionsSmoke'

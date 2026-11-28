@@ -240,6 +240,7 @@ public class ClientProxy extends CommonProxy {
   public void preInit(FMLPreInitializationEvent event) {
     ru.givler.mbo.client.settings.ItemSpriteSettings.load(event.getModConfigurationDirectory());
     ru.givler.mbo.client.settings.MirrorSettings.load(event.getModConfigurationDirectory());
+    ru.givler.mbo.client.render.GlassRain.load(event.getModConfigurationDirectory());
     super.preInit(event);
     PlayerPingConfig.load(event.getModConfigurationDirectory());
     ru.givler.mbo.config.ColoredLightConfig.load(event.getModConfigurationDirectory());
@@ -369,9 +370,7 @@ public class ClientProxy extends CommonProxy {
     MinecraftForge.EVENT_BUS.register(new SignGuiEvents());
     MinecraftForge.EVENT_BUS.register(new DungeonAreaWorldRenderer());
     MinecraftForge.EVENT_BUS.register(new WaterloggedBlockRenderer());
-    ru.givler.mbo.client.render.GlassRain glassRain = new ru.givler.mbo.client.render.GlassRain();
-    MinecraftForge.EVENT_BUS.register(glassRain);
-    FMLCommonHandler.instance().bus().register(glassRain);
+    ru.givler.mbo.client.render.GlassRain.registerIfEnabled();
     ru.givler.mbo.client.settings.WindowSettingsMenu windowSettings = new ru.givler.mbo.client.settings.WindowSettingsMenu();
     MinecraftForge.EVENT_BUS.register(windowSettings);
     FMLCommonHandler.instance().bus().register(windowSettings);

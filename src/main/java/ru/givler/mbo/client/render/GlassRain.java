@@ -1,9 +1,13 @@
 package ru.givler.mbo.client.render;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import java.awt.image.BufferedImage;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,12 +25,13 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import org.lwjgl.opengl.GL11;
+import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.world.ChunkEvent;
-import cpw.mods.fml.common.FMLLog;
+import org.lwjgl.opengl.GL11;
 import ru.givler.mbo.client.texture.WeatherAtlasFilm;
 import ru.givler.mbo.registry.BlockRegistry;
 
@@ -34,13 +39,15 @@ public final class GlassRain {
   private static final double OFFSET = 1.0 / 1024;
   private static final int[] DX = {0, 0, -1, 1};
   private static final int[] DZ = {-1, 1, 0, 0};
-  private static final boolean ENABLED = !Boolean.getBoolean("mbo.disableGlassRain");
+  private static final boolean ALLOWED = !Boolean.getBoolean("mbo.disableGlassRain");
+  private static volatile boolean enabled = ALLOWED;
+  private static Configuration config;
   private static final int EXPOSURE_REACH = 4;
   private static final int PANE_EFFECT_DISTANCE = 48;
-  private static final Map<ChunkCoordinates, Set<ChunkCoordinates>> ANGELICA_PANES =
+  private static volatile Map<ChunkCoordinates, Set<ChunkCoordinates>> ANGELICA_PANES =
       new ConcurrentHashMap<>();
-  private static final Set<ChunkCoordinates> SECTIONS = ConcurrentHashMap.newKeySet();
-  private static final Set<ChunkCoordinates> QUEUED = ConcurrentHashMap.newKeySet();
+  private static volatile Set<ChunkCoordinates> SECTIONS = ConcurrentHashMap.newKeySet();
+  private static volatile Set<ChunkCoordinates> QUEUED = ConcurrentHashMap.newKeySet();
   private static final ConcurrentLinkedQueue<ChunkCoordinates> REFRESH = new ConcurrentLinkedQueue<>();
   private static final int LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8;
   private static final IIcon[] FROST = new IIcon[16], FOG = new IIcon[16];
@@ -59,16 +66,93 @@ public final class GlassRain {
   private static final WeatherAtlasFilm[] frostFilm = new WeatherAtlasFilm[16];
   private static final WeatherAtlasFilm[] fogFilm = new WeatherAtlasFilm[16];
   private static WeatherAtlasFilm rainTopFilm, dustFilm;
-  private static boolean atlasReady;
+  private static volatile boolean atlasReady;
   private static volatile World world;
   private World observedWorld;
   private final GlassRainWorldAccess observer = new GlassRainWorldAccess(this);
+  private boolean registered;
   private boolean refreshing;
   private int ticks;
   private float rainOpacity, frostLevel, fogLevel, dustLevel, snowLedgeLevel, snowflakeLevel;
 
+  private static final GlassRain INSTANCE = new GlassRain();
+
+  private GlassRain() {}
+
+  public static void load(File directory) {
+    config = new Configuration(new File(directory, "MoreBeyondOrdinary/glass-weather.cfg"));
+    config.load();
+    enabled = config.getBoolean("enabled", "GlassWeather", true, "Enable weather effects on glass.") && ALLOWED;
+    if (config.hasChanged()) config.save();
+  }
+
+  public static boolean isEnabled() { return enabled; }
+
+  public static void apply(boolean value) {
+    value &= ALLOWED;
+    if (enabled == value) return;
+    Minecraft client = Minecraft.getMinecraft();
+    synchronized (INSTANCE) {
+      enabled = value;
+      if (!value) INSTANCE.stop();
+      else if (client != null) INSTANCE.register();
+    }
+    if (config != null) {
+      config.get("GlassWeather", "enabled", true).set(value);
+      config.save();
+    }
+    if (client == null) return;
+    // Minecraft reloads the atlas and rebuilds terrain meshes in the same operation.
+    client.refreshResources();
+  }
+
+  public static void registerIfEnabled() {
+    if (enabled) INSTANCE.register();
+  }
+
+  private synchronized void register() {
+    if (registered) return;
+    MinecraftForge.EVENT_BUS.register(this);
+    FMLCommonHandler.instance().bus().register(this);
+    registered = true;
+  }
+
+  private void stop() {
+    if (registered) {
+      MinecraftForge.EVENT_BUS.unregister(this);
+      FMLCommonHandler.instance().bus().unregister(this);
+      registered = false;
+    }
+    if (observedWorld != null) observedWorld.removeWorldAccess(observer);
+    observedWorld = null;
+    reset(null);
+    resetWeather();
+    releaseFilms();
+  }
+
+  private void releaseFilms() {
+    atlasReady = false;
+    Arrays.fill(FROST, null);
+    Arrays.fill(FOG, null);
+    Arrays.fill(SIDE_RAIN, null);
+    Arrays.fill(SNOW_LEDGES, null);
+    for (IIcon[] strip : SNOWFLAKES) Arrays.fill(strip, null);
+    for (WeatherAtlasFilm[] strip : snowflakeFilms) Arrays.fill(strip, null);
+    Arrays.fill(sideRainFilms, null);
+    Arrays.fill(snowLedgeFilms, null);
+    Arrays.fill(frostFilm, null);
+    Arrays.fill(fogFilm, null);
+    rainTop = dust = null;
+    rainTopFilm = dustFilm = null;
+  }
+
+  private void resetWeather() {
+    ticks = 0;
+    rainOpacity = frostLevel = fogLevel = dustLevel = snowLedgeLevel = snowflakeLevel = 0;
+  }
+
   public static boolean supports(Block block) {
-    return ENABLED && block != null && (block == Blocks.glass || block == Blocks.stained_glass
+    return enabled && block != null && (block == Blocks.glass || block == Blocks.stained_glass
         || block == Blocks.glass_pane || block == Blocks.stained_glass_pane
         || block == BlockRegistry.FramelessGlass || block == BlockRegistry.FramelessStainedGlass
         || block == BlockRegistry.FramelessTintedGlass);
@@ -79,9 +163,9 @@ public final class GlassRain {
   }
 
   @SubscribeEvent
-  public void stitch(TextureStitchEvent.Pre event) {
-    if (!ENABLED || event.map.getTextureType() != 0) return;
-    atlasReady = false;
+  public synchronized void stitch(TextureStitchEvent.Pre event) {
+    if (!enabled || event.map.getTextureType() != 0) return;
+    releaseFilms();
     for (int strip = 0; strip < SNOWFLAKES.length; strip++) {
       for (int row = 0; row < 4; row++) {
         SNOWFLAKES[strip][row] = event.map.registerIcon("weatherglass:snow16_" + strip + "_" + row);
@@ -102,8 +186,8 @@ public final class GlassRain {
   }
 
   @SubscribeEvent
-  public void stitched(TextureStitchEvent.Post event) {
-    if (!ENABLED || event.map.getTextureType() != 0 || SIDE_RAIN[0] == null) return;
+  public synchronized void stitched(TextureStitchEvent.Post event) {
+    if (!enabled || event.map.getTextureType() != 0 || SIDE_RAIN[0] == null) return;
     try {
       verifyAtlasSlots(event.map);
       int mipmaps = WeatherAtlasFilm.mipmapLevels(event.map);
@@ -129,9 +213,11 @@ public final class GlassRain {
             new int[width * width], WeatherAtlasFilm.pixels("condensation/" + mask, width)
         });
       }
-      // The atlas finished loading before the first client tick uploads a film.
+      GL11.glBindTexture(GL11.GL_TEXTURE_2D, event.map.getGlTextureId());
+      updateFilms(true);
       atlasReady = true;
     } catch (IOException failure) {
+      releaseFilms();
       FMLLog.warning("MBO could not load weather glass keyframes: %s", failure.getMessage());
     }
   }
@@ -270,37 +356,30 @@ public final class GlassRain {
 
   @SubscribeEvent
   public void tick(TickEvent.ClientTickEvent event) {
-    if (!ENABLED || event.phase != TickEvent.Phase.END) return;
+    if (!enabled || event.phase != TickEvent.Phase.END) return;
     World current = Minecraft.getMinecraft().theWorld;
     if (observedWorld != current) {
       if (observedWorld != null) observedWorld.removeWorldAccess(observer);
       observedWorld = current;
       if (current != null) current.addWorldAccess(observer);
       reset(current);
-      rainOpacity = fogLevel = dustLevel = 0;
-      boolean wet = current != null && current.getRainStrength(1) > .05F;
-      frostLevel = wet ? 1 : current != null && !current.isDaytime() ? .7F : .45F;
-      snowLedgeLevel = wet ? 1 : 0;
-      snowflakeLevel = 0;
+      resetWeather();
+      if (current != null && current.getRainStrength(1) > 0.05F) frostLevel = snowLedgeLevel = 1;
     }
     if (world == null || world.provider.hasNoSky) return;
     boolean precipitating = world.getRainStrength(1) > 0.05F;
-    boolean night = !world.isDaytime();
     rainOpacity = approach(rainOpacity, precipitating ? 1 : 0, precipitating ? .05F : 1F / 600);
-    boolean thunder = world.getWeightedThunderStrength(1) > 0.3F;
-    float frostTarget = precipitating ? 1 : night ? .7F : .45F;
-    frostLevel = approach(frostLevel, frostTarget, frostLevel < frostTarget ? 1F / 1800 : 1F / 3000);
-    fogLevel = approach(fogLevel, night || precipitating ? 1 : 0, 0.025F);
+    boolean thunder = precipitating && world.getWeightedThunderStrength(1) > 0.3F;
+    frostLevel = precipitationLevel(frostLevel, precipitating, 1F / 1800);
+    fogLevel = precipitationLevel(fogLevel, precipitating, .025F);
     dustLevel = approach(dustLevel, thunder ? 2 : precipitating ? 1 : 0,
         precipitating ? 0.005F : 2F / 3600);
-    snowLedgeLevel = approach(snowLedgeLevel, precipitating ? 1 : 0,
-        precipitating ? 1F / 1200 : 1F / 4800);
-    snowflakeLevel = approach(snowflakeLevel, precipitating ? 1 : 0,
-        precipitating ? 1F / 400 : 1F / 800);
+    snowLedgeLevel = precipitationLevel(snowLedgeLevel, precipitating, 1F / 1200);
+    snowflakeLevel = precipitationLevel(snowflakeLevel, precipitating, 1F / 400);
     ++ticks;
     if (atlasReady && !SECTIONS.isEmpty() && (ticks & 1) == 0) {
       WeatherAtlasFilm.bind();
-      updateFilms();
+      updateFilms(false);
     }
     for (int budget = 0; budget < 8; budget++) {
       ChunkCoordinates section = REFRESH.poll();
@@ -317,8 +396,8 @@ public final class GlassRain {
     }
   }
 
-  void changed(int x, int y, int z, int x2, int y2, int z2) {
-    if (refreshing || world == null || world.provider.hasNoSky) return;
+  synchronized void changed(int x, int y, int z, int x2, int y2, int z2) {
+    if (!enabled || refreshing || world == null || world.provider.hasNoSky) return;
     int minX = (x - EXPOSURE_REACH) & ~15, maxX = (x2 + EXPOSURE_REACH) & ~15;
     int minZ = (z - EXPOSURE_REACH) & ~15, maxZ = (z2 + EXPOSURE_REACH) & ~15;
     int maxY = (y2 + 1) & ~15;
@@ -337,14 +416,14 @@ public final class GlassRain {
 
   @SubscribeEvent
   public void chunkLoaded(ChunkEvent.Load event) {
-    if (event.world != world) return;
+    if (!enabled || event.world != world) return;
     int x = event.getChunk().xPosition << 4, z = event.getChunk().zPosition << 4;
     changed(x, 0, z, x + 15, 255, z + 15);
   }
 
   @SubscribeEvent
   public void chunkUnloaded(ChunkEvent.Unload event) {
-    if (event.world != world) return;
+    if (!enabled || event.world != world) return;
     int x = event.getChunk().xPosition << 4, z = event.getChunk().zPosition << 4;
     for (ChunkCoordinates section : SECTIONS) {
       if (section.posX == x && section.posZ == z) {
@@ -356,19 +435,23 @@ public final class GlassRain {
   }
 
   private static void enqueue(ChunkCoordinates section) {
-    if (QUEUED.add(section)) REFRESH.add(section);
+    if (enabled && QUEUED.add(section)) REFRESH.add(section);
   }
 
   private static float approach(float current, float target, float step) {
     return current < target ? Math.min(target, current + step) : Math.max(target, current - step);
   }
 
-  private void updateFilms() {
+  static float precipitationLevel(float current, boolean precipitating, float step) {
+    return precipitating ? approach(current, 1, step) : 0;
+  }
+
+  private void updateFilms(boolean initialize) {
     for (WeatherAtlasFilm film : sideRainFilms) {
       film.update(0, 1 + (ticks / 3) % (film.frameCount() - 1), rainOpacity);
     }
     rainTopFilm.update(0, 1 + (ticks / 3) % (rainTopFilm.frameCount() - 1), rainOpacity);
-    if (hasColdWindows) {
+    if (initialize || hasColdWindows) {
       for (WeatherAtlasFilm[] strip : snowflakeFilms) {
         for (WeatherAtlasFilm film : strip) film.update(0, 1, snowflakeLevel);
       }
@@ -388,29 +471,34 @@ public final class GlassRain {
     film.update(lower, lower + 1, position - lower);
   }
 
-  private static synchronized void reset(World current) {
+  private synchronized void reset(World current) {
     if (world == current) return;
     world = current;
-    SECTIONS.clear();
-    ANGELICA_PANES.clear();
+    SECTIONS = ConcurrentHashMap.newKeySet();
+    ANGELICA_PANES = new ConcurrentHashMap<>();
     REFRESH.clear();
-    QUEUED.clear();
+    QUEUED = ConcurrentHashMap.newKeySet();
     hasColdWindows = false;
   }
 
   static void trackAngelicaPane(Block block, int x, int y, int z) {
     if (!supports(block)) return;
-    World current = Minecraft.getMinecraft().theWorld;
-    if (current == null || current.provider.hasNoSky) return;
-    if (world != current) reset(current);
-    ChunkCoordinates section = new ChunkCoordinates(x & ~15, y & ~15, z & ~15);
-    SECTIONS.add(section);
-    ANGELICA_PANES.computeIfAbsent(section, unused -> ConcurrentHashMap.newKeySet())
-        .add(new ChunkCoordinates(x, y, z));
+    synchronized (INSTANCE) {
+      if (!enabled) return;
+      World current = Minecraft.getMinecraft().theWorld;
+      if (current == null || current.provider.hasNoSky) return;
+      if (world != current) INSTANCE.reset(current);
+      ChunkCoordinates section = new ChunkCoordinates(x & ~15, y & ~15, z & ~15);
+      SECTIONS.add(section);
+      ANGELICA_PANES.computeIfAbsent(section, unused -> ConcurrentHashMap.newKeySet())
+          .add(new ChunkCoordinates(x, y, z));
+    }
   }
 
   @SubscribeEvent
   public void renderAngelicaPanes(RenderWorldLastEvent event) {
+    if (!enabled || (rainOpacity == 0 && frostLevel == 0 && fogLevel == 0 && dustLevel == 0
+        && snowLedgeLevel == 0 && snowflakeLevel == 0)) return;
     Minecraft client = Minecraft.getMinecraft();
     EntityLivingBase camera = client.renderViewEntity;
     World current = world;
@@ -457,7 +545,8 @@ public final class GlassRain {
         int x = pos.posX, y = pos.posY, z = pos.posZ;
         BiomeGenBase climate = current.getBiomeGenForCoords(x, z);
         boolean cold = isColdWindow(climate, x, y, z);
-        if (cold || (climate.canSpawnLightningBolt() ? rainOpacity : dustLevel) > 0) {
+        if (cold ? frostLevel > 0 || fogLevel > 0 || snowLedgeLevel > 0 || snowflakeLevel > 0
+            : (climate.canSpawnLightningBolt() ? rainOpacity : dustLevel) > 0) {
           renderPane(renderer, (BlockPane) current.getBlock(x, y, z), x, y, z, climate, cold);
         }
       }
@@ -475,7 +564,11 @@ public final class GlassRain {
   }
 
   public static boolean render(RenderBlocks renderer, Block block, int x, int y, int z, int pass) {
-    if (!supports(block)) return false;
+    return supports(block) && INSTANCE.renderTracked(renderer, block, x, y, z, pass);
+  }
+
+  private synchronized boolean renderTracked(RenderBlocks renderer, Block block, int x, int y, int z, int pass) {
+    if (!enabled) return false;
     World current = Minecraft.getMinecraft().theWorld;
     if (current == null) return false;
     if (world != current) reset(current);
@@ -560,15 +653,30 @@ public final class GlassRain {
   }
 
   private static boolean exposed(int x, int y, int z, int dx, int dz) {
-    // Test the adjacent column first, then a short outward path for slanted rain.
+    return exposed(world, x, y, z, dx, dz);
+  }
+
+  static boolean exposed(World current, int x, int y, int z, int dx, int dz) {
+    // Full blocks shelter a face. Partial blocks leave the visible part to the depth buffer.
     for (int step = 0; step < EXPOSURE_REACH; step++) {
       int sx = x + step * dx, sz = z + step * dz, sy = y + step;
-      if (sy >= world.getHeight() || !world.blockExists(sx, sy, sz)) return false;
-      if (world.getBlock(sx, sy, sz).getMaterial().blocksMovement()) return false;
-      if (world.getPrecipitationHeight(sx, sz) <= sy) return true;
-      if (step + 1 < EXPOSURE_REACH && world.getBlock(sx, sy + 1, sz).getMaterial().blocksMovement()) return false;
+      if (sy >= current.getHeight() || !current.blockExists(sx, sy, sz)) return false;
+      if (blocksWeather(current.getBlock(sx, sy, sz))) return false;
+      int roof = current.getPrecipitationHeight(sx, sz);
+      if (roof <= sy) return true;
+      if (roof <= sy + EXPOSURE_REACH) {
+        int height = sy + 1;
+        while (height < roof && !blocksWeather(current.getBlock(sx, height, sz))) height++;
+        if (height == roof) return true;
+      }
+      if (step + 1 < EXPOSURE_REACH && sy + 1 < current.getHeight()
+          && blocksWeather(current.getBlock(sx, sy + 1, sz))) return false;
     }
     return false;
+  }
+
+  private static boolean blocksWeather(Block block) {
+    return block.isOpaqueCube() || (block.getMaterial().blocksMovement() && block.renderAsNormalBlock());
   }
 
   private static int windowEdges(RenderBlocks renderer, Block block, int x, int y, int z, int face) {

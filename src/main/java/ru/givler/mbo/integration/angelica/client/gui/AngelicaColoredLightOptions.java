@@ -10,6 +10,7 @@ import ru.givler.mbo.config.ColoredLightConfig;
 import ru.givler.mbo.config.ParticleConfig;
 import ru.givler.mbo.client.lighting.ColoredLightClient;
 import ru.givler.mbo.client.lighting.ColoredEntityLightHooks;
+import ru.givler.mbo.client.render.GlassRain;
 import ru.givler.mbo.client.settings.ItemSpriteSettings;
 import ru.givler.mbo.client.settings.MirrorSettings;
 
@@ -28,6 +29,7 @@ public final class AngelicaColoredLightOptions {
       attachCubicParticles(pages);
       attachItemOutline(pages);
       attachMirrors(pages);
+      attachGlassWeather(pages);
       pages.add(createPage());
       pages.add(AngelicaCtmOptions.createPage());
       screen.getClass().getMethod("rebuildGUI").invoke(screen);
@@ -130,6 +132,11 @@ public final class AngelicaColoredLightOptions {
   public static void attachMirrors(List<Object> pages)throws ReflectiveOperationException {
     attachOption(pages,"mirrors","sodium.options.pages.quality",null,
         MirrorSettings.Mode.class,MirrorSettings.mode(),MirrorSettings::apply);
+  }
+
+  public static void attachGlassWeather(List<Object> pages)throws ReflectiveOperationException {
+    attachOption(pages,"glassWeather","sodium.options.pages.quality",null,
+        Boolean.class,GlassRain.isEnabled(),GlassRain::apply);
   }
 
   private static <T> void attachOption(List<Object> pages,String key,String pageKey,String anchorKey,

@@ -65,6 +65,24 @@ public final class AngelicaOptionsSmoke { public static final class ScaleValue {
       Class.forName(root+"storage.OptionStorage").getMethod("save").invoke(mirrorStorage);
       if(ru.givler.mbo.client.settings.MirrorSettings.mode()!=mode)throw new AssertionError("Mirror quality was not applied");
     }
+    AngelicaColoredLightOptions.attachGlassWeather(pages);
+    AngelicaColoredLightOptions.attachGlassWeather(pages);
+    quality=(List<?>)pages.get(1).getClass().getMethod("getOptions").invoke(pages.get(1));
+    if(quality.size()!=3)throw new AssertionError("Glass weather option missing or duplicated");
+    Object glassWeather=quality.get(2);
+    Class<?> weatherType=glassWeather.getClass();
+    if(!"mbo.light.glassWeather".equals(weatherType.getMethod("getName").invoke(glassWeather))
+        || !weatherType.getMethod("getControl").invoke(glassWeather).getClass().getSimpleName().equals("TickBoxControl"))
+      throw new AssertionError("Glass weather should use a native checkbox in Quality");
+    boolean weatherEnabled=ru.givler.mbo.client.render.GlassRain.isEnabled();
+    for(boolean desired:new boolean[]{false,weatherEnabled}) {
+      weatherType.getMethod("setValue",Object.class).invoke(glassWeather,desired);
+      weatherType.getMethod("applyChanges").invoke(glassWeather);
+      Object storage=weatherType.getMethod("getStorage").invoke(glassWeather);
+      Class.forName(root+"storage.OptionStorage").getMethod("save").invoke(storage);
+      if(ru.givler.mbo.client.render.GlassRain.isEnabled()!=desired)
+        throw new AssertionError("Glass weather setting was not applied");
+    }
     nameField.set(particleLight,"mbo.light.particles");
     Object enabled=options.get(0);Class<?> type=enabled.getClass();
     boolean initial=ColoredLightConfig.enabled;
